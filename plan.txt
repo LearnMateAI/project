@@ -1,0 +1,39 @@
+E-Learning Platform for Self-Learning Using Large Language Models	
+
+An e-learning platform that transforms uploaded lecture materials into an interactive self-learning experience. 
+Students can upload course materials in PDF format, after which the system automatically extracts the content and uses one or more Large Language Models (LLMs) to generate educational resources that support independent learning. 	
+
+1. Select suitable LLMs, design and implement a pipeline to generate educational resources.
+2. Develop a web application that meets the identified functional and non-functional requirements to demonstrate the workflow.
+3. The developed system should perform with reasonable accuracy and operational performance.
+4. Documentation covering each stage of the implementation project.
+
+----------------------------------------------------------------------------------------------------------
+
+Title : E-Learning Platform for Self-Learning Using Large Language Models
+
+
+Introduction :
+
+Proposed Solution (Briefly):
+
+1.Any Subject - only possible types of supporting resources for that subject will be generated.
+2.PDF Document Processing Pipeline to be implemented.(Architecture needs to be decided, LLM Usage needs to be decided.)
+3.Resource generation - Several types such as Lecture summaries, Concept explanations, Flashcards, Multiple-choice questions, Short-answer questions, Practice exercises, AI-based question answering chat
+4.Web Application with React Frontend, Python FASTAPI backend, MongoDB nosql database.
+
+web application will be developed with features such as:
+
+User authentication and User login/Dashboard
+PDF upload and management
+Generated learning resources accessing through dashboard (all resources types can be accessed seperately)
+Progress tracking Dashboard page
+Hosting and Deployment, Monitoring
+
+Datasets:
+PDF of educational materials
+
+
+Similar Projects:
+
+

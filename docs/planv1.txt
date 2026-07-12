@@ -119,12 +119,12 @@ Learning Resource Engine + Chat Engine
                      ▼                                                ▼
           Learning Resource Generation by LLM                    Embedding Generation
                      │                                                │
-         ┌───────────┼───────────────┐                               │
+         ┌───────────┼───────────────┐                               
          │           │               │                               │
-         ▼           ▼               ▼                               ▼
+         ▼           ▼               ▼   and more                   ▼
      Summaries   practice.qsn       MCQs                    Vector Database (FAISS)
          │           │               │                               │
-         └───────────┴───────────────┘                               │
+         └───────────┴───────────────┘                               
                      │                                               │
                      ▼                                               ▼
             Store Generated Resources                       RAG Chat Pipeline
@@ -147,6 +147,55 @@ Learning Resource Engine + Chat Engine
                                                                     │
                                                                     ▼
                                                              Contextual Answer
+
+
+
+
+how many LLMs? - multi-agent approach - 3 LLMs
+
+
+1. Embedding Generation
+-----------------------
+Objective:
+Fast, high-dimensional vectorization for FAISS.
+
+Recommended Models:
+API:
+- text-embedding-004 (Google)
+- text-embedding-3-small (OpenAI)
+
+Local:
+- bge-large-en-v1.5
+- all-MiniLM-L6-v2 (via HuggingFace)
+
+
+2. Resource Generation
+----------------------
+Objective:
+High reasoning capability, excellent JSON formatting (for parsing into MongoDB), and large context understanding.
+
+Recommended Models:
+API:
+- Gemini 1.5 Pro (excellent for large document reasoning)
+- GPT-4o
+
+Local:
+- Llama-3-70B (if hardware permits)
+
+
+3. RAG Chat Engine
+------------------
+Objective:
+Low latency, conversational tone, and strong instruction following.
+
+Recommended Models:
+API:
+- Gemini 1.5 Flash (extremely fast)
+- Claude 3.5 Haiku
+
+Local:
+- Llama-3-8B-Instruct
+- Mistral-7B
 
 
 

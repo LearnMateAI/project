@@ -18,7 +18,25 @@ source venv/Scripts/activate
 ```
 Once the virtual environment is working, you can see (venv) in the shell after executing any command.
 
-To stop running server/code:
+To install/update python libraries:
+
+```
+pip install -r requirements.txt
+```
+
+
+
+To deactivate virtual environment:
+```
+cd <your-path>/backend
+deactivate
+```
+
+
+
+
+
+To stop running server/any code:
 ```
 ctrl + C  (windows)
 ```

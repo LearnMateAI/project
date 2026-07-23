@@ -16,7 +16,7 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)),
 
 
 class QuestionGenerator:
-    def __init__(self, model_name="Qwen/Qwen2.5-72B-Instruct"):
+    def __init__(self, model_name="Qwen/Qwen2.5-7B-Instruct"):
         """
         Initialize the Question Generator with the specified model using Hugging Face API
         

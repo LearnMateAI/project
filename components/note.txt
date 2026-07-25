@@ -1,1 +1,7 @@
 C:\Users\DELL\.cache\huggingface\hub\models--bartowski--Qwen2.5-7B-Instruct-GGUF\snapshots\8911e8a47f92bac19d6f5c64a2e2095bd2f7d031\Qwen2.5-7B-Instruct-Q4_K_M.gguf
+
+huggingface_hub>=0.20.0
+python-dotenv>=1.0.0
+llama-cpp-python>=0.2.77
+sentence-transformers>=2.2.2
+qdrant-client>=1.12.0

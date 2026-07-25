@@ -1,27 +1,35 @@
-from pathlib import Path
-from pypdf import PdfReader
-from ingestion.document_models import Page
-from ingestion.text_cleaner import TextCleaner
+"""
+pdf_loader.py
 
-class PDFLoader:
-    """Loads a PDF and extracts text while preserving page numbers."""
+Loads a PDF file and extracts text page by page.
+"""
 
-    def __init__(self, pdf_path: str):
-        self.pdf_path = Path(pdf_path)
+import fitz  # PyMuPDF
 
-    def load(self) -> list[Page]:
-        if not self.pdf_path.exists():
-            raise FileNotFoundError(f"PDF not found: {self.pdf_path}")
 
-        reader = PdfReader(str(self.pdf_path))
-        pages = []
+def extract_pdf_text(pdf_path: str):
+    """
+    Extract text from a PDF page by page.
+    """
 
-        for i, page in enumerate(reader.pages):
-            text = page.extract_text()
-            if text:
-                # Clean text to remove artifacts and extra whitespace
-                clean_text = TextCleaner.clean(text)
-                if clean_text:
-                    pages.append(Page(page_number=i + 1, text=clean_text))
+    pages = []
 
-        return pages
+    try:
+        document = fitz.open(pdf_path)
+
+        for page_num in range(len(document)):
+            page = document.load_page(page_num)
+            text = page.get_text("text")
+
+            pages.append({
+                "page_number": page_num + 1,
+                "text": text.strip()
+            })
+
+        document.close()
+
+    except Exception as e:
+        print(f"Error loading PDF: {e}")
+        return []
+
+    return pages

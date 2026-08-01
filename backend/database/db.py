@@ -21,3 +21,6 @@ def check_connection():
     except Exception as e:
         print(f"[db.py] MongoDB connection failed: {e}")
         return False
+
+users_collection = db["users"]
+users_collection.create_index("email", unique=True)

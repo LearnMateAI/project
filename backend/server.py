@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
 from database.db import check_connection
+from api.routes import router as auth_router
 
 load_dotenv()
 
@@ -17,6 +18,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
+
+@app.get("/")
+def root():
+    return {
+        "message": "LearnMateAI Backend",
+        "health": "/api/health",
+    }
 
 @app.get("/api/health")
 def health_check():

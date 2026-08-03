@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useAuth } from "../src/context/useAuth.js";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/routes.jsx";
 
 function Login() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -18,8 +20,7 @@ function Login() {
     setLoading(true);
     try {
       const res = await loginUser(form);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      login(res.data.token, res.data.user);
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.detail || "Something went wrong. Please try again.");
@@ -70,6 +71,11 @@ function Login() {
         <p className="text-sm text-gray-600 mt-4 text-center">
           Don't have an account? <Link to="/register" className="text-blue-600">Register</Link>
         </p>
+
+        <div>
+          Email: alice@example.com
+          Password: alice@123
+        </div>
       </form>
     </div>
   );

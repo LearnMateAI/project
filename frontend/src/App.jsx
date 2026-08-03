@@ -2,7 +2,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
 import Dashboard from "../pages/dashboard.jsx";
+import ChatHome from "../pages/chat-home.jsx";
+import Analytics from "../pages/user-analytics.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
+import Layout from "./components/Layout.jsx";
+
 
 function App() {
   return (
@@ -14,7 +18,31 @@ function App() {
         path="/dashboard"
         element={
           <ProtectedRoute>
+              <Layout>
             <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <ChatHome />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Analytics />
+            </Layout>
           </ProtectedRoute>
         }
       />

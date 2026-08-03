@@ -1,0 +1,1 @@
+# Take input a generated summary and the source text and return a score from 1-100, along with input instruction to the model for regenerating the summary if the score is below a threshold.

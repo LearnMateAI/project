@@ -30,11 +30,20 @@ class LocalInferenceClient:
         self.model_path = model_path
         self.model = LocalInferenceClient._models[key]
 
-    def chat_completion(self, messages, max_tokens=512, temperature=0.3):
-        result = self.model.create_chat_completion(
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-        )
+    def chat_completion(self, messages, max_tokens=512, temperature=0.3, schema=None):
+        """
+        Passing `schema` compiles it into a llama.cpp grammar, so the reply is forced to be
+        JSON matching that shape. Generators that must return structured data use it; the
+        chat path leaves it None and gets ordinary prose.
+        """
+        kwargs = {
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+        if schema is not None:
+            kwargs["response_format"] = {"type": "json_object", "schema": schema}
+
+        result = self.model.create_chat_completion(**kwargs)
         content = result["choices"][0]["message"]["content"]
         return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=content))])

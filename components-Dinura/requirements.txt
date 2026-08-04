@@ -1,65 +1,37 @@
-huggingface_hub>=0.20.0
-python-dotenv>=1.0.0
-llama-cpp-python>=0.2.77
+# LearnMate dependencies. Versions are the ones this code was built and verified against;
+# loosen them if you need to, but the two marked below are the ones that actually matter.
 
-accelerate==1.14.0
-annotated-doc==0.0.4
-annotated-types==0.7.0
-anyio==4.14.2
-certifi==2026.6.17
-click==8.4.2
-colorama==0.4.6
-diskcache==5.6.3
-dotenv==0.9.9
-filelock==3.32.0
-fsspec==2026.6.0
-grpcio==1.82.1
-h11==0.16.0
-h2==4.3.0
-hf-xet==1.5.2
-hpack==4.2.0
-httpcore==1.0.9
-httpx==0.28.1
-hyperframe==6.1.0
-idna==3.18
-Jinja2==3.1.6
-joblib==1.5.3
-markdown-it-py==4.2.0
-MarkupSafe==3.0.3
-mdurl==0.1.2
-mpmath==1.3.0
-narwhals==2.24.0
-networkx==3.6.1
-numpy==2.5.1
-ollama==0.6.2
-packaging==26.2
-portalocker==3.2.0
-protobuf==7.35.1
-psutil==7.2.2
-pydantic==2.13.4
-pydantic_core==2.46.4
-Pygments==2.20.0
-pymupdf==1.28.0
-pypdf==6.14.2
-pywin32==312
-PyYAML==6.0.3
-qdrant-client==1.18.0
-regex==2026.7.19
-rich==15.0.0
-safetensors==0.8.0
-scikit-learn==1.9.0
-scipy==1.18.0
-sentence-transformers==5.6.1
-sentencepiece==0.2.2
-setuptools==83.0.0
-shellingham==1.5.4
-sympy==1.14.0
-threadpoolctl==3.6.0
-tokenizers==0.22.2
-torch==2.13.0
-tqdm==4.69.0
-transformers==5.14.1
-typer==0.27.0
-typing-inspection==0.4.2
-typing_extensions==4.16.0
-urllib3==2.7.0
+# --- Agent framework -----------------------------------------------------------------
+langchain>=1.3,<2
+langchain-core>=1.5,<2
+langchain-community>=0.4,<1
+langchain-text-splitters>=1.1,<2
+langgraph>=1.2,<2
+
+# --- Local inference -----------------------------------------------------------------
+# llama-cpp-python must be built with grammar support (any 0.2.77+ release is). Every
+# structured output in this project depends on JSON-schema-constrained decoding; without
+# it a 3B model returns prose where JSON was asked for about half the time.
+llama-cpp-python>=0.3,<0.4
+
+# --- Embeddings ----------------------------------------------------------------------
+sentence-transformers>=5.0,<6
+torch>=2.6
+transformers>=5.0
+
+# --- Storage -------------------------------------------------------------------------
+# dnspython is required for mongodb+srv:// Atlas URIs; pymongo does not pull it in.
+pymongo>=4.9,<5
+dnspython>=2.7
+
+# Keep this within one minor version of the qdrant/qdrant image tag in
+# docker-compose.yml -- the client refuses to talk to a server further away than that.
+qdrant-client>=1.15,<2
+
+# --- PDF handling --------------------------------------------------------------------
+pymupdf>=1.26
+
+# --- Support -------------------------------------------------------------------------
+numpy>=2.0
+python-dotenv>=1.0
+huggingface_hub>=0.20

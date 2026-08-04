@@ -1,0 +1,66 @@
+"""MongoDB-backed persistence: PDFs, chunk vectors, generated content and history."""
+
+from .content_store import (
+    clear_history,
+    evaluation_stats,
+    get_resource,
+    list_resources,
+    list_sessions,
+    load_history,
+    log_evaluation,
+    save_resource,
+    save_turn,
+    stage_counts,
+)
+from .mongo import StorageUnavailable, close, ensure_indexes, get_db, supports_vector_search
+from .pdf_store import (
+    delete_document,
+    export_pdf,
+    find_by_hash,
+    get_document,
+    get_pages,
+    get_pdf_bytes,
+    list_documents,
+    mark_ingested,
+    resolve_document,
+    store_pages,
+    store_pdf,
+)
+from .mongo_vectors import MongoVectorStore
+from .qdrant_vectors import QdrantUnavailable, QdrantVectorStore
+from .vectors import build_vector_store, get_vector_store, reset_vector_store
+
+__all__ = [
+    "MongoVectorStore",
+    "QdrantUnavailable",
+    "QdrantVectorStore",
+    "StorageUnavailable",
+    "build_vector_store",
+    "clear_history",
+    "close",
+    "delete_document",
+    "ensure_indexes",
+    "evaluation_stats",
+    "export_pdf",
+    "find_by_hash",
+    "get_db",
+    "get_document",
+    "get_pages",
+    "get_pdf_bytes",
+    "get_resource",
+    "get_vector_store",
+    "list_documents",
+    "list_resources",
+    "list_sessions",
+    "load_history",
+    "log_evaluation",
+    "mark_ingested",
+    "reset_vector_store",
+    "resolve_document",
+    "save_resource",
+    "save_turn",
+    "stage_counts",
+    "store_pages",
+    "store_pdf",
+    "supports_vector_search",
+]

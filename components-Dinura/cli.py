@@ -2,15 +2,19 @@
 LearnMate command line.
 
     python cli.py doctor                                   check models, MongoDB, config
-    python cli.py ingest data/raw_pdfs/constitution.pdf     store + index a PDF
+    python cli.py ingest constitution.pdf --session s1      store + index one PDF
+    python cli.py chat --session s1                        chat about that session's PDF
     python cli.py docs                                     list ingested documents
-    python cli.py chat --doc constitution                  chat about one document
-    python cli.py chat                                     chat over the whole corpus
-    python cli.py generate mcq --doc constitution --count 5
-    python cli.py generate summary --doc constitution --topic "fundamental rights"
-    python cli.py resources --doc constitution --task mcq  show what has been generated
+    python cli.py generate mcq --session s1 --count 5
+    python cli.py generate summary --session s1 --topic "fundamental rights"
+    python cli.py resources --task mcq                     show what has been generated
     python cli.py stats                                    evaluation score distribution
     python cli.py export <doc_id> ./out                    write a stored PDF back to disk
+
+A session is about exactly one PDF, up to LEARNMATE_MAX_PDF_MB (10 MB by default).
+Ingesting a second, different PDF into the same session is refused -- embedding a document
+is the expensive step, so a new PDF means a new session id. `ingest` prints the session to
+use when none is given. `--doc` overrides the session's PDF for one command.
 
 Run `python cli.py <command> --help` for the options of any one command.
 """
@@ -18,6 +22,7 @@ Run `python cli.py <command> --help` for the options of any one command.
 import argparse
 import json
 import sys
+import uuid
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -40,11 +45,27 @@ from learnmate.storage import (
 RULE = "=" * 68
 
 
-def _resolve_doc(reference, required=True):
-    """Turn a --doc value into a document record, with a useful error if it misses."""
+def _resolve_doc(reference, session=None, required=True):
+    """
+    Work out which document a command is about.
+
+    Three sources, most specific first:
+
+        --doc       an explicit id, filename or fragment
+        --session   the PDF that session was bound to at ingest time
+        neither     the most recently ingested PDF
+
+    The session path is the normal one: a session holds exactly one PDF, so `chat
+    --session s1` never has to be told which document it means.
+    """
     if not reference:
+        document = pdf_store.get_document(content_store.session_doc_id(session)) \
+            if session else None
+        document = document or pdf_store.get_active_document()
+        if document:
+            return document
         if required:
-            raise SystemExit("This command needs --doc. Run `python cli.py docs` to list them.")
+            raise SystemExit("No PDF ingested yet. Run: python cli.py ingest <file.pdf>")
         return None
 
     document = pdf_store.resolve_document(reference)
@@ -109,6 +130,8 @@ def cmd_doctor(args):
         print(f"  !!   {type(exc).__name__}: {exc}")
 
     print("\nSettings")
+    print(f"  upload limit        {config.MAX_PDF_MB:g} MB per PDF"
+          + ("  (one PDF per session)" if config.ONE_PDF_PER_SESSION else ""))
     print(f"  embeddings          {config.EMBEDDING_MODEL}")
     print(f"  chunk size/overlap  {config.CHUNK_SIZE}/{config.CHUNK_OVERLAP}")
     print(f"  relevance threshold {config.RELEVANCE_THRESHOLD}")
@@ -119,11 +142,16 @@ def cmd_doctor(args):
 
 
 def cmd_ingest(args):
-    for path in args.paths:
-        report = ingest_pdf(path, force=args.force)
-        document = report["document"]
-        print(f"    id={document['_id']}  pages={report['n_pages']}  "
-              f"chunks={report['n_chunks']}")
+    # A session is generated when none is given, so every ingest is bound to something
+    # and the one-PDF-per-session rule has an id to hold on to. It is printed below
+    # because the user needs it to chat about what they just ingested.
+    session = args.session or f"cli-{uuid.uuid4().hex[:12]}"
+
+    report = ingest_pdf(args.path, session_id=session, force=args.force)
+    document = report["document"]
+    print(f"    id={document['_id']}  pages={report['n_pages']}  "
+          f"chunks={report['n_chunks']}")
+    print(f"\n    chat about it with:  python cli.py chat --session {session}")
     return 0
 
 
@@ -142,7 +170,7 @@ def cmd_docs(args):
 
 
 def cmd_chat(args):
-    document = _resolve_doc(args.doc, required=False)
+    document = _resolve_doc(args.doc, session=args.session, required=False)
     doc_id = document["_id"] if document else None
 
     agent = ChatAgent(
@@ -205,7 +233,7 @@ def cmd_chat(args):
 
 
 def cmd_generate(args):
-    document = _resolve_doc(args.doc)
+    document = _resolve_doc(args.doc, session=args.session)
 
     source = build_source_text(document["_id"], topic=args.topic,
                                pages=args.pages, max_chars=args.max_source_chars)
@@ -327,10 +355,13 @@ def build_parser():
     doctor = subparsers.add_parser("doctor", help="check models, MongoDB and settings")
     doctor.set_defaults(func=cmd_doctor)
 
-    ingest = subparsers.add_parser("ingest", help="store and index one or more PDFs")
-    ingest.add_argument("paths", nargs="+", help="PDF files to ingest")
+    ingest = subparsers.add_parser(
+        "ingest", help=f"store and index one PDF (max {config.MAX_PDF_MB:g} MB)")
+    ingest.add_argument("path", help="the PDF to ingest")
+    ingest.add_argument("--session", help="bind the PDF to this session; "
+                                          "omit to start a new one")
     ingest.add_argument("--force", action="store_true",
-                        help="re-index even if the PDF is already stored")
+                        help="re-index even if this same PDF is already stored")
     ingest.set_defaults(func=cmd_ingest)
 
     docs = subparsers.add_parser("docs", help="list ingested documents")
@@ -338,8 +369,9 @@ def build_parser():
     docs.set_defaults(func=cmd_docs)
 
     chat = subparsers.add_parser("chat", help="ask questions about a document")
-    chat.add_argument("--doc", help="document id, filename, or fragment; omit for all")
-    chat.add_argument("--session", help="resume a session id")
+    chat.add_argument("--doc", help="document id, filename, or fragment; "
+                                    "omit to use the session's PDF")
+    chat.add_argument("--session", help="the session to resume; its PDF is the scope")
     chat.add_argument("--threshold", type=int, default=None)
     chat.add_argument("--no-eval", action="store_true",
                       help="skip evaluation and the retry loop (much faster)")
@@ -348,7 +380,9 @@ def build_parser():
 
     generate = subparsers.add_parser("generate", help="generate a study resource")
     generate.add_argument("task", choices=TASK_NAMES)
-    generate.add_argument("--doc", required=True, help="document id, filename, or fragment")
+    generate.add_argument("--doc", help="document id, filename, or fragment; "
+                                        "omit to use the session's PDF")
+    generate.add_argument("--session", help="generate from this session's PDF")
     generate.add_argument("--count", type=int, default=5,
                           help="items to produce (sentence budget for summary)")
     generate.add_argument("--topic", help="generate from the parts of the document most "

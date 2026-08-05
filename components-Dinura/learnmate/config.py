@@ -109,6 +109,8 @@ COLL_PAGES = "pages"
 COLL_RESOURCES = "resources"
 COLL_EVALUATIONS = "evaluations"
 COLL_CHAT_TURNS = "chat_turns"
+# One record per session, holding the PDF that session is bound to.
+COLL_SESSIONS = "sessions"
 GRIDFS_BUCKET = "pdfs"
 
 # Name of the Atlas vector index over chunks.embedding. Only consulted by the "mongodb"
@@ -140,6 +142,20 @@ QDRANT_TIMEOUT = _env_int("LEARNMATE_QDRANT_TIMEOUT", 30)
 # Points per upsert/scroll request. Large enough to keep ingestion off the round-trip
 # treadmill, small enough that one request stays well inside Qdrant's payload limit.
 QDRANT_BATCH_SIZE = _env_int("LEARNMATE_QDRANT_BATCH_SIZE", 128)
+
+# --- Uploads ---------------------------------------------------------------------------
+# One PDF per session. Embedding a document is the expensive part of this system -- a few
+# thousand chunks through a CPU embedding model -- so a session is bound to the first PDF
+# ingested into it and a second upload is refused rather than silently paying that cost
+# again. A new PDF means a new session id.
+# Set LEARNMATE_ONE_PDF_PER_SESSION=0 to lift the restriction.
+ONE_PDF_PER_SESSION = _env("LEARNMATE_ONE_PDF_PER_SESSION", "1").lower() not in (
+    "0", "false", "no", "off")
+
+# Largest PDF accepted, in MB. A 10 MB textbook is already a few thousand chunks and
+# several minutes of embedding on CPU; past that the ingest looks hung rather than slow.
+MAX_PDF_MB = _env_float("LEARNMATE_MAX_PDF_MB", 10.0)
+MAX_PDF_BYTES = int(MAX_PDF_MB * 1_048_576)
 
 # --- Retrieval and chunking ----------------------------------------------------------
 

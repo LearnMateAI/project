@@ -16,7 +16,7 @@ indexed lookup and fetching its bytes is a GridFS read by id.
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import gridfs
 from bson import ObjectId
@@ -40,15 +40,17 @@ def _coerce_id(doc_id: Union[str, ObjectId]) -> Optional[ObjectId]:
         return None
 
 
-def store_pdf(source: Union[str, Path, bytes], filename: str = None) -> Dict:
+def read_source(source: Union[str, Path, bytes], filename: str = None) -> Tuple[bytes, str]:
     """
-    Store a PDF and return its document record.
+    Read an upload into bytes and check it is one this system will accept.
 
-    `source` is a path or the raw bytes, so this serves both a CLI path argument and an
-    HTTP upload without the caller staging a temp file.
+    Split out of `store_pdf` so a caller can validate an upload -- and learn its size and
+    name -- before anything is written. The ingestion pipeline needs that to refuse a
+    second PDF for a session without first storing the file it is about to reject.
 
-    A PDF already present is returned untouched with `existing` set, letting the ingestion
-    pipeline skip re-embedding work that has already been done.
+    Every upload path goes through here, so the size limit holds for a CLI path argument
+    and an HTTP upload alike; a limit enforced at one of the callers is a limit the other
+    caller does not have.
     """
     if isinstance(source, (str, Path)):
         path = Path(source)
@@ -62,6 +64,27 @@ def store_pdf(source: Union[str, Path, bytes], filename: str = None) -> Dict:
 
     if not data:
         raise ValueError("Refusing to store an empty file.")
+
+    if len(data) > config.MAX_PDF_BYTES:
+        raise ValueError(
+            f"{filename} is {len(data) / 1_048_576:.1f} MB, over the "
+            f"{config.MAX_PDF_MB:g} MB upload limit."
+        )
+
+    return data, filename
+
+
+def store_pdf(source: Union[str, Path, bytes], filename: str = None) -> Dict:
+    """
+    Store a PDF and return its document record.
+
+    `source` is a path or the raw bytes, so this serves both a CLI path argument and an
+    HTTP upload without the caller staging a temp file.
+
+    A PDF already present is returned untouched with `existing` set, letting the ingestion
+    pipeline skip re-embedding work that has already been done.
+    """
+    data, filename = read_source(source, filename)
 
     digest = hashlib.sha256(data).hexdigest()
     documents = get_db()[config.COLL_DOCUMENTS]
@@ -168,6 +191,16 @@ def list_documents(limit: int = 50) -> List[Dict]:
                 .find()
                 .sort("uploaded_at", -1)
                 .limit(limit))
+
+
+def get_active_document() -> Optional[Dict]:
+    """
+    The most recently ingested PDF, or None if nothing is ingested.
+
+    The fallback for a command given neither a document nor a session. A session's own
+    PDF -- see content_store.session_doc_id -- always takes precedence over this.
+    """
+    return get_db()[config.COLL_DOCUMENTS].find_one(sort=[("uploaded_at", -1)])
 
 
 def store_pages(doc_id: Union[str, ObjectId], pages: List[Dict]) -> int:

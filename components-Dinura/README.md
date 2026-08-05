@@ -28,12 +28,12 @@ docker compose up -d qdrant
 # 3. check models, both databases and settings before anything slow runs
 python cli.py doctor
 
-# 3. store and index a PDF
-python cli.py ingest data/raw_pdfs/constitution.pdf
+# 3. store and index one PDF (max 10 MB), bound to a session
+python cli.py ingest data/raw_pdfs/constitution.pdf --session s1
 
 # 4. use it
-python cli.py chat --doc constitution
-python cli.py generate mcq --doc constitution --count 5 --topic "fundamental rights"
+python cli.py chat --session s1
+python cli.py generate mcq --session s1 --count 5 --topic "fundamental rights"
 python cli.py stats
 ```
 
@@ -182,19 +182,38 @@ Two things to keep in mind:
 
 ```
 python cli.py doctor                                    check models, MongoDB, settings
-python cli.py ingest <pdf> [<pdf> ...] [--force]        store + index PDFs
+python cli.py ingest <pdf> [--session ID] [--force]     store + index one PDF
 python cli.py docs                                      list ingested documents
-python cli.py chat [--doc X] [--session ID] [--no-eval] interactive chat
-python cli.py generate <task> --doc X [--count N]       generate a resource
-              [--topic "..."] [--pages 3-7] [--json] [--no-eval]
+python cli.py chat [--session ID] [--doc X] [--no-eval] interactive chat
+python cli.py generate <task> [--session ID] [--doc X]  generate a resource
+              [--count N] [--topic "..."] [--pages 3-7] [--json] [--no-eval]
 python cli.py resources [--doc X] [--task T] [--show]   list what has been generated
 python cli.py stats                                     score distribution per task
 python cli.py export <doc> <destination>                write a stored PDF back to disk
 python cli.py delete <doc>                              remove a document and its chunks
 ```
 
-`--doc` accepts an id, an exact filename, or a unique fragment (`--doc constitution`). A
-fragment matching several documents is rejected rather than guessed at.
+### One PDF per session
+
+A session is about exactly one PDF, no larger than `LEARNMATE_MAX_PDF_MB` (10 MB by
+default). Ingesting a second, different PDF into the same session is refused:
+
+```
+$ python cli.py ingest companylaw.pdf --session s1
+[!] Session 's1' is already about constitution.pdf. One PDF per session -- ingest
+    companylaw.pdf into a new session instead:
+        python cli.py ingest companylaw.pdf --session <new-session-id>
+```
+
+Embedding a document is the expensive step -- a few thousand chunks through a CPU
+embedding model -- so both limits are checked before any of that work starts, and a new
+PDF means a new session id. Re-ingesting a session's *own* PDF is still allowed, which is
+what makes `--force` re-indexing work. `ingest` prints a generated session id when none is
+given. Set `LEARNMATE_ONE_PDF_PER_SESSION=0` to lift the restriction.
+
+`--doc` overrides the session's PDF for one command, and accepts an id, an exact filename,
+or a unique fragment (`--doc constitution`). A fragment matching several documents is
+rejected rather than guessed at.
 
 ### Choosing what a resource is generated from
 

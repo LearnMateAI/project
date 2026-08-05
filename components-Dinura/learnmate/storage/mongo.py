@@ -85,6 +85,11 @@ def ensure_indexes(database: Database = None) -> None:
     database[config.COLL_CHAT_TURNS].create_index(
         [("session_id", ASCENDING), ("created_at", ASCENDING)])
 
+    # One record per session. Unique because the binding is what enforces one PDF per
+    # session -- two records for the same id would mean two answers to "which document
+    # is this session about".
+    database[config.COLL_SESSIONS].create_index([("session_id", ASCENDING)], unique=True)
+
     _INDEXES_READY = True
 
 

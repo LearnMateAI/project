@@ -11,8 +11,13 @@ titles matches almost any topical query.
 The separators below are ordered so a split falls at the largest boundary that fits:
 sentence ends first, then the numbered-clause markers that structure legal and academic
 prose -- "(2)", "(iii)" -- then clause punctuation, and only then whitespace.
+
+A session holds one PDF, up to config.MAX_PDF_MB. Everything above is the expensive part
+-- extraction, splitting and a few thousand embeddings on CPU -- so both limits are
+checked in `ingest_pdf` before any of it starts.
 """
 
+import hashlib
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -21,7 +26,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from .. import config
-from ..storage import pdf_store
+from ..storage import content_store, pdf_store
 from ..storage.vectors import get_vector_store
 from .clean import is_substantive, looks_like_contents, preprocess
 
@@ -98,8 +103,41 @@ def pages_to_documents(pages: List[Dict], doc_id, filename: str,
     return documents
 
 
+def _bind(session_id: str, doc_id, filename: str, digest: str, log) -> None:
+    """Record which PDF a session is about. A no-op when no session was given."""
+    if not session_id:
+        return
+    content_store.bind_session_document(session_id, doc_id, filename, digest)
+    log(f"[*] Session {session_id} -> {filename}")
+
+
+def _check_session_free(session_id: str, digest: str, filename: str) -> None:
+    """
+    Refuse a second PDF for a session that already has one.
+
+    Embedding a document is the expensive step here -- a few thousand chunks through a
+    CPU embedding model -- so this check runs before anything is stored or embedded,
+    rather than letting the work start and cleaning up afterwards.
+
+    Re-ingesting the *same* file is allowed: the bound hash is compared, not just the
+    presence of a binding, so `--force` can re-index a session's own PDF.
+    """
+    if not session_id or not config.ONE_PDF_PER_SESSION:
+        return
+
+    bound = content_store.get_session(session_id)
+    if not bound or bound.get("sha256") == digest:
+        return
+
+    raise ValueError(
+        f"Session {session_id!r} is already about {bound['filename']}. One PDF per "
+        f"session -- ingest {filename} into a new session instead:\n"
+        f"    python cli.py ingest {filename} --session <new-session-id>"
+    )
+
+
 def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
-               force: bool = False, verbose: bool = True) -> Dict:
+               session_id: str = None, force: bool = False, verbose: bool = True) -> Dict:
     """
     Store and index one PDF.
 
@@ -109,13 +147,24 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
     A PDF already ingested is skipped unless `force` is set: identity is the hash of the
     file's bytes, so re-uploading the same document under a new name costs nothing rather
     than re-embedding a few thousand chunks.
+
+    `session_id` binds the document to a chat session. A session holds one PDF: a second,
+    different PDF ingested into the same session is refused before any work is done.
     """
     def log(message):
         if verbose:
             print(message)
 
     started = time.time()
-    document = pdf_store.store_pdf(source, filename=filename)
+
+    # Read and validate before anything is written: this raises on an empty file, on one
+    # over the size limit, and on a session that already has a different PDF -- all of it
+    # while the session's existing document is still untouched.
+    data, filename = pdf_store.read_source(source, filename)
+    digest = hashlib.sha256(data).hexdigest()
+    _check_session_free(session_id, digest, filename)
+
+    document = pdf_store.store_pdf(data, filename=filename)
     doc_id = document["_id"]
 
     store = get_vector_store()
@@ -124,9 +173,13 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
     if document.get("existing") and already_indexed and not force:
         log(f"[=] Already ingested: {document['filename']} "
             f"({already_indexed} chunks). Use --force to re-index.")
+        # Still bind: a PDF ingested once under an old session is a legitimate PDF for a
+        # new one, and the chunks it needs already exist.
+        _bind(session_id, doc_id, document["filename"], digest, log)
         return {
             "document": document,
             "doc_id": str(doc_id),
+            "session_id": session_id,
             "skipped": True,
             "n_pages": document.get("n_pages"),
             "n_chunks": already_indexed,
@@ -165,12 +218,18 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
     store.add_documents(documents)
     pdf_store.mark_ingested(doc_id, len(pages), len(documents))
 
+    # Bound only now that the document is genuinely usable. Binding earlier would tie the
+    # session to a PDF that turned out to have no extractable text, and the user could
+    # not then ingest a working one without abandoning the session.
+    _bind(session_id, doc_id, document["filename"], digest, log)
+
     elapsed = round(time.time() - started, 2)
     log(f"[+] Ingested {document['filename']} in {elapsed}s")
 
     return {
         "document": pdf_store.get_document(doc_id),
         "doc_id": str(doc_id),
+        "session_id": session_id,
         "skipped": False,
         "n_pages": len(pages),
         "n_chunks": len(documents),

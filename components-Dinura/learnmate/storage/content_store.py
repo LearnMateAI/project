@@ -198,3 +198,47 @@ def list_sessions(limit: int = 20) -> List[Dict]:
         {"$limit": limit},
     ]
     return list(get_db()[config.COLL_CHAT_TURNS].aggregate(pipeline))
+
+
+# --- Session bindings ------------------------------------------------------------------
+# A session is bound to exactly one PDF. Embedding a document is the expensive step in
+# this system, so the binding is what lets a second upload be refused before any of that
+# work starts. See config.ONE_PDF_PER_SESSION.
+
+def get_session(session_id: str) -> Optional[Dict]:
+    """The session's binding record: {session_id, doc_id, filename, sha256, bound_at}."""
+    if not session_id:
+        return None
+    return get_db()[config.COLL_SESSIONS].find_one({"session_id": session_id})
+
+
+def session_doc_id(session_id: str):
+    """The document this session is about, or None if nothing is bound to it yet."""
+    return (get_session(session_id) or {}).get("doc_id")
+
+
+def bind_session_document(session_id: str, doc_id, filename: str, sha256: str) -> None:
+    """
+    Bind a session to the PDF it will be about.
+
+    The hash is stored alongside the id so re-ingesting the *same* file into the session
+    can be told apart from uploading a different one, without a second lookup.
+
+    Upsert rather than insert: re-ingesting the same PDF with --force must refresh the
+    record instead of colliding with it.
+    """
+    get_db()[config.COLL_SESSIONS].update_one(
+        {"session_id": session_id},
+        {"$set": {"session_id": session_id,
+                  "doc_id": _as_object_id(doc_id),
+                  "filename": filename,
+                  "sha256": sha256,
+                  "bound_at": datetime.now(timezone.utc)}},
+        upsert=True,
+    )
+
+
+def unbind_session(session_id: str) -> bool:
+    """Release a session's PDF, letting a different one be ingested into it."""
+    return get_db()[config.COLL_SESSIONS].delete_one(
+        {"session_id": session_id}).deleted_count > 0

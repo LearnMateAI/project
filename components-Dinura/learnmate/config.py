@@ -46,8 +46,10 @@ def _env_float(name: str, default: float) -> float:
 
 # --- Filesystem ----------------------------------------------------------------------
 
+# Where the GGUF model files live, and where a missing one is downloaded to.
+# (There is deliberately no DATA_DIR: PDFs are read from wherever the caller names and
+# then stored in MongoDB, so the project never has a directory it owns for them.)
 MODELS_DIR = Path(_env("LEARNMATE_MODELS_DIR", str(ROOT_DIR / "models")))
-DATA_DIR = Path(_env("LEARNMATE_DATA_DIR", str(ROOT_DIR / "data")))
 
 # --- Generator model -----------------------------------------------------------------
 # The model that writes chat replies and study resources.

@@ -1,5 +1,5 @@
 """
-LearnMate: a local, MongoDB-backed study assistant.
+LearnMate: a local study assistant over your own PDFs.
 
 Three agents over one corpus:
 
@@ -9,19 +9,35 @@ Three agents over one corpus:
                     document's text
     evaluator       grades what the other two produce and drives a single retry
 
-Both agents are LangGraph state machines over LangChain components. Everything persists
-to an external MongoDB: the PDFs themselves in GridFS, their chunk vectors, the generated
-resources and the evaluation log.
+Both agents are LangGraph state machines over LangChain components, and both run entirely
+on local models: Qwen2.5-3B generates, Llama-3.2-3B judges, MiniLM embeds.
+
+Two databases, each in its own container (`docker compose up -d`):
+
+    MongoDB (:27018)  the PDFs in GridFS, their cleaned page text, session bindings,
+                      chat history, generated resources and the evaluation log
+    Qdrant  (:6335)   the chunk embeddings
+
+The asymmetry is deliberate. Nothing in MongoDB can be derived from anything else, so
+losing it loses the corpus; the vectors are computed from that page text, so losing Qdrant
+only costs a re-ingest. That is why the vector backend is swappable
+(LEARNMATE_VECTOR_BACKEND=mongodb keeps everything in one service) and MongoDB is not.
+
+An upload belongs to a session, and a session is about exactly one PDF, opened either for
+chat or for resource generation.
 
 Typical use:
 
-    from learnmate import ChatAgent, generate_resource, ingest_pdf
+    from learnmate import ChatAgent, build_source_text, generate_resource, ingest_pdf
 
-    report = ingest_pdf("notes.pdf")
-    agent = ChatAgent(doc_id=report["doc_id"])
+    report = ingest_pdf("notes.pdf", session_id="s1", session_for="both")
+    doc_id = report["doc_id"]
+
+    agent = ChatAgent(session_id="s1", doc_id=doc_id)
     print(agent.ask("What are the directors' duties?")["reply"])
 
-    result = generate_resource("mcq", source_text, count=5, doc_id=report["doc_id"])
+    source = build_source_text(doc_id, topic="directors' duties")
+    result = generate_resource("mcq", source, count=5, doc_id=doc_id)
 """
 
 from . import config

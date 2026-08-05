@@ -347,8 +347,19 @@ components-Dinura/
 │   │   ├── verdict.py          gate 2: schema, parsing, fail-closed verdicts
 │   │   └── judge.py            gate 2: Judge.judge / judge_chat_reply
 │   ├── resource_agent/
-│   │   ├── tasks.py            the four resource types
-│   │   └── graph.py            LangGraph generate/check/retry loop
+│   │   ├── task.py             the Task contract every resource type implements
+│   │   ├── mcq.py              multiple-choice questions
+│   │   ├── practice_qsn.py     short-answer practice questions
+│   │   ├── keypoints.py        key points
+│   │   ├── summary.py          summaries
+│   │   ├── tasks.py            the registry of the four types
+│   │   ├── state.py            ResourceState, passed between nodes
+│   │   ├── generate.py         node 1  ask the generator (+ critique on retry)
+│   │   ├── check.py            node 2  both evaluation gates
+│   │   ├── routing.py                  the accept-or-retry branch
+│   │   ├── persist.py          node 3  store the resource + attempt trail
+│   │   ├── graph.py            the LangGraph wiring
+│   │   └── agent.py            generate_resource(), the public entry point
 │   └── chat_agent/
 │       ├── state.py            ChatState, the state passed between nodes
 │       ├── rewrite.py          node 1  resolve the follow-up question

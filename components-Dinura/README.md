@@ -1,420 +1,558 @@
-# LearnMate — components-Dinura
+# LearnMate
 
-A local study assistant over uploaded PDFs. Three agents share one MongoDB corpus:
+A study assistant that runs entirely on your own machine. You give it a PDF; it answers
+questions about that PDF, and generates study material from it — multiple-choice
+questions, short-answer practice questions, key points and summaries.
 
-| Agent | What it does |
-| --- | --- |
-| **chat_agent** | Answers questions about an ingested PDF, falling back to general knowledge when nothing relevant is retrieved |
-| **resource_agent** | Generates MCQs, short-answer practice questions, key points and summaries from a document |
-| **evaluator** | Grades what the other two produce and drives exactly one retry |
+Nothing is sent to an external API. Three local models do the work:
 
-Both agents are [LangGraph](https://langchain-ai.github.io/langgraph/) state machines built
-from LangChain components. Nothing is kept in a local cache directory: chunk vectors live
-in a **Qdrant server**, and the PDFs, page text, generated resources, evaluation verdicts
-and chat history live in **MongoDB**. Both are ordinary network services, so more than one
-process can use the corpus at once.
+| Model | Job | Size |
+|---|---|---|
+| Qwen2.5-3B-Instruct | writes chat replies and study resources | 2.0 GB |
+| Llama-3.2-3B-Instruct | grades what the generator wrote | 1.9 GB |
+| all-MiniLM-L6-v2 | turns text into vectors for retrieval | 90 MB |
+
+The generator and the judge are **deliberately different model families**. A judge sharing
+the generator's weights rates its own writing style highly, and the quality gate stops
+firing.
 
 ---
 
-## Quick start
+## Quickstart
 
 ```bash
-# 1. dependencies
-venv/Scripts/python -m pip install -r requirements.txt
+cd components-Dinura
 
-# 2. start both databases (MongoDB on 27018, Qdrant on 6335, each with a named volume)
+# 1. dependencies
+python -m venv venv
+venv\Scripts\pip install -r requirements.txt
+
+# 2. both databases, each in its own container with its own volume
 docker compose up -d
 
-# 3. check models, both databases and settings before anything slow runs
-python cli.py doctor
+# 3. check models, databases and settings before anything slow runs
+venv\Scripts\python cli.py doctor
 
-# 3. upload one PDF (max 10 MB) for a chat session, and chat about it
-python cli.py ingest data/raw_pdfs/constitution.pdf --session s1
-python cli.py chat --session s1
-
-# 4. upload the same PDF for a resource-generation session (nothing is re-embedded)
-python cli.py ingest data/raw_pdfs/constitution.pdf --session s2 --for resource
-python cli.py generate mcq --session s2 --count 5 --topic "fundamental rights"
-python cli.py stats
+# 4. either entry point:
+venv\Scripts\python cli.py ingest data\constitution.pdf --session s1   # one command at a time
+python learnmate\full_program.py                                       # guided walkthrough
 ```
 
-`cli.py doctor` is the first thing to run when something misbehaves. It reports whether
-each model file exists, whether MongoDB is reachable, which vector-search path is active,
-and what every threshold is currently set to.
+The two GGUF models download from Hugging Face on first use (~4 GB, once).
+
+**Two ways in**, and they suit different jobs:
+
+- **`cli.py`** — one verb per command, scriptable. This is the day-to-day interface, and
+  the only one with the maintenance verbs: `stats`, `export`, `delete`, `docs`.
+- **`learnmate/full_program.py`** — a guided menu that walks the whole workflow in one
+  session, plus `--demo` as a one-command smoke test. It finds the project's virtualenv by
+  itself, so plain `python` works without activating it.
+
+`cli.py doctor` is the first thing to run whenever something misbehaves — it reports which
+model files exist, whether each database is reachable, and what every threshold is set to.
+`full_program.py` runs the same check on startup, so a stopped container is reported in one
+line instead of surfacing minutes into an ingest.
+
+**Expect it to be slow.** Everything runs on CPU: a chat turn is 20–60 seconds and a
+graded resource 60–120 seconds. `--no-eval` skips the quality gate and roughly halves
+that.
 
 ---
 
-## How a turn works
+## The workflow
 
-### Chat
-
-```
-rewrite ─→ retrieve ─→ generate ─→ evaluate ─→ decide ─┬─→ persist ─→ END
-                          ↑                            │
-                          └────────── regenerate ──────┘
-```
-
-**`rewrite` runs before retrieval, not after.** A follow-up like *"what about his powers?"*
-embeds to nothing useful; resolved against the history into *"what are the President's
-powers?"* it retrieves correctly. Doing it in the other order retrieves on the pronoun.
-
-**Mode is decided by retrieval, not by asking the model.** If the top chunk scores at or
-above `RELEVANCE_THRESHOLD` the reply is written from those chunks and judged strictly
-against them — anything they do not support is a hallucination. Otherwise the reply comes
-from the model's own knowledge and is judged only on relevance, coherence and
-informativeness. Holding a general-knowledge answer to a "cite your sources" rubric would
-fail every time for no reason, so which rubric applies is decided by what was actually
-retrieved.
-
-The regenerated reply is returned **whether or not it clears the threshold** — a user
-mid-conversation needs an answer — and `accepted` reports whether it was reviewed clean.
-
-### Resource generation
+Everything starts with one PDF and one **session**.
 
 ```
-generate ─→ check ─→ decide ─┬─→ persist ─→ END
-    ↑                        │
-    └──── regenerate ────────┘
+                    ┌─────────────────────────────────────────┐
+   your PDF ───────►│  INGESTION                              │
+                    │  extract → clean → chunk → embed        │
+                    └───────────┬─────────────────────────────┘
+                                │
+                 ┌──────────────┴───────────────┐
+                 ▼                              ▼
+        ┌─────────────────┐            ┌─────────────────┐
+        │ MongoDB :27018  │            │ Qdrant :6335    │
+        │ the PDF itself  │            │ chunk vectors   │
+        │ page text       │            └────────┬────────┘
+        │ sessions        │                     │
+        │ chat history    │                     │
+        │ resources       │                     │
+        └────────┬────────┘                     │
+                 │                              │
+      ┌──────────┴──────────┐                   │
+      ▼                     ▼                   │
+┌───────────────┐   ┌─────────────────┐         │
+│ CHAT AGENT    │◄──┤ retrieval       │◄────────┘
+│ ask a question│   └─────────────────┘
+└───────┬───────┘
+        │            ┌─────────────────┐
+        ▼            │ RESOURCE AGENT  │
+   ┌─────────┐       │ mcq / summary / │
+   │EVALUATOR│◄──────┤ keypoints /     │
+   │ grades  │       │ practice_qsn    │
+   │ + retry │       └─────────────────┘
+   └─────────┘
 ```
 
-`check` runs two gates, cheapest first:
+### Step 1 — Ingest a PDF
 
-1. **Structural validators** (plain Python, microseconds) — four options, `correct_answer`
-   present among them, no duplicates, no *"all of the above"*, no position or length bias
-   across the set, non-empty summary.
-2. **LLM judge** (~25 s) — answerability, correctness, distractor quality, coverage.
+You give a file path. The system then:
 
-Most bad generations fail mechanically, so the judge is only ever spent on content that is
-already well-formed. The whole attempt trail is stored, not just the winner: a resource
-that needed a retry, and what the judge objected to the first time, is the data that says
-whether the threshold is set anywhere near right.
+1. **Validates** it — not empty, not over 10 MB, and this session doesn't already hold a
+   different PDF. All three checks happen **before** anything is written, because
+   embedding is the expensive part and a rejected upload must not cost you the PDF you
+   already had working.
+2. **Stores the file whole** in MongoDB (GridFS), identified by the SHA-256 of its bytes.
+   Upload the same PDF twice under different names and it is recognised as one document —
+   no re-embedding.
+3. **Extracts and cleans** each page: removes running heads and footers (any short line
+   appearing on more than half the pages), deletes standalone page numbers, rejoins words
+   hyphenated across a line break, and flattens line breaks — because a line break in a
+   PDF reflects the column, not the sentence.
+4. **Splits** the cleaned pages into ~900-character overlapping chunks.
+5. **Embeds** the chunks and stores the vectors in Qdrant.
+6. **Stores the whole page text too**, separately from the chunks.
+7. **Binds the session** to the document — but only now, once the document has proved
+   usable.
 
-**The retry budget is one regeneration.** Raising it is not just slower — a 3B judge tends
-to oscillate rather than converge, and the third attempt is usually a worse first attempt.
+### Step 2a — Chat
+
+One question is one pass through a five-node state machine:
+
+```
+rewrite ──► retrieve ──► generate ──► evaluate ──► decide ─┬─► persist ─► END
+                            ▲                              │
+                            └────────── regenerate ────────┘
+```
+
+- **rewrite** turns a follow-up into a standalone question. *"What about its national
+  flag?"* becomes *"What is the national flag of the Republic of Sri Lanka?"*. This runs
+  **before** retrieval — searching on the pronoun would already have failed.
+- **retrieve** searches the vectors and **decides the mode from the score**, not by asking
+  the model. Top score ≥ 0.25 → **PDF mode** (answer strictly from the retrieved chunks).
+  Below → **general mode** (answer from the model's own knowledge).
+- **generate** writes the reply using whichever system prompt the mode calls for.
+- **evaluate** hands it to the judge. In PDF mode the judge is given the chunks and
+  anything beyond them counts as a hallucination; in general mode it can only grade
+  relevance, coherence and informativeness.
+- **decide** accepts, or sends it back once with the judge's fix instruction.
+- **persist** saves the turn, so the next question has history to resolve against.
+
+### Step 2b — Generate study resources
+
+```
+generate ──► check ──► decide ─┬─► persist ─► END
+    ▲                          │
+    └───────── regenerate ─────┘
+```
+
+First the system picks **which part of the PDF to use**. A whole book doesn't fit in a 4k
+context window, so:
+
+- give it a **topic** → the pages whose text best matches it
+- give it **page numbers** → exactly those pages
+- give it **neither** → the opening of the document
+
+The unit is always a **whole page**, never the retrieved chunks. Chunks overlap by ~150
+characters, so joining them repeats text at every boundary and starts mid-sentence — a
+generator handed that writes questions about the fragments.
+
+Then `check` runs **two gates, cheapest first**:
+
+1. **Structural validators** — plain Python, microseconds. Four options per question? Is
+   the correct answer actually one of them? Duplicate options? Is the answer always in
+   slot B, or always the longest? An empty summary?
+2. **The LLM judge** — ~25 seconds, and only ever spent on content that is already
+   well-formed.
+
+If either rejects, the fix instruction goes back into the next prompt along with the
+rejected attempt, so the model *revises* rather than starting over.
 
 ---
 
-## Storage
+## What's in `components-Dinura/`
 
-Two services, split by what they are good at. Both are reachable over the network, so any
-process that can reach them sees the same corpus.
-
-### Qdrant — the vectors
-
-A **server**, started with `docker compose up -d qdrant`, never the embedded mode.
-`QdrantClient(path=...)` runs Qdrant inside the calling process and takes an exclusive
-lock on a local directory, which means one process at a time and nothing else on the
-network can read it — that is what the previous implementation did, and why a second
-script could not run while the chat agent was open. `qdrant_vectors.py` only ever
-constructs the client with a URL.
-
-Everything happens server-side: an HNSW index, and filtering by `doc_id` through a keyword
-payload index, so neither the vectors nor the payloads are dragged across the wire to be
-scored here.
-
-Point ids are `uuid5(doc_id:page_number:chunk_index)` — deterministic, so re-ingesting a
-document overwrites its points in place instead of appending a second copy.
-
-### MongoDB — everything else
-
-| Collection | Holds |
-| --- | --- |
-| `documents` | One record per PDF: filename, SHA-256, page/chunk counts, GridFS pointer |
-| `pdfs.files` / `pdfs.chunks` | The PDF bytes themselves, in GridFS |
-| `pages` | Cleaned full text of each page, keyed by `(doc_id, page_number)` |
-| `resources` | Generated content, the accepted flag, the score, and every attempt |
-| `evaluations` | One row per verdict, tagged with which gate decided it |
-| `chat_turns` | Chat history, keyed by `session_id` |
-
-**A PDF's identity is the hash of its bytes, not its filename.** Re-uploading the same
-document under a new name is recognised as one document, so the embedding work is not
-repeated and every stored resource keeps pointing at a stable document.
-
-### Swapping the vector backend
-
-`LEARNMATE_VECTOR_BACKEND=mongodb` moves the vectors into MongoDB instead — a `chunks`
-collection using Atlas `$vectorSearch` where it exists, and exact NumPy cosine where it
-does not. It is there so the system can run without a second service; Qdrant is the better
-choice whenever it is available.
-
-Both backends return **raw cosine in [-1, 1]**, so `RELEVANCE_THRESHOLD` means one thing
-either way. (Atlas reports cosine remapped to [0, 1] and is converted back, or the
-threshold would silently mean two different things.) Verified: the same query returns
-identical scores — 0.6830 / 0.6810 / 0.6805 — on both.
-
-Switching backends does **not** migrate existing vectors. Re-run
-`python cli.py ingest <pdf> --force`; the PDFs and page text are in MongoDB and are
-untouched by this.
+| Path | What it is |
+|---|---|
+| `learnmate/` | the library — all the logic lives here |
+| `cli.py` | command line: `ingest`, `chat`, `generate`, `docs`, `resources`, `stats`, `export`, `delete`, `doctor` |
+| `learnmate/full_program.py` | guided end-to-end walkthrough, and `--demo` as a smoke test |
+| `docker-compose.yml` | both databases, each with a named volume |
+| `requirements.txt` | pinned dependencies, with notes on which pins actually matter |
+| `.env.example` | every setting, with its default; copy to `.env` |
+| `models/` | the two GGUF files (gitignored, downloaded on first use) |
+| `data/` | sample PDFs |
 
 ---
 
-## Swapping in the finetuned model
+## What's in `learnmate/`
 
-The generator is reached through one interface with two interchangeable backends. Nothing
-in the agents knows which is active.
+Six packages. Each one is decomposed into small single-purpose files, and every file
+opens with a docstring saying what it does and why it is that way.
 
-**If the finetune ships as a GGUF file:**
+```
+learnmate/
+├── config.py          every tunable setting, all overridable by environment variable
+├── full_program.py    the guided end-to-end program
+├── ingestion/         PDF → cleaned pages → chunks → vectors → a bound session
+├── storage/           MongoDB and the vector database
+├── llm/               access to the three models
+├── chat_agent/        the question-answering state machine
+├── resource_agent/    the study-material generator
+└── evaluator/         the two quality gates
+```
+
+### `ingestion/` — getting a PDF into the system
+
+| File | Does |
+|---|---|
+| `clean.py` | extracts pages with PyMuPDF; strips running heads, page numbers, hyphenation |
+| `chunking.py` | splits cleaned pages into the overlapping chunks that get embedded |
+| `sessions.py` | session kinds, one-PDF-per-session, and the binding |
+| `pipeline.py` | `ingest_pdf()` — the order all of the above happens in |
+| `source_text.py` | `build_source_text()` — what a resource session reads back |
+
+**The distinction that matters:** `chunking.py` produces text sized for *retrieval*;
+`source_text.py` reads back whole pages for *reading*. They are not interchangeable.
+
+**Sessions.** An upload always belongs to a session, and a session is opened for one
+purpose:
 
 ```bash
-LEARNMATE_GENERATOR_MODEL=models/my-finetune-q4_k_m.gguf
+python cli.py ingest constitution.pdf --session s1                  # --for chat (default)
+python cli.py ingest constitution.pdf --session s2 --for resource
+python cli.py ingest constitution.pdf --session s3 --for both
 ```
 
-**If it is served over an OpenAI-compatible HTTP API** (e.g. from `finetuned-model-api/`):
+```python
+from learnmate import ingest_pdf
 
-```bash
-LEARNMATE_GENERATOR_BACKEND=http
-LEARNMATE_GENERATOR_API_URL=http://localhost:8001/v1
-LEARNMATE_GENERATOR_MODEL=learnmate-finetuned
+ingest_pdf("constitution.pdf", session_id="s1")                          # chat (default)
+ingest_pdf("constitution.pdf", session_id="s2", session_for="resource")  # generation
+ingest_pdf("constitution.pdf", session_id="s3", session_for="both")      # both
 ```
 
-Two things to keep in mind:
+Both purposes need identical ingestion, so the kind is a statement of intent, not an
+optimisation. Using a session for the other purpose is refused, with the call that fixes
+it — and following that advice is nearly free, because an already-ingested PDF is not
+re-embedded. (`full_program.py` always opens sessions `for="both"`, so you will not hit
+this unless you use `cli.py` or the library directly.)
 
-- **Keep the judge a different model family from the generator.** A judge sharing the
-  generator's weights rates its own output style highly and the retry loop stops firing.
-- **Structured output matters.** Every generated resource depends on JSON-schema-constrained
-  decoding. The `llamacpp` backend compiles the schema into a decoding grammar; the `http`
-  backend forwards it as OpenAI `response_format`. If your server supports neither, output
-  still parses through a fenced-JSON fallback, but expect more `parse`-stage failures in
-  `python cli.py stats`.
+### `storage/` — two databases
+
+```
+MongoDB (:27018)   the PDFs, page text, sessions, chat history, resources, evaluations
+Qdrant  (:6335)    the chunk vectors
+```
+
+**The split is deliberate and asymmetric.** Nothing in MongoDB can be derived from
+anything else, so losing it loses the corpus. The vectors are computed *from* that page
+text, so losing Qdrant only costs a re-ingest. That is why the vector backend is swappable
+and MongoDB is not.
+
+| File | Does |
+|---|---|
+| `mongo.py` | the connection, `StorageUnavailable` |
+| `indexes.py` | every index — including three that enforce rules, not speed |
+| `ids.py` | ObjectId coercion, shared by everything that queries by id |
+| `pdf_files.py` | the PDF bytes, in GridFS |
+| `documents.py` | the document record: store, look up, resolve, delete |
+| `pages.py` | cleaned page text |
+| `pdf_store.py` | one facade over those three |
+| `sessions.py` | which PDF a session is about, and what for |
+| `history.py` | chat turns |
+| `resources.py` | generated resources, with their whole attempt trail |
+| `evaluations.py` | the verdict log and its statistics |
+| `content_store.py` | one facade over those four |
+| `vectors.py` | picks the vector backend |
+| `qdrant_vectors.py` | Qdrant: real HNSW index, filtering server-side |
+| `mongo_vectors.py` | the same interface over MongoDB, when you don't want a second service |
+
+Three indexes are `unique` because they enforce a rule structurally: one document per set
+of bytes, re-ingesting overwrites a chunk in place, and one PDF per session.
+
+Both databases run in containers with **named volumes**, so `docker compose down` keeps
+your data and only `docker compose down -v` clears it.
+
+### `llm/` — reaching the three models
+
+| File | Does |
+|---|---|
+| `registry.py` | `get_generator_llm()` and `get_judge_llm()` — the entry points |
+| `llamacpp.py` | backend 1: a local GGUF, in-process, with JSON grammars |
+| `http_api.py` | backend 2: a served OpenAI-compatible endpoint |
+| `messages.py` | LangChain messages ↔ the role/content dicts both backends want |
+| `runtime.py` | the GGUF weight cache, released cleanly at exit |
+| `download.py` | fetches a missing GGUF from Hugging Face |
+| `json_output.py` | recovers JSON from an unconstrained reply |
+| `embeddings.py` | MiniLM behind LangChain's `Embeddings` interface |
+
+**There is no Qwen class and no Llama class.** Both chat models share every line of code;
+which family loads is the GGUF path in config. Swapping in a finetuned model is two lines
+of `.env`.
+
+**Why these are custom classes** rather than a stock integration: the `response_schema`
+argument. A 3B model politely asked for JSON returns prose about half the time. llama.cpp
+can instead compile a JSON schema into a *decoding grammar*, making malformed output
+impossible. Every structured thing in this project depends on it.
+
+Caching happens at three separate layers — wrapper objects by role and temperature, actual
+weights by file, and the embedding model. Two wrappers can share one set of weights.
+
+### `chat_agent/` — answering a question
+
+| File | Does |
+|---|---|
+| `state.py` | `ChatState` — what flows between nodes |
+| `rewrite.py` | node 1 — resolve the follow-up into a standalone question |
+| `retrieve.py` | node 2 — search the vectors, pick PDF or general mode |
+| `generate.py` | node 3 — write the reply |
+| `evaluate.py` | node 4 — judge it |
+| `routing.py` | the accept-or-retry branch |
+| `persist.py` | node 5 — save the turn |
+| `prompts.py` | the three system prompts |
+| `graph.py` | the LangGraph wiring |
+| `agent.py` | `ChatAgent` — the public entry point |
+
+```python
+from learnmate import ChatAgent
+
+agent = ChatAgent(session_id="s1", doc_id=doc_id)
+result = agent.ask("What are the directors' duties?")
+print(result["reply"], result["accepted"], result["mode"])
+```
+
+The retry budget is one regeneration, and the regenerated reply is returned **whether or
+not it passes** — a student mid-conversation needs an answer, and `accepted` says whether
+it was reviewed clean.
+
+### `resource_agent/` — generating study material
+
+Four resource types, **one file each**:
+
+| File | Produces |
+|---|---|
+| `mcq.py` | `{question, options[4], correct_answer}` |
+| `practice_qsn.py` | `{question, answer}` |
+| `keypoints.py` | `["point", ...]` |
+| `summary.py` | one block of connected prose |
+
+Each owns its prompt, JSON schema, how to read the reply and how to render it. Everything
+else is shared, so a fifth type is one new file plus one line in `tasks.py`.
+
+| File | Does |
+|---|---|
+| `task.py` | the contract every resource type implements |
+| `tasks.py` | the registry |
+| `state.py` | `ResourceState` |
+| `generate.py` | node 1 — ask the generator, folding in a critique on retry |
+| `check.py` | node 2 — both gates |
+| `routing.py` | the accept-or-retry branch |
+| `persist.py` | node 3 — store the resource and its attempt trail |
+| `graph.py` | the wiring |
+| `agent.py` | `generate_resource()` — the public entry point |
+
+### `evaluator/` — the two gates
+
+```
+gate 1   structural validators   plain Python, microseconds
+gate 2   an LLM rubric grade     ~25 seconds
+```
+
+| File | Gate | Does |
+|---|---|---|
+| `normalise.py` | 1 | comparison-safe text |
+| `mcq_rules.py` | 1 | per-question faults **and** set-wide biases |
+| `text_rules.py` | 1 | summary, keypoints, practice questions |
+| `validators.py` | 1 | the dispatcher |
+| `rubrics.py` | 2 | the grading criteria, one per task |
+| `prompt.py` | 2 | system prompt and message assembly |
+| `verdict.py` | 2 | the schema, parsing, and fail-closed verdicts |
+| `judge.py` | 2 | orchestration |
+
+The set-wide MCQ rules are the interesting ones: every question can be individually
+perfect while the set as a whole is guessable — the answer always in the same slot, or
+always the longest option. No single-question check can see that.
+
+**Everything fails closed.** A judge that cannot be parsed or reached returns a *failing*
+verdict, not an exception — the caller is mid-loop and needs a decision, and silently
+passing unreviewed content through is the one outcome worth ruling out.
+
+A chat reply has no structural gate: free prose has nothing mechanical to check, so it
+goes straight to gate 2.
 
 ---
 
-## Commands
+## Running it
+
+### `cli.py` — one command at a time
 
 ```
-python cli.py doctor                                    check models, MongoDB, settings
+python cli.py doctor                                    check models, databases, settings
 python cli.py ingest <pdf> [--session ID] [--force]     store + index one PDF
-              [--for chat|resource|both]                what the session is for
-python cli.py docs                                      list ingested documents
-python cli.py chat [--session ID] [--doc X] [--no-eval] interactive chat
+              [--for chat|resource|both]                 what the session is for
+python cli.py docs [--limit N]                          list ingested documents
+python cli.py chat [--session ID] [--doc X]             interactive chat
+              [--threshold N] [--no-eval] [--quiet]
 python cli.py generate <task> [--session ID] [--doc X]  generate a resource
-              [--count N] [--topic "..."] [--pages 3-7] [--json] [--no-eval]
-python cli.py resources [--doc X] [--task T] [--show]   list what has been generated
+              [--count N] [--topic "..."] [--pages 3-7]
+              [--max-source-chars N] [--threshold N] [--no-eval] [--json] [--quiet]
+python cli.py resources [--doc X] [--task T]            list what has been generated
+              [--accepted] [--show] [--limit N]
 python cli.py stats                                     score distribution per task
 python cli.py export <doc> <destination>                write a stored PDF back to disk
 python cli.py delete <doc>                              remove a document and its chunks
 ```
 
-### One PDF per session, opened for one purpose
+`<task>` is one of `mcq`, `practice_qsn`, `keypoints`, `summary`.
 
-An upload always belongs to a session, and a session is opened for what you intend to do
-with the PDF:
+`--doc` accepts an id, an exact filename, or a unique fragment (`--doc constitution`). A
+fragment matching several documents is rejected rather than guessed at. Omit it and the
+session's own PDF is used; omit both and it falls back to the most recently ingested one.
 
-```
-python cli.py ingest constitution.pdf --session s1                    # --for chat (default)
-python cli.py ingest constitution.pdf --session s2 --for resource     # MCQs, summaries
-python cli.py ingest constitution.pdf --session s3 --for both
-```
+`stats`, `export`, `delete` and `docs` exist only here — they are maintenance verbs that
+do not belong in a guided walkthrough.
 
-Both purposes need identical ingestion -- the same chunks for retrieval and the same
-stored page text for reading -- so the kind is a statement of intent, not an optimisation.
-It is checked when a command runs, so using a session for the other purpose says so
-plainly instead of quietly doing something you did not set up:
+### `full_program.py` — the whole workflow in one session
 
 ```
-$ python cli.py generate mcq --session s1
-[!] Session 's1' was opened for chat, not resource generation.
-    Open one for resource generation on the same PDF -- already ingested, so nothing
-    is re-embedded:
-        python cli.py ingest constitution.pdf --session <new-session-id> --for resource
+python learnmate\full_program.py                       interactive menu
+python learnmate\full_program.py --demo                run everything without prompting
+python learnmate\full_program.py --demo --no-eval      same, roughly half the time
+python learnmate\full_program.py --pdf notes.pdf --ask "..."
+python learnmate\full_program.py --topic "fundamental rights"
 ```
 
-That advice is cheap to follow: the PDF is already stored and embedded, so the second
-ingest takes the "already ingested" path and only writes the new binding.
+The menu:
 
-A session also holds exactly one PDF, no larger than `LEARNMATE_MAX_PDF_MB` (10 MB by
-default). Ingesting a second, different PDF into the same session is refused:
+| | |
+|---|---|
+| 1 | Upload a PDF (by file path) |
+| 2 | Chat about it |
+| 3–6 | Generate MCQs / summary / key points / practice questions individually |
+| 7 | Generate all four |
+| 8 | Show stored state — documents, session, resources, vector counts |
+| 9 | Set a topic for generation |
+| e | Toggle evaluation (the judge and its retry) |
+| 0 | Quit |
 
+### Using it as a library
+
+This is the interface the backend will integrate against.
+
+```python
+from learnmate import ChatAgent, build_source_text, generate_resource, ingest_pdf
+
+report = ingest_pdf("notes.pdf", session_id="s1", session_for="both")
+doc_id = report["doc_id"]
+
+agent = ChatAgent(session_id="s1", doc_id=doc_id)
+reply = agent.ask("What are the directors' duties?")
+# {reply, mode, accepted, verdict, contexts, scores, attempts, ...}
+
+source = build_source_text(doc_id, topic="directors' duties")
+result = generate_resource("mcq", source, count=5, doc_id=doc_id)
+# {task, content, accepted, verdict, attempts, resource_id}
 ```
-$ python cli.py ingest companylaw.pdf --session s1
-[!] Session 's1' is already about constitution.pdf. One PDF per session -- ingest
-    companylaw.pdf into a new session instead:
-        python cli.py ingest companylaw.pdf --session <new-session-id>
-```
 
-Embedding a document is the expensive step -- a few thousand chunks through a CPU
-embedding model -- so both limits are checked before any of that work starts. Re-ingesting
-a session's *own* PDF is still allowed, which is what makes `--force` re-indexing work.
-`ingest` prints a generated session id when none is given. Set
-`LEARNMATE_ONE_PDF_PER_SESSION=0` to lift the one-PDF rule.
-
-`--doc` overrides the session's PDF for one command, and accepts an id, an exact filename,
-or a unique fragment (`--doc constitution`). A fragment matching several documents is
-rejected rather than guessed at.
-
-### Choosing what a resource is generated from
-
-A 300-page PDF does not fit in a 4k context window, so the interesting question is *which
-part* to use:
-
-| Flag | Source |
-| --- | --- |
-| `--topic "directors' duties"` | The pages whose text best matches the topic |
-| `--pages 12-18` | Exactly those pages |
-| *neither* | The opening of the document, up to `MAX_SOURCE_CHARS` |
-
-**The unit is always a whole page, never the retrieved chunks themselves.** Chunks are
-sized and overlapped for retrieval, so joining them back repeats ~150 characters at every
-boundary and starts the passage mid-sentence — and a generator handed that writes questions
-about the fragments. Retrieval picks *which* pages; the `pages` collection supplies the
-prose. Pages are then emitted in reading order, because relevance order reads as
-non-sequitur.
-
----
-
-## Reading the evaluation log
+### Reading the evaluation log
 
 ```bash
 python cli.py stats
 ```
 
-Two tables. The first says **which gate decided each attempt** — a high `validator` count
-means the generator is producing malformed output and the prompt needs work, not the
-threshold. The second is the **judge's score distribution per task**, and the column that
-matters is `distinct`: a judge whose scores cluster in a narrow band cannot separate good
-from bad at *any* threshold, however it is set. That is a rubric problem, not a threshold
-problem.
+```python
+from learnmate.storage import content_store
 
-This exists because the judge is a 3B model and its scores were observed to be unstable —
-two near-identical replies scored 1 and 90. Logging every verdict is what turns that from
-an impression into something measurable.
+content_store.evaluation_stats()   # score distribution per task
+content_store.stage_counts()       # which gate decided each attempt
+```
 
-### Judge calibration — what was measured
-
-The judge's usefulness turned out to depend far more on **source quality** than on the
-threshold. Generating from raw retrieved chunks (overlapping, starting mid-sentence, with
-contents-page fragments mixed in) against generating from whole pages, same rubric, same
-threshold of 70:
-
-| Task | From chunks | From pages |
-| --- | --- | --- |
-| `mcq` | rejected twice by the structural gate | **80, passed first try** |
-| `practice_qsn` | 40 → 40, failed | 40 → **80, passed on retry** |
-| `summary` | 40 → 60, failed | 60 → **80, passed on retry** |
-| `keypoints` | 40 → 40, failed | 40 → 60, still failing |
-
-Nothing passed before; three of four pass now. If generated content is scoring badly, look
-at what the generator was actually handed before touching the threshold.
-
-`keypoints` remains the weak one. Its rubric penalises both near-duplication and missing
-the central point, and a 3B generator tends to trade one for the other. If it needs to
-pass, the options are `--threshold 55`, softening the *"one invented point puts the set
-below 50"* cliff in `rubrics.py` so the judge grades on a slope rather than falling off a
-ledge, or pointing `LEARNMATE_JUDGE_MODEL` at a larger GGUF.
-
-Either way the loop still returns content: `accepted` records whether it was reviewed
-clean, so a harsh judge costs a wasted regeneration, not a lost result.
+The `distinct` column is the important one. A judge whose scores cluster in a narrow band
+cannot separate good from bad at **any** threshold — that is a rubric problem, not a
+threshold problem. The stage counts show which gate decided each attempt: if the validator
+is deciding most of them, the generation prompt needs work.
 
 ---
 
-## Layout
+## Configuration
 
-```
-components-Dinura/
-├── cli.py                      command line for everything
-├── docker-compose.yml          the Qdrant server
-├── learnmate/
-│   ├── config.py               every tunable, all env-overridable
-│   ├── llm/
-│   │   ├── registry.py         get_generator_llm() + get_judge_llm(), the entry points
-│   │   ├── llamacpp.py         a local GGUF, in-process, with JSON grammars
-│   │   ├── http_api.py         a served OpenAI-compatible endpoint
-│   │   ├── messages.py         LangChain messages <-> role/content dicts
-│   │   ├── runtime.py          the GGUF weight cache, released cleanly at exit
-│   │   ├── download.py         fetches a missing GGUF from Hugging Face
-│   │   ├── json_output.py      parse_json_reply()
-│   │   └── embeddings.py       MiniLM behind LangChain's Embeddings interface
-│   ├── storage/
-│   │   ├── mongo.py            the connection, StorageUnavailable
-│   │   ├── indexes.py          every index, including the three unique ones
-│   │   ├── ids.py              ObjectId coercion, shared
-│   │   ├── pdf_files.py        the PDF bytes, in GridFS
-│   │   ├── documents.py        the document record: store/look up/resolve/delete
-│   │   ├── pages.py            cleaned page text (what a resource session reads)
-│   │   ├── pdf_store.py        facade over those three
-│   │   ├── sessions.py         which PDF a session is about, and what for
-│   │   ├── history.py          chat turns
-│   │   ├── resources.py        generated resources + attempt trail
-│   │   ├── evaluations.py      the verdict log and its statistics
-│   │   ├── content_store.py    facade over those four
-│   │   ├── vectors.py          picks the vector backend
-│   │   ├── qdrant_vectors.py   LangChain VectorStore over a Qdrant server
-│   │   └── mongo_vectors.py    the same, over MongoDB (no second service)
-│   ├── ingestion/
-│   │   ├── clean.py            page extraction, furniture removal
-│   │   ├── chunking.py         cleaned pages -> the chunks that get embedded
-│   │   ├── sessions.py         session kinds, one-PDF-per-session, the binding
-│   │   ├── pipeline.py         ingest_pdf() -- the order it all happens in
-│   │   └── source_text.py      build_source_text() -- what a resource session reads
-│   ├── evaluator/
-│   │   ├── normalise.py        norm() -- comparison-safe text for gate 1
-│   │   ├── mcq_rules.py        gate 1: per-question faults + set-wide biases
-│   │   ├── text_rules.py       gate 1: summary, keypoints, practice questions
-│   │   ├── validators.py       gate 1 dispatcher: validate(task, content)
-│   │   ├── rubrics.py          gate 2: per-task grading criteria
-│   │   ├── prompt.py           gate 2: system prompt + message assembly
-│   │   ├── verdict.py          gate 2: schema, parsing, fail-closed verdicts
-│   │   └── judge.py            gate 2: Judge.judge / judge_chat_reply
-│   ├── resource_agent/
-│   │   ├── task.py             the Task contract every resource type implements
-│   │   ├── mcq.py              multiple-choice questions
-│   │   ├── practice_qsn.py     short-answer practice questions
-│   │   ├── keypoints.py        key points
-│   │   ├── summary.py          summaries
-│   │   ├── tasks.py            the registry of the four types
-│   │   ├── state.py            ResourceState, passed between nodes
-│   │   ├── generate.py         node 1  ask the generator (+ critique on retry)
-│   │   ├── check.py            node 2  both evaluation gates
-│   │   ├── routing.py                  the accept-or-retry branch
-│   │   ├── persist.py          node 3  store the resource + attempt trail
-│   │   ├── graph.py            the LangGraph wiring
-│   │   └── agent.py            generate_resource(), the public entry point
-│   └── chat_agent/
-│       ├── state.py            ChatState, the state passed between nodes
-│       ├── rewrite.py          node 1  resolve the follow-up question
-│       ├── retrieve.py         node 2  search vectors, pick pdf or general mode
-│       ├── generate.py         node 3  write the reply
-│       ├── evaluate.py         node 4  judge it
-│       ├── routing.py                  the accept-or-retry branch
-│       ├── persist.py          node 5  save the turn
-│       ├── prompts.py          the three system prompts
-│       ├── helpers.py          logging, history-to-messages
-│       ├── graph.py            the LangGraph wiring
-│       └── agent.py            ChatAgent, the public entry point
-├── models/                     the two GGUF files (gitignored)
-├── data/raw_pdfs/              sample PDFs
-└── legacy/                     the previous embedded-Qdrant implementation
-```
+Everything lives in `config.py` and is overridable by environment variable. Copy
+`.env.example` to `.env` and edit. The settings you are most likely to touch:
 
-`legacy/` is the earlier version, kept for reference. It used Qdrant in **embedded** mode —
-`QdrantClient(path="./qdrant_data")`, a locked directory inside the repo — plus hand-rolled
-orchestration. Same database, opposite deployment: the server it now talks to is the thing
-that changed. Nothing in `learnmate/` imports it.
+| Variable | Default | Meaning |
+|---|---|---|
+| `LEARNMATE_GENERATOR_MODEL` | `models/qwen2.5-3b-…gguf` | swap in your finetuned model |
+| `LEARNMATE_GENERATOR_BACKEND` | `llamacpp` | or `http` for a served model |
+| `LEARNMATE_MONGODB_URI` | `mongodb://localhost:27018` | the container from `docker-compose.yml` |
+| `LEARNMATE_VECTOR_BACKEND` | `qdrant` | or `mongodb`, to avoid a second service |
+| `LEARNMATE_RELEVANCE_THRESHOLD` | `0.25` | below this, chat answers from general knowledge |
+| `LEARNMATE_EVALUATOR_THRESHOLD` | `70` | judge score needed to accept |
+| `LEARNMATE_MAX_ATTEMPTS` | `2` | one generation plus one retry |
+| `LEARNMATE_MAX_PDF_MB` | `10` | upload limit |
+| `LEARNMATE_ONE_PDF_PER_SESSION` | `1` | set `0` to lift the restriction |
+
+### Why the ports are unusual
+
+Both services publish on non-default host ports — MongoDB on **27018**, Qdrant on
+**6335** — because this machine already runs another project's MongoDB on 27017 and
+another Qdrant on 6333. Sharing a server means sharing a failure: another project's
+`docker compose down -v` would take LearnMate's PDFs and generated resources with it.
 
 ---
 
-## Notes and limits
+## Design decisions worth knowing
 
-- **Ingestion drops table-of-contents and index pages.** Detected by dot leaders rather
-  than page position, since the index at the back has the same shape as the contents at
-  the front. Without this, a contents page matches almost any topical query and out-scores
-  the article the question is actually about — and asked for questions about
-  "fundamental rights", the generator gets a page of headings and writes questions about
-  the page numbering.
-- **Scanned PDFs are rejected** with a clear message. There is no OCR step; a PDF with no
-  extractable text cannot be indexed.
-- **Everything runs on CPU by default.** A judged chat turn is roughly 40 s and a judged
-  resource ~60–180 s with two 3B models resident (~5 GB RAM). Set
-  `LEARNMATE_N_GPU_LAYERS` to offload if you have the VRAM, or `--no-eval` to skip the
-  judge while iterating on prompts.
-- **The evaluator fails closed.** A judge that cannot be parsed or reached returns a
-  failing verdict rather than an exception — silently passing unreviewed content through
-  is the one outcome worth ruling out. The reason always travels in `reasoning`, so a
-  failure stays visible instead of looking like a bad score.
-- **Qdrant's on-disk format is not backward compatible.** Bumping the image tag more than
-  a minor version or two will crash-loop the container (1.18 cannot read 1.12 storage).
-  Recover with `docker compose down -v` and re-ingest — the vectors are derived data, and
-  the PDFs and page text in MongoDB are untouched.
-- **Port 6335, not 6333.** This machine already runs a separate Qdrant on 6333 for another
-  project, so the compose file publishes 6335 and keeps the two corpora in different
-  servers. Change both `docker-compose.yml` and `LEARNMATE_QDRANT_URL` to move it.
+**The mode is decided by a number, not by the model.** Whether chat answers from the PDF
+or from general knowledge comes from the retrieval score. A number can be tuned and
+logged; a second LLM call can be wrong and costs 25 seconds.
+
+**Rewrite runs before retrieval.** *"What about his powers?"* embeds to nothing useful.
+Resolved first, it retrieves correctly.
+
+**Chunks for retrieval, whole pages for reading.** Two different products of one ingest,
+not interchangeable.
+
+**The cheap gate runs first.** Most bad generations fail mechanically. Catching those in
+microseconds means the 25-second judge is only spent on well-formed content.
+
+**Failed output is still returned, and still stored.** Marked `accepted: False`. Hiding it
+would make the failure rate invisible.
+
+**The whole attempt trail is kept**, not just the winner. Whether the threshold is set
+anywhere near right is unanswerable after the fact if you only keep what passed.
+
+**The retry budget is 2 on purpose.** A 3B judge tends to oscillate rather than converge
+over more rounds; the third attempt is usually a worse version of the first.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `No module named 'bson'` / `'langchain_text_splitters'` | You used the system Python. Use `venv\Scripts\python`, or run `full_program.py`, which switches by itself. |
+| `Cannot reach MongoDB at …` | `docker compose up -d mongo` |
+| `Cannot reach the Qdrant server at …` | `docker compose up -d qdrant` |
+| Qdrant container crash-loops after an image bump | Its on-disk format isn't backward compatible. `docker compose down -v` and re-ingest — nothing is lost, the vectors are derived from MongoDB. |
+| `Session 'x' is already about y.pdf` | One PDF per session. Use a new session id. |
+| `Session 'x' was opened for chat, not resource generation` | Open a session with `--for resource`; the PDF is not re-embedded. |
+| `No extractable text in …` | A scanned PDF. It needs OCR before it can be indexed. |
+| Everything is very slow | Expected on CPU. Use `--no-eval` to skip the judge, or set `LEARNMATE_N_GPU_LAYERS` to offload to a GPU. |
+
+---
+
+## Known limitations
+
+- **Key-point grading is weak.** The `keypoints` rubric scores faithful content around 40
+  against a threshold of 70 — the 3B judge produces one complaint per rubric criterion
+  regardless of the content. The other three resource types separate good from bad by
+  50–79 points. Softening the rubric's "missing the central point is a serious fault"
+  clause is the place to start.
+- **Generation quality depends heavily on which passage is used.** With no `--topic`, the
+  source is the opening of the document, which for a book-style PDF is the title page and
+  preamble. Pass a topic for anything substantive.
+- **Scanned PDFs are not supported** — there is no OCR step.
+- **One PDF per session by design.** Combining several documents into one corpus and
+  chatting across all of them is not supported.

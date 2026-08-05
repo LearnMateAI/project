@@ -1,1 +1,0 @@
-# Take input a multiple choice question and the generated answer, and return a score from 1-100, along with input instruction to the model for regenerating the answer if the score is below a threshold.

@@ -5,3 +5,9 @@ __pycache__/
 
 models/
 
+# Runtime evaluation log; regenerated on every run
+scores.jsonl
+
+# Qdrant embedded-mode lock file
+*.lock
+

@@ -289,7 +289,13 @@ components-Dinura/
 ├── learnmate/
 │   ├── config.py               every tunable, all env-overridable
 │   ├── llm/
-│   │   ├── chat_models.py      LlamaCppChatModel + HttpChatModel (LangChain BaseChatModel)
+│   │   ├── registry.py         get_generator_llm() + get_judge_llm(), the entry points
+│   │   ├── llamacpp.py         a local GGUF, in-process, with JSON grammars
+│   │   ├── http_api.py         a served OpenAI-compatible endpoint
+│   │   ├── messages.py         LangChain messages <-> role/content dicts
+│   │   ├── runtime.py          the GGUF weight cache, released cleanly at exit
+│   │   ├── download.py         fetches a missing GGUF from Hugging Face
+│   │   ├── json_output.py      parse_json_reply()
 │   │   └── embeddings.py       MiniLM behind LangChain's Embeddings interface
 │   ├── storage/
 │   │   ├── mongo.py            connection + indexes
@@ -309,7 +315,17 @@ components-Dinura/
 │   │   ├── tasks.py            the four resource types
 │   │   └── graph.py            LangGraph generate/check/retry loop
 │   └── chat_agent/
-│       └── graph.py            LangGraph rewrite/retrieve/generate/evaluate loop
+│       ├── state.py            ChatState, the state passed between nodes
+│       ├── rewrite.py          node 1  resolve the follow-up question
+│       ├── retrieve.py         node 2  search vectors, pick pdf or general mode
+│       ├── generate.py         node 3  write the reply
+│       ├── evaluate.py         node 4  judge it
+│       ├── routing.py                  the accept-or-retry branch
+│       ├── persist.py          node 5  save the turn
+│       ├── prompts.py          the three system prompts
+│       ├── helpers.py          logging, history-to-messages
+│       ├── graph.py            the LangGraph wiring
+│       └── agent.py            ChatAgent, the public entry point
 ├── models/                     the two GGUF files (gitignored)
 ├── data/raw_pdfs/              sample PDFs
 └── legacy/                     the previous embedded-Qdrant implementation

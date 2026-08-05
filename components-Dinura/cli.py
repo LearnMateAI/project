@@ -2,19 +2,27 @@
 LearnMate command line.
 
     python cli.py doctor                                   check models, MongoDB, config
-    python cli.py ingest constitution.pdf --session s1      store + index one PDF
+    python cli.py ingest constitution.pdf --session s1      upload for a chat session
     python cli.py chat --session s1                        chat about that session's PDF
+
+    python cli.py ingest constitution.pdf --session s2 --for resource
+    python cli.py generate mcq --session s2 --count 5
+    python cli.py generate summary --session s2 --topic "fundamental rights"
+
     python cli.py docs                                     list ingested documents
-    python cli.py generate mcq --session s1 --count 5
-    python cli.py generate summary --session s1 --topic "fundamental rights"
     python cli.py resources --task mcq                     show what has been generated
     python cli.py stats                                    evaluation score distribution
     python cli.py export <doc_id> ./out                    write a stored PDF back to disk
 
-A session is about exactly one PDF, up to LEARNMATE_MAX_PDF_MB (10 MB by default).
-Ingesting a second, different PDF into the same session is refused -- embedding a document
-is the expensive step, so a new PDF means a new session id. `ingest` prints the session to
-use when none is given. `--doc` overrides the session's PDF for one command.
+A session is about exactly one PDF, up to LEARNMATE_MAX_PDF_MB (10 MB by default), and is
+opened for one purpose: `--for chat` (the default), `--for resource`, or `--for both`.
+Using a session for the other purpose is refused, with the command to open the right kind
+of session -- which costs nothing, because an already-ingested PDF is not re-embedded.
+
+Ingesting a second, different PDF into the same session is refused too: embedding is the
+expensive step, so a new PDF means a new session id. `ingest` prints the session to use
+when none is given. `--doc` overrides the session's PDF, and its kind check, for one
+command.
 
 Run `python cli.py <command> --help` for the options of any one command.
 """
@@ -29,7 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from learnmate import config
 from learnmate.chat_agent import ChatAgent
-from learnmate.ingestion import build_source_text, ingest_pdf
+from learnmate.ingestion import build_source_text, describe_kinds, ingest_pdf, require_kind
 from learnmate.resource_agent import TASK_NAMES, generate_resource, render
 from learnmate.storage import (
     QdrantUnavailable,
@@ -144,14 +152,23 @@ def cmd_doctor(args):
 def cmd_ingest(args):
     # A session is generated when none is given, so every ingest is bound to something
     # and the one-PDF-per-session rule has an id to hold on to. It is printed below
-    # because the user needs it to chat about what they just ingested.
+    # because the user needs it to work with what they just ingested.
     session = args.session or f"cli-{uuid.uuid4().hex[:12]}"
 
-    report = ingest_pdf(args.path, session_id=session, force=args.force)
+    report = ingest_pdf(args.path, session_id=session, session_for=args.session_for,
+                        force=args.force)
     document = report["document"]
+    kinds = report["session_for"]
     print(f"    id={document['_id']}  pages={report['n_pages']}  "
           f"chunks={report['n_chunks']}")
-    print(f"\n    chat about it with:  python cli.py chat --session {session}")
+
+    # Print only the commands this session is actually for, so the next step is never a
+    # guess. A "both" session gets both lines.
+    print(f"\n    session {session} is for {describe_kinds(kinds)}:")
+    if "chat" in kinds:
+        print(f"      python cli.py chat --session {session}")
+    if "resource" in kinds:
+        print(f"      python cli.py generate mcq --session {session} --count 5")
     return 0
 
 
@@ -170,6 +187,11 @@ def cmd_docs(args):
 
 
 def cmd_chat(args):
+    # Refuse a session opened for resource generation, unless --doc names a document
+    # explicitly and so overrides the session's scope anyway.
+    if not args.doc:
+        require_kind(args.session, "chat")
+
     document = _resolve_doc(args.doc, session=args.session, required=False)
     doc_id = document["_id"] if document else None
 
@@ -233,6 +255,9 @@ def cmd_chat(args):
 
 
 def cmd_generate(args):
+    if not args.doc:
+        require_kind(args.session, "resource")
+
     document = _resolve_doc(args.doc, session=args.session)
 
     source = build_source_text(document["_id"], topic=args.topic,
@@ -360,6 +385,11 @@ def build_parser():
     ingest.add_argument("path", help="the PDF to ingest")
     ingest.add_argument("--session", help="bind the PDF to this session; "
                                           "omit to start a new one")
+    # dest is spelled out because `--for` would otherwise become args.for, and `for` is
+    # a Python keyword.
+    ingest.add_argument("--for", dest="session_for", default="chat",
+                        choices=["chat", "resource", "both"],
+                        help="what the session is for (default: chat)")
     ingest.add_argument("--force", action="store_true",
                         help="re-index even if this same PDF is already stored")
     ingest.set_defaults(func=cmd_ingest)

@@ -28,12 +28,13 @@ docker compose up -d qdrant
 # 3. check models, both databases and settings before anything slow runs
 python cli.py doctor
 
-# 3. store and index one PDF (max 10 MB), bound to a session
+# 3. upload one PDF (max 10 MB) for a chat session, and chat about it
 python cli.py ingest data/raw_pdfs/constitution.pdf --session s1
-
-# 4. use it
 python cli.py chat --session s1
-python cli.py generate mcq --session s1 --count 5 --topic "fundamental rights"
+
+# 4. upload the same PDF for a resource-generation session (nothing is re-embedded)
+python cli.py ingest data/raw_pdfs/constitution.pdf --session s2 --for resource
+python cli.py generate mcq --session s2 --count 5 --topic "fundamental rights"
 python cli.py stats
 ```
 
@@ -183,6 +184,7 @@ Two things to keep in mind:
 ```
 python cli.py doctor                                    check models, MongoDB, settings
 python cli.py ingest <pdf> [--session ID] [--force]     store + index one PDF
+              [--for chat|resource|both]                what the session is for
 python cli.py docs                                      list ingested documents
 python cli.py chat [--session ID] [--doc X] [--no-eval] interactive chat
 python cli.py generate <task> [--session ID] [--doc X]  generate a resource
@@ -193,9 +195,34 @@ python cli.py export <doc> <destination>                write a stored PDF back 
 python cli.py delete <doc>                              remove a document and its chunks
 ```
 
-### One PDF per session
+### One PDF per session, opened for one purpose
 
-A session is about exactly one PDF, no larger than `LEARNMATE_MAX_PDF_MB` (10 MB by
+An upload always belongs to a session, and a session is opened for what you intend to do
+with the PDF:
+
+```
+python cli.py ingest constitution.pdf --session s1                    # --for chat (default)
+python cli.py ingest constitution.pdf --session s2 --for resource     # MCQs, summaries
+python cli.py ingest constitution.pdf --session s3 --for both
+```
+
+Both purposes need identical ingestion -- the same chunks for retrieval and the same
+stored page text for reading -- so the kind is a statement of intent, not an optimisation.
+It is checked when a command runs, so using a session for the other purpose says so
+plainly instead of quietly doing something you did not set up:
+
+```
+$ python cli.py generate mcq --session s1
+[!] Session 's1' was opened for chat, not resource generation.
+    Open one for resource generation on the same PDF -- already ingested, so nothing
+    is re-embedded:
+        python cli.py ingest constitution.pdf --session <new-session-id> --for resource
+```
+
+That advice is cheap to follow: the PDF is already stored and embedded, so the second
+ingest takes the "already ingested" path and only writes the new binding.
+
+A session also holds exactly one PDF, no larger than `LEARNMATE_MAX_PDF_MB` (10 MB by
 default). Ingesting a second, different PDF into the same session is refused:
 
 ```
@@ -206,10 +233,10 @@ $ python cli.py ingest companylaw.pdf --session s1
 ```
 
 Embedding a document is the expensive step -- a few thousand chunks through a CPU
-embedding model -- so both limits are checked before any of that work starts, and a new
-PDF means a new session id. Re-ingesting a session's *own* PDF is still allowed, which is
-what makes `--force` re-indexing work. `ingest` prints a generated session id when none is
-given. Set `LEARNMATE_ONE_PDF_PER_SESSION=0` to lift the restriction.
+embedding model -- so both limits are checked before any of that work starts. Re-ingesting
+a session's *own* PDF is still allowed, which is what makes `--force` re-indexing work.
+`ingest` prints a generated session id when none is given. Set
+`LEARNMATE_ONE_PDF_PER_SESSION=0` to lift the one-PDF rule.
 
 `--doc` overrides the session's PDF for one command, and accepts an id, an exact filename,
 or a unique fragment (`--doc constitution`). A fragment matching several documents is
@@ -306,7 +333,10 @@ components-Dinura/
 │   │   └── content_store.py    resources, evaluations, chat history
 │   ├── ingestion/
 │   │   ├── clean.py            page extraction, furniture removal
-│   │   └── pipeline.py         ingest_pdf() and build_source_text()
+│   │   ├── chunking.py         cleaned pages -> the chunks that get embedded
+│   │   ├── sessions.py         session kinds, one-PDF-per-session, the binding
+│   │   ├── pipeline.py         ingest_pdf() -- the order it all happens in
+│   │   └── source_text.py      build_source_text() -- what a resource session reads
 │   ├── evaluator/
 │   │   ├── validators.py       structural gate
 │   │   ├── rubrics.py          per-task grading criteria

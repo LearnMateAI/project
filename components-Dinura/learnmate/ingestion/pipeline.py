@@ -1,168 +1,68 @@
 """
-PDF ingestion: store the file, chunk its text, embed the chunks into MongoDB.
+Ingesting one PDF, end to end.
 
-    store_pdf (GridFS)  ->  extract + clean pages  ->  split  ->  embed  ->  chunks
+    read + validate  ->  store (GridFS)  ->  extract + clean  ->  split  ->  embed
+                                                                              |
+                                            bind the session to the document <-
 
-Chunking is sub-page. One vector per page averages every provision on that page together,
-so the specific article a question asks about is diluted by everything printed beside it,
-and a keyword-dense contents page out-scores the article text because a list of chapter
-titles matches almost any topical query.
+The order is the point of this file. Everything after "store" is the expensive part --
+extraction, splitting, and a few thousand embeddings on CPU -- so every rule that could
+refuse the upload is checked before any of it starts:
 
-The separators below are ordered so a split falls at the largest boundary that fits:
-sentence ends first, then the numbered-clause markers that structure legal and academic
-prose -- "(2)", "(iii)" -- then clause punctuation, and only then whitespace.
+    empty file            pdf_store.read_source
+    over MAX_PDF_MB       pdf_store.read_source
+    session already used  sessions.check_free
 
-A session holds one PDF, up to config.MAX_PDF_MB. Everything above is the expensive part
--- extraction, splitting and a few thousand embeddings on CPU -- so both limits are
-checked in `ingest_pdf` before any of it starts.
+and the session binding is written at the *end*, once the document has proved usable.
+
+The work itself lives in the modules this one calls: clean.py extracts, chunking.py
+splits, the vector store embeds. `ingest_pdf` only decides what happens in what order.
 """
 
 import hashlib
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Iterable, Union
 
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from .. import config
-from ..storage import content_store, pdf_store
+from ..storage import pdf_store
 from ..storage.vectors import get_vector_store
-from .clean import is_substantive, looks_like_contents, preprocess
-
-_SEPARATORS = [
-    ". ",   # sentence end
-    "; ",   # clause end, very common in legal prose
-    ": ",
-    "? ",
-    "! ",
-    ") ",   # tail of a numbered clause marker
-    ", ",
-    " ",
-    "",
-]
-
-
-def build_splitter(chunk_size: int = None, chunk_overlap: int = None
-                   ) -> RecursiveCharacterTextSplitter:
-    """
-    The text splitter used for every document.
-
-    The overlap keeps a provision that straddles a chunk boundary retrievable from either
-    side, which matters most for exactly the long sentences legal text is made of.
-    """
-    return RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size or config.CHUNK_SIZE,
-        chunk_overlap=chunk_overlap or config.CHUNK_OVERLAP,
-        separators=_SEPARATORS,
-        keep_separator=True,
-        length_function=len,
-    )
-
-
-def pages_to_documents(pages: List[Dict], doc_id, filename: str,
-                       splitter: RecursiveCharacterTextSplitter = None) -> List[Document]:
-    """
-    Split cleaned pages into LangChain Documents carrying their provenance.
-
-    `chunk_index` is per page and, with doc_id and page_number, gives every chunk a stable
-    identity -- that triple is the unique key the vector store upserts on, so re-ingesting
-    a document overwrites its chunks instead of duplicating them.
-    """
-    splitter = splitter or build_splitter()
-
-    documents = []
-    for page in pages:
-        content = page.get("page_content", "")
-        if not content:
-            continue
-
-        index = 0
-        # Checked here rather than per chunk: the splitter treats ". " as a boundary, so
-        # by the time a contents page has been split its dot leaders have been broken
-        # apart and the chunks no longer look like what they are. The page still does.
-        if looks_like_contents(content, min_leaders=4):
-            continue
-        for piece in splitter.split_text(content):
-            piece = piece.strip()
-            if not is_substantive(piece, config.MIN_CHUNK_CHARS):
-                continue
-            if looks_like_contents(piece):
-                continue
-            documents.append(Document(
-                page_content=piece,
-                metadata={
-                    "doc_id": doc_id,
-                    "filename": filename,
-                    "page_number": page["page_number"],
-                    "chunk_index": index,
-                    "source": filename,
-                },
-            ))
-            index += 1
-    return documents
-
-
-def _bind(session_id: str, doc_id, filename: str, digest: str, log) -> None:
-    """Record which PDF a session is about. A no-op when no session was given."""
-    if not session_id:
-        return
-    content_store.bind_session_document(session_id, doc_id, filename, digest)
-    log(f"[*] Session {session_id} -> {filename}")
-
-
-def _check_session_free(session_id: str, digest: str, filename: str) -> None:
-    """
-    Refuse a second PDF for a session that already has one.
-
-    Embedding a document is the expensive step here -- a few thousand chunks through a
-    CPU embedding model -- so this check runs before anything is stored or embedded,
-    rather than letting the work start and cleaning up afterwards.
-
-    Re-ingesting the *same* file is allowed: the bound hash is compared, not just the
-    presence of a binding, so `--force` can re-index a session's own PDF.
-    """
-    if not session_id or not config.ONE_PDF_PER_SESSION:
-        return
-
-    bound = content_store.get_session(session_id)
-    if not bound or bound.get("sha256") == digest:
-        return
-
-    raise ValueError(
-        f"Session {session_id!r} is already about {bound['filename']}. One PDF per "
-        f"session -- ingest {filename} into a new session instead:\n"
-        f"    python cli.py ingest {filename} --session <new-session-id>"
-    )
+from . import sessions
+from .chunking import pages_to_documents
+from .clean import preprocess
 
 
 def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
-               session_id: str = None, force: bool = False, verbose: bool = True) -> Dict:
+               session_id: str = None, session_for: Union[str, Iterable[str]] = "chat",
+               force: bool = False, verbose: bool = True) -> Dict:
     """
-    Store and index one PDF.
+    Store and index one PDF, for one session.
 
     `source` is a path or raw bytes, so this serves a CLI argument and an HTTP upload
     equally. Returns a report with the document record and what was indexed.
 
-    A PDF already ingested is skipped unless `force` is set: identity is the hash of the
-    file's bytes, so re-uploading the same document under a new name costs nothing rather
-    than re-embedding a few thousand chunks.
+    `session_id` binds the document to a session, and `session_for` says what that session
+    is for -- "chat", "resource", or "both". A session holds one PDF: a second, different
+    PDF ingested into the same session is refused before any work is done.
 
-    `session_id` binds the document to a chat session. A session holds one PDF: a second,
-    different PDF ingested into the same session is refused before any work is done.
+    A PDF already ingested is skipped unless `force` is set. Identity is the hash of the
+    file's bytes, so re-uploading the same document under a new name -- or opening a
+    second session on it for the other purpose -- costs nothing rather than re-embedding
+    a few thousand chunks.
     """
     def log(message):
         if verbose:
             print(message)
 
     started = time.time()
+    kinds = sessions.normalise_kinds(session_for)
 
-    # Read and validate before anything is written: this raises on an empty file, on one
-    # over the size limit, and on a session that already has a different PDF -- all of it
-    # while the session's existing document is still untouched.
+    # --- Validate, before anything is written ----------------------------------------
+    # read_source raises on an empty file and on one over the size limit; check_free
+    # raises when this session already has a different PDF. All of it while the session's
+    # existing document is still untouched.
     data, filename = pdf_store.read_source(source, filename)
     digest = hashlib.sha256(data).hexdigest()
-    _check_session_free(session_id, digest, filename)
+    sessions.check_free(session_id, digest, filename)
 
     document = pdf_store.store_pdf(data, filename=filename)
     doc_id = document["_id"]
@@ -170,25 +70,21 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
     store = get_vector_store()
     already_indexed = store.count(doc_id)
 
+    # --- Already done? Bind and stop --------------------------------------------------
+    # This is the path a second session on the same PDF takes -- and why opening a
+    # resource session for a PDF already ingested for chat is nearly free.
     if document.get("existing") and already_indexed and not force:
         log(f"[=] Already ingested: {document['filename']} "
             f"({already_indexed} chunks). Use --force to re-index.")
-        # Still bind: a PDF ingested once under an old session is a legitimate PDF for a
-        # new one, and the chunks it needs already exist.
-        _bind(session_id, doc_id, document["filename"], digest, log)
-        return {
-            "document": document,
-            "doc_id": str(doc_id),
-            "session_id": session_id,
-            "skipped": True,
-            "n_pages": document.get("n_pages"),
-            "n_chunks": already_indexed,
-            "elapsed_s": round(time.time() - started, 2),
-        }
+        sessions.bind(session_id, doc_id, document["filename"], digest, kinds, log)
+        return _report(document, doc_id, session_id, kinds, skipped=True,
+                       n_pages=document.get("n_pages"), n_chunks=already_indexed,
+                       started=started)
 
     log(f"[*] Stored {document['filename']} "
         f"({document['size_bytes'] / 1_048_576:.1f} MB) as {doc_id}")
 
+    # --- Extract ----------------------------------------------------------------------
     pdf_bytes = pdf_store.get_pdf_bytes(doc_id)
     pages = preprocess(pdf_bytes)
     if not pages:
@@ -198,6 +94,7 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
         )
     log(f"[*] Extracted {len(pages)} pages with text")
 
+    # --- Split ------------------------------------------------------------------------
     documents = pages_to_documents(pages, doc_id, document["filename"])
     if not documents:
         raise ValueError(f"No substantive chunks produced from {document['filename']}.")
@@ -210,110 +107,39 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
         store.delete(doc_id=doc_id)
         pdf_store.delete_pages(doc_id)
 
-    # Keep the readable page text too; chunks are shaped for retrieval, not for reading.
+    # --- Store the readable text ------------------------------------------------------
+    # Chunks are shaped for retrieval; resource generation wants the page as it reads.
+    # This is what makes a "resource" session possible at all -- see source_text.py.
     indexed_pages = {doc.metadata["page_number"] for doc in documents}
     pdf_store.store_pages(doc_id, [p for p in pages if p["page_number"] in indexed_pages])
 
+    # --- Embed ------------------------------------------------------------------------
     log(f"[*] Embedding {len(documents)} chunks into {store.describe_backend()}...")
     store.add_documents(documents)
     pdf_store.mark_ingested(doc_id, len(pages), len(documents))
 
-    # Bound only now that the document is genuinely usable. Binding earlier would tie the
+    # --- Bind -------------------------------------------------------------------------
+    # Only now that the document is genuinely usable. Binding earlier would tie the
     # session to a PDF that turned out to have no extractable text, and the user could
     # not then ingest a working one without abandoning the session.
-    _bind(session_id, doc_id, document["filename"], digest, log)
+    sessions.bind(session_id, doc_id, document["filename"], digest, kinds, log)
 
-    elapsed = round(time.time() - started, 2)
-    log(f"[+] Ingested {document['filename']} in {elapsed}s")
+    log(f"[+] Ingested {document['filename']} in {round(time.time() - started, 2)}s")
+    return _report(pdf_store.get_document(doc_id), doc_id, session_id, kinds,
+                   skipped=False, n_pages=len(pages), n_chunks=len(documents),
+                   started=started)
 
+
+def _report(document, doc_id, session_id, kinds, skipped, n_pages, n_chunks,
+            started) -> Dict:
+    """The shape every caller gets back, from both exits above."""
     return {
-        "document": pdf_store.get_document(doc_id),
+        "document": document,
         "doc_id": str(doc_id),
         "session_id": session_id,
-        "skipped": False,
-        "n_pages": len(pages),
-        "n_chunks": len(documents),
-        "elapsed_s": elapsed,
+        "session_for": list(kinds),
+        "skipped": skipped,
+        "n_pages": n_pages,
+        "n_chunks": n_chunks,
+        "elapsed_s": round(time.time() - started, 2),
     }
-
-
-def build_source_text(doc_id, topic: str = None, pages: Optional[List[int]] = None,
-                      max_chars: int = None) -> str:
-    """
-    Assemble the passage a resource is generated from.
-
-    A whole PDF does not fit in a 4k context window, so the interesting question is which
-    part of it to use. Three ways, in order of how specific the caller was:
-
-        topic given  -> the pages whose text best matches it. This is what makes
-                        "5 MCQs about directors' duties" work on a 200-page book.
-        pages given  -> exactly those pages
-        neither      -> the opening of the document, up to the budget
-
-    The unit is always a whole page, never the retrieved chunks themselves. Chunks are
-    sized and overlapped for retrieval: joining them repeats ~150 characters at every
-    boundary and starts the passage mid-sentence, and a generator handed that writes
-    questions about the fragments. Retrieval picks *which* pages; the pages supply the
-    prose. They are then emitted in reading order, because relevance order reads as
-    non-sequitur.
-    """
-    max_chars = max_chars or config.MAX_SOURCE_CHARS
-
-    if topic:
-        # Rank pages by their best-matching chunk, then read those pages whole.
-        hits = get_vector_store().similarity_search_with_score(topic, k=12, doc_id=doc_id)
-        ranked, seen = [], set()
-        for document, _ in hits:
-            number = document.metadata.get("page_number")
-            if number is not None and number not in seen:
-                seen.add(number)
-                ranked.append(number)
-        selected = ranked
-    else:
-        selected = pages
-
-    records = pdf_store.get_pages(doc_id, selected)
-
-    if not records:
-        # Nothing stored by store_pages: either the document predates it or only chunks
-        # exist. Fall back to the chunks so an older corpus still generates.
-        documents = get_vector_store().chunks_for(doc_id, pages=selected)
-        records = [{"page_number": d.metadata.get("page_number"), "text": d.page_content}
-                   for d in documents]
-
-    if not records:
-        raise ValueError(
-            f"No indexed text for document {doc_id}"
-            + (f" matching {topic!r}" if topic else "")
-            + ". Ingest the PDF first."
-        )
-
-    if topic:
-        # get_pages returns reading order; keep only the budget's worth of the most
-        # relevant pages, then restore reading order among those.
-        rank = {number: position for position, number in enumerate(selected)}
-        records.sort(key=lambda r: rank.get(r["page_number"], len(rank)))
-
-        kept, total = [], 0
-        for record in records:
-            if total and total + len(record["text"]) > max_chars:
-                continue
-            kept.append(record)
-            total += len(record["text"]) + 2
-        records = sorted(kept, key=lambda r: r["page_number"])
-
-    parts, total = [], 0
-    for record in records:
-        text = (record.get("text") or "").strip()
-        if not text:
-            continue
-        if total + len(text) > max_chars:
-            remaining = max_chars - total
-            # Only take a partial page if enough of it fits to be worth reading.
-            if remaining > 300:
-                parts.append(text[:remaining])
-            break
-        parts.append(text)
-        total += len(text) + 2
-
-    return "\n\n".join(parts).strip()

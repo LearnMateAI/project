@@ -206,7 +206,12 @@ def list_sessions(limit: int = 20) -> List[Dict]:
 # work starts. See config.ONE_PDF_PER_SESSION.
 
 def get_session(session_id: str) -> Optional[Dict]:
-    """The session's binding record: {session_id, doc_id, filename, sha256, bound_at}."""
+    """
+    The session's binding record.
+
+    {session_id, doc_id, filename, sha256, kinds, bound_at} -- `kinds` being what the
+    session was opened for. See learnmate/ingestion/sessions.py, which owns the rules.
+    """
     if not session_id:
         return None
     return get_db()[config.COLL_SESSIONS].find_one({"session_id": session_id})
@@ -217,9 +222,10 @@ def session_doc_id(session_id: str):
     return (get_session(session_id) or {}).get("doc_id")
 
 
-def bind_session_document(session_id: str, doc_id, filename: str, sha256: str) -> None:
+def bind_session_document(session_id: str, doc_id, filename: str, sha256: str,
+                          kinds=("chat",)) -> None:
     """
-    Bind a session to the PDF it will be about.
+    Bind a session to the PDF it will be about, and to what it is for.
 
     The hash is stored alongside the id so re-ingesting the *same* file into the session
     can be told apart from uploading a different one, without a second lookup.
@@ -233,6 +239,7 @@ def bind_session_document(session_id: str, doc_id, filename: str, sha256: str) -
                   "doc_id": _as_object_id(doc_id),
                   "filename": filename,
                   "sha256": sha256,
+                  "kinds": list(kinds),
                   "bound_at": datetime.now(timezone.utc)}},
         upsert=True,
     )

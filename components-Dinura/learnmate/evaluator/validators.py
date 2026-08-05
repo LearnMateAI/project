@@ -1,159 +1,50 @@
 """
-Deterministic structural checks, run before the LLM judge.
+Gate 1: the structural dispatcher.
+
+    validate(task, content)  ->  (ok, reasons)
 
 Most bad generations fail mechanically rather than qualitatively: three options instead of
-four, a correct_answer that appears in no option, duplicate distractors, an empty answer.
-Those are decidable in plain Python in microseconds, and catching them here means the
-~25 second judge call is only ever spent on content that is already well-formed.
+four, a correct_answer that appears in no option, an empty summary. Those are decidable in
+plain Python in microseconds, and catching them here means the ~25 second judge call is
+only ever spent on content that is already well-formed.
 
-Every checker returns (ok, reasons). `reasons` is phrased as faults so it can be handed
-straight to the generator as a regeneration instruction when the LLM judge never runs.
+The rules themselves live next door -- mcq_rules.py and text_rules.py -- so this file is
+only the map from a task name to its checker.
 """
 
-import re
-from typing import List, Tuple
+from typing import Callable, Dict, List, Tuple
 
-# A distractor that gives the answer away by referring to the other options.
-_META_OPTION = re.compile(r"\b(all|none|both)\s+of\s+the\s+(above|these|following)\b",
-                          re.IGNORECASE)
+from .mcq_rules import validate_mcq, validate_mcq_set
+from .text_rules import validate_keypoints, validate_practice_qsn, validate_summary
 
-
-def _norm(text) -> str:
-    """Compare text without being fooled by spacing, case or trailing punctuation."""
-    return re.sub(r"\s+", " ", str(text or "")).strip().strip(".?!,;:").lower()
-
-
-def validate_mcq(item: dict) -> Tuple[bool, List[str]]:
-    """Check one multiple-choice question."""
-    reasons = []
-
-    question = str(item.get("question", "")).strip()
-    options = item.get("options") or []
-    correct = item.get("correct_answer", "")
-
-    if not question:
-        reasons.append("a question has empty question text")
-
-    if not isinstance(options, list) or len(options) != 4:
-        count = len(options) if isinstance(options, list) else 0
-        reasons.append(f"question {question[:40]!r} has {count} options instead of exactly 4")
-        # Without four options the remaining checks would report noise.
-        return (not reasons), reasons
-
-    normalised = [_norm(option) for option in options]
-
-    if any(not option for option in normalised):
-        reasons.append(f"question {question[:40]!r} has a blank option")
-    if len(set(normalised)) != len(normalised):
-        reasons.append(f"question {question[:40]!r} has duplicate options")
-    if _norm(correct) not in normalised:
-        reasons.append(f"question {question[:40]!r} has a correct_answer that is not one "
-                       "of its options")
-    if any(_META_OPTION.search(str(option)) for option in options):
-        reasons.append(f"question {question[:40]!r} uses an 'all/none of the above' option")
-
-    return (not reasons), reasons
-
-
-def validate_mcq_set(items) -> Tuple[bool, List[str]]:
-    """Check a whole MCQ set, including biases only visible across questions."""
-    if not items:
-        return False, ["no questions were generated"]
-
-    reasons = []
-    for item in items:
-        _, item_reasons = validate_mcq(item)
-        reasons.extend(item_reasons)
-
-    # Position bias: a set where the answer is always in the same slot is guessable
-    # without reading the question. Only meaningful once there are a few questions.
-    positions = []
-    for item in items:
-        options = [_norm(option) for option in (item.get("options") or [])]
-        correct = _norm(item.get("correct_answer", ""))
-        if correct in options:
-            positions.append(options.index(correct))
-    if len(positions) >= 4 and len(set(positions)) == 1:
-        reasons.append(f"the correct answer is in position {positions[0] + 1} for every question")
-
-    # Length bias: if the correct option is always the longest, length alone gives it away.
-    longest = []
-    for item in items:
-        options = [str(option) for option in (item.get("options") or [])]
-        correct = _norm(item.get("correct_answer", ""))
-        if len(options) == 4 and correct:
-            longest.append(_norm(max(options, key=len)) == correct)
-    if len(longest) >= 4 and all(longest):
-        reasons.append("the correct answer is the longest option in every question")
-
-    # Near-duplicate questions: the same fact asked twice with different wording still
-    # halves the value of the set.
-    stems = [_norm(item.get("question", "")) for item in items]
-    if len(set(stems)) != len(stems):
-        reasons.append("two questions are identical")
-
-    return (not reasons), reasons
-
-
-def validate_practice_qsn(items) -> Tuple[bool, List[str]]:
-    """Check short-answer questions."""
-    if not items:
-        return False, ["no questions were generated"]
-
-    reasons = []
-    for item in items:
-        question = str(item.get("question", "")).strip()
-        answer = str(item.get("answer", "")).strip()
-        if not question:
-            reasons.append("a question has empty question text")
-        if not answer:
-            reasons.append(f"question {question[:40]!r} has an empty answer")
-        elif _norm(answer) == _norm(question):
-            reasons.append(f"question {question[:40]!r} has an answer that just restates "
-                           "the question")
-    return (not reasons), reasons
-
-
-def validate_keypoints(items, min_points: int = 2) -> Tuple[bool, List[str]]:
-    """Check extracted key points."""
-    if not items:
-        return False, ["no key points were generated"]
-
-    reasons = []
-    points = [str(point).strip() for point in items]
-
-    if len(points) < min_points:
-        reasons.append(f"only {len(points)} key point(s) were produced, fewer than {min_points}")
-    if any(not point for point in points):
-        reasons.append("a key point is empty")
-    if len({_norm(point) for point in points}) != len(points):
-        reasons.append("two key points are duplicates of each other")
-    return (not reasons), reasons
-
-
-def validate_summary(text, min_chars: int = 80) -> Tuple[bool, List[str]]:
-    """Check a summary."""
-    text = str(text or "").strip()
-    reasons = []
-    if not text:
-        reasons.append("the summary is empty")
-    elif len(text) < min_chars:
-        reasons.append(f"the summary is only {len(text)} characters, too short to cover "
-                       "the source")
-    return (not reasons), reasons
-
-
-# task name -> the checker to run before calling the judge
-VALIDATORS = {
+# task name -> the checker to run before calling the judge.
+VALIDATORS: Dict[str, Callable] = {
     "mcq": validate_mcq_set,
     "practice_qsn": validate_practice_qsn,
     "keypoints": validate_keypoints,
     "summary": validate_summary,
 }
 
+__all__ = [
+    "VALIDATORS",
+    "validate",
+    "validate_keypoints",
+    "validate_mcq",
+    "validate_mcq_set",
+    "validate_practice_qsn",
+    "validate_summary",
+]
+
 
 def validate(task: str, content) -> Tuple[bool, List[str]]:
-    """Run the checker for `task`; unknown tasks pass through so the judge still sees them."""
+    """
+    Run the structural checker for `task`.
+
+    An unknown task passes through rather than failing: a new resource type should reach
+    the judge and be graded on its rubric, not be rejected for having no structural rules
+    written for it yet. Note there is no "chat_msg" entry -- a chat reply is free prose
+    with nothing mechanical to check, so it goes straight to gate 2.
+    """
     checker = VALIDATORS.get(task)
     if checker is None:
         return True, []

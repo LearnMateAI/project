@@ -338,9 +338,14 @@ components-Dinura/
 │   │   ├── pipeline.py         ingest_pdf() -- the order it all happens in
 │   │   └── source_text.py      build_source_text() -- what a resource session reads
 │   ├── evaluator/
-│   │   ├── validators.py       structural gate
-│   │   ├── rubrics.py          per-task grading criteria
-│   │   └── judge.py            the LLM judge
+│   │   ├── normalise.py        norm() -- comparison-safe text for gate 1
+│   │   ├── mcq_rules.py        gate 1: per-question faults + set-wide biases
+│   │   ├── text_rules.py       gate 1: summary, keypoints, practice questions
+│   │   ├── validators.py       gate 1 dispatcher: validate(task, content)
+│   │   ├── rubrics.py          gate 2: per-task grading criteria
+│   │   ├── prompt.py           gate 2: system prompt + message assembly
+│   │   ├── verdict.py          gate 2: schema, parsing, fail-closed verdicts
+│   │   └── judge.py            gate 2: Judge.judge / judge_chat_reply
 │   ├── resource_agent/
 │   │   ├── tasks.py            the four resource types
 │   │   └── graph.py            LangGraph generate/check/retry loop

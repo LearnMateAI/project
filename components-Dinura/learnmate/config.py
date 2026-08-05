@@ -99,8 +99,14 @@ EMBEDDING_MODEL = _env("LEARNMATE_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 # --- MongoDB -------------------------------------------------------------------------
 # An external server, not an embedded file store. A plain mongodb:// URI works; an
 # Atlas mongodb+srv:// URI additionally unlocks server-side $vectorSearch.
+#
+# 27018, not the conventional 27017: this project runs its own MongoDB container
+# (`docker compose up -d mongo`) with its own named volume, because 27017 on this machine
+# is answered by a native service shared with two other projects. Sharing a server means
+# sharing a failure -- another project's `docker compose down -v` would take LearnMate's
+# PDFs, sessions and generated resources with it.
 
-MONGODB_URI = _env("LEARNMATE_MONGODB_URI", "mongodb://localhost:27017")
+MONGODB_URI = _env("LEARNMATE_MONGODB_URI", "mongodb://localhost:27018")
 MONGODB_DB = _env("LEARNMATE_MONGODB_DB", "learnmate")
 
 COLL_DOCUMENTS = "documents"

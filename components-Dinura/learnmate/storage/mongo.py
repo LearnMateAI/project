@@ -1,22 +1,26 @@
 """
-MongoDB connection and schema setup.
+The MongoDB connection.
 
-One external server holds everything the system persists: the uploaded PDFs (GridFS),
-their text chunks and embeddings, the generated resources, the evaluation log and the
-chat history. Nothing is written to local disk, so any process on any machine that can
-reach the URI sees the same corpus.
+One external server holds everything the system persists that is not a vector: the
+uploaded PDFs (GridFS), their cleaned page text, session bindings, chat history, the
+generated resources and the evaluation log. Nothing is written to local disk, so any
+process that can reach the URI sees the same corpus.
 
-Indexes are created once on first connect. All of them are idempotent, so calling
-ensure_indexes() repeatedly is free.
+It runs as this project's own container -- `docker compose up -d mongo`, published on
+27018 with a named volume -- rather than a server shared with other projects. Losing this
+database loses the corpus; losing the vector database only costs a re-ingest.
+
+Indexes live next door in indexes.py and are created on first connect.
 """
 
 from typing import Optional
 
-from pymongo import ASCENDING, DESCENDING, MongoClient
+from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 from .. import config
+from .indexes import create_indexes
 
 _CLIENT: Optional[MongoClient] = None
 _INDEXES_READY = False
@@ -37,7 +41,8 @@ def get_client() -> MongoClient:
             client.admin.command("ping")
         except ServerSelectionTimeoutError as exc:
             raise StorageUnavailable(
-                f"Cannot reach MongoDB at {config.MONGODB_URI}. Start the server or set "
+                f"Cannot reach MongoDB at {config.MONGODB_URI}. Start it with "
+                f"`docker compose up -d mongo` (see docker-compose.yml), or set "
                 f"LEARNMATE_MONGODB_URI. Original error: {exc}"
             ) from exc
         _CLIENT = client
@@ -52,44 +57,13 @@ def get_db() -> Database:
 
 
 def ensure_indexes(database: Database = None) -> None:
-    """Create the indexes the queries in this package depend on."""
+    """Create the indexes the queries in this package depend on, once per process."""
     global _INDEXES_READY
     if _INDEXES_READY:
         return
 
     database = database if database is not None else get_client()[config.MONGODB_DB]
-
-    # sha256 is unique so re-uploading the same PDF is detected instead of duplicated;
-    # it is what makes "store once, retrieve quickly" hold across sessions.
-    database[config.COLL_DOCUMENTS].create_index([("sha256", ASCENDING)], unique=True)
-    database[config.COLL_DOCUMENTS].create_index([("uploaded_at", DESCENDING)])
-
-    # Retrieval always filters by document, and re-ingesting must overwrite a chunk
-    # rather than append a second copy of it.
-    database[config.COLL_CHUNKS].create_index([("doc_id", ASCENDING)])
-    database[config.COLL_CHUNKS].create_index(
-        [("doc_id", ASCENDING), ("page_number", ASCENDING), ("chunk_index", ASCENDING)],
-        unique=True,
-    )
-
-    # Whole cleaned page text, kept alongside the chunks. Chunks overlap by design, so
-    # joining them back together duplicates text at every boundary; resource generation
-    # needs the page as it actually reads.
-    database[config.COLL_PAGES].create_index(
-        [("doc_id", ASCENDING), ("page_number", ASCENDING)], unique=True)
-
-    database[config.COLL_RESOURCES].create_index(
-        [("doc_id", ASCENDING), ("task", ASCENDING), ("created_at", DESCENDING)])
-    database[config.COLL_EVALUATIONS].create_index([("created_at", DESCENDING)])
-    database[config.COLL_EVALUATIONS].create_index([("task", ASCENDING)])
-    database[config.COLL_CHAT_TURNS].create_index(
-        [("session_id", ASCENDING), ("created_at", ASCENDING)])
-
-    # One record per session. Unique because the binding is what enforces one PDF per
-    # session -- two records for the same id would mean two answers to "which document
-    # is this session about".
-    database[config.COLL_SESSIONS].create_index([("session_id", ASCENDING)], unique=True)
-
+    create_indexes(database)
     _INDEXES_READY = True
 
 

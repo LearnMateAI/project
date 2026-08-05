@@ -22,8 +22,8 @@ process can use the corpus at once.
 # 1. dependencies
 venv/Scripts/python -m pip install -r requirements.txt
 
-# 2. start the vector database (MongoDB is expected to be running already)
-docker compose up -d qdrant
+# 2. start both databases (MongoDB on 27018, Qdrant on 6335, each with a named volume)
+docker compose up -d
 
 # 3. check models, both databases and settings before anything slow runs
 python cli.py doctor
@@ -325,12 +325,21 @@ components-Dinura/
 │   │   ├── json_output.py      parse_json_reply()
 │   │   └── embeddings.py       MiniLM behind LangChain's Embeddings interface
 │   ├── storage/
-│   │   ├── mongo.py            connection + indexes
-│   │   ├── pdf_store.py        GridFS PDF storage, hash-deduplicated
+│   │   ├── mongo.py            the connection, StorageUnavailable
+│   │   ├── indexes.py          every index, including the three unique ones
+│   │   ├── ids.py              ObjectId coercion, shared
+│   │   ├── pdf_files.py        the PDF bytes, in GridFS
+│   │   ├── documents.py        the document record: store/look up/resolve/delete
+│   │   ├── pages.py            cleaned page text (what a resource session reads)
+│   │   ├── pdf_store.py        facade over those three
+│   │   ├── sessions.py         which PDF a session is about, and what for
+│   │   ├── history.py          chat turns
+│   │   ├── resources.py        generated resources + attempt trail
+│   │   ├── evaluations.py      the verdict log and its statistics
+│   │   ├── content_store.py    facade over those four
 │   │   ├── vectors.py          picks the vector backend
 │   │   ├── qdrant_vectors.py   LangChain VectorStore over a Qdrant server
-│   │   ├── mongo_vectors.py    the same, over MongoDB (no second service)
-│   │   └── content_store.py    resources, evaluations, chat history
+│   │   └── mongo_vectors.py    the same, over MongoDB (no second service)
 │   ├── ingestion/
 │   │   ├── clean.py            page extraction, furniture removal
 │   │   ├── chunking.py         cleaned pages -> the chunks that get embedded

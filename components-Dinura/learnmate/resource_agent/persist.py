@@ -6,8 +6,8 @@ Stores the resource with its whole attempt trail.
 The last attempt is the answer, pass or fail -- once a regeneration has run, its output is
 what the caller gets. Earlier attempts stay in the record so a run that needed a retry,
 and what the judge objected to the first time, remains answerable afterwards. That trail
-is the data behind `cli.py stats`; keeping only the winner would make the question
-"is the threshold set anywhere near right" unanswerable after the fact.
+is the data behind content_store.evaluation_stats(); keeping only the winner would make
+the question "is the threshold set anywhere near right" unanswerable after the fact.
 """
 
 from typing import Dict

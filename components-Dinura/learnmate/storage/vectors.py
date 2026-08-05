@@ -13,7 +13,7 @@ meaning either way and a corpus can be re-ingested into the other backend withou
 retuning anything.
 
 Note that switching backends does not migrate existing vectors. Re-run
-`python cli.py ingest <pdf> --force` to populate the new one; the PDFs and page text are
+`ingest_pdf(<pdf>, force=True)` to populate the new one; the PDFs and page text are
 in MongoDB and are not affected.
 """
 

@@ -7,8 +7,8 @@ Node 2 of 3: check. Both evaluation gates, cheapest first.
 Most bad generations fail mechanically -- three options instead of four, a correct_answer
 in none of them, an empty summary -- so the judge is only ever spent on content that is
 already well-formed. `stage` records which gate decided the attempt, and that is what
-`cli.py stats` groups by: if the validator is deciding most attempts, the prompt needs
-work, not the threshold.
+content_store.stage_counts() groups by: if the validator is deciding most attempts, the
+generation prompt needs work, not the threshold.
 
     content  ->  passed, stage, verdict, critique
 """

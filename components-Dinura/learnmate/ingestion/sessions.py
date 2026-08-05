@@ -116,8 +116,8 @@ def check_free(session_id: str, digest: str, filename: str) -> None:
 
     raise ValueError(
         f"Session {session_id!r} is already about {bound['filename']}. One PDF per "
-        f"session -- ingest {filename} into a new session instead:\n"
-        f"    python cli.py ingest {filename} --session <new-session-id>"
+        f"session -- ingest {filename} under a new session id instead:\n"
+        f"    ingest_pdf({filename!r}, session_id='<new-session-id>')"
     )
 
 
@@ -141,13 +141,13 @@ def require_kind(session_id: str, kind: str) -> None:
         return
 
     filename = bound.get("filename", "<pdf>")
-    flag = "chat" if kind == "chat" else "resource"
     raise ValueError(
         f"Session {session_id!r} was opened for {describe_kinds(allowed)}, not "
         f"{_LABELS[kind]}.\n"
         f"Open one for {_LABELS[kind]} on the same PDF -- already ingested, so nothing "
         f"is re-embedded:\n"
-        f"    python cli.py ingest {filename} --session <new-session-id> --for {flag}"
+        f"    ingest_pdf({filename!r}, session_id='<new-session-id>', "
+        f"session_for={kind!r})"
     )
 
 

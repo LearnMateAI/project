@@ -50,8 +50,8 @@ def generate_node(state: ResourceState) -> Dict:
     except Exception as exc:
         # Unparseable or failed output is a failed attempt, not a crash: record it and
         # let `decide` retry with the parse failure as the critique. Logged with
-        # stage="parse" so `cli.py stats` can show how often the generator, rather than
-        # the content, was the problem.
+        # stage="parse" so content_store.stage_counts() can show how often the generator,
+        # rather than the content, was the problem.
         _log(state, f"[!] Generation failed: {exc}")
         content_store.log_evaluation(
             task.name, attempt, None, False, state["threshold"], stage="parse",

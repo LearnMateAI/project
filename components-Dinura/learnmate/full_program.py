@@ -110,7 +110,22 @@ from learnmate.storage import (
     pdf_store,
 )
 
-DEFAULT_PDF = HERE.parent / "data" / "raw_pdfs" / "constitution.pdf"
+def _find_sample_pdf():
+    """
+    A PDF to offer as the default, if one is lying around.
+
+    Two fixed locations are tried because the sample PDFs have lived in both, then any
+    PDF under data/ -- so moving or renaming them does not silently break the default.
+    Returns None when there is nothing, and the menu then simply requires a path.
+    """
+    for candidate in (PROJECT / "data" / "constitution.pdf",
+                      PROJECT / "data" / "raw_pdfs" / "constitution.pdf"):
+        if candidate.exists():
+            return candidate
+    return next((PROJECT / "data").glob("**/*.pdf"), None)
+
+
+DEFAULT_PDF = _find_sample_pdf()
 RULE = "=" * 74
 THIN = "-" * 74
 
@@ -570,7 +585,9 @@ def main() -> int:
         description="LearnMate end to end: upload a PDF, chat about it, generate resources.",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--pdf", type=Path, default=DEFAULT_PDF,
-                        help=f"PDF to ingest (default: {DEFAULT_PDF.name})")
+                        help=("PDF to ingest"
+                              + (f" (default: {DEFAULT_PDF.name})" if DEFAULT_PDF
+                                 else "; required, none found under data/")))
     parser.add_argument("--ask", action="append", default=[],
                         help="ask this question; repeatable")
     parser.add_argument("--topic", help="focus resource generation on this topic")
@@ -589,6 +606,8 @@ def main() -> int:
     try:
         # Non-interactive whenever the caller gave something to do.
         if args.demo or args.ask:
+            if args.pdf is None:
+                raise SystemExit("No PDF found under data/. Pass one with --pdf <path>.")
             questions = args.ask or [
                 "What is this document about?",
                 "What does it say about fundamental rights?",

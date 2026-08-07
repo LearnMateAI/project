@@ -2,6 +2,7 @@ import os
 import certifi
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from gridfs import GridFS
 
 load_dotenv()
 
@@ -12,7 +13,8 @@ if not MONGODB_URI:
 
 client = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
 db = client["learnmateai"]
-
+documents_collection = db["documents"]
+fs = GridFS(db)
 def check_connection():
     """Quick check used at startup to confirm Mongo Atlas is reachable."""
     try:

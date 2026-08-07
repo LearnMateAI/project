@@ -6,6 +6,7 @@ import ChatHome from "../pages/chat-home.jsx";
 import Analytics from "../pages/user-analytics.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import Layout from "./components/Layout.jsx";
+import Documents from "../pages/documents.jsx";
 
 
 function App() {
@@ -42,6 +43,17 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Analytics />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/documents"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Documents />
             </Layout>
           </ProtectedRoute>
         }

@@ -23,4 +23,23 @@ export function loginUser({ email, password }) {
   return api.post("/api/auth/login", { email, password });
 }
 
+export function uploadDocument({ file, subject, onUploadProgress }) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("subject", subject);
+
+  return api.post("/api/documents/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
+  });
+}
+
+export function listDocuments() {
+  return api.get("/api/documents");
+}
+
+export function getDocumentFile(documentId) {
+  return api.get(`/api/documents/${documentId}/file`, { responseType: "blob" });
+}
+
 export default api;

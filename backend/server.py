@@ -4,10 +4,12 @@ import os
 from dotenv import load_dotenv
 from database.db import check_connection
 from api.routes import router as auth_router
+from api.documents import router as documents_router
 
 load_dotenv()
 
 app = FastAPI(title="LearnMateAI Backend")
+app.include_router(documents_router)
 
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 

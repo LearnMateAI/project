@@ -38,22 +38,36 @@ Where things live, in reading order:
     graph.py         the LangGraph wiring
     agent.py         generate_resource() -- the public entry point
 
+    document_summary.py  summarize_document() -- every page summarised, then folded into
+                         one paragraph, for when the whole PDF will not fit the window
+    document_mcqs.py     generate_document_mcqs() -- a question set spread across every
+                         page, for counts one generation call cannot hold
+
 The source passage comes from ingestion.build_source_text, which turns a PDF and an
 optional topic into the whole pages most relevant to it.
 """
 
 from .agent import generate_resource
+# Re-exported under a qualified name: "COUNT_CHOICES" says nothing at package scope.
+from .document_mcqs import COUNT_CHOICES as MCQ_COUNT_CHOICES
+from .document_mcqs import DEFAULT_COUNT as MCQ_DEFAULT_COUNT
+from .document_mcqs import generate_document_mcqs
+from .document_summary import summarize_document
 from .graph import build_resource_graph, get_resource_graph
 from .task import Task
 from .tasks import TASK_NAMES, TASKS, get_task, render
 
 __all__ = [
+    "MCQ_COUNT_CHOICES",
+    "MCQ_DEFAULT_COUNT",
     "TASKS",
     "TASK_NAMES",
     "Task",
     "build_resource_graph",
+    "generate_document_mcqs",
     "generate_resource",
     "get_resource_graph",
     "get_task",
     "render",
+    "summarize_document",
 ]

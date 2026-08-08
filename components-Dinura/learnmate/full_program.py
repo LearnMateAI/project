@@ -100,7 +100,14 @@ _use_project_venv()
 from learnmate import config
 from learnmate.chat_agent import ChatAgent
 from learnmate.ingestion import build_source_text, ingest_pdf
-from learnmate.resource_agent import generate_resource, render
+from learnmate.resource_agent import (
+    MCQ_COUNT_CHOICES,
+    MCQ_DEFAULT_COUNT,
+    generate_document_mcqs,
+    generate_resource,
+    render,
+    summarize_document,
+)
 from learnmate.storage import (
     QdrantUnavailable,
     StorageUnavailable,
@@ -321,28 +328,61 @@ def make_resource(task: str, doc_id, topic: str = None, count: int = None,
 
     The passage comes from ingestion.build_source_text: with a topic it is the pages that
     best match it, otherwise the opening of the document up to the budget.
+
+    A summary of the whole document is the exception. There "the opening pages" is the
+    wrong answer to "summarise this PDF", so it goes through summarize_document instead,
+    which reads every page. A summary *of a topic* still takes the normal path -- the
+    pages matching the topic are the passage, and the rest of the document is not wanted.
     """
     label, default_count = TASK_LABELS[task]
-    count = count or default_count
+    # A topic means "just this part of the document", so it keeps the passage path for
+    # every task. Without one, summary and mcq read the whole PDF instead.
+    whole_document = not topic and task in ("summary", "mcq")
+
+    # No default count for the whole-document summary: it sizes itself to how many pages
+    # it actually read, and TASK_LABELS' 5 would cap a whole book at five sentences.
+    if not (whole_document and task == "summary"):
+        count = count or default_count
 
     banner(f"{label}  ({task})")
 
-    source = build_source_text(doc_id, topic=topic)
-    print(f"source  : {len(source)} chars from the document"
-          + (f", matching {topic!r}" if topic else " (opening pages)"))
-    print(f"asking  : {count} {'sentences' if task == 'summary' else 'items'}"
-          f"   evaluation: {'on' if evaluate else 'off'}\n")
-
     started = time.time()
-    result = generate_resource(task, source, count=count, doc_id=doc_id,
-                               evaluate=evaluate, verbose=not quiet)
+    if whole_document and task == "mcq":
+        print("source  : every page of the document, in groups")
+        print(f"asking  : {count} questions across the whole document"
+              f"   evaluation: {'on' if evaluate else 'off'} (per group)\n")
+        result = generate_document_mcqs(doc_id, count=count, evaluate=evaluate,
+                                        verbose=not quiet)
+    elif whole_document:
+        print("source  : every page of the document, summarised then combined")
+        print(f"asking  : {count or 'as many sentences as the document needs'}"
+              f"   evaluation: {'on' if evaluate else 'off'} (on the combined summary)\n")
+        result = summarize_document(doc_id, count=count, evaluate=evaluate,
+                                    verbose=not quiet)
+    else:
+        source = build_source_text(doc_id, topic=topic)
+        print(f"source  : {len(source)} chars from the document"
+              + (f", matching {topic!r}" if topic else " (opening pages)"))
+        print(f"asking  : {count} {'sentences' if task == 'summary' else 'items'}"
+              f"   evaluation: {'on' if evaluate else 'off'}\n")
+        result = generate_resource(task, source, count=count, doc_id=doc_id,
+                                   evaluate=evaluate, verbose=not quiet)
 
     print(f"\n{THIN}")
     print(render(task, result["content"]) or "(nothing generated)")
     print(THIN)
 
     verdict = result.get("verdict")
-    if verdict:
+    if result.get("groups"):
+        # A pooled MCQ set has no single verdict -- each group was judged on its own -- so
+        # the per-group scores are reported instead of one number that never existed.
+        scores = [str(a["score"]) for a in result["attempts"] if a.get("score") is not None]
+        got, asked = len(result["content"] or []), result["requested"]
+        print(f"questions: {got} of the {asked} asked for, from {result['groups']} group(s)"
+              + ("" if got == asked else "   (the document supported no more)"))
+        print(f"score    : {'per group: ' + ', '.join(scores) if scores else 'not evaluated'}"
+              f" - {'accepted' if result['accepted'] else 'REJECTED (shown anyway)'}")
+    elif verdict:
         status_text = "accepted" if result["accepted"] else "BELOW THRESHOLD (shown anyway)"
         print(f"score    : {verdict['score']}/100 "
               f"(threshold {verdict['threshold']}) - {status_text}")
@@ -482,6 +522,30 @@ def prompt_pdf(state: Session) -> None:
     state.filename = report["document"]["filename"]
 
 
+def prompt_mcq_count(default: int = MCQ_DEFAULT_COUNT) -> int:
+    """
+    Ask how many questions to write for the document.
+
+    The offered counts are a menu, not a limit -- any number is accepted, and blank takes
+    the default. An unreadable answer returns the default rather than re-asking: this sits
+    in front of a generation that takes minutes, and a typo should not cost the run.
+    """
+    choices = "/".join(str(choice) for choice in MCQ_COUNT_CHOICES)
+    raw = input(f"\nHow many questions for the whole document? "
+                f"[{choices}, default {default}]: ").strip()
+    if not raw:
+        return default
+    try:
+        chosen = int(raw)
+    except ValueError:
+        print(f"  Not a number; using {default}.")
+        return default
+    if chosen < 1:
+        print(f"  Need at least one; using {default}.")
+        return default
+    return chosen
+
+
 def menu(state: Session) -> None:
     """The main loop."""
     while True:
@@ -539,7 +603,10 @@ def menu(state: Session) -> None:
             elif choice in ("3", "4", "5", "6"):
                 task = {"3": "mcq", "4": "summary", "5": "keypoints",
                         "6": "practice_qsn"}[choice]
-                make_resource(task, state.doc_id, topic=state.topic,
+                # Only asked for a whole-document set. With a topic set the passage is a
+                # few pages, and one call's worth of questions is all it can support.
+                count = prompt_mcq_count() if task == "mcq" and not state.topic else None
+                make_resource(task, state.doc_id, topic=state.topic, count=count,
                               evaluate=state.evaluate)
             elif choice == "7":
                 all_resources(state.doc_id, topic=state.topic, evaluate=state.evaluate)

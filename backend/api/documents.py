@@ -1,16 +1,18 @@
 from fastapi.responses import Response
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends, BackgroundTasks
 
-from database.db import documents_collection, fs
+from database.db import documents_collection, fs, chunks_collection
 from app_infrastructure.middleware import get_current_user
 from document_processing_pipeline.pdf_manager.upload import handle_upload
+from document_processing_pipeline.pdf_manager.pdf_manager import process_document
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
 @router.post("/upload", status_code=201)
 async def upload_document(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     subject: str = Form("General"),
     user: dict = Depends(get_current_user),
@@ -37,6 +39,7 @@ def list_documents(user: dict = Depends(get_current_user)):
             "page_count": d["page_count"],
             "file_size": d["file_size"],
             "processing_status": d["processing_status"],
+            "chunk_count": d.get("chunk_count", 0),
         }
         for d in docs
     ]

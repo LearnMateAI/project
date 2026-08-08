@@ -53,8 +53,15 @@ function Documents() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Your Documents</h1>
-
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">Your Documents</h1>
+        <button
+          onClick={fetchDocuments}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          Refresh
+        </button>
+      </div>
       {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -73,6 +80,7 @@ function Documents() {
                   <th className="pb-2">Subject</th>
                   <th className="pb-2">Pages</th>
                   <th className="pb-2">Status</th>
+                  <th className="pb-2">Chunks</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,6 +95,7 @@ function Documents() {
                     <td className="py-2">{doc.filename}</td>
                     <td className="py-2">{doc.subject}</td>
                     <td className="py-2">{doc.page_count}</td>
+                    <td className="py-2">{doc.chunk_count}</td>
                     <td className="py-2">
                       <span className="text-xs bg-gray-100 rounded px-2 py-1">
                         {doc.processing_status}

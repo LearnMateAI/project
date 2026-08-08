@@ -11,3 +11,4 @@ scores.jsonl
 # Qdrant embedded-mode lock file
 *.lock
 
+*.zip

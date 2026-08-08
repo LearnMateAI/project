@@ -38,22 +38,44 @@ Where things live, in reading order:
     graph.py         the LangGraph wiring
     agent.py         generate_resource() -- the public entry point
 
+Three more modules sit on top, for asks that are about a whole PDF rather than one passage
+-- neither the 6000-character passage nor the 1024-token reply is enough for those:
+
+    whole_document.py    generate_document_items() -- groups of pages generated separately
+                         and pooled, by total (count=40) or by rate (per_page=2)
+    document_mcqs.py     generate_document_mcqs() -- the count-based entry point for mcq
+    document_summary.py  summarize_document() -- every page summarised, then folded into
+                         one comprehensive summary
+
 The source passage comes from ingestion.build_source_text, which turns a PDF and an
 optional topic into the whole pages most relevant to it.
 """
 
 from .agent import generate_resource
+# Re-exported under a qualified name: "COUNT_CHOICES" says nothing at package scope.
+from .document_mcqs import COUNT_CHOICES as MCQ_COUNT_CHOICES
+from .document_mcqs import DEFAULT_COUNT as MCQ_DEFAULT_COUNT
+from .document_mcqs import generate_document_mcqs
+from .document_summary import summarize_document
+from .whole_document import DEFAULT_PER_PAGE, PER_PAGE_CHOICES, generate_document_items
 from .graph import build_resource_graph, get_resource_graph
 from .task import Task
 from .tasks import TASK_NAMES, TASKS, get_task, render
 
 __all__ = [
+    "DEFAULT_PER_PAGE",
+    "MCQ_COUNT_CHOICES",
+    "MCQ_DEFAULT_COUNT",
+    "PER_PAGE_CHOICES",
     "TASKS",
     "TASK_NAMES",
     "Task",
     "build_resource_graph",
+    "generate_document_items",
+    "generate_document_mcqs",
     "generate_resource",
     "get_resource_graph",
     "get_task",
     "render",
+    "summarize_document",
 ]

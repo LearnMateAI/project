@@ -101,10 +101,13 @@ from learnmate import config
 from learnmate.chat_agent import ChatAgent
 from learnmate.ingestion import build_source_text, ingest_pdf
 from learnmate.resource_agent import (
+    DEFAULT_PER_PAGE,
     MCQ_COUNT_CHOICES,
     MCQ_DEFAULT_COUNT,
-    generate_document_mcqs,
+    PER_PAGE_CHOICES,
+    generate_document_items,
     generate_resource,
+    get_task,
     render,
     summarize_document,
 )
@@ -322,7 +325,8 @@ def chat_loop(agent: ChatAgent) -> None:
 # --- Step 3: generate resources --------------------------------------------------------
 
 def make_resource(task: str, doc_id, topic: str = None, count: int = None,
-                  evaluate: bool = True, quiet: bool = False) -> dict:
+                  per_page: int = None, evaluate: bool = True,
+                  quiet: bool = False) -> dict:
     """
     Generate one resource and print it with its verdict.
 
@@ -336,23 +340,32 @@ def make_resource(task: str, doc_id, topic: str = None, count: int = None,
     """
     label, default_count = TASK_LABELS[task]
     # A topic means "just this part of the document", so it keeps the passage path for
-    # every task. Without one, summary and mcq read the whole PDF instead.
-    whole_document = not topic and task in ("summary", "mcq")
+    # every task. Without one, the whole PDF is read instead -- but only for the two
+    # question types when a rate was actually asked for, so `all_resources` does not
+    # silently turn into hundreds of generations.
+    by_rate = per_page is not None and task in ("keypoints", "practice_qsn")
+    whole_document = not topic and (task in ("summary", "mcq") or by_rate)
 
     # No default count for the whole-document summary: it sizes itself to how many pages
     # it actually read, and TASK_LABELS' 5 would cap a whole book at five sentences.
-    if not (whole_document and task == "summary"):
+    if not whole_document or task == "mcq":
         count = count or default_count
 
     banner(f"{label}  ({task})")
 
     started = time.time()
-    if whole_document and task == "mcq":
+    if by_rate and whole_document:
+        print("source  : every page of the document, in groups")
+        print(f"asking  : {per_page} {get_task(task).count_label} per page"
+              f"   evaluation: {'on' if evaluate else 'off'} (per group)\n")
+        result = generate_document_items(task, doc_id, per_page=per_page,
+                                         evaluate=evaluate, verbose=not quiet)
+    elif whole_document and task == "mcq":
         print("source  : every page of the document, in groups")
         print(f"asking  : {count} questions across the whole document"
               f"   evaluation: {'on' if evaluate else 'off'} (per group)\n")
-        result = generate_document_mcqs(doc_id, count=count, evaluate=evaluate,
-                                        verbose=not quiet)
+        result = generate_document_items("mcq", doc_id, count=count, evaluate=evaluate,
+                                         verbose=not quiet)
     elif whole_document:
         print("source  : every page of the document, summarised then combined")
         print(f"asking  : {count or 'as many sentences as the document needs'}"
@@ -378,8 +391,10 @@ def make_resource(task: str, doc_id, topic: str = None, count: int = None,
         # the per-group scores are reported instead of one number that never existed.
         scores = [str(a["score"]) for a in result["attempts"] if a.get("score") is not None]
         got, asked = len(result["content"] or []), result["requested"]
-        print(f"questions: {got} of the {asked} asked for, from {result['groups']} group(s)"
-              + ("" if got == asked else "   (the document supported no more)"))
+        rate = f" ({result['per_page']} per page)" if result.get("per_page") else ""
+        print(f"{get_task(task).count_label:9}: {got} of the {asked} asked for{rate}, "
+              f"from {result['groups']} group(s)"
+              + ("" if got >= asked else "   (the document supported no more)"))
         print(f"score    : {'per group: ' + ', '.join(scores) if scores else 'not evaluated'}"
               f" - {'accepted' if result['accepted'] else 'REJECTED (shown anyway)'}")
     elif verdict:
@@ -522,17 +537,16 @@ def prompt_pdf(state: Session) -> None:
     state.filename = report["document"]["filename"]
 
 
-def prompt_mcq_count(default: int = MCQ_DEFAULT_COUNT) -> int:
+def prompt_count(question: str, choices, default: int) -> int:
     """
-    Ask how many questions to write for the document.
+    Ask how much of something to generate.
 
-    The offered counts are a menu, not a limit -- any number is accepted, and blank takes
+    The offered numbers are a menu, not a limit -- any number is accepted and blank takes
     the default. An unreadable answer returns the default rather than re-asking: this sits
     in front of a generation that takes minutes, and a typo should not cost the run.
     """
-    choices = "/".join(str(choice) for choice in MCQ_COUNT_CHOICES)
-    raw = input(f"\nHow many questions for the whole document? "
-                f"[{choices}, default {default}]: ").strip()
+    offered = "/".join(str(choice) for choice in choices)
+    raw = input(f"\n{question} [{offered}, default {default}]: ").strip()
     if not raw:
         return default
     try:
@@ -544,6 +558,19 @@ def prompt_mcq_count(default: int = MCQ_DEFAULT_COUNT) -> int:
         print(f"  Need at least one; using {default}.")
         return default
     return chosen
+
+
+# What each whole-document task asks the user for, and how that number is then read.
+# "total" is a size for the set; "per_page" is a rate, and the set is however many pages
+# the document turns out to have.
+WHOLE_DOCUMENT_PROMPTS = {
+    "mcq": ("How many questions for the whole document?",
+            MCQ_COUNT_CHOICES, MCQ_DEFAULT_COUNT, "total"),
+    "keypoints": ("How many key points per page?",
+                  PER_PAGE_CHOICES, DEFAULT_PER_PAGE, "per_page"),
+    "practice_qsn": ("How many short-answer questions per page?",
+                     PER_PAGE_CHOICES, DEFAULT_PER_PAGE, "per_page"),
+}
 
 
 def menu(state: Session) -> None:
@@ -603,11 +630,18 @@ def menu(state: Session) -> None:
             elif choice in ("3", "4", "5", "6"):
                 task = {"3": "mcq", "4": "summary", "5": "keypoints",
                         "6": "practice_qsn"}[choice]
-                # Only asked for a whole-document set. With a topic set the passage is a
-                # few pages, and one call's worth of questions is all it can support.
-                count = prompt_mcq_count() if task == "mcq" and not state.topic else None
+                count = per_page = None
+                # Only asked for a whole-document run. With a topic set the passage is a
+                # few pages, and one call's worth is all it can support.
+                if not state.topic and task in WHOLE_DOCUMENT_PROMPTS:
+                    question, offered, default, mode = WHOLE_DOCUMENT_PROMPTS[task]
+                    chosen = prompt_count(question, offered, default)
+                    if mode == "per_page":
+                        per_page = chosen
+                    else:
+                        count = chosen
                 make_resource(task, state.doc_id, topic=state.topic, count=count,
-                              evaluate=state.evaluate)
+                              per_page=per_page, evaluate=state.evaluate)
             elif choice == "7":
                 all_resources(state.doc_id, topic=state.topic, evaluate=state.evaluate)
             elif choice == "8":

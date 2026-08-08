@@ -27,14 +27,13 @@ from .. import config
 from ..storage import pdf_store
 from .agent import generate_resource
 from .helpers import _log
+# The page filter and the grouping are shared with the pooled tasks. The page *loading* is
+# not: a summary reports which page each note came from, so it needs the records whole.
+from .whole_document import MIN_PAGE_CHARS, batched
 
 # Sentences asked of a single page. Deliberately tight: these are intermediate notes to be
 # folded, and a verbose per-page pass just crowds the fold's own budget.
 PAGE_SENTENCES = 2
-
-# Pages shorter than this are a title page, a running head or a stray caption -- there is
-# no prose on them to summarise, and asking anyway spends a generation to be told so.
-MIN_PAGE_CHARS = 200
 
 # --- How long the final summary is allowed to be ---------------------------------------
 # Scaled to the document rather than fixed: five sentences is a fair summary of a page and
@@ -65,28 +64,6 @@ def _fold_sentences(batch: List[str]) -> int:
     """Sentences to ask of one intermediate fold: about half the content it consumes."""
     return max(PAGE_SENTENCES,
                min(MAX_SENTENCES, sum(len(text) for text in batch) // CHARS_PER_SENTENCE // 2))
-
-
-def _batched(texts: List[str], max_chars: int) -> List[List[str]]:
-    """
-    Group in reading order into runs that each fit the budget.
-
-    Order is preserved rather than packed for density: a fold of pages 1-8 reads as a
-    section, a fold of pages 1, 40 and 97 reads as three non-sequiturs.
-    """
-    batches: List[List[str]] = []
-    batch, size = [], 0
-    for text in texts:
-        # `batch and` keeps a single oversized entry in a batch of its own instead of
-        # dropping it; the generator truncates it rather than never seeing it.
-        if batch and size + len(text) > max_chars:
-            batches.append(batch)
-            batch, size = [], 0
-        batch.append(text)
-        size += len(text) + 2
-    if batch:
-        batches.append(batch)
-    return batches
 
 
 def summarize_document(doc_id, count: int = None, threshold: int = None,
@@ -141,7 +118,7 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
     notes = [f"Page {page['page_number']}: {page['summary']}" for page in pages]
 
     while True:
-        batches = _batched(notes, budget)
+        batches = batched(notes, budget)
         # One batch means everything fits, so the next pass is the final one. `>=` is the
         # no-progress guard: a single note over the budget would otherwise loop forever.
         if len(batches) <= 1 or len(batches) >= len(notes):

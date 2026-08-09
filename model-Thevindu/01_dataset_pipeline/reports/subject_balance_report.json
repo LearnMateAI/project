@@ -1,0 +1,76 @@
+{
+  "pair_counts_by_split_and_subject": {
+    "train": {
+      "case_law_methodology": 15,
+      "civil_procedure": 0,
+      "company_commercial": 0,
+      "constitutional_law": 18,
+      "criminal_law": 18,
+      "evidence": 18
+    },
+    "val": {
+      "case_law_methodology": 0,
+      "civil_procedure": 15,
+      "company_commercial": 0,
+      "constitutional_law": 0,
+      "criminal_law": 0,
+      "evidence": 0
+    },
+    "test": {
+      "case_law_methodology": 0,
+      "civil_procedure": 0,
+      "company_commercial": 15,
+      "constitutional_law": 0,
+      "criminal_law": 0,
+      "evidence": 0
+    }
+  },
+  "doc_counts_by_split_and_subject": {
+    "train": {
+      "case_law_methodology": 1,
+      "civil_procedure": 0,
+      "company_commercial": 0,
+      "constitutional_law": 1,
+      "criminal_law": 1,
+      "evidence": 1
+    },
+    "val": {
+      "case_law_methodology": 0,
+      "civil_procedure": 1,
+      "company_commercial": 0,
+      "constitutional_law": 0,
+      "criminal_law": 0,
+      "evidence": 0
+    },
+    "test": {
+      "case_law_methodology": 0,
+      "civil_procedure": 0,
+      "company_commercial": 1,
+      "constitutional_law": 0,
+      "criminal_law": 0,
+      "evidence": 0
+    }
+  },
+  "docs_per_split": {
+    "train": 4,
+    "val": 1,
+    "test": 1
+  },
+  "pairs_per_split": {
+    "train": 69,
+    "val": 15,
+    "test": 15
+  },
+  "warnings": [
+    "SUBJECT MISSING FROM VAL: 'case_law_methodology' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM VAL: 'company_commercial' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM VAL: 'constitutional_law' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM VAL: 'criminal_law' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM VAL: 'evidence' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM TEST: 'case_law_methodology' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM TEST: 'civil_procedure' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM TEST: 'constitutional_law' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM TEST: 'criminal_law' has zero pairs. Consider adding another document in this subject before production training.",
+    "SUBJECT MISSING FROM TEST: 'evidence' has zero pairs. Consider adding another document in this subject before production training."
+  ]
+}

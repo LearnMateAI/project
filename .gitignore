@@ -1,7 +1,13 @@
 venv/
+.venv/
 __pycache__/
+**/__pycache__/
+*.pyc
 .env
 *.env
+.env.*
+!.env.example
+**/.env
 
 models/
 
@@ -12,3 +18,12 @@ scores.jsonl
 *.lock
 
 *.zip
+
+# model-Thevindu local artifacts / secrets / corpus
+model-Thevindu/01_dataset_pipeline/data/intermediate/
+model-Thevindu/01_dataset_pipeline/data/output/
+model-Thevindu/01_dataset_pipeline/processed/
+model-Thevindu/01_dataset_pipeline/data/raw_pdfs/*
+!model-Thevindu/01_dataset_pipeline/data/raw_pdfs/.gitkeep
+!model-Thevindu/01_dataset_pipeline/data/raw_pdfs/README.md
+model-Thevindu/02_finetuning/adapters/*/

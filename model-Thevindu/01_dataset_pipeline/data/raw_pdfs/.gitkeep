@@ -1,0 +1,3 @@
+# Place downloaded real-corpus PDFs here.
+# Pair them with a run manifest that includes a filename column.
+# See manifests/target_corpus_manifest.csv for the 25-source target list.

@@ -1,0 +1,56 @@
+# Explicit acceptance thresholds for LearnMateAI domain adapter promotion.
+# Edit only with team agreement — values here are the contract used by
+# evaluate_candidate.ipynb and the promotion checklist.
+
+version: 1
+dataset_split: test
+notes: >
+  Thresholds sized for a student budget system. Fail-closed: any metric
+  below threshold, or a missing fallback comparison, blocks promotion.
+  The live app must keep Gemini (or equivalent) API fallback regardless.
+
+metrics:
+  accuracy:
+    description: >
+      Fraction of test items where the candidate answer is judged correct
+      against the gold assistant turn (exact match on MCQ letter, or
+      token-F1 >= f1_pass_threshold for free-text QA/summary).
+    minimum: 0.70
+    f1_pass_threshold: 0.50
+
+  groundedness:
+    description: >
+      Fraction of answers that stay grounded in the provided source excerpt
+      (no invented section numbers / holdings). Measured as
+      1 - hallucination_rate.
+    minimum: 0.85
+
+  hallucination_rate:
+    description: >
+      Fraction of answers containing unsupported statutory citations or
+      facts not present in the source excerpt (heuristic + optional LLM judge).
+    maximum: 0.15
+
+  latency_p95_ms:
+    description: p95 end-to-end generation latency on the eval hardware.
+    maximum_ms: 8000
+
+  fallback_comparison:
+    description: >
+      Candidate must be evaluated against the production fallback model
+      (Gemini API or configured OpenAI-compatible endpoint) on the same
+      test items. Promotion requires candidate_accuracy >= fallback_accuracy
+      OR (candidate_groundedness >= fallback_groundedness AND
+      candidate_accuracy >= fallback_accuracy - accuracy_slack).
+    required: true
+    accuracy_slack: 0.05
+    fallback_env_api_key: GEMINI_API_KEY
+    fallback_env_model: FALLBACK_MODEL
+    default_fallback_model: gemini-2.0-flash
+
+promotion_gates:
+  - run_record_present
+  - all_thresholds_passed
+  - fallback_comparison_completed
+  - version_registry_row_written
+  - checklist_signed

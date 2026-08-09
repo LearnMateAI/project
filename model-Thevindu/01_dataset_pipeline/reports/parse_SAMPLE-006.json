@@ -1,0 +1,15 @@
+{
+  "doc_id": "SAMPLE-006",
+  "filename": "sample_sc_judgment.pdf",
+  "status": "ok_with_warnings",
+  "errors": [],
+  "warnings": [
+    "SAMPLE-006-C0001 below min_chunk_chars (108)"
+  ],
+  "page_count": 1,
+  "lines_stripped": 2,
+  "units_detected": 5,
+  "chunks_emitted": 5,
+  "subject_area": "case_law_methodology",
+  "processed_at": "2026-08-06T15:36:40+00:00"
+}

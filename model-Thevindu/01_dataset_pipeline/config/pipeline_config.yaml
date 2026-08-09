@@ -1,0 +1,68 @@
+# LearnMateAI — dataset pipeline configuration
+# All paths are relative to 01_dataset_pipeline/
+
+paths:
+  raw_pdfs: data/raw_pdfs
+  sample_pdfs: data/sample_pdfs
+  intermediate: data/intermediate
+  output: data/output
+  reports: reports
+  target_manifest: manifests/target_corpus_manifest.csv
+  sample_manifest: manifests/sample_manifest.csv
+
+stage1:
+  # Header/footer lines matching these patterns are stripped
+  header_footer_patterns:
+    - "(?i)^page\\s+\\d+(\\s+of\\s+\\d+)?$"
+    - "(?i)^\\d+\\s*$"
+    - "(?i)^cap\\.?\\s*\\d+\\]?.*"
+    - "(?i).*official\\s+reprint.*"
+    - "(?i)^printed\\s+by\\s+.*"
+  # Section / chapter / clause boundary detectors (order matters)
+  structure_patterns:
+    chapter: "(?i)^\\s*CHAPTER\\s+([IVXLC]+|\\d+)\\s*[-–.:)]?\\s*(.*)$"
+    part: "(?i)^\\s*PART\\s+([IVXLC]+|\\d+)\\s*[-–.:)]?\\s*(.*)$"
+    section: "(?i)^\\s*(\\d+[A-Za-z]?)\\.\\s+(.+)$"
+    subsection: "(?i)^\\s*\\(([a-z]|\\d+)\\)\\s+(.+)$"
+  min_chunk_chars: 120
+  max_chunk_chars: 3500
+  # Soft merge: tiny trailing fragments join the previous chunk
+  merge_orphan_below_chars: 80
+
+stage2:
+  # Instruction pair types to draft per chunk
+  pair_types:
+    - qa
+    - summary
+    - mcq
+  # Pairs of each type per chunk (mock and live)
+  pairs_per_type: 1
+  # OpenAI-compatible endpoint (Gemini via OpenAI-compatible proxy, or OpenAI)
+  # Set LM_API_KEY / LM_API_BASE / LM_MODEL in environment or .env
+  api:
+    env_api_key: LM_API_KEY
+    env_api_base: LM_API_BASE
+    env_model: LM_MODEL
+    default_model: gpt-4o-mini
+    temperature: 0.3
+    max_tokens: 800
+    requests_per_minute: 20
+  # When true (or --mock CLI flag), generate deterministic template pairs — no API spend
+  mock_mode_default: true
+
+stage3:
+  # Whole-document split ratios (must sum to 1.0)
+  ratios:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+  random_seed: 42
+  # Warn (non-fatal) if a subject area is absent from val or test
+  warn_missing_subject_in_splits:
+    - val
+    - test
+
+dataset:
+  version_prefix: "lm-legal"
+  # Written into every JSONL record for lineage
+  schema_version: "1.0"

@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+processed/
+data/intermediate/
+data/output/
+# Keep local corpus out of git by default (large / third-party)
+data/raw_pdfs/*
+!data/raw_pdfs/.gitkeep
+!data/raw_pdfs/README.md

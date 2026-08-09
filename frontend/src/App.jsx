@@ -7,7 +7,8 @@ import Analytics from "../pages/user-analytics.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import Layout from "./components/Layout.jsx";
 import Documents from "../pages/documents.jsx";
-
+import ExplanationSummary from "../pages/resource-pages/explanation-summary.jsx";
+import KeyPoints from "../pages/resource-pages/key-points.jsx";
 
 function App() {
   return (
@@ -54,6 +55,28 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Documents />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resources/summary"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <ExplanationSummary />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resources/key-points"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <KeyPoints />
             </Layout>
           </ProtectedRoute>
         }

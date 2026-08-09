@@ -42,4 +42,12 @@ export function getDocumentFile(documentId) {
   return api.get(`/api/documents/${documentId}/file`, { responseType: "blob" });
 }
 
+export function generateResource({ documentId, resourceType }) {
+  return api.post("/api/resources/generate", { document_id: documentId, resource_type: resourceType });
+}
+
+export function listResources(documentId) {
+  return api.get("/api/resources", { params: { document_id: documentId } });
+}
+
 export default api;

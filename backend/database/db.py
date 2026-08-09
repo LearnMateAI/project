@@ -15,6 +15,7 @@ client = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
 db = client["learnmateai"]
 documents_collection = db["documents"]
 chunks_collection = db["chunks"]
+resources_collection = db["resources"]
 fs = GridFS(db)
 def check_connection():
     """Quick check used at startup to confirm Mongo Atlas is reachable."""

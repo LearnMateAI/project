@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { listDocuments, getDocumentFile } from "../api/routes.jsx";
+import ResourcesPanel from "../src/components/ResourcesPanel.jsx";
 
 
 function Documents() {
@@ -108,14 +109,20 @@ function Documents() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px] flex items-center justify-center">
-          {!selectedDoc ? (
-            <p className="text-sm text-gray-400">Select a document to view it here.</p>
-          ) : viewerLoading ? (
-            <p className="text-sm text-gray-500">Loading preview...</p>
-          ) : pdfUrl ? (
-            <iframe src={pdfUrl} title={selectedDoc.filename} className="w-full h-[500px] rounded border" />
-          ) : null}
+        <div>
+          <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px] flex items-center justify-center">
+            {!selectedDoc ? (
+              <p className="text-sm text-gray-400">Select a document to view it here.</p>
+            ) : viewerLoading ? (
+              <p className="text-sm text-gray-500">Loading preview...</p>
+            ) : pdfUrl ? (
+              <iframe src={pdfUrl} title={selectedDoc.filename} className="w-full h-[500px] rounded border" />
+            ) : null}
+          </div>
+
+          {selectedDoc && (
+            <ResourcesPanel documentId={selectedDoc.id} documentStatus={selectedDoc.processing_status} />
+          )}
         </div>
       </div>
     </div>

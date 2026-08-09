@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from database.db import check_connection
 from api.routes import router as auth_router
 from api.documents import router as documents_router
+from api.resources import router as resources_router
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(resources_router)
 
 @app.get("/")
 def root():

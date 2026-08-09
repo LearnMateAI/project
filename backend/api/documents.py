@@ -24,6 +24,10 @@ async def upload_document(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    background_tasks.add_task(
+        process_document, file_bytes, documents_collection, chunks_collection, document["id"]
+    )
     return document
 
 

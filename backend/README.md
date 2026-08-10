@@ -1,42 +1,27 @@
-Since the python libraries are installed, make sure to maintain a virtual environment to avoid version conflicts. 
+# Backend development
 
-Before start developing for the first time:
-(git bash shell - All commands are for git bash shell. May slightly differ depending on your shell type CMD, etc...)
+Create and populate the virtual environment once:
 
-```
-cd <your-path-to-project-root-pls REPLACE>/backend
-```
-```
-python -m venv venv
-source venv/Scripts/activate
-```
-
-Prior to developments in backend(after 1st time):
-```
+```bash
 cd backend
-source venv/Scripts/activate
-```
-Once the virtual environment is working, you can see (venv) in the shell after executing any command.
-
-To install/update python libraries:
-
-```
-pip install -r requirements.txt
+python3 -m venv venv
+./venv/bin/python -m pip install -r requirements.txt
 ```
 
+Activate the environment and start the server on macOS or Linux:
 
-
-To deactivate virtual environment:
+```bash
+source venv/bin/activate
+python -m uvicorn server:app --reload --port 8000
 ```
-cd <your-path>/backend
-deactivate
+
+Confirm which interpreter is active with:
+
+```bash
+python -c "import sys; print(sys.executable)"
 ```
 
+It should end with `/backend/venv/bin/python`.
 
-
-
-
-To stop running server/any code:
-```
-ctrl + C  (windows)
-```
+Press `Ctrl+C` to stop the server. Run `deactivate` when you want to leave an
+activated virtual environment.

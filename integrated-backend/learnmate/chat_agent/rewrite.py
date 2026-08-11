@@ -1,0 +1,58 @@
+"""
+Node 1 of 5: rewrite.
+
+Resolves a follow-up question into a standalone one, so that retrieval embeds something
+meaningful.
+
+Why this runs *before* retrieval rather than after: "what about his powers?" embeds to
+almost nothing useful, and retrieving on the pronoun returns noise. Resolved against the
+history into "what are the President's powers?" it retrieves correctly. Doing it the
+other way round means the retrieval has already failed by the time we fix the query.
+
+    query + history  -->  standalone_query
+"""
+
+from typing import Dict
+
+from langchain_core.messages import HumanMessage, SystemMessage
+
+from ..llm import get_generator_llm
+from .helpers import _log
+from .prompts import REWRITE_SYSTEM
+from .state import ChatState
+
+
+def rewrite_node(state: ChatState) -> Dict:
+    """Resolve follow-up references so retrieval sees a self-contained question."""
+    query = state["query"]
+    history = state.get("history") or []
+
+    # First message of a conversation: there is nothing to resolve against, and calling
+    # the model anyway would just add latency to every new session.
+    if not history:
+        return {"standalone_query": query}
+
+    history_text = "\n".join(f"{turn['role']}: {turn['content']}" for turn in history)
+    messages = [
+        SystemMessage(content=REWRITE_SYSTEM),
+        HumanMessage(content=f"Conversation history:\n{history_text}\n\n"
+                             f"Follow-up question: {query}"),
+    ]
+
+    try:
+        # Temperature 0: this is a mechanical transformation, not a creative one.
+        # max_tokens is small because the output should be a single question -- capping
+        # it also stops a chatty model from appending an explanation.
+        reply = get_generator_llm().invoke(messages, temperature=0.0, max_tokens=100)
+        rewritten = (reply.content or "").strip()
+
+        # Only log when it actually changed something, to keep the CLI output quiet
+        # for the common case of an already-standalone question.
+        if rewritten and rewritten != query:
+            _log(state, f"[*] Rewritten: {rewritten}")
+
+        return {"standalone_query": rewritten or query}
+    except Exception:
+        # Rewriting is an optimisation; the raw query still retrieves something.
+        # A failure here must never cost the user their answer.
+        return {"standalone_query": query}

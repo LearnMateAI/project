@@ -55,6 +55,13 @@ MAX_DOCUMENTS = _env_int("API_MAX_DOCUMENTS", 200)
 MAX_RESOURCES = _env_int("API_MAX_RESOURCES", 100)
 MAX_JOBS = _env_int("API_MAX_JOBS", 50)
 
+# --- Keycloak ----------------------------------------------------------------------
+# Off by default so the original login path is exactly what every existing route gets
+# until this is deliberately turned on.
+KEYCLOAK_ENABLED = _env("KEYCLOAK_ENABLED", "false").lower() == "true"
+KEYCLOAK_ISSUER = _env("KEYCLOAK_ISSUER", "http://localhost:8081/realms/learnmate")
+KEYCLOAK_JWKS_URL = _env(
+    "KEYCLOAK_JWKS_URL", f"{KEYCLOAK_ISSUER}/protocol/openid-connect/certs")
 
 def require_secret() -> None:
     """

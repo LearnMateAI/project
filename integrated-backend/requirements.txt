@@ -1,0 +1,60 @@
+# LearnMate backend dependencies.
+#
+# Two halves: the web server, and the AI engine. The engine's pins are the ones this code
+# was built and verified against -- loosen them if you must, but read the notes first.
+
+# --- Web layer -------------------------------------------------------------------------
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30
+# Multipart form parsing. FastAPI needs it for UploadFile and will not start without it.
+python-multipart>=0.0.9
+PyJWT>=2.8,<3
+bcrypt>=4.1
+# Pydantic's EmailStr, used on the register and login models.
+email-validator>=2.1
+
+# --- Agent framework ---------------------------------------------------------------------
+langchain>=1.3,<2
+langchain-core>=1.5,<2
+langchain-community>=0.4,<1
+langchain-text-splitters>=1.1,<2
+langgraph>=1.2,<2
+
+# --- Local inference ---------------------------------------------------------------------
+# llama-cpp-python must be built with grammar support (any 0.2.77+ release is). Every
+# structured output in this project depends on JSON-schema-constrained decoding; without
+# it a 3B model returns prose where JSON was asked for about half the time.
+llama-cpp-python>=0.3,<0.4
+
+# --- Cloud inference (optional) -----------------------------------------------------------
+# Only imported when LEARNMATE_GENERATOR_BACKEND or LEARNMATE_JUDGE_BACKEND is "gemini".
+# Uninstall it if you are running fully offline; nothing else references it.
+google-genai>=1.0
+
+# --- Embeddings ---------------------------------------------------------------------------
+sentence-transformers>=5.0,<6
+torch>=2.6
+transformers>=5.0
+
+# --- Storage ------------------------------------------------------------------------------
+# dnspython is required for mongodb+srv:// URIs; pymongo does not pull it in. Not needed
+# for the local mongodb://localhost:27018 default, but harmless and one less thing to
+# discover the hard way if this is ever pointed at Atlas.
+pymongo>=4.9,<5
+dnspython>=2.7
+
+# Keep this within one minor version of the qdrant/qdrant image tag in docker-compose.yml
+# -- the client refuses to talk to a server further away than that.
+qdrant-client>=1.15,<2
+
+# --- PDF handling --------------------------------------------------------------------------
+# One PDF library for the whole system: extraction, cleaning and upload validation all go
+# through PyMuPDF.
+pymupdf>=1.26
+
+# --- Support -------------------------------------------------------------------------------
+numpy>=2.0
+python-dotenv>=1.0
+huggingface_hub>=0.20
+# Used only by scripts/smoke_test.py.
+requests>=2.31

@@ -3,10 +3,10 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends, BackgroundTasks
 
-from database.db import documents_collection, fs, chunks_collection
+from database.db import documents_collection, fs
 from app_infrastructure.middleware import get_current_user
 from document_processing_pipeline.pdf_manager.upload import handle_upload
-from document_processing_pipeline.pdf_manager.pdf_manager import process_document
+from document_processing_pipeline.pdf_manager.pdf_manager import process_document_via_learnmate
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -26,7 +26,7 @@ async def upload_document(
         raise HTTPException(status_code=400, detail=str(e))
 
     background_tasks.add_task(
-        process_document, file_bytes, documents_collection, chunks_collection, document["id"]
+        process_document_via_learnmate, file_bytes, documents_collection, document["id"]
     )
     return document
 
@@ -63,4 +63,4 @@ def get_document_file(document_id: str, user: dict = Depends(get_current_user)):
     grid_out = fs.get(doc["gridfs_file_id"])
     file_bytes = grid_out.read()
 
-    return Response(content=file_bytes, media_type="application/pdf")    
+    return Response(content=file_bytes, media_type="application/pdf")

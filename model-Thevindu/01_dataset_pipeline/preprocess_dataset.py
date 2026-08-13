@@ -49,19 +49,42 @@ SKIP_SUBSTRINGS = (
     "black’s-law",
 )
 
+# Fallback classifier only — the manifest's subject_area column is the authoritative
+# baseline (see resolve_subject). Order matters: the first match wins, so narrower
+# subjects must precede broader ones (criminal_procedure before criminal_law,
+# intellectual_property before property_land). Separators are matched with '.?' so
+# patterns work on hyphenated filenames as well as spaced ones.
 SUBJECT_RULES: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"constitution|amendment", re.I), "constitutional_law"),
-    (re.compile(r"penal", re.I), "criminal_law"),
-    (re.compile(r"criminal.?procedure|code of criminal", re.I), "criminal_procedure"),
+    (re.compile(r"criminal.?procedure|code.?of.?criminal|bail", re.I), "criminal_procedure"),
+    (re.compile(r"penal|crime|offence|drugs|poisons|opium", re.I), "criminal_law"),
     (re.compile(r"civil.?procedure", re.I), "civil_procedure"),
+    (re.compile(r"constitution", re.I), "constitutional_law"),
     (re.compile(r"evidence", re.I), "evidence"),
     (re.compile(r"compan", re.I), "company_commercial"),
-    (re.compile(r"intellectual|copyright|patent|trademark", re.I), "intellectual_property"),
-    (re.compile(r"marriage|maintenance|divorce|kandyan|muslim", re.I), "family_law"),
-    (re.compile(r"sale of goods|consumer", re.I), "contract_law"),
-    (re.compile(r"registration of documents|trust|land|property", re.I), "property_land"),
-    (re.compile(r"industrial|labour|labor|employment", re.I), "labour_industrial"),
-    (re.compile(r"judicature|mediation|arbitration|primary court|data protection", re.I), "administrative_public"),
+    (
+        re.compile(r"intellectual|copyright|patent|trademark|geographical.?indication", re.I),
+        "intellectual_property",
+    ),
+    (
+        re.compile(
+            r"marriage|maintenance|divorce|kandyan|muslim|domestic.?violence|family|adoption|custody",
+            re.I,
+        ),
+        "family_law",
+    ),
+    (re.compile(r"sale.?of.?goods|consumer|contract", re.I), "contract_law"),
+    (
+        re.compile(r"registration.?of.?documents|trust|land|property|frauds|partition|notaries", re.I),
+        "property_land",
+    ),
+    (re.compile(r"industrial|labour|labor|employ", re.I), "labour_industrial"),
+    (
+        re.compile(
+            r"judicature|mediation|arbitration|primary.?court|data.?protection|right.?to.?information",
+            re.I,
+        ),
+        "administrative_public",
+    ),
     (re.compile(r"black.?s.?law|judgment|appeal", re.I), "case_law_methodology"),
 ]
 
@@ -95,6 +118,38 @@ def infer_subject(filename: str) -> str:
         if pattern.search(filename):
             return subject
     return "administrative_public"
+
+
+def load_manifest_subjects(manifest_path: Path) -> dict[str, str]:
+    """Map filename -> subject_area from the manifest (the manual tagging baseline).
+
+    Rows without a filename, and rows marked as duplicates, are skipped so they
+    cannot be double counted in the subject-balance report.
+    """
+    if not manifest_path.exists():
+        return {}
+    mapping: dict[str, str] = {}
+    with manifest_path.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            filename = (row.get("filename") or "").strip()
+            subject = (row.get("subject_area") or "").strip()
+            status = (row.get("download_status") or "").strip()
+            if not filename or not subject or status.startswith("duplicate"):
+                continue
+            mapping[filename.lower()] = subject
+    return mapping
+
+
+def resolve_subject(filename: str, manifest_subjects: dict[str, str]) -> tuple[str, str]:
+    """Return (subject_area, source).
+
+    The manifest is authoritative; the filename regex is only a fallback for files
+    that have not been tagged manually yet.
+    """
+    declared = manifest_subjects.get(filename.lower())
+    if declared:
+        return declared, "manifest"
+    return infer_subject(filename), "filename_rule"
 
 
 def list_source_files(input_dir: Path) -> list[Path]:
@@ -254,6 +309,13 @@ def main() -> int:
         default=80,
         help="Max PDF pages per file (default 80). Use 0 for no cap.",
     )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=None,
+        help="Manifest CSV supplying the authoritative filename -> subject_area mapping "
+        "(default: manifests/target_corpus_manifest.csv)",
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -292,17 +354,31 @@ def main() -> int:
     max_pages = None if args.max_pages == 0 else args.max_pages
     print(f"max_pages per PDF: {max_pages if max_pages is not None else 'unlimited'}\n")
 
+    manifest_path = args.manifest or (ROOT / "manifests" / "target_corpus_manifest.csv")
+    if not manifest_path.is_absolute():
+        manifest_path = (ROOT / manifest_path).resolve()
+    manifest_subjects = load_manifest_subjects(manifest_path)
+    if manifest_subjects:
+        print(f"Manifest: {manifest_path.name} ({len(manifest_subjects)} tagged filenames)\n")
+    else:
+        print(f"Manifest: none usable at {manifest_path} - falling back to filename rules\n")
+
+    untagged: list[str] = []
+
     for i, path in enumerate(files, start=1):
         doc_id = f"DOC-{i:03d}-{slugify(path.stem)[:40]}"
-        subject = infer_subject(path.name)
+        subject, subject_source = resolve_subject(path.name, manifest_subjects)
+        if subject_source == "filename_rule":
+            untagged.append(path.name)
         print(f"--- ({i}/{len(files)}) {path.name} ---", flush=True)
         chunks, report, _ = process_one(
             path, doc_id, subject, cfg, cleaned_dir, max_pages=max_pages
         )
+        report["subject_source"] = subject_source
         reports.append(report)
         all_chunks.extend(chunks)
         print(
-            f"[{report['status']}] {path.name} | subject={subject} | "
+            f"[{report['status']}] {path.name} | subject={subject} ({subject_source}) | "
             f"pages={report['page_count']} chunks={report['chunks_emitted']} "
             f"stripped={report['lines_stripped']}",
             flush=True,
@@ -319,6 +395,7 @@ def main() -> int:
         "filename",
         "status",
         "subject_area",
+        "subject_source",
         "page_count",
         "lines_stripped",
         "units_detected",
@@ -341,6 +418,10 @@ def main() -> int:
             "documents_ok": sum(1 for r in reports if str(r["status"]).startswith("OK")),
             "documents_failed": sum(1 for r in reports if r["status"] == "FAIL"),
             "chunks_total": len(all_chunks),
+            "subject_from_manifest": sum(
+                1 for r in reports if r.get("subject_source") == "manifest"
+            ),
+            "subject_from_filename_rule": len(untagged),
         },
     )
 
@@ -348,6 +429,14 @@ def main() -> int:
     print(f"\nWrote {chunks_path} ({len(all_chunks)} chunks)")
     print(f"Wrote {report_csv}")
     print(f"Cleaned text -> {cleaned_dir}")
+    if untagged:
+        print(
+            f"\n*** {len(untagged)} file(s) not tagged in the manifest - subject guessed "
+            "from the filename and may be wrong ***"
+        )
+        for name in untagged:
+            print(f"  - {name}")
+        print("  Add a manifest row (filename + subject_area) for each before trusting the balance report.")
     if failed:
         print(f"\n*** {len(failed)} FAIL row(s) in parse_report.csv — inspect before Stage 2 ***")
         for r in failed:

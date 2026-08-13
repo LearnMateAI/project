@@ -25,8 +25,70 @@ official free legal PDF / HTML
 |-----------------|-------|--------|
 | `lm-legal-smoke-v1` | Synthetic sample PDFs | Smoke only (see EXP-001) |
 | `lm-legal-smoke-v2` | Synthetic sample PDFs; first live `gpt-4o-mini` pair generation (33 chunks → 66 pairs → 46/10/10) | Smoke only — pipeline proof, not a training candidate |
-| `lm-legal-v0.1` | **First build from the real corpus.** 21 real documents → 19 parsed → 1,280 chunks | In progress — Stage 2 |
+| `lm-legal-v0.1` | **First build from the real corpus.** 21 documents → 19 parsed → 1,280 chunks → 2,534 pairs → 1,590/339/325 + 280 strict | Built, untrained |
 | Local outputs | Under gitignored `processed*/` | Not in git |
+
+### `lm-legal-v0.1` build record
+
+Sources: 21 files in `data/raw_pdfs/`. `Black's-Law-4th-edition-1891.pdf` moved to
+`data/excluded_from_corpus/` (an 1891 American dictionary, not Sri Lankan law, and at
+11 MB it would have dominated the chunk count).
+
+| Stage | Result |
+|-------|--------|
+| 1 — parse/clean/chunk | 19 of 21 OK, **1,280 chunks**; 52 TOC chunks dropped; every subject tagged from the manifest, none guessed |
+| 1 — failures | `Arbitration act 2.pdf` and `Mediation Boards Act no 27.pdf`: scanned images, no text layer. Need OCR or a text-based source |
+| 2 — pair generation | live `gpt-4o-mini`, 2 per chunk → **2,534 kept, 26 rejected (1.0%)** by the GI-001 grounding gate, 0 API errors |
+| 3 — split | `--group_by chapter --strict_holdout`, 189 units, seed 42 |
+
+| Split | Pairs | Documents | Subjects |
+|-------|------:|----------:|---------:|
+| train | 1,590 | 15 | 11 |
+| val | 339 | 14 | 11 |
+| test | 325 | 13 | 11 |
+| `test_strict` | 280 | 4 | 4 |
+
+Verified: no strict-holdout document appears in train/val/test, no duplicate `pair_id`
+across splits, no chunk in more than one split.
+
+### Two accuracy numbers, deliberately not interchangeable
+
+Whole-document splitting was tried first and is **unusable on this corpus**. With 19
+documents of very unequal size and most subjects holding one document, a subject must
+land entirely in one split: `family_law` and `property_land` came out with **zero
+training pairs**, eight subjects had no val or test, and val was 80% a single subject.
+
+Grouping by `(document, chapter)` gives 189 units instead of 19 and puts every subject in
+every split — at the cost of chapters of one statute appearing in both train and test.
+
+| Metric | Split | Measures |
+|--------|-------|----------|
+| `in_corpus_accuracy (chapter-held-out)` | `test.jsonl` | Handling chapters of statutes partly seen in training |
+| `accuracy (document-held-out)` | `test_strict.jsonl` | Generalisation to a statute never seen at any granularity |
+
+The `accuracy ≥ 0.70` in `acceptance_thresholds.yaml` was written against the **second**
+definition. A candidate can clear the first without clearing the bar the threshold
+intended, so registry rows carry `eval_split` and `metric_definition` and the two must
+never be compared as one number.
+
+`test_strict.jsonl` reserves four whole documents, chosen as the smallest in each subject
+that has two or more, so the cost in training data is minimal:
+
+| Subject | Held-out document |
+|---------|-------------------|
+| civil_procedure | Mediation Boards Act No. 21 |
+| constitutional_law | 21st Amendment |
+| contract_law | Sale of Goods |
+| criminal_procedure | Primary Courts' Procedure |
+
+`family_law` is deliberately **skipped**: it has only two documents, and reserving one
+left a single unit that could not cover train, val and test — the holdout would have
+recreated the problem it exists to check. It therefore has no strict-generalisation
+signal until a third family-law document is added.
+
+Run both evaluations. If the two numbers land close together the leakage is doing little
+work; if they diverge, that divergence is the finding, and it is worth having before
+promotion rather than after.
 
 > **Both smoke versions were built from the same six synthetic one-page PDFs** in
 > `data/sample_pdfs/`, whose cleaned text is headed `(SYNTHETIC EXCERPT)`. The only

@@ -1,2 +1,2 @@
-candidate_id,run_id,base_model,dataset_version,evaluated_at_utc,accuracy,groundedness,hallucination_rate,latency_p95_ms,fallback_model,fallback_accuracy,fallback_groundedness,passed,fail_reasons,notes
-dry-run-example,dry-run-example,Qwen/Qwen2.5-1.5B-Instruct,lm-legal-smoke-v1,2026-08-06T15:40:51+00:00,0.0000,0.0000,1.0000,99999.0,dry-run-fallback,0.0000,0.0000,False,dry_run=True - not a production evaluation,dry_run scaffold proof
+candidate_id,run_id,base_model,dataset_version,evaluated_at_utc,eval_split,metric_definition,accuracy,groundedness,hallucination_rate,latency_p95_ms,fallback_model,fallback_accuracy,fallback_groundedness,passed,fail_reasons,notes
+dry-run-example,dry-run-example,Qwen/Qwen2.5-1.5B-Instruct,lm-legal-smoke-v1,2026-08-06T15:40:51+00:00,test,accuracy (document-held-out),0.0000,0.0000,1.0000,99999.0,dry-run-fallback,0.0000,0.0000,False,dry_run=True - not a production evaluation,dry_run scaffold proof

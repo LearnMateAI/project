@@ -25,6 +25,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from common import load_config, read_jsonl, utc_now_iso, write_json, write_jsonl  # noqa: E402
 from stage2_generate_pairs import PAIR_PROMPTS, _stable_id, mock_pair  # noqa: E402
 
+sys.path.insert(0, str(ROOT))
+from validate_pairs import check_pair  # noqa: E402
+
 
 def resolve_api_key() -> str:
     load_dotenv(ROOT / ".env")
@@ -50,9 +53,27 @@ def live_pair(
     excerpt = chunk["text"]
     if len(excerpt) > 6000:
         excerpt = excerpt[:6000] + "\n[...truncated for length...]"
+    # Tell the model which provision this is, or admit we don't know. Stage 1 forward-
+    # fills the parent section onto continuation chunks and flags it as inherited; a
+    # chunk with neither is one where any section number in the answer would be a guess.
+    section_id = chunk.get("section_id")
+    if section_id and chunk.get("section_inherited"):
+        provenance = (
+            f"This excerpt CONTINUES section {section_id}; the number is not repeated "
+            f"in the text below. You may refer to section {section_id}, but to no other."
+        )
+    elif section_id:
+        provenance = f"This excerpt is section {section_id}."
+    else:
+        provenance = (
+            "The section number for this excerpt is UNKNOWN. Do not state any section "
+            "number at all -- refer to it as \"this provision\"."
+        )
+
     user = (
         f"Subject area: {chunk.get('subject_area')}\n"
-        f"Heading: {chunk.get('section_heading')}\n\n"
+        f"Heading: {chunk.get('section_heading')}\n"
+        f"{provenance}\n\n"
         f"EXCERPT:\n{excerpt}"
     )
     resp = client.chat.completions.create(
@@ -80,6 +101,11 @@ def live_pair(
         "instruction": parsed.get("instruction", ""),
         "input": chunk["text"],
         "output": parsed.get("output", ""),
+        # Carried through so a later standalone audit can tell an inherited section
+        # number from an invented one -- without it, re-validating a pairs file flags
+        # legitimate continuation citations that the live gate correctly allowed.
+        "section_id": chunk.get("section_id"),
+        "section_inherited": bool(chunk.get("section_inherited")),
         "generation_mode": "live",
         "model": model,
         "schema_version": chunk.get("schema_version", "1.0"),
@@ -101,6 +127,12 @@ def main() -> int:
     parser.add_argument("--mock", action="store_true", help="No API calls")
     parser.add_argument("--model", type=str, default=None)
     parser.add_argument("--config", type=Path, default=None)
+    parser.add_argument(
+        "--no-validate",
+        action="store_true",
+        help="Write pairs that cite provisions absent from their excerpt. Off by "
+             "default: the gate is what stops ungrounded citations reaching training.",
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -139,16 +171,36 @@ def main() -> int:
 
     pairs: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+
+    def _keep(pair: dict[str, Any], chunk: dict[str, Any]) -> bool:
+        """Fail-closed grounding gate; see validate_pairs for the measured rationale."""
+        if args.no_validate:
+            return True
+        allow = {chunk["section_id"]} if chunk.get("section_id") else None
+        ok, reason = check_pair(pair, allow=allow)
+        if not ok:
+            rejected.append(
+                {
+                    "pair_id": pair.get("pair_id"),
+                    "chunk_id": pair.get("chunk_id"),
+                    "pair_type": pair.get("pair_type"),
+                    "reason": reason,
+                }
+            )
+        return ok
 
     for ci, chunk in enumerate(chunks, start=1):
         for n, pair_type in enumerate(types_cycle, start=1):
             try:
                 if args.mock:
-                    pairs.append(mock_pair(chunk, pair_type, n))
+                    p = mock_pair(chunk, pair_type, n)
+                    if _keep(p, chunk):
+                        pairs.append(p)
                 else:
-                    pairs.append(
-                        live_pair(chunk, pair_type, n, client, model, temperature, max_tokens)
-                    )
+                    p = live_pair(chunk, pair_type, n, client, model, temperature, max_tokens)
+                    if _keep(p, chunk):
+                        pairs.append(p)
                     time.sleep(delay)
             except Exception as exc:  # noqa: BLE001
                 errors.append(
@@ -160,7 +212,10 @@ def main() -> int:
                 )
                 print(f"  ERROR {chunk.get('chunk_id')} {pair_type}: {exc}")
         if ci % 5 == 0 or ci == len(chunks):
-            print(f"  progress {ci}/{len(chunks)} chunks -> {len(pairs)} pairs")
+            print(
+                f"  progress {ci}/{len(chunks)} chunks -> {len(pairs)} kept, "
+                f"{len(rejected)} rejected"
+            )
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     write_jsonl(output_file, pairs)
@@ -172,6 +227,12 @@ def main() -> int:
             "model": None if args.mock else model,
             "chunks_in": len(chunks),
             "pairs_out": len(pairs),
+            "pairs_rejected": len(rejected),
+            "rejection_rate": round(
+                len(rejected) / max(len(pairs) + len(rejected), 1), 4
+            ),
+            "rejections": rejected,
+            "validation_enabled": not args.no_validate,
             "errors": errors,
             "limit": args.limit,
             "pairs_per_chunk": args.pairs_per_chunk,

@@ -29,24 +29,42 @@ from common import (
     write_jsonl,
 )
 
+# Measured on the real corpus: 38% of generated pairs cited a section number the
+# excerpt did not contain. The old summary prompt said "preserving section numbers",
+# which on a chunk that starts mid-section (no number visible) invited the model to
+# supply one from memory -- 12 of the 15 bad pairs were summaries. This rule is stated
+# first, in the same words, in every prompt.
+_CITATION_RULE = (
+    "CITATION RULE (strict): you may state a section, article, chapter or rule "
+    "number ONLY if that exact number appears literally in the excerpt, or is given "
+    "to you above as the section this excerpt belongs to. If the excerpt starts "
+    "mid-provision and no number is shown, write \"this section\" or \"this "
+    "provision\" instead. Never number a provision from your own knowledge of Sri "
+    "Lankan law, and never list neighbouring section numbers that are not in the "
+    "excerpt. A correct answer with no numbers is better than an invented citation.\n\n"
+)
+
 PAIR_PROMPTS = {
     "qa": (
         "You are drafting study Q&A for Sri Lankan law students. "
         "Using ONLY the statutory/case excerpt below, write one clear question "
         "and a grounded answer. Do not invent sections or facts not present.\n\n"
-        "Return JSON: {\"instruction\": \"...\", \"output\": \"...\"}"
+        + _CITATION_RULE
+        + "Return JSON: {\"instruction\": \"...\", \"output\": \"...\"}"
     ),
     "summary": (
         "You are drafting study summaries for Sri Lankan law students. "
-        "Summarise the excerpt below in 3–5 sentences, preserving section numbers "
-        "and legal tests. Do not add external law.\n\n"
-        "Return JSON: {\"instruction\": \"Summarise the following legal text.\", \"output\": \"...\"}"
+        "Summarise the excerpt below in 3–5 sentences, preserving the legal tests it "
+        "sets out. Do not add external law.\n\n"
+        + _CITATION_RULE
+        + "Return JSON: {\"instruction\": \"Summarise the following legal text.\", \"output\": \"...\"}"
     ),
     "mcq": (
         "You are drafting a multiple-choice question for Sri Lankan law students. "
         "Using ONLY the excerpt below, write one MCQ with four options (A–D) and "
         "indicate the correct option with a one-sentence justification grounded in the text.\n\n"
-        "Return JSON: {\"instruction\": \"...\", \"output\": \"...\"}"
+        + _CITATION_RULE
+        + "Return JSON: {\"instruction\": \"...\", \"output\": \"...\"}"
     ),
 }
 

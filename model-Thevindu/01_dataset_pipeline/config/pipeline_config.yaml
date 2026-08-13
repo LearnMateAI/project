@@ -46,7 +46,9 @@ stage2:
     default_model: gpt-4o-mini
     temperature: 0.3
     max_tokens: 800
-    requests_per_minute: 20
+    # Throughput knob only, no effect on output. At 20 the 3s inter-call sleep was
+    # ~40% of a full-corpus run's wall time; 60 is still far below any paid-tier limit.
+    requests_per_minute: 60
   # When true (or --mock CLI flag), generate deterministic template pairs — no API spend
   mock_mode_default: true
 

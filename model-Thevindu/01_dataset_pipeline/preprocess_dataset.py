@@ -35,6 +35,28 @@ from stage1_parse_chunk import (  # noqa: E402
     strip_headers_footers,
 )
 
+def looks_like_toc(text: str) -> bool:
+    """True for table-of-contents / index blocks rather than substantive text.
+
+    A TOC chunk carries no law, only section titles and page numbers, but it is
+    dense with section numbers -- so Stage 2 reads it as a list of provisions and
+    answers from pretrained knowledge instead of the excerpt. One constitution TOC
+    fragment listing 'JUDICIAL SERVICE COMMISSION 111D ... 111E ...' produced a
+    detailed answer about the Audit Service Commission under 153C/153D, a topic the
+    excerpt never mentions. Cheaper to drop these than to detect the bad pair later.
+    """
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    if len(lines) < 3:
+        return False
+    # Dotted leaders: "Meetings of the Commission ... .... .... 124"
+    dotted = sum(1 for ln in lines if re.search(r"\.\s*\.\s*\.", ln))
+    if dotted / len(lines) >= 0.30:
+        return True
+    # Or short entries that nearly all end in a bare page number.
+    pagey = sum(1 for ln in lines if len(ln) < 90 and re.search(r"\s\d{1,4}\s*$", ln))
+    return pagey / len(lines) >= 0.70
+
+
 SKIP_NAMES = {
     ".gitkeep",
     "readme.md",
@@ -260,7 +282,30 @@ def process_one(
             merge_orphan_below=s1["merge_orphan_below_chars"],
         )
         warnings: list[str] = []
-        for idx, ch in enumerate(raw_chunks, start=1):
+        toc_dropped = 0
+        # A chunk that continues a section doesn't restate its number, so section_id
+        # comes back None and section_heading degrades to the enclosing "PART II".
+        # Stage 2 then has no idea which provision it is reading and supplies a number
+        # from memory -- the single largest source of ungrounded citations measured on
+        # this corpus. Carry the last known section forward and mark it as inherited so
+        # Stage 2 can state it without guessing.
+        last_section_id: str | None = None
+        last_section_heading: str | None = None
+        idx = 0
+        for ch in raw_chunks:
+            if looks_like_toc(ch["text"]):
+                toc_dropped += 1
+                continue
+
+            own_id = ch.get("section_id")
+            if own_id:
+                last_section_id = own_id
+                last_section_heading = ch.get("section_heading")
+                inherited = False
+            else:
+                inherited = last_section_id is not None
+
+            idx += 1
             chunk_id = f"{doc_id}-C{idx:04d}"
             if ch["char_count"] < s1["min_chunk_chars"]:
                 warnings.append(f"{chunk_id} below min_chunk_chars ({ch['char_count']})")
@@ -272,8 +317,10 @@ def process_one(
                     "subject_area": subject_area,
                     "title": path.stem,
                     "doc_type": "statute",
-                    "section_id": ch.get("section_id"),
-                    "section_heading": ch.get("section_heading"),
+                    "section_id": own_id or (last_section_id if inherited else None),
+                    "section_heading": ch.get("section_heading")
+                    or (last_section_heading if inherited else None),
+                    "section_inherited": inherited,
                     "chapter": ch.get("chapter"),
                     "part": ch.get("part"),
                     "text": ch["text"],
@@ -283,6 +330,9 @@ def process_one(
             )
 
         report["chunks_emitted"] = len(chunks)
+        report["toc_chunks_dropped"] = toc_dropped
+        if toc_dropped:
+            warnings.append(f"{toc_dropped} table-of-contents chunk(s) dropped")
         report["warnings"] = " | ".join(warnings)
         if not chunks:
             report["status"] = "FAIL"
@@ -400,6 +450,7 @@ def main() -> int:
         "lines_stripped",
         "units_detected",
         "chunks_emitted",
+        "toc_chunks_dropped",
         "errors",
         "warnings",
         "processed_at",
@@ -418,6 +469,11 @@ def main() -> int:
             "documents_ok": sum(1 for r in reports if str(r["status"]).startswith("OK")),
             "documents_failed": sum(1 for r in reports if r["status"] == "FAIL"),
             "chunks_total": len(all_chunks),
+            "toc_chunks_dropped": sum(int(r.get("toc_chunks_dropped") or 0) for r in reports),
+            "chunks_with_inherited_section": sum(
+                1 for c in all_chunks if c.get("section_inherited")
+            ),
+            "chunks_without_section_id": sum(1 for c in all_chunks if not c.get("section_id")),
             "subject_from_manifest": sum(
                 1 for r in reports if r.get("subject_source") == "manifest"
             ),

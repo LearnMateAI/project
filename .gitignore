@@ -22,8 +22,7 @@ scores.jsonl
 # model-Thevindu local artifacts / secrets / corpus
 model-Thevindu/01_dataset_pipeline/data/intermediate/
 model-Thevindu/01_dataset_pipeline/data/output/
-model-Thevindu/01_dataset_pipeline/processed/
-model-Thevindu/01_dataset_pipeline/processed_real/
+model-Thevindu/01_dataset_pipeline/processed*/
 model-Thevindu/01_dataset_pipeline/data/excluded_from_corpus/
 model-Thevindu/01_dataset_pipeline/data/raw_pdfs/*
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/.gitkeep

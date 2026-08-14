@@ -7,12 +7,21 @@
  * yet: the mode is settled, but the score does not exist until the judge has run, and a
  * badge that appears and then changes its mind is worse than one that waits.
  *
- * Falls back to the job's commentary ("Evaluating...") whenever there is no text to show,
- * which covers the seconds before the first token and the pause while the judge grades.
+ * Three states, not two, and the middle one is the point:
+ *
+ *   no text yet   a spinner and whatever the backend is doing ("Retrieving...")
+ *   writing       the text so far, with a cursor on the last line
+ *   reply_ready   the finished answer, cursor gone, with a quiet note that it is being
+ *                 checked -- because the judge takes longer than the writing did, and a
+ *                 reader who already has the answer should not be made to watch a cursor
+ *                 blink through it. See app/jobs/runners.py, which publishes the milestone.
+ *
+ * The text cannot change under the reader once reply_ready is up: a regeneration is not
+ * streamed over it. If the retry scores better, the finished turn swaps it in, once.
  */
 
 function StreamingMessage({ progress }) {
-  const { message, partial } = progress || {};
+  const { message, partial, reply_ready: replyReady } = progress || {};
   const text = (partial || "").trim();
 
   return (
@@ -23,13 +32,27 @@ function StreamingMessage({ progress }) {
             <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-body">
               {text}
               {/* Sits on the last line rather than below it, so the answer reads as
-                  still being typed rather than as finished with something after it. */}
-              <span className="inline-block w-1.5 h-4 ml-0.5 -mb-0.5 bg-primary animate-pulse rounded-sm" />
+                  still being typed rather than as finished with something after it.
+                  Dropped once the reply is whole: a cursor on a finished answer is
+                  exactly what keeps a reader waiting for more of it. */}
+              {!replyReady && (
+                <span className="inline-block w-1.5 h-4 ml-0.5 -mb-0.5 bg-primary animate-pulse rounded-sm" />
+              )}
             </div>
-            {/* Once text is flowing the commentary is demoted: the answer is the thing
-                being watched, and "Generating (attempt 2/2)..." still matters because it
-                is the only signal that a regeneration has started over. */}
-            {message && <p className="text-[11.5px] text-subtle mt-2">{message}</p>}
+            {replyReady ? (
+              /* The answer is readable now, so this only explains why the turn has not
+                 closed yet. Deliberately quiet -- a footnote, not a status anybody is
+                 waiting on. */
+              <p className="flex items-center gap-2 text-[11.5px] text-subtle mt-2 m-0">
+                <span className="spinner" />
+                {message || "Checking this answer..."}
+              </p>
+            ) : (
+              /* Once text is flowing the commentary is demoted: the answer is the thing
+                 being watched, and "Generating (attempt 2/2)..." still matters because it
+                 is the only signal that a regeneration has started over. */
+              message && <p className="text-[11.5px] text-subtle mt-2">{message}</p>
+            )}
           </>
         ) : (
           <p className="flex items-center gap-2.5 text-[13px] text-muted m-0">

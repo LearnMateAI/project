@@ -16,7 +16,7 @@ from typing import Dict
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_generator_llm
-from .helpers import _as_messages, _emit_token, _log
+from .helpers import _as_messages, _emit_reply, _emit_token, _log
 from .prompts import GENERAL_SYSTEM, GROUNDED_SYSTEM
 from .state import ChatState
 
@@ -81,7 +81,12 @@ def generate_node(state: ChatState) -> Dict:
             # happens once, below, on what is actually kept.
             _emit_token(state, "".join(pieces))
 
-        return {"attempt": attempt, "reply": "".join(pieces).strip()}
+        reply = "".join(pieces).strip()
+        # The reply is whole here, and everything after this node -- the judge, and a
+        # regeneration if it rejects this -- takes longer than writing it did. Saying so
+        # lets a client show an answer now instead of a cursor for another half minute.
+        _emit_reply(state, reply, attempt)
+        return {"attempt": attempt, "reply": reply}
     except Exception as exc:
         # Return an empty reply rather than raising: the graph continues, the judge
         # scores the emptiness badly, and the retry loop gets a chance to recover.

@@ -109,6 +109,28 @@ def set_partial(job_id, text: str) -> None:
         pass
 
 
+def set_reply_ready(job_id, text: str) -> None:
+    """
+    Publish a complete answer on a job that is still running.
+
+    The turn is not over -- the judge has yet to read this, and may force a regeneration --
+    but the text is whole, and on the local models everything still to come takes longer
+    than the writing did. Setting both fields in one update matters: written separately, a
+    poll landing between them would find the flag on and the old partial text under it.
+
+    `partial` keeps its meaning of "the newest text there is"; `reply_ready` is the client's
+    licence to render it as an answer rather than as something mid-flight. A job that
+    finishes clears both -- see finish(), and the note there about which text actually won.
+    """
+    try:
+        _collection().update_one(
+            {"_id": coerce_id(job_id)},
+            {"$set": {"progress.partial": text, "progress.reply_ready": True}},
+        )
+    except Exception:
+        pass
+
+
 def finish(job_id, result: Any = None, message: str = "Done.") -> None:
     """Mark a job done, with whatever the caller should be handed back."""
     _collection().update_one(
@@ -120,7 +142,8 @@ def finish(job_id, result: Any = None, message: str = "Done.") -> None:
                   # result holds the attempt that actually won, which is not always the
                   # same one (see chat_agent/persist.best_attempt). Leaving both on the
                   # record invites a client to render the wrong one.
-                  "progress.partial": None}},
+                  "progress.partial": None,
+                  "progress.reply_ready": False}},
     )
 
 

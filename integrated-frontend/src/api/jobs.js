@@ -68,6 +68,7 @@ const sleep = (ms, signal) =>
 export async function waitForJob(jobId, { onProgress, signal } = {}) {
   let lastMessage;
   let lastPartial;
+  let lastReplyReady;
   const startedAt = Date.now();
 
   for (;;) {
@@ -75,17 +76,21 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
 
     const { data: job } = await getJob(jobId);
 
-    // `message` is commentary that replaces the line before it; `partial` is the reply
-    // itself being written, token by token. Both live under `progress` and either can
-    // change on its own, so both are watched.
-    const { message, partial } = job.progress || {};
+    // Three things, and they say different things. `message` is commentary that replaces
+    // the line before it; `partial` is the reply itself being written, token by token; and
+    // `reply_ready` says that partial is now a whole answer rather than one in progress --
+    // which happens well before the job is done, because the judge has yet to read it.
+    // Any of the three can change on its own, so all three are watched.
+    const { message, partial, reply_ready: replyReady } = job.progress || {};
 
     // Only fire on change: the same string arriving forty times is not progress, and
     // re-rendering on each poll makes the UI flicker.
-    const changed = message !== lastMessage || partial !== lastPartial;
+    const changed =
+      message !== lastMessage || partial !== lastPartial || replyReady !== lastReplyReady;
     if (onProgress && changed && (message || partial)) {
       lastMessage = message;
       lastPartial = partial;
+      lastReplyReady = replyReady;
       onProgress(job.progress, job);
     }
 
@@ -99,8 +104,13 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
     // in visible lumps, which reads worse than no streaming at all; at 300ms it reads as
     // typing. The slow rhythm still covers the long non-streaming runs it was written
     // for -- a whole-document generation reports a new line every page or so.
+    //
+    // Once reply_ready is up the text is settled and will not move again before the job
+    // finishes, so the fast rhythm has nothing left to deliver -- and the judge holds the
+    // turn for another 25-50s, which at 300ms would be a hundred pointless round trips.
     const elapsed = Date.now() - startedAt;
-    const fast = partial !== undefined || elapsed < FAST_POLL_FOR_MS;
+    const streaming = partial !== undefined && !replyReady;
+    const fast = streaming || elapsed < FAST_POLL_FOR_MS;
     await sleep(fast ? FAST_POLL_MS : SLOW_POLL_MS, signal);
   }
 }

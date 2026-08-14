@@ -24,5 +24,18 @@ def decide(state: ChatState) -> str:
     if state["attempt"] >= state["max_attempts"]:
         return "persist"
 
-    _log(state, f"[*] Feedback: {state.get('critique')}")
+    verdict = state.get("verdict") or {}
+    score = verdict.get("score", 0)
+    threshold = state.get("threshold", 70)
+    critique = state.get("critique", "")
+
+    if not critique or "failed to return a verdict" in critique:
+        _log(state, "[*] Skipping retry (no actionable critique)")
+        return "persist"
+
+    if score < (threshold - 25):
+        _log(state, f"[*] Skipping retry (score {score} is too far below threshold {threshold})")
+        return "persist"
+
+    _log(state, f"[*] Feedback: {critique}")
     return "generate"

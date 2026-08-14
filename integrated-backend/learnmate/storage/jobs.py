@@ -173,12 +173,12 @@ def fail_running(reason: str) -> int:
     return result.modified_count
 
 
-def get(job_id: Union[str, ObjectId]) -> Optional[Dict]:
+def get(job_id: Union[str, ObjectId], projection: Optional[Dict] = None) -> Optional[Dict]:
     """One job by id."""
     oid = coerce_id(job_id)
     if oid is None:
         return None
-    return _collection().find_one({"_id": oid})
+    return _collection().find_one({"_id": oid}, projection=projection)
 
 
 def list_jobs(user_id: str, status: str = None, kind: str = None,

@@ -69,11 +69,17 @@ def evaluate_node(state: ChatState) -> Dict:
     _log(state, "[*] Evaluating...")
     started = time.time()
 
+    contexts = state.get("contexts")
+    if contexts:
+        contexts = contexts[:2]
+        
+    query_to_judge = state.get("standalone_query") or state["query"]
+
     verdict = get_judge().judge_chat_reply(
-        state["query"],                          # the original question, not the
+        query_to_judge,                          # the standalone question resolves the history
         state.get("reply", ""),                  #   critique-padded one generate built
-        contexts=state.get("contexts") or None,  # None here switches the judge's rubric
-        history=state.get("history"),
+        contexts=contexts or None,               # capped at 2 chunks to save prefill
+        history=None,                            # dropped because standalone_query resolves it
         threshold=state["threshold"],
     )
 

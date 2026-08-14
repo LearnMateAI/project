@@ -17,7 +17,10 @@ Scores are raw cosine similarity in [-1, 1], the same scale MongoVectorStore ret
 RELEVANCE_THRESHOLD means one thing regardless of which backend is configured.
 """
 
+import re
 import uuid
+import hashlib
+from collections import Counter
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from langchain_core.documents import Document
@@ -40,6 +43,19 @@ class QdrantUnavailable(RuntimeError):
 def _point_id(doc_id, page_number, chunk_index) -> str:
     return str(uuid.uuid5(_POINT_NAMESPACE, f"{doc_id}:{page_number}:{chunk_index}"))
 
+def _to_sparse(text: str) -> dict:
+    """Basic term-frequency sparse vector for hybrid search."""
+    words = re.findall(r'\w+', text.lower())
+    counts = Counter(words)
+    indices = []
+    values = []
+    for w, c in counts.items():
+        idx = int(hashlib.md5(w.encode()).hexdigest(), 16) % 1000000
+        if idx not in indices:
+            indices.append(idx)
+            values.append(float(c))
+    return {"indices": indices, "values": values}
+
 
 class QdrantVectorStore(VectorStore):
     """Chunk vectors in a Qdrant server, filtered by document."""
@@ -52,6 +68,9 @@ class QdrantVectorStore(VectorStore):
         self.collection_name = collection_name or config.QDRANT_COLLECTION
         self._client = None
         self._collection_ready = False
+        # Settled by ensure_collection: True only when the collection actually has a sparse
+        # vector to write to and query. Never assumed -- see the note there.
+        self._hybrid = False
 
     # --- Connection ------------------------------------------------------------------
 
@@ -76,7 +95,20 @@ class QdrantVectorStore(VectorStore):
         return self._client
 
     def ensure_collection(self) -> None:
-        """Create the collection and its payload index if they do not exist yet."""
+        """
+        Create the collection and its payload index if they do not exist yet, and work out
+        whether hybrid search is available on it.
+
+        A collection made before hybrid retrieval existed has no sparse vector configured,
+        and Qdrant cannot add one afterwards -- `update_collection(sparse_vectors_config=)`
+        answers "Not existing vector name error: sparse". Recreating it is the only route,
+        and that is destructive, so it is the operator's call and not something this does
+        on their behalf while they are looking the other way.
+
+        Until they make it, `_hybrid` stays False and both writing and searching run
+        dense-only, exactly as they did before. That keeps an existing corpus working
+        rather than failing every upsert and every query with a 400.
+        """
         if self._collection_ready:
             return
 
@@ -85,12 +117,21 @@ class QdrantVectorStore(VectorStore):
         if not self.client.collection_exists(self.collection_name):
             size = self._embedding.dimension
             print(f"[*] Creating Qdrant collection {self.collection_name!r} "
-                  f"({size}-d, cosine)...")
+                  f"({size}-d, cosine + sparse)...")
             self.client.create_collection(
                 collection_name=self.collection_name,
                 vectors_config=models.VectorParams(
                     size=size, distance=models.Distance.COSINE),
+                sparse_vectors_config={"sparse": models.SparseVectorParams()},
             )
+
+        self._hybrid = bool(
+            self.client.get_collection(self.collection_name).config.params.sparse_vectors)
+        if not self._hybrid:
+            print(f"[!] Collection {self.collection_name!r} predates hybrid search and has "
+                  f"no sparse vector; running dense-only. To enable it, delete the "
+                  f"collection and re-ingest (the PDFs and page text are in MongoDB, so "
+                  f"nothing is lost but the embedding time).")
 
         # Every query filters on doc_id. Without a payload index Qdrant falls back to a
         # full scan for the filter, which defeats the point of using a vector database.
@@ -155,9 +196,18 @@ class QdrantVectorStore(VectorStore):
             chunk_index = metadata.get("chunk_index", 0)
             identifier = _point_id(doc_id, page_number, chunk_index)
 
+            # A bare list addresses the unnamed dense vector; the dict form addresses it as
+            # "" alongside the named sparse one. Only the second is legal on a collection
+            # that has a sparse vector configured, and only the first on one that does not.
+            if self._hybrid:
+                point_vector = {"": vector,
+                                "sparse": models.SparseVector(**_to_sparse(text))}
+            else:
+                point_vector = vector
+
             points.append(models.PointStruct(
                 id=identifier,
-                vector=vector,
+                vector=point_vector,
                 payload={
                     "doc_id": doc_id,
                     "page_number": page_number,
@@ -207,13 +257,59 @@ class QdrantVectorStore(VectorStore):
 
     def similarity_search_with_score(self, query: str, k: int = None, doc_id=None,
                                      **kwargs: Any) -> List[Tuple[Document, float]]:
-        """Top-k chunks with cosine similarity, optionally restricted to one document."""
+        """
+        Top-k chunks, optionally restricted to one document.
+
+        **The score means different things in the two modes**, and callers that threshold
+        it need to know which they are in:
+
+            dense-only   raw cosine similarity in [-1, 1], which is what
+                         RELEVANCE_THRESHOLD is calibrated against
+            hybrid       a reciprocal-rank-fusion score, which measures *rank* and not
+                         similarity -- the top hit scores high by construction however
+                         poor the match. Measured over 40 documents: 0.64, 0.50, 0.40,
+                         0.38, 0.34, against a RELEVANCE_THRESHOLD of 0.25.
+
+        In practice chat_agent/retrieve.py reranks and decides the mode on the
+        cross-encoder's score, so it is insulated from this. Its fallback path -- reranker
+        disabled or failing to load -- is not, and would read almost everything as
+        relevant. That is a live problem to settle before hybrid is turned on for real.
+        """
+        # This file imports `models` per method rather than at module scope, so a method
+        # that uses it needs its own import; without this the whole read path raised
+        # NameError.
+        from qdrant_client import models
+
         k = k or config.TOP_K
         self.ensure_collection()
 
+        if not self._hybrid:
+            # Dense-only, and identical to the pre-hybrid behaviour: one vector, cosine
+            # scores, nothing fused.
+            response = self.client.query_points(
+                collection_name=self.collection_name,
+                query=self._embedding.embed_query(query),
+                query_filter=self._doc_filter(doc_id),
+                limit=k,
+                with_payload=True,
+            )
+            return [(self._to_document(point.payload, point.id), float(point.score))
+                    for point in response.points]
+
         response = self.client.query_points(
             collection_name=self.collection_name,
-            query=self._embedding.embed_query(query),
+            prefetch=[
+                models.Prefetch(
+                    query=self._embedding.embed_query(query),
+                    limit=k,
+                ),
+                models.Prefetch(
+                    query=models.SparseVector(**_to_sparse(query)),
+                    using="sparse",
+                    limit=k,
+                )
+            ],
+            query=models.FusionQuery(fusion=models.Fusion.RRF),
             query_filter=self._doc_filter(doc_id),
             limit=k,
             with_payload=True,

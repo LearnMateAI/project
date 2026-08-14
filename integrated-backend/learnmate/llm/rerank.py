@@ -26,11 +26,16 @@ effectively free, and it is the cheapest accuracy available anywhere in the pipe
 """
 
 import math
+import threading
 from typing import List, Optional, Sequence, Tuple
 
 from .. import config
 
 _RERANKER_CACHE = {}
+
+# Same reason as embeddings._LOAD_LOCK: warm-up and the worker can both arrive here at
+# once, and a double construction costs a second ~90 MB download-and-load for nothing.
+_LOAD_LOCK = threading.Lock()
 
 # Set once the configured model has failed to load, so a missing or broken reranker costs
 # one warning rather than one per turn. Retrieval falls back to vector order, which is
@@ -42,20 +47,29 @@ def _load(model_name: str):
     """Load (or reuse) the cross-encoder. Returns None if it cannot be loaded."""
     if model_name in _UNAVAILABLE:
         return None
-    if model_name not in _RERANKER_CACHE:
-        try:
-            # Imported lazily and from sentence-transformers, which is already a hard
-            # dependency for the bi-encoder -- reranking adds no new package, only a
-            # ~90 MB download on first use.
-            from sentence_transformers import CrossEncoder
+    if model_name in _RERANKER_CACHE:
+        return _RERANKER_CACHE[model_name]
 
-            print(f"[*] Loading reranker: {model_name} (first load only)...")
-            _RERANKER_CACHE[model_name] = CrossEncoder(model_name)
-        except Exception as exc:
-            print(f"[!] Reranker {model_name!r} unavailable ({type(exc).__name__}: {exc}); "
-                  f"falling back to vector-search order.")
-            _UNAVAILABLE.add(model_name)
+    with _LOAD_LOCK:
+        # Re-checked inside the lock: the thread that held it may have been loading this
+        # very model, or may have just marked it unavailable.
+        if model_name in _UNAVAILABLE:
             return None
+        if model_name not in _RERANKER_CACHE:
+            try:
+                # Imported lazily and from sentence-transformers, which is already a hard
+                # dependency for the bi-encoder -- reranking adds no new package, only a
+                # ~90 MB download on first use.
+                from sentence_transformers import CrossEncoder
+
+                print(f"[*] Loading reranker: {model_name} (first load only)...")
+                _RERANKER_CACHE[model_name] = CrossEncoder(model_name)
+            except Exception as exc:
+                print(f"[!] Reranker {model_name!r} unavailable "
+                      f"({type(exc).__name__}: {exc}); "
+                      f"falling back to vector-search order.")
+                _UNAVAILABLE.add(model_name)
+                return None
     return _RERANKER_CACHE[model_name]
 
 

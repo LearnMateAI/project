@@ -9,6 +9,7 @@ The model loads once per process and is shared, which matters because both inges
 every retrieval call ask for it.
 """
 
+import threading
 from typing import List
 
 from langchain_core.embeddings import Embeddings
@@ -17,13 +18,24 @@ from .. import config
 
 _MODEL_CACHE = {}
 
+# The warm-up thread and the job worker can both reach this at once (app/jobs/worker.py),
+# and without the lock both would miss the cache and both construct a SentenceTransformer:
+# 90 MB read twice and one copy orphaned. Guards construction only -- encoding is left
+# concurrent, which torch handles.
+_LOAD_LOCK = threading.Lock()
+
 
 def _load(model_name: str):
-    if model_name not in _MODEL_CACHE:
-        from sentence_transformers import SentenceTransformer
+    if model_name in _MODEL_CACHE:
+        return _MODEL_CACHE[model_name]
 
-        print(f"[*] Loading embedding model: {model_name} (first load only)...")
-        _MODEL_CACHE[model_name] = SentenceTransformer(model_name)
+    with _LOAD_LOCK:
+        # Re-checked: another thread may have finished the load while this one waited.
+        if model_name not in _MODEL_CACHE:
+            from sentence_transformers import SentenceTransformer
+
+            print(f"[*] Loading embedding model: {model_name} (first load only)...")
+            _MODEL_CACHE[model_name] = SentenceTransformer(model_name)
     return _MODEL_CACHE[model_name]
 
 

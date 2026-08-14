@@ -16,10 +16,19 @@ Serialising also happens to be the right resource decision on a 3B CPU model -- 
 concurrent generations do not finish in half the time, they finish in twice -- but the
 lock would be needed even if it did not.
 
-`_MODEL_LOCK` is a second guard on the same rule, held for anything that touches a model.
-The worker is the only consumer today, so it is uncontended; it exists so that adding a
-warm-up call, a health probe that generates, or a second worker cannot quietly reintroduce
-the bug.
+The locks that enforce that rule no longer live here. This module used to hold one for the
+whole of every job, which also blocked the warm-up thread behind a job's database and
+network work for no reason. They now sit next to the things they protect, which is both
+narrower and harder to forget:
+
+    llm/llamacpp.py   _LLAMA_LOCK  every generation, for its whole duration
+    llm/runtime.py    _LOAD_LOCK   constructing a GGUF, so it is read once and not twice
+    llm/embeddings.py _LOAD_LOCK   the same, for the sentence-transformers model
+    llm/rerank.py     _LOAD_LOCK   the same, for the cross-encoder
+
+That matters because this process has two threads that touch models: this worker, and the
+warm-up thread started at boot (see warm_up below). They can now overlap, so anything they
+share has to be guarded where it lives rather than by whoever happens to call it.
 
 Everything crossing the boundary is a job *record*, not an object: the API answers "is it
 finished" by reading Mongo, so a poll works from any process and does not depend on this
@@ -37,9 +46,6 @@ from learnmate.storage import jobs as job_store
 from .. import config
 
 logger = logging.getLogger("learnmate.api.jobs")
-
-# Held for the duration of anything that touches a model. See the module docstring.
-MODEL_LOCK = threading.Lock()
 
 _QUEUE: "queue.Queue[Optional[str]]" = queue.Queue()
 _WORKER: Optional[threading.Thread] = None
@@ -75,8 +81,7 @@ def _run_one(job_id: str) -> None:
 
     job_store.start(job_id)
     try:
-        with MODEL_LOCK:
-            result = runners.run(job)
+        result = runners.run(job)
         job_store.finish(job_id, result)
     except Exception as exc:
         # Every failure ends up on the record. A job that raised and left no trace is a
@@ -226,11 +231,13 @@ def warm_up() -> None:
     because the cost does not disappear, it just moves onto the first question somebody
     asks. API_WARM_MODELS=1 pays it at boot instead.
 
-    Runs on its own thread so start-up does not block on it, and takes MODEL_LOCK so it
-    cannot race a job that arrives first -- an upload in the opening seconds waits for this
-    load rather than starting a second one alongside it. The lock is taken **once per
-    phase** rather than once for the whole run, so an upload arriving two seconds in waits
-    only for the embedding model and not for four gigabytes of GGUF behind it.
+    Runs on its own thread, so start-up does not block on it and a job arriving in the
+    opening seconds is free to proceed alongside it rather than queueing behind four
+    gigabytes of loading.
+
+    That overlap is the reason the load caches guard themselves: this thread and the worker
+    can want the same model at the same moment, and whichever gets there first must be the
+    only one that reads it off disk. See the module docstring for where those locks are.
     """
     if not (config.WARM_UP_ON_START or config.WARM_MODELS_ON_START):
         return
@@ -239,17 +246,16 @@ def warm_up() -> None:
         if config.WARM_UP_ON_START:
             started = time.time()
             try:
-                with MODEL_LOCK:
-                    # Imported for the side effect: pulling the dependency chain in is the
-                    # point, not calling anything in it.
-                    from learnmate.ingestion import ingest_pdf  # noqa: F401
-                    from learnmate.llm import rerank
-                    from learnmate.llm.embeddings import get_embeddings
+                # Imported for the side effect: pulling the dependency chain in is the
+                # point, not calling anything in it.
+                from learnmate.ingestion import ingest_pdf  # noqa: F401
+                from learnmate.llm import rerank
+                from learnmate.llm.embeddings import get_embeddings
 
-                    get_embeddings().model
-                    # ~90 MB, and every chat turn goes through it. Loading it here rather
-                    # than on the first question keeps it off the path a user is waiting on.
-                    rerank.available()
+                get_embeddings().model
+                # ~90 MB, and every chat turn goes through it. Loading it here rather
+                # than on the first question keeps it off the path a user is waiting on.
+                rerank.available()
                 logger.info("Warm-up complete in %.1fs", time.time() - started)
             except Exception:
                 # Never fatal. A failed warm-up costs the first upload its old latency and
@@ -260,8 +266,7 @@ def warm_up() -> None:
         if config.WARM_MODELS_ON_START:
             started = time.time()
             try:
-                with MODEL_LOCK:
-                    _warm_models()
+                _warm_models()
                 logger.info("Models warm in %.1fs", time.time() - started)
             except Exception:
                 # Same rule as above, and it matters more here: a missing GGUF downloads on

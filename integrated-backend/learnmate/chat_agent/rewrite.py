@@ -12,24 +12,37 @@ other way round means the retrieval has already failed by the time we fix the qu
     query + history  -->  standalone_query
 """
 
+import re
 from typing import Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from ..llm import get_generator_llm
+from ..llm import get_judge_llm
 from .helpers import _log
 from .prompts import REWRITE_SYSTEM
 from .state import ChatState
 
+def _needs_rewrite(query: str, history: list) -> bool:
+    if not history:
+        return False
+    query_lower = query.lower()
+    if len(query.split()) <= 4:
+        return True
+    if re.match(r"^(it|this|that|he|she|his|her|they|their|what about|why)\b", query_lower):
+        return True
+    last_turn = history[-1]["content"].lower()
+    q_words = set(re.findall(r"\w+", query_lower))
+    l_words = set(re.findall(r"\w+", last_turn))
+    if len(q_words.intersection(l_words)) < 1:
+        return True
+    return False
 
 def rewrite_node(state: ChatState) -> Dict:
     """Resolve follow-up references so retrieval sees a self-contained question."""
     query = state["query"]
     history = state.get("history") or []
 
-    # First message of a conversation: there is nothing to resolve against, and calling
-    # the model anyway would just add latency to every new session.
-    if not history:
+    if not _needs_rewrite(query, history):
         return {"standalone_query": query}
 
     history_text = "\n".join(f"{turn['role']}: {turn['content']}" for turn in history)
@@ -43,7 +56,7 @@ def rewrite_node(state: ChatState) -> Dict:
         # Temperature 0: this is a mechanical transformation, not a creative one.
         # max_tokens is small because the output should be a single question -- capping
         # it also stops a chatty model from appending an explanation.
-        reply = get_generator_llm().invoke(messages, temperature=0.0, max_tokens=100)
+        reply = get_judge_llm().invoke(messages, temperature=0.0, max_tokens=100)
         rewritten = (reply.content or "").strip()
 
         # Only log when it actually changed something, to keep the CLI output quiet

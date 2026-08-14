@@ -17,14 +17,20 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
+import AboutPage from "./pages/aboutpage.jsx";
 import Analytics from "./pages/analytics.jsx";
 import Chat from "./pages/chat.jsx";
 import Dashboard from "./pages/dashboard.jsx";
 import Documents from "./pages/documents.jsx";
+import HomePage from "./pages/homepage.jsx";
 import Login from "./pages/login.jsx";
+import MyAccount from "./pages/myaccount.jsx";
+import MyAccountSettings from "./pages/myaccountsettings.jsx";
 import Register from "./pages/register.jsx";
 import ResourceView from "./pages/resources/ResourceView.jsx";
 import Resources from "./pages/resources/index.jsx";
+import TakeATourPage from "./pages/takeatourpage.jsx";
+import TryItNow from "./pages/tryitnow.jsx";
 
 const protect = (element) => (
   <ProtectedRoute>
@@ -46,6 +52,13 @@ function App() {
       <Route path="/chat" element={protect(<Chat />)} />
       <Route path="/chat/:sessionId" element={protect(<Chat />)} />
       <Route path="/analytics" element={protect(<Analytics />)} />
+
+      <Route path="/home" element={protect(<HomePage />)} />
+      <Route path="/about" element={protect(<AboutPage />)} />
+      <Route path="/account" element={protect(<MyAccount />)} />
+      <Route path="/account/settings" element={protect(<MyAccountSettings />)} />
+      <Route path="/tour" element={protect(<TakeATourPage />)} />
+      <Route path="/try" element={protect(<TryItNow />)} />
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

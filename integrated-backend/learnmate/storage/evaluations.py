@@ -9,11 +9,16 @@ questions this collection answers:
 
     parse       the generator's output could not be read at all
     validator   structural checks rejected it without the judge running
+    gate        the judge was deliberately not asked, having nothing to check the reply
+                against -- see chat_agent/gate.py. Recorded with a null score, so these
+                rows count in `stage_counts` and are excluded from `evaluation_stats`.
     judge       the model scored it
     skipped     evaluation was switched off
 
 If the validator is deciding most attempts, the generation prompt needs work, not the
-threshold.
+threshold. If `gate` is deciding most of them, retrieval is failing to ground answers and
+the judge is being asked about fewer and fewer turns -- which is a retrieval problem
+wearing an evaluation problem's clothes.
 """
 
 from datetime import datetime, timezone

@@ -103,13 +103,21 @@ def get_messages(user_id: str, session_id: str) -> List[Dict]:
 
 
 def send_message(user_id: str, session_id: str, message: str, evaluate: bool = True,
-                 on_progress=None) -> Dict:
+                 on_progress=None, on_token=None, on_reply=None) -> Dict:
     """
     Handle one turn end to end. Slow: 30-60 seconds on the local backend.
 
     Returns the reply with everything the UI needs to show *how* it was answered --
     which mode, what it scored, which pages it cited -- because "the model said so" and
     "page 41 of your PDF says so" are very different claims to put in front of a student.
+
+    `on_token` receives the reply as it is generated. It does not make the turn any
+    faster; it makes the first words visible in seconds instead of at the end, which on a
+    local model is most of the difference between waiting and watching.
+
+    `on_reply` fires once, when a whole reply exists and before the judge has read it. That
+    is roughly halfway through the wall-clock time of a turn -- writing the answer is the
+    fast half -- so it is what lets a caller stop showing a cursor while the slow half runs.
     """
     session = access.require_session(user_id, session_id)
 
@@ -125,6 +133,8 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         evaluate=evaluate,
         verbose=False,
         on_progress=on_progress,
+        on_token=on_token,
+        on_reply=on_reply,
     )
 
     result = agent.ask(message)

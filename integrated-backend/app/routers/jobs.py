@@ -46,9 +46,10 @@ def _serialize(job: dict) -> dict:
 
 
 @router.get("/{job_id}")
-def get_job(job_id: str, user: dict = Depends(get_current_user)):
+def get_job(job_id: str, minimal: bool = False, user: dict = Depends(get_current_user)):
     """One job's state, and its result once it is done."""
-    job = job_store.get(job_id)
+    projection = {"params": 0, "result": 0} if minimal else None
+    job = job_store.get(job_id, projection=projection)
     if not job:
         raise NotFound("Job not found.")
     if str(job.get("user_id")) != str(user["id"]):

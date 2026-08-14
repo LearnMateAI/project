@@ -15,6 +15,6 @@ hold a connection for, and none of which a proxy will allow it to.
 The job *records* live in learnmate/storage/jobs.py, next to the rest of the persistence.
 """
 
-from .worker import enqueue, shutdown, start_worker
+from .worker import enqueue, shutdown, start_worker, warm_up
 
-__all__ = ["enqueue", "shutdown", "start_worker"]
+__all__ = ["enqueue", "shutdown", "start_worker", "warm_up"]

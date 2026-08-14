@@ -9,6 +9,14 @@ checks every claim against them and anything unsupported counts as a hallucinati
 Given None it can only grade relevance, coherence and informativeness, which is the
 right standard for a general-knowledge answer.
 
+Three ways out of this node, cheapest first:
+
+    evaluate=False   the caller wants no gate at all; auto-pass, nothing recorded
+    gated            the judge would have nothing to check this reply against, so it is
+                     not asked -- see gate.py, which is where the decision and the
+                     measurement behind it live
+    judged           the expensive path, and the only one that can start a retry
+
     reply (+ contexts)  -->  passed, verdict, critique, attempts
 """
 
@@ -16,7 +24,9 @@ import time
 from typing import Dict
 
 from ..evaluator.judge import get_judge
+from ..evaluator.verdict import gated_verdict
 from ..storage import content_store
+from . import gate
 from .helpers import _log
 from .state import ChatState
 
@@ -31,14 +41,45 @@ def evaluate_node(state: ChatState) -> Dict:
                 "attempts": [{"attempt": state["attempt"], "reply": state.get("reply", ""),
                               "verdict": None}]}
 
+    # Cheaper than the judge by four orders of magnitude, and asked first: on a turn the
+    # judge cannot say anything useful about, ~36s of second-model inference buys a number
+    # that was never going to vary. See gate.py for which turns those are and the measured
+    # reason why.
+    skipped = gate.skip_reason(state)
+    if skipped:
+        verdict = gated_verdict("chat_msg", state["threshold"], skipped)
+        # Logged like any other decision, with its own stage, so `stage_counts` shows how
+        # often this fires and the score statistics do not silently become a survey of the
+        # turns that happened to be judged.
+        content_store.log_evaluation(
+            "chat_msg", state["attempt"], None, True, state["threshold"],
+            stage="gate", elapsed=0.0, doc_id=state.get("doc_id"),
+            user_id=state.get("user_id"), extra={"mode": state.get("mode")})
+        _log(state, "[*] Not scored (no source text to judge against)")
+        return {
+            "passed": True,
+            "verdict": verdict,
+            # Empty, not None: decide() reads the truthiness of the critique nowhere, but
+            # generate does, and a stale instruction would rewrite an accepted reply.
+            "critique": "",
+            "attempts": [{"attempt": state["attempt"],
+                          "reply": state.get("reply", ""), "verdict": verdict}],
+        }
+
     _log(state, "[*] Evaluating...")
     started = time.time()
 
+    contexts = state.get("contexts")
+    if contexts:
+        contexts = contexts[:2]
+        
+    query_to_judge = state.get("standalone_query") or state["query"]
+
     verdict = get_judge().judge_chat_reply(
-        state["query"],                          # the original question, not the
+        query_to_judge,                          # the standalone question resolves the history
         state.get("reply", ""),                  #   critique-padded one generate built
-        contexts=state.get("contexts") or None,  # None here switches the judge's rubric
-        history=state.get("history"),
+        contexts=contexts or None,               # capped at 2 chunks to save prefill
+        history=None,                            # dropped because standalone_query resolves it
         threshold=state["threshold"],
     )
 

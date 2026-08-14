@@ -16,10 +16,10 @@ import ResourcesPanel from "../components/ResourcesPanel.jsx";
 const POLL_MS = 3000;
 
 const STATUS_STYLES = {
-  Ready: "bg-green-100 text-green-700",
-  Processing: "bg-blue-100 text-blue-700",
-  Uploaded: "bg-gray-100 text-gray-600",
-  "Failed Processing": "bg-red-100 text-red-700",
+  Ready: "badge-green",
+  Processing: "badge-blue",
+  Uploaded: "badge-gray",
+  "Failed Processing": "badge-red",
 };
 
 function formatSize(bytes) {
@@ -125,101 +125,146 @@ function Documents() {
     }
   }
 
+  const readyCount = documents.filter((doc) => doc.processing_status === "Ready").length;
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Your Documents</h1>
-        <button onClick={() => fetchDocuments()} className="text-sm text-blue-600 hover:underline">
+      <div className="flex flex-wrap justify-between items-end gap-3 mb-5">
+        <div className="page-header mb-0">
+          <h1>Your Documents</h1>
+          <p>
+            {documents.length === 0
+              ? "Upload a PDF to build your study library"
+              : `${documents.length} uploaded · ${readyCount} ready to use`}
+          </p>
+        </div>
+        <button onClick={() => fetchDocuments()} className="btn-secondary">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992V4.356m-4.993 4.992l3.181-3.183a8.25 8.25 0 00-13.803 3.7M4.031 9.865v4.99m0 0h4.99m-4.99 0l3.181 3.183a8.25 8.25 0 0013.803-3.7" />
+          </svg>
           Refresh
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-      {notice && <p className="text-sm text-gray-600 mb-4">{notice}</p>}
+      {error && <p className="notice notice-error mb-4">{error}</p>}
+      {notice && <p className="notice notice-info mb-4">{notice}</p>}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
-          {loading ? (
-            <p className="text-sm text-gray-500">Loading documents...</p>
-          ) : documents.length === 0 ? (
-            <p className="text-sm text-gray-500">
-              No documents yet — upload one from the Dashboard to get started.
-            </p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="pb-2">Filename</th>
-                  <th className="pb-2">Subject</th>
-                  <th className="pb-2">Pages</th>
-                  <th className="pb-2">Size</th>
-                  <th className="pb-2">Chunks</th>
-                  <th className="pb-2">Status</th>
-                  <th className="pb-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {documents.map((doc) => (
-                  <tr
-                    key={doc.id}
-                    onClick={() => handleSelect(doc)}
-                    className={`cursor-pointer border-b hover:bg-gray-50 ${
-                      selectedId === doc.id ? "bg-blue-50" : ""
-                    }`}
-                  >
-                    <td className="py-2 pr-2">{doc.filename}</td>
-                    <td className="py-2 pr-2">{doc.subject}</td>
-                    <td className="py-2 pr-2">{doc.page_count ?? "—"}</td>
-                    <td className="py-2 pr-2">{formatSize(doc.file_size)}</td>
-                    <td className="py-2 pr-2">{doc.chunk_count || "—"}</td>
-                    <td className="py-2 pr-2">
-                      <span
-                        className={`text-xs rounded px-2 py-1 whitespace-nowrap ${
-                          STATUS_STYLES[doc.processing_status] || "bg-gray-100 text-gray-600"
-                        }`}
-                        title={doc.processing_error || undefined}
-                      >
-                        {doc.processing_status}
-                      </span>
-                    </td>
-                    <td className="py-2 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(doc);
-                        }}
-                        className="text-xs text-red-600 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </td>
+      <div className="grid gap-5 xl:grid-cols-2 items-start">
+        <section className="card overflow-hidden">
+          <div className="card-head">
+            <h2>Library</h2>
+            {anyProcessing && (
+              <span className="badge badge-blue">
+                <span className="spinner w-3 h-3" />
+                Processing
+              </span>
+            )}
+          </div>
+
+          <div className="overflow-x-auto">
+            {loading ? (
+              <p className="px-5 py-6 text-[13px] text-muted">Loading documents...</p>
+            ) : documents.length === 0 ? (
+              <p className="px-5 py-6 text-[13px] text-muted">
+                No documents yet — upload one from the Dashboard to get started.
+              </p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Filename</th>
+                    <th>Subject</th>
+                    <th className="num">Pages</th>
+                    <th className="num">Size</th>
+                    <th className="num">Chunks</th>
+                    <th>Status</th>
+                    <th />
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {documents.map((doc) => (
+                    <tr
+                      key={doc.id}
+                      onClick={() => handleSelect(doc)}
+                      className={`is-clickable ${selectedId === doc.id ? "is-selected" : ""}`}
+                    >
+                      <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
+                        {doc.filename}
+                      </td>
+                      <td className="text-muted whitespace-nowrap">{doc.subject}</td>
+                      <td className="num">{doc.page_count ?? "—"}</td>
+                      <td className="num whitespace-nowrap">{formatSize(doc.file_size)}</td>
+                      <td className="num">{doc.chunk_count || "—"}</td>
+                      <td>
+                        <span
+                          className={`badge ${STATUS_STYLES[doc.processing_status] || "badge-gray"}`}
+                          title={doc.processing_error || undefined}
+                        >
+                          <span className="badge-dot" />
+                          {doc.processing_status}
+                        </span>
+                      </td>
+                      <td className="num">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(doc);
+                          }}
+                          className="text-[12px] font-semibold text-muted hover:text-danger"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
 
           {/* A failed ingest has a reason, and it is usually actionable -- a scanned PDF
               needs OCR, an encrypted one needs an unprotected copy. Surface it. */}
           {documents
             .filter((doc) => doc.processing_status === "Failed Processing" && doc.processing_error)
             .map((doc) => (
-              <p key={doc.id} className="text-xs text-red-600 mt-3">
-                <span className="font-medium">{doc.filename}:</span> {doc.processing_error}
+              <p key={doc.id} className="notice notice-error mx-4 mb-4 text-[12px]">
+                <span className="font-semibold">{doc.filename}:</span> {doc.processing_error}
               </p>
             ))}
-        </div>
+        </section>
 
-        <div>
-          <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px] flex items-center justify-center">
-            {!selected ? (
-              <p className="text-sm text-gray-400">Select a document to view it here.</p>
-            ) : viewerLoading ? (
-              <p className="text-sm text-gray-500">Loading preview...</p>
-            ) : pdfUrl ? (
-              <iframe src={pdfUrl} title={selected.filename} className="w-full h-[500px] rounded border" />
-            ) : null}
-          </div>
+        <div className="space-y-5">
+          <section className="card overflow-hidden">
+            <div className="card-head">
+              <h2 className="truncate">{selected ? selected.filename : "Preview"}</h2>
+              {selected && (
+                <span className="badge badge-gray shrink-0">
+                  {selected.page_count ? `${selected.page_count} pages` : "PDF"}
+                </span>
+              )}
+            </div>
+            <div className="p-4">
+              {!selected ? (
+                <div className="h-[420px] rounded-xl border border-dashed border-border flex flex-col items-center justify-center gap-2 text-center px-6">
+                  <svg className="w-8 h-8 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.4}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                  <p className="text-[13px] text-muted m-0">Select a document to read it here.</p>
+                </div>
+              ) : viewerLoading ? (
+                <div className="h-[420px] flex items-center justify-center gap-2.5 text-[13px] text-muted">
+                  <span className="spinner" />
+                  Loading preview...
+                </div>
+              ) : pdfUrl ? (
+                <iframe
+                  src={pdfUrl}
+                  title={selected.filename}
+                  className="w-full h-[520px] rounded-xl border border-border"
+                />
+              ) : null}
+            </div>
+          </section>
 
           {selected && (
             <ResourcesPanel

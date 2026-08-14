@@ -8,3 +8,5 @@ scores.jsonl
 # Qdrant embedded-mode lock file
 *.lock
 *.zip
+# Server and dev-server logs; written on every run, never worth a merge conflict
+*.log

@@ -16,11 +16,7 @@ function QualityBadge({ resource, className = "" }) {
 
   const unevaluated = score === null || score === undefined;
 
-  const tone = unevaluated
-    ? "bg-gray-100 text-gray-600 border-gray-200"
-    : accepted
-      ? "bg-green-50 text-green-700 border-green-200"
-      : "bg-amber-50 text-amber-700 border-amber-200";
+  const tone = unevaluated ? "badge-gray" : accepted ? "badge-green" : "badge-amber";
 
   const label = unevaluated
     ? "Not reviewed"
@@ -30,29 +26,31 @@ function QualityBadge({ resource, className = "" }) {
 
   return (
     <div className={className}>
-      <span className={`inline-block text-xs border rounded px-2 py-1 ${tone}`}>
+      <span className={`badge ${tone}`}>
+        {/* Shape as well as fill, so the verdict survives greyscale. */}
+        <span className="badge-dot" />
         {label}
         {!unevaluated && threshold ? ` (pass ${threshold})` : ""}
         {attempts > 1 ? ` · ${attempts} attempts` : ""}
       </span>
 
       {unevaluated && (
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-[12px] text-muted mt-1.5">
           Generated with evaluation switched off — nothing has checked this against the
           document.
         </p>
       )}
 
       {!unevaluated && !accepted && (
-        <p className="text-xs text-amber-700 mt-1">
+        <p className="text-[12px] text-warning mt-1.5">
           This scored below the pass mark and is shown anyway. Check it against the document
           before relying on it.
         </p>
       )}
 
       {reasoning && (
-        <details className="text-xs text-gray-500 mt-1">
-          <summary className="cursor-pointer">What the evaluator said</summary>
+        <details className="text-[12px] text-muted mt-1.5">
+          <summary className="cursor-pointer hover:text-heading">What the evaluator said</summary>
           <p className="mt-1 whitespace-pre-wrap">{reasoning}</p>
         </details>
       )}

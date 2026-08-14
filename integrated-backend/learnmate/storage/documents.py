@@ -97,8 +97,32 @@ def mark_ingested(doc_id: Union[str, ObjectId], n_pages: int, n_chunks: int) -> 
         {"_id": coerce_id(doc_id)},
         {"$set": {"n_pages": n_pages, "n_chunks": n_chunks,
                   "ingested_at": datetime.now(timezone.utc),
+                  # Which model produced this document's vectors. Stamped because vectors
+                  # from two different embedding models are not comparable and nothing
+                  # about them says so: a query embedded by model B against passages
+                  # embedded by model A returns confident, meaningless scores. This is what
+                  # `stale_embeddings` reads to catch a changed setting before it silently
+                  # degrades every answer.
+                  "embedding_model": config.EMBEDDING_MODEL,
+                  "chunk_size": config.CHUNK_SIZE,
                   "processing_status": READY, "processing_error": None}},
     )
+
+
+def stale_embeddings() -> List[Dict]:
+    """
+    Ready documents whose vectors were built by a different embedding model than the one
+    now configured.
+
+    Returns the offending records, newest first, so a caller can name them. An empty list
+    means everything indexed agrees with the current setting -- including a corpus ingested
+    before this field existed, which is left alone rather than assumed stale.
+    """
+    return list(_collection().find(
+        {"processing_status": READY,
+         "embedding_model": {"$exists": True, "$ne": config.EMBEDDING_MODEL}},
+        {"filename": 1, "embedding_model": 1},
+    ).sort("ingested_at", -1))
 
 
 def set_status(doc_id: Union[str, ObjectId], status: str, error: str = None) -> None:

@@ -13,6 +13,7 @@
  */
 
 import { useState } from "react";
+import { ProgressRing } from "../../components/charts.jsx";
 
 function McqQuiz({ questions }) {
   const [answers, setAnswers] = useState({});
@@ -38,18 +39,23 @@ function McqQuiz({ questions }) {
   return (
     <div>
       {submitted && (
-        <div className="bg-white rounded-lg shadow-sm p-5 mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-lg font-semibold">
-              {score} / {questions.length} correct
-            </p>
-            <p className="text-sm text-gray-500">
-              {score === questions.length
-                ? "Every one right."
-                : "The correct answers are marked below."}
-            </p>
+        <div className="card p-5 mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {/* The score as a ring: a mark out of ten is read against the total, and the
+                ring shows the total without a second line of text. */}
+            <ProgressRing value={(score / questions.length) * 100} size={72} stroke={7} />
+            <div>
+              <p className="text-[17px] font-bold text-heading m-0">
+                {score} / {questions.length} correct
+              </p>
+              <p className="text-[13px] text-muted m-0">
+                {score === questions.length
+                  ? "Every one right."
+                  : "The correct answers are marked below."}
+              </p>
+            </div>
           </div>
-          <button onClick={retry} className="text-sm text-blue-600 hover:underline">
+          <button onClick={retry} className="btn-secondary shrink-0">
             Try again
           </button>
         </div>
@@ -62,17 +68,15 @@ function McqQuiz({ questions }) {
           const gotItRight = chosen === correct;
 
           return (
-            <li key={index} className="bg-white rounded-lg shadow-sm p-5">
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <p className="font-medium">
-                  {index + 1}. {question.question}
+            <li key={index} className="card p-5">
+              <div className="flex items-start justify-between gap-3 mb-3.5">
+                <p className="text-[14.5px] font-semibold text-heading m-0 leading-relaxed">
+                  <span className="text-primary mr-1.5">{index + 1}.</span>
+                  {question.question}
                 </p>
                 {submitted && (
-                  <span
-                    className={`text-xs rounded px-2 py-1 shrink-0 ${
-                      gotItRight ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}
-                  >
+                  <span className={`badge shrink-0 ${gotItRight ? "badge-green" : "badge-red"}`}>
+                    <span className="badge-dot" />
                     {gotItRight ? "Correct" : "Incorrect"}
                   </span>
                 )}
@@ -86,16 +90,16 @@ function McqQuiz({ questions }) {
                   // Before submitting, only the choice is highlighted. After, the correct
                   // option is always green and a wrong choice is red -- so a blank answer
                   // still teaches you what the answer was.
-                  let tone = "border-gray-200";
-                  if (submitted && isCorrect) tone = "border-green-400 bg-green-50";
-                  else if (submitted && isChosen) tone = "border-red-400 bg-red-50";
-                  else if (isChosen) tone = "border-blue-400 bg-blue-50";
+                  let tone = "border-border";
+                  if (submitted && isCorrect) tone = "border-success bg-success-light";
+                  else if (submitted && isChosen) tone = "border-danger bg-danger-light";
+                  else if (isChosen) tone = "border-primary bg-primary-soft";
 
                   return (
                     <label
                       key={optionIndex}
-                      className={`flex items-start gap-2 text-sm border rounded px-3 py-2 ${tone} ${
-                        submitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50"
+                      className={`flex items-start gap-2.5 text-[13.5px] text-body border rounded-xl px-3.5 py-2.5 ${tone} ${
+                        submitted ? "cursor-default" : "cursor-pointer hover:border-border-strong"
                       }`}
                     >
                       <input
@@ -107,6 +111,12 @@ function McqQuiz({ questions }) {
                         className="mt-0.5"
                       />
                       <span>{option}</span>
+                      {/* After marking, the correct option is named as well as coloured. */}
+                      {submitted && isCorrect && (
+                        <span className="ml-auto text-[11px] font-bold uppercase tracking-wide text-success shrink-0">
+                          Answer
+                        </span>
+                      )}
                     </label>
                   );
                 })}
@@ -117,14 +127,11 @@ function McqQuiz({ questions }) {
       </ol>
 
       {!submitted && (
-        <div className="mt-4 flex items-center gap-3">
-          <button
-            onClick={() => setSubmitted(true)}
-            className="bg-blue-600 text-white rounded px-4 py-2 text-sm"
-          >
+        <div className="mt-5 flex items-center gap-4 sticky bottom-0 bg-background/85 backdrop-blur-sm py-3 rounded-xl">
+          <button onClick={() => setSubmitted(true)} className="btn-primary">
             Submit answers
           </button>
-          <span className="text-sm text-gray-500">
+          <span className="text-[13px] text-muted">
             {answered} of {questions.length} answered
           </span>
         </div>

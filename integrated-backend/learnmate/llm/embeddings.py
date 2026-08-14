@@ -9,6 +9,7 @@ The model loads once per process and is shared, which matters because both inges
 every retrieval call ask for it.
 """
 
+import threading
 from typing import List
 
 from langchain_core.embeddings import Embeddings
@@ -17,25 +18,51 @@ from .. import config
 
 _MODEL_CACHE = {}
 
+# The warm-up thread and the job worker can both reach this at once (app/jobs/worker.py),
+# and without the lock both would miss the cache and both construct a SentenceTransformer:
+# 90 MB read twice and one copy orphaned. Guards construction only -- encoding is left
+# concurrent, which torch handles.
+_LOAD_LOCK = threading.Lock()
+
 
 def _load(model_name: str):
-    if model_name not in _MODEL_CACHE:
-        from sentence_transformers import SentenceTransformer
+    if model_name in _MODEL_CACHE:
+        return _MODEL_CACHE[model_name]
 
-        print(f"[*] Loading embedding model: {model_name} (first load only)...")
-        _MODEL_CACHE[model_name] = SentenceTransformer(model_name)
+    with _LOAD_LOCK:
+        # Re-checked: another thread may have finished the load while this one waited.
+        if model_name not in _MODEL_CACHE:
+            from sentence_transformers import SentenceTransformer
+
+            print(f"[*] Loading embedding model: {model_name} (first load only)...")
+            _MODEL_CACHE[model_name] = SentenceTransformer(model_name)
     return _MODEL_CACHE[model_name]
 
 
 class LearnMateEmbeddings(Embeddings):
     """all-MiniLM-L6-v2 by default: 384 dimensions, fast enough to embed a book on CPU."""
 
-    def __init__(self, model_name: str = None, normalize: bool = True):
+    def __init__(self, model_name: str = None, normalize: bool = True,
+                 query_prefix: str = None, doc_prefix: str = None):
         self.model_name = model_name or config.EMBEDDING_MODEL
         # Normalised vectors make cosine similarity a plain dot product, which is what the
         # NumPy fallback in MongoVectorStore relies on to stay fast.
         self.normalize = normalize
+        # bge-* and e5-* are trained with an instruction on the query side and lose
+        # accuracy without it; MiniLM has none and both default to empty. Kept as two
+        # separate settings because the asymmetry is the point -- bge prefixes queries
+        # only, e5 prefixes both with different strings.
+        self.query_prefix = (config.EMBEDDING_QUERY_PREFIX if query_prefix is None
+                             else query_prefix)
+        self.doc_prefix = (config.EMBEDDING_DOC_PREFIX if doc_prefix is None
+                           else doc_prefix)
         self._model = None
+
+    def _with_prefix(self, prefix: str, text: str) -> str:
+        """Apply an instruction prefix, keeping exactly one space between it and the text."""
+        if not prefix:
+            return text
+        return f"{prefix.rstrip()} {text.lstrip()}"
 
     @property
     def model(self):
@@ -62,7 +89,7 @@ class LearnMateEmbeddings(Embeddings):
         if not texts:
             return []
         vectors = self.model.encode(
-            texts,
+            [self._with_prefix(self.doc_prefix, text) for text in texts],
             normalize_embeddings=self.normalize,
             show_progress_bar=len(texts) > 64,
             batch_size=32,
@@ -70,7 +97,10 @@ class LearnMateEmbeddings(Embeddings):
         return [vector.tolist() for vector in vectors]
 
     def embed_query(self, text: str) -> List[float]:
-        vector = self.model.encode([text], normalize_embeddings=self.normalize)[0]
+        vector = self.model.encode(
+            [self._with_prefix(self.query_prefix, text)],
+            normalize_embeddings=self.normalize,
+        )[0]
         return vector.tolist()
 
 

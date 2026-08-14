@@ -45,6 +45,11 @@ class ChatState(TypedDict, total=False):
     verbose: bool                   # False silences the progress logging
     persist: bool                   # False runs the turn without saving it to Mongo
     on_progress: Any                # optional callable(message); set when run on a job
+    on_token: Any                   # optional callable(text_so_far); receives the reply
+                                    #   as it is generated, for streaming it to a client
+    on_reply: Any                   # optional callable(text, attempt); fires once a whole
+                                    #   candidate reply exists, before the judge sees it --
+                                    #   the point at which there is something worth reading
 
     # --- Written by rewrite ----------------------------------------------------------
     standalone_query: str           # the query with pronouns resolved; what we embed

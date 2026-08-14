@@ -31,6 +31,51 @@ def _log(state: ChatState, message: str) -> None:
             pass
 
 
+def _emit_token(state: ChatState, text: str) -> None:
+    """
+    Hand the reply-so-far to whoever is streaming it.
+
+    Called once per token, with the full accumulated text rather than the delta: the
+    consumer stores a whole string anyway, and passing the accumulation means a dropped
+    call costs nothing -- the next one carries everything the missed one would have.
+    That is what lets the consumer throttle freely.
+
+    Silenced like `_log`: a client that has gone away, or a slow write, must not be able
+    to break the generation it is watching.
+    """
+    report = state.get("on_token")
+    if not report:
+        return
+    try:
+        report(text)
+    except Exception:
+        pass
+
+
+def _emit_reply(state: ChatState, text: str, attempt: int) -> None:
+    """
+    Announce that a whole candidate reply now exists.
+
+    Distinct from `_emit_token`, which says "more text arrived", and from `_log`, which is
+    commentary. This one says something a consumer cannot work out for itself: the text it
+    has been accumulating is finished, and is worth showing as an answer rather than as
+    something still being typed. What happens next -- the judge, and possibly a
+    regeneration -- takes longer than the writing did, so this is the moment a reader stops
+    waiting even though the turn has not ended.
+
+    Not fired for an empty reply: generation failed, the judge is about to score it badly,
+    and there is nothing to read. Silenced like the other two -- a consumer that has gone
+    away must not be able to break the turn it is watching.
+    """
+    report = state.get("on_reply")
+    if not report or not (text or "").strip():
+        return
+    try:
+        report(text, attempt)
+    except Exception:
+        pass
+
+
 def _as_messages(history: List[Dict[str, str]]) -> List[BaseMessage]:
     """
     Convert stored history into LangChain message objects.

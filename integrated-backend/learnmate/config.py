@@ -50,6 +50,12 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    """Read a flag. Anything but the recognised falsey words counts as on."""
+    return _env(name, "1" if default else "0").lower() not in (
+        "0", "false", "no", "off")
+
+
 # --- Filesystem ----------------------------------------------------------------------
 
 # Where the GGUF model files live, and where a missing one is downloaded to.
@@ -96,9 +102,50 @@ JUDGE_N_CTX = _env_int("LEARNMATE_JUDGE_N_CTX", 8192)
 JUDGE_API_URL = _env("LEARNMATE_JUDGE_API_URL", "http://localhost:8002/v1")
 JUDGE_API_KEY = _env("LEARNMATE_JUDGE_API_KEY", "")
 
-# None lets llama.cpp auto-detect physical cores.
-N_THREADS = int(_env("LEARNMATE_N_THREADS", "0")) or None
+# --- llama.cpp runtime -----------------------------------------------------------------
+# How the two GGUFs are executed. These describe the *machine*, not the role, so both the
+# generator and the judge are loaded with the same values -- see llm/runtime.py, which
+# reads them directly rather than having them threaded through every model wrapper.
+#
+# This block is the difference between a 40-second reply and a 6-second one, and none of
+# it is portable: the right values on the Windows laptop and on the demo MacBook are not
+# the same numbers. .env carries one set commented out beside the other.
+
+# None lets llama.cpp pick, which is cpu_count() // 2. That is a reasonable guess on a
+# uniform CPU and a poor one on a hybrid: counting Intel's E-cores as if they were P-cores
+# spreads the work onto cores that finish late and hold everyone else up. Set it explicitly
+# after measuring rather than trusting either number.
+N_THREADS = _env_int("LEARNMATE_N_THREADS", 0) or None
+
+# Prefill is a separate knob from decode because it is a different shape of work: reading
+# the prompt is a big parallel matrix multiply that scales with cores, while writing tokens
+# is memory-bound and stops scaling early. llama.cpp defaults this to *all* logical
+# processors. None keeps that default.
+N_THREADS_BATCH = _env_int("LEARNMATE_N_THREADS_BATCH", 0) or None
+
+# How many layers run on the GPU. 0 is pure CPU; **-1 offloads every layer**, which is what
+# a Metal Mac wants -- a 3B Q4 model is ~2 GB and fits in unified memory whole. Anything in
+# between splits the model and pays a transfer per token for the privilege, so the useful
+# settings are really just 0 and -1.
 N_GPU_LAYERS = _env_int("LEARNMATE_N_GPU_LAYERS", 0)
+
+# Prompt-processing batch size: how many tokens are prefilled per pass. Bigger means fewer,
+# larger matrix multiplies, which is what a GPU wants; on CPU the gain flattens out and the
+# scratch buffers grow. 512 is llama.cpp's own default and a sane floor.
+N_BATCH = _env_int("LEARNMATE_N_BATCH", 512)
+
+# Flash attention. Worth knowing that this is *not* a no-op when left off: llama.cpp's own
+# default is AUTO (enable it where the backend supports it), but llama-cpp-python's boolean
+# only reaches ENABLED or DISABLED -- so not setting it forces attention onto the slow path
+# even on Metal, where it is a clear win. Off by default here to keep CPU behaviour exactly
+# as it was; turn it on with the GPU.
+FLASH_ATTN = _env_bool("LEARNMATE_FLASH_ATTN", False)
+
+# Pin the weights in RAM so the OS cannot page them out. Worth it when a model is used
+# steadily and there is memory to spare; on a laptop that is also running two databases and
+# a browser it can push everything else into swap instead. Needs privileges to take effect,
+# and llama.cpp warns and carries on when it cannot.
+USE_MLOCK = _env_bool("LEARNMATE_USE_MLOCK", False)
 
 # --- Gemini --------------------------------------------------------------------------
 # Only read when a role's backend is "gemini". The model name for that role comes from
@@ -113,6 +160,41 @@ GEMINI_API_KEY = _env("GEMINI_API_KEY", "")
 # --- Embeddings ----------------------------------------------------------------------
 
 EMBEDDING_MODEL = _env("LEARNMATE_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+
+# Some retrieval models are trained with an instruction prefix on the query side only --
+# bge-*-en-v1.5 and the e5-* family are the common ones -- and lose a noticeable amount of
+# accuracy without it. MiniLM is not one of them, so both default to empty.
+#
+# Switching to bge-small-en-v1.5 (same 384 dims, same speed, 512-token window instead of
+# MiniLM's 256) means setting:
+#     LEARNMATE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+#     LEARNMATE_EMBEDDING_QUERY_PREFIX=Represent this sentence for searching relevant passages:
+# ...and then re-ingesting every document, because vectors from two different models are
+# not comparable. See EMBEDDING_MISMATCH below for what happens if you forget.
+EMBEDDING_QUERY_PREFIX = _env("LEARNMATE_EMBEDDING_QUERY_PREFIX", "")
+EMBEDDING_DOC_PREFIX = _env("LEARNMATE_EMBEDDING_DOC_PREFIX", "")
+
+# --- Reranking -------------------------------------------------------------------------
+# A cross-encoder re-scores the chunks the vector search returned, reading each one
+# *together with* the question instead of comparing two independently-made vectors. That
+# is a much better judgement of relevance, and on a 22M-parameter model it costs ~100ms
+# against a generation measured in tens of seconds.
+#
+# It also pays for itself twice: better chunks mean fewer replies the judge rejects, and
+# every rejection costs a full regeneration.
+
+RERANK_ENABLED = _env_bool("LEARNMATE_RERANK_ENABLED", True)
+RERANK_MODEL = _env("LEARNMATE_RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+# How many chunks the vector search hands the reranker. The reranker is only allowed to
+# reorder what retrieval already found, so this is the real recall ceiling -- TOP_K is
+# just how many survive. Larger costs a few ms per candidate and nothing else.
+RERANK_CANDIDATES = _env_int("LEARNMATE_RERANK_CANDIDATES", 20)
+
+# Cross-encoder scores are raw logits; they are put through a sigmoid so this threshold
+# lives in [0, 1] like the cosine one it replaces. 0.5 is the model's own decision
+# boundary. This is what decides "pdf" vs "general" mode whenever reranking is on.
+RERANK_THRESHOLD = _env_float("LEARNMATE_RERANK_THRESHOLD", 0.5)
 
 # --- MongoDB -------------------------------------------------------------------------
 # An external server, not an embedded file store. A plain mongodb:// URI works; an
@@ -180,8 +262,7 @@ QDRANT_BATCH_SIZE = _env_int("LEARNMATE_QDRANT_BATCH_SIZE", 128)
 # ingested into it and a second upload is refused rather than silently paying that cost
 # again. A new PDF means a new session id.
 # Set LEARNMATE_ONE_PDF_PER_SESSION=0 to lift the restriction.
-ONE_PDF_PER_SESSION = _env("LEARNMATE_ONE_PDF_PER_SESSION", "1").lower() not in (
-    "0", "false", "no", "off")
+ONE_PDF_PER_SESSION = _env_bool("LEARNMATE_ONE_PDF_PER_SESSION", True)
 
 # Largest PDF accepted, in MB. A 10 MB textbook is already a few thousand chunks and
 # several minutes of embedding on CPU; past that the ingest looks hung rather than slow.
@@ -194,21 +275,68 @@ MAX_PAGE_COUNT = _env_int("LEARNMATE_MAX_PAGE_COUNT", 300)
 
 # --- Retrieval and chunking ----------------------------------------------------------
 
+# A chunk longer than the embedding model's window is silently truncated -- the tail is
+# simply not in the vector, and nothing warns you. all-MiniLM-L6-v2 stops at 256 word
+# pieces, so this number is really a bet on how much text 900 characters tokenises to.
+#
+# The bet holds, and it was checked rather than assumed. Tokenising every chunk in this
+# project's corpus (755 chunks over four PDFs) against MiniLM's own tokeniser: nothing was
+# truncated, median 133 tokens, longest 235 against the 256 limit. The recursive splitter
+# breaks at sentence boundaries well before the character ceiling, which is what keeps the
+# real distribution far under it.
+#
+# Worth re-checking rather than trusting if the corpus changes character: 235/256 is 92% of
+# the budget, so a document with denser tokenisation -- tables, code, heavy numerals -- has
+# little room left. Lowering this to ~600 buys that margin back, at the cost of re-ingesting
+# every document for a gain that, on the corpus measured here, is zero.
 CHUNK_SIZE = _env_int("LEARNMATE_CHUNK_SIZE", 900)
 CHUNK_OVERLAP = _env_int("LEARNMATE_CHUNK_OVERLAP", 150)
 
 # Shortest chunk worth embedding; below this it is a running head or a stray caption.
 MIN_CHUNK_CHARS = _env_int("LEARNMATE_MIN_CHUNK_CHARS", 80)
 
-TOP_K = _env_int("LEARNMATE_TOP_K", 4)
+# How many chunks reach the prompt. With reranking on these are the best of
+# RERANK_CANDIDATES rather than the vector search's own top 4, so a smaller number carries
+# more signal -- and every chunk dropped is prefill saved twice over, once in the
+# generator and again in the judge.
+TOP_K = _env_int("LEARNMATE_TOP_K", 3)
 
 # Cosine similarity below which retrieved context is treated as irrelevant and the chat
 # agent answers from general knowledge instead.
+#
+# Only consulted when reranking is off or unavailable -- RERANK_THRESHOLD decides the mode
+# otherwise. Note that this number is model-specific: raw cosine under MiniLM puts even
+# unrelated text around 0.1-0.3, whereas bge-* compresses everything much higher. Retune it
+# against your own score distribution rather than carrying it across a model change.
 RELEVANCE_THRESHOLD = _env_float("LEARNMATE_RELEVANCE_THRESHOLD", 0.25)
 
 # --- Agent behaviour -----------------------------------------------------------------
 
 EVALUATOR_THRESHOLD = _env_int("LEARNMATE_EVALUATOR_THRESHOLD", 70)
+
+# Retrieval modes whose chat replies skip the LLM judge entirely. Comma-separated; empty
+# judges everything, which is what this system did before the gate existed.
+#
+# "general" by default, and that is a measurement rather than a preference. Across the 21
+# chat verdicts logged by this project so far:
+#
+#     pdf mode      17 verdicts, scores spread 1 to 100, median 60, 35% passing
+#     general mode   4 verdicts, every one of them exactly 100, 18-27s each
+#
+# The judge is doing real work in pdf mode -- it has the retrieved chunks to check claims
+# against, and it rejects roughly two thirds of what it reads. In general mode it has no
+# source material and nothing to check, and it answers 100 every time: a number with no
+# variance cannot gate anything, and buying it costs twenty-odd seconds a turn.
+#
+# So this skips the judge exactly where it was not judging. Note the small sample -- four
+# general-mode verdicts is thin evidence, and the honest reading is "no sign of any signal"
+# rather than "proven useless". Every skip is still logged (stage="gate"), so widening or
+# reverting this stays an evidence-based decision. See chat_agent/gate.py.
+JUDGE_GATE_MODES = frozenset(
+    mode.strip().lower()
+    for mode in _env("LEARNMATE_JUDGE_GATE_MODES", "general").split(",")
+    if mode.strip()
+)
 
 # One generation plus at most one regeneration. Raising this is not just slower: a 3B
 # judge tends to oscillate rather than converge over more rounds.

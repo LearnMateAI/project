@@ -1,18 +1,21 @@
 /**
  * Upload a PDF.
  *
- * The shape of this changed with the backend: the POST returns `202 {document, job_id}`,
- * so uploading is now two phases with very different durations.
+ * The shape of this follows the backend: the POST returns `202 {document, job_id}`, so
+ * uploading is two phases with very different durations.
  *
  *   sending the bytes     seconds -- the progress bar
- *   processing the PDF    extract, clean, chunk, and a few thousand embeddings on CPU.
- *                         Minutes -- the job, which reports what it is doing.
+ *   processing the PDF    extract, clean, chunk, and a few thousand embeddings. Minutes --
+ *                         the job, which reports what it is doing.
  *
  * The document row exists as soon as the first phase finishes, so it appears in the list
  * straight away as "Processing" whether or not this card is still on screen.
+ *
+ * Files arrive either from the picker or from a drop on the panel; both land in `handleFile`
+ * so the size and type checks cannot be bypassed by dragging instead of clicking.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { listDocuments, uploadDocument } from "../api/documents.js";
 import { useJob } from "../hooks/useJob.js";
 import JobProgress from "./JobProgress.jsx";
@@ -38,7 +41,7 @@ function DocumentsCard({ onUploaded }) {
   const [success, setSuccess] = useState("");
   const [progress, setProgress] = useState(0);
   const [sending, setSending] = useState(false);
-  const fileInputRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
   const job = useJob();
 
   const refreshCount = useCallback(async () => {
@@ -57,8 +60,9 @@ function DocumentsCard({ onUploaded }) {
     refreshCount();
   }, [refreshCount]);
 
-  async function handleFileChange(e) {
-    const file = e.target.files[0];
+  const busy = sending || job.isRunning;
+
+  async function handleFile(file) {
     if (!file) return;
 
     setError("");
@@ -68,12 +72,10 @@ function DocumentsCard({ onUploaded }) {
     // Checked here as well as on the server so an obviously wrong file costs nothing.
     if (file.type !== "application/pdf") {
       setError("Only PDF files are accepted.");
-      e.target.value = "";
       return;
     }
     if (file.size > MAX_MB * 1024 * 1024) {
       setError(`This file is ${(file.size / 1048576).toFixed(1)} MB, over the ${MAX_MB} MB limit.`);
-      e.target.value = "";
       return;
     }
 
@@ -104,68 +106,114 @@ function DocumentsCard({ onUploaded }) {
     }
 
     setSending(false);
+  }
+
+  async function handleFileChange(e) {
+    const file = e.target.files[0];
+    await handleFile(file);
     e.target.value = "";
   }
 
-  const busy = sending || job.isRunning;
+  function handleDrop(e) {
+    e.preventDefault();
+    setDragging(false);
+    if (busy) return;
+    handleFile(e.dataTransfer.files?.[0]);
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-5">
-      <h2 className="font-medium mb-2">Documents</h2>
-      <p className="text-sm text-gray-500 mb-3">
-        {documentCount === null
-          ? "Loading..."
-          : documentCount === 0
-            ? "No documents yet — upload one to get started."
-            : `${documentCount} document${documentCount === 1 ? "" : "s"} uploaded.`}
-      </p>
-
-      {documentCount > 0 && (
-        <a href="/documents" className="text-sm text-blue-600 hover:underline block mb-3">
-          View all documents →
-        </a>
-      )}
-
-      <label className="block text-sm font-medium mb-1" htmlFor="subject">
-        Subject
-      </label>
-      <select
-        id="subject"
-        value={subject}
-        onChange={(e) => setSubject(e.target.value)}
-        disabled={busy}
-        className="w-full mb-3 border rounded px-2 py-1.5 text-sm"
-      >
-        {SUBJECTS.map((s) => (
-          <option key={s} value={s}>
-            {s}
-          </option>
-        ))}
-      </select>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="application/pdf"
-        onChange={handleFileChange}
-        disabled={busy}
-        className="text-sm w-full"
-      />
-
-      {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the
-          server has the file, the interesting number is the job's. */}
-      {sending && job.isRunning && progress < 100 && (
-        <div className="mt-2 w-full bg-gray-200 rounded h-2">
-          <div className="bg-blue-600 h-2 rounded transition-all" style={{ width: `${progress}%` }} />
+    <section className="card">
+      <div className="card-head">
+        <div>
+          <h2>Upload</h2>
+          <p className="text-[12px] text-muted mt-0.5">
+            {documentCount === null
+              ? "Checking your library..."
+              : documentCount === 0
+                ? "No documents yet"
+                : `${documentCount} document${documentCount === 1 ? "" : "s"} in your library`}
+          </p>
         </div>
-      )}
+        <span className="icon-tile icon-tile-soft w-10 h-10">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+          </svg>
+        </span>
+      </div>
 
-      {/* Phase 2: what the backend is doing with it. */}
-      <JobProgress job={job} className="mt-3" />
+      <div className="card-body">
+        <label className="field-label" htmlFor="subject">
+          Subject
+        </label>
+        <select
+          id="subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          disabled={busy}
+          className="select mb-4"
+        >
+          {SUBJECTS.map((entry) => (
+            <option key={entry} value={entry}>
+              {entry}
+            </option>
+          ))}
+        </select>
 
-      {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
-      {success && <p className="text-sm text-green-600 mt-2">{success}</p>}
-    </div>
+        <label
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (!busy) setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          className={`block rounded-xl border border-dashed px-4 py-6 text-center cursor-pointer transition-colors ${
+            busy
+              ? "border-border bg-surface-alt cursor-not-allowed"
+              : dragging
+                ? "border-primary bg-primary-soft"
+                : "border-border-strong hover:border-primary hover:bg-primary-soft"
+          }`}
+        >
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            disabled={busy}
+            className="sr-only"
+          />
+          <svg
+            className={`w-7 h-7 mx-auto mb-2 ${dragging ? "text-primary" : "text-subtle"}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+          </svg>
+          <p className="text-[13px] font-semibold text-heading">
+            {busy ? "Working on it..." : "Drop a PDF here, or click to choose"}
+          </p>
+          <p className="text-[11.5px] text-subtle mt-0.5">PDF only · up to {MAX_MB} MB</p>
+        </label>
+
+        {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the
+            server has the file, the interesting number is the job's. */}
+        {sending && job.isRunning && progress < 100 && (
+          <div className="mt-3">
+            <div className="flex justify-between text-[11.5px] text-muted mb-1">
+              <span>Uploading</span>
+              <span className="tabular-nums">{progress}%</span>
+            </div>
+            <div className="track">
+              <span style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+        )}
+
+        {/* Phase 2: what the backend is doing with it. */}
+        <JobProgress job={job} className="mt-3" />
+
+        {error && <p className="notice notice-error mt-3">{error}</p>}
+        {success && <p className="notice notice-success mt-3">{success}</p>}
+      </div>
+    </section>
   );
 }
 

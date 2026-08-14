@@ -67,6 +67,34 @@ def failed_verdict(task: str, threshold: int, reasoning: str, instruction: str) 
     }
 
 
+def gated_verdict(task: str, threshold: int, reasoning: str) -> Dict:
+    """
+    A complete, passing verdict for content the judge was deliberately not asked about.
+
+    The mirror of `failed_verdict`: same shape, opposite direction, and neither of them
+    came from a model. `score` is **None** rather than a flattering number, which is the
+    whole point -- a turn nobody graded must not be able to masquerade as one that scored
+    well. Callers that rank attempts skip it (persist._score_of wants an int), analytics
+    that average scores exclude it (evaluation_stats matches on a numeric score), and a UI
+    that shows "Reviewed 92/100" shows nothing at all.
+
+    `passed` is True because the turn is accepted and delivered; `gated` is what
+    distinguishes that from having earned a pass. See chat_agent/gate.py for when this
+    applies.
+    """
+    return {
+        "task": task,
+        "score": None,
+        "passed": True,
+        "reasoning": reasoning,
+        # Empty like any passing verdict: there is nothing for the generator to fix, and
+        # decide() must not be handed an instruction that would start a retry.
+        "regeneration_instruction": "",
+        "threshold": threshold,
+        "gated": True,
+    }
+
+
 def parse_verdict(raw: Any) -> Dict:
     """
     Turn the model's reply into a verdict dict, tolerating stray prose or code fences.

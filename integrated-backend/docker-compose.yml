@@ -81,7 +81,12 @@ services:
 volumes:
   # Both are named volumes managed by Docker, so the data survives `docker compose down`,
   # a container upgrade, and a host reboot. Docker prefixes them with the project
-  # directory name, so they appear as components-dinura_qdrant_storage and
-  # components-dinura_mongo_data in `docker volume ls`.
+  # directory name, so they appear as integrated-backend_qdrant_storage and
+  # integrated-backend_mongo_data in `docker volume ls`.
+  #
+  # The corpus was migrated into these on 2026-08-14 from the components-dinura_* volumes,
+  # which the containers used while this project still shared components-Dinura's compose
+  # project. Those old volumes are still on disk, holding that day's snapshot, until
+  # `docker volume rm components-dinura_mongo_data components-dinura_qdrant_storage`.
   qdrant_storage:
   mongo_data:

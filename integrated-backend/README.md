@@ -33,20 +33,20 @@ copy .env.example .env
 python -c "import secrets; print(secrets.token_hex(32))"     # paste into JWT_SECRET_KEY
 
 # 4. models (~4 GB, once). Skip this: they download on first use.
-#    Or copy them from the folder that already has them:
-#    xcopy ..\components-Dinura\models models\ /E /I
+#    They are already in models/ on the development machine.
 
-# 5. run
-venv\Scripts\python -m uvicorn server:app --reload --port 8000
+# 5. run -- 8010, not 8000: an unrelated simplytask-backend container answers 8000,
+#    and uvicorn binds it without complaining, so every route appears to 404.
+venv\Scripts\python -m uvicorn server:app --reload --port 8010
 ```
 
-Then open <http://localhost:8000/api/health>. It should say `ok`, with both databases
-reachable. Interactive API docs are at <http://localhost:8000/docs>.
+Then open <http://localhost:8010/api/health>. It should say `ok`, with both databases
+reachable. Interactive API docs are at <http://localhost:8010/docs>.
 
 To check the whole thing end to end:
 
 ```bash
-venv\Scripts\python scripts\smoke_test.py ..\components-Dinura\data\constitution.pdf
+venv\Scripts\python scripts\smoke_test.py data\Company-law-part1-notes.pdf --base-url http://127.0.0.1:8010
 ```
 
 That registers a throwaway account, uploads, ingests, generates, chats and reads the

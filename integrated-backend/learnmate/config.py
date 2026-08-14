@@ -314,6 +314,30 @@ RELEVANCE_THRESHOLD = _env_float("LEARNMATE_RELEVANCE_THRESHOLD", 0.25)
 
 EVALUATOR_THRESHOLD = _env_int("LEARNMATE_EVALUATOR_THRESHOLD", 70)
 
+# Retrieval modes whose chat replies skip the LLM judge entirely. Comma-separated; empty
+# judges everything, which is what this system did before the gate existed.
+#
+# "general" by default, and that is a measurement rather than a preference. Across the 21
+# chat verdicts logged by this project so far:
+#
+#     pdf mode      17 verdicts, scores spread 1 to 100, median 60, 35% passing
+#     general mode   4 verdicts, every one of them exactly 100, 18-27s each
+#
+# The judge is doing real work in pdf mode -- it has the retrieved chunks to check claims
+# against, and it rejects roughly two thirds of what it reads. In general mode it has no
+# source material and nothing to check, and it answers 100 every time: a number with no
+# variance cannot gate anything, and buying it costs twenty-odd seconds a turn.
+#
+# So this skips the judge exactly where it was not judging. Note the small sample -- four
+# general-mode verdicts is thin evidence, and the honest reading is "no sign of any signal"
+# rather than "proven useless". Every skip is still logged (stage="gate"), so widening or
+# reverting this stays an evidence-based decision. See chat_agent/gate.py.
+JUDGE_GATE_MODES = frozenset(
+    mode.strip().lower()
+    for mode in _env("LEARNMATE_JUDGE_GATE_MODES", "general").split(",")
+    if mode.strip()
+)
+
 # One generation plus at most one regeneration. Raising this is not just slower: a 3B
 # judge tends to oscillate rather than converge over more rounds.
 MAX_ATTEMPTS = _env_int("LEARNMATE_MAX_ATTEMPTS", 2)

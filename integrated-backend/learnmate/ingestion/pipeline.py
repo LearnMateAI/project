@@ -107,8 +107,11 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
     # have no way to tell a slow ingest from a dead one.
     try:
         # --- Extract ------------------------------------------------------------------
-        pdf_bytes = pdf_store.get_pdf_bytes(doc_id)
-        pages = preprocess(pdf_bytes)
+        # `data` is what store_pdf just wrote or, on the dedupe path, is byte-identical to
+        # it -- a document is keyed on the SHA-256 of exactly these bytes. Reading them
+        # back out of GridFS here would be a second transfer of a file already in hand,
+        # which on the upload path is the third time those bytes have moved.
+        pages = preprocess(data)
         if not pages:
             raise ValueError(
                 f"No extractable text in {document['filename']}. If it is a scanned PDF "

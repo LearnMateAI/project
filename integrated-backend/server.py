@@ -32,7 +32,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import config
 from app.errors import register_error_handlers
 from app.jobs import shutdown as stop_worker
-from app.jobs import start_worker
+from app.jobs import start_worker, warm_up
 from app.routers import analytics, auth, chat, documents, jobs, resources
 from learnmate import config as engine_config
 from learnmate.storage import ensure_indexes
@@ -50,9 +50,14 @@ async def lifespan(app: FastAPI):
     """
     Start-up and shut-down.
 
-    Deliberately does *not* load any model. Both the generator and the judge are ~2 GB and
-    lazily cached inside the engine, so loading here would add a minute to every restart
-    and make `--reload` unusable. The first job pays that cost instead.
+    Deliberately does *not* load the generator or the judge. Both are ~2 GB and lazily
+    cached inside the engine, so loading them here would add a minute to every restart and
+    make `--reload` unusable. The first job that needs one pays that cost instead.
+
+    The 90 MB embedding model is a different question and *is* warmed, on a background
+    thread -- see app/jobs/worker.py:warm_up. It costs nothing on the request path and
+    takes about sixteen seconds off the first upload, which is otherwise almost entirely
+    import and model-load time rather than work.
 
     Mongo is contacted, though: indexes are created on first connect, and a database that
     is down should be a clear failure at startup rather than a confusing 500 on the first
@@ -70,6 +75,8 @@ async def lifespan(app: FastAPI):
         logger.error("MongoDB is unreachable: %s", exc)
 
     start_worker()
+    if config.WARM_UP_ON_START:
+        warm_up()
     logger.info("Generator: %s (%s) | Judge: %s (%s) | Vectors: %s",
                 engine_config.GENERATOR_BACKEND, engine_config.GENERATOR_MODEL,
                 engine_config.JUDGE_BACKEND, engine_config.JUDGE_MODEL,

@@ -29,6 +29,7 @@ thread's memory.
 import logging
 import queue
 import threading
+import time
 from typing import Dict, Optional
 
 from learnmate.storage import jobs as job_store
@@ -127,6 +128,44 @@ def start_worker() -> None:
     _WORKER = threading.Thread(target=_loop, name="learnmate-worker", daemon=True)
     _WORKER.start()
     logger.info("Job worker started")
+
+
+def warm_up() -> None:
+    """
+    Pay this process's one-time costs before a user does.
+
+    Ingesting a small PDF is about a second of real work -- extract, chunk, embed thirty-odd
+    chunks -- sitting behind roughly sixteen seconds of first-use overhead: importing the
+    text splitter's dependency chain (~3,900 modules, ~8s) and loading the 90 MB embedding
+    model (~7s). Without this the first upload after every start absorbs all of it, and
+    under `--reload` that means every time the code is touched.
+
+    Deliberately **not** the two ~2 GB GGUFs. Those are what the lifespan docstring refuses
+    to load, and rightly: they would add a minute to every restart. This loads only the
+    embedding model, which ingestion and every retrieval need anyway.
+
+    Runs on its own thread so start-up does not block on it, and takes MODEL_LOCK so it
+    cannot race a job that arrives first -- an upload in the opening seconds waits for this
+    load rather than starting a second one alongside it.
+    """
+    def _warm() -> None:
+        started = time.time()
+        try:
+            with MODEL_LOCK:
+                # Imported for the side effect: pulling the dependency chain in is the
+                # point, not calling anything in it.
+                from learnmate.ingestion import ingest_pdf  # noqa: F401
+                from learnmate.llm.embeddings import get_embeddings
+
+                get_embeddings().model
+            logger.info("Warm-up complete in %.1fs", time.time() - started)
+        except Exception:
+            # Never fatal. A failed warm-up costs the first upload its old latency and
+            # nothing else, so it must not take the server down with it.
+            logger.warning("Warm-up failed; the first job will pay the cost instead",
+                           exc_info=True)
+
+    threading.Thread(target=_warm, name="learnmate-warmup", daemon=True).start()
 
 
 def shutdown(timeout: float = 5.0) -> None:

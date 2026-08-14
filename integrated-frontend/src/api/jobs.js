@@ -16,11 +16,21 @@
 import api from "./client.js";
 
 /**
- * How often to ask. The work takes minutes, so this is nowhere near a load concern -- it
- * is set by how often `progress.message` changes, which is roughly per page summarised or
- * per generation attempt. Slower than this and the commentary looks stuck.
+ * How often to ask, and why it changes partway through.
+ *
+ * A whole-document generation runs for minutes and its commentary changes about once per
+ * page summarised or per generation attempt, so 1.5s is the right rhythm for it -- slower
+ * and the progress line looks stuck.
+ *
+ * A small ingest is a different job entirely: about a second of real work once the server
+ * is warm. Against a flat 1.5s poll the user spends longer waiting to be told than the
+ * work took. So the opening seconds are polled fast, and it backs off to the slow rhythm
+ * for the long runs that need it. Neither rate is a load concern -- this is one reader
+ * asking about one job.
  */
-const POLL_INTERVAL_MS = 1500;
+const FAST_POLL_MS = 300;
+const SLOW_POLL_MS = 1500;
+const FAST_POLL_FOR_MS = 5000;
 
 export function getJob(jobId) {
   return api.get(`/api/jobs/${jobId}`);
@@ -57,6 +67,7 @@ const sleep = (ms, signal) =>
  */
 export async function waitForJob(jobId, { onProgress, signal } = {}) {
   let lastMessage;
+  const startedAt = Date.now();
 
   for (;;) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
@@ -76,6 +87,7 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
       throw new Error(job.error || "The job failed.");
     }
 
-    await sleep(POLL_INTERVAL_MS, signal);
+    const elapsed = Date.now() - startedAt;
+    await sleep(elapsed < FAST_POLL_FOR_MS ? FAST_POLL_MS : SLOW_POLL_MS, signal);
   }
 }

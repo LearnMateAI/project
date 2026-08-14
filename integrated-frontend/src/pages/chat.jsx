@@ -165,84 +165,109 @@ function Chat() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Chat</h1>
+      <div className="page-header">
+        <h1>Chat</h1>
+        <p>Ask questions about a document and get answers that cite their pages</p>
+      </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="notice notice-error mb-4">{error}</p>}
 
-      <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
-        <aside className="bg-white rounded-lg shadow-sm p-4 h-fit">
-          <h2 className="font-medium text-sm mb-3">New conversation</h2>
-          {documents.length === 0 ? (
-            <p className="text-sm text-gray-500 mb-4">
-              No documents are ready yet. Upload one and wait for it to finish processing.
-            </p>
-          ) : (
-            <select
-              value=""
-              onChange={(e) => handleNewSession(e.target.value)}
-              disabled={starting}
-              className="w-full border rounded px-2 py-1.5 text-sm mb-4"
-            >
-              <option value="">Choose a document...</option>
-              {documents.map((doc) => (
-                <option key={doc.id} value={doc.id}>
-                  {doc.filename}
-                </option>
-              ))}
-            </select>
-          )}
+      <div className="grid gap-5 lg:grid-cols-[17rem_1fr] items-start">
+        <aside className="card">
+          <div className="card-head">
+            <h2>Conversations</h2>
+          </div>
 
-          <h2 className="font-medium text-sm mb-2">Your conversations</h2>
-          {sessions.length === 0 ? (
-            <p className="text-sm text-gray-500">None yet.</p>
-          ) : (
-            <ul className="space-y-1">
-              {sessions.map((session) => (
-                <li key={session.session_id} className="flex items-center gap-1">
-                  <button
-                    onClick={() => navigate(`/chat/${session.session_id}`)}
-                    className={`flex-1 text-left text-sm rounded px-2 py-1.5 truncate ${
-                      session.session_id === sessionId
-                        ? "bg-blue-100 text-blue-700"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                    title={session.filename}
-                  >
-                    {session.title || session.filename}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteSession(session)}
-                    className="text-xs text-gray-400 hover:text-red-600 px-1"
-                    title="Delete conversation"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="card-body">
+            <label className="field-label" htmlFor="new-session">
+              New conversation
+            </label>
+            {documents.length === 0 ? (
+              <p className="text-[12.5px] text-muted leading-relaxed">
+                No documents are ready yet. Upload one and wait for it to finish processing.
+              </p>
+            ) : (
+              <select
+                id="new-session"
+                value=""
+                onChange={(e) => handleNewSession(e.target.value)}
+                disabled={starting}
+                className="select"
+              >
+                <option value="">Choose a document...</option>
+                {documents.map((doc) => (
+                  <option key={doc.id} value={doc.id}>
+                    {doc.filename}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {sessions.length === 0 ? (
+              <p className="text-[12.5px] text-muted mt-5">No conversations yet.</p>
+            ) : (
+              <ul className="mt-5 space-y-1 list-none p-0 m-0">
+                {sessions.map((session) => (
+                  <li key={session.session_id} className="flex items-center gap-1 group">
+                    <button
+                      onClick={() => navigate(`/chat/${session.session_id}`)}
+                      className={`flex-1 min-w-0 text-left text-[13px] font-medium rounded-lg px-2.5 py-2 truncate transition-colors ${
+                        session.session_id === sessionId
+                          ? "bg-primary-light text-primary-dark"
+                          : "text-muted hover:bg-surface-alt hover:text-heading"
+                      }`}
+                      title={session.filename}
+                    >
+                      {session.title || session.filename}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSession(session)}
+                      className="shrink-0 w-6 h-6 rounded-md text-subtle hover:bg-danger-light hover:text-danger opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                      title="Delete conversation"
+                      aria-label="Delete conversation"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </aside>
 
-        <section className="bg-white rounded-lg shadow-sm p-4 flex flex-col min-h-[32rem]">
+        <section className="card flex flex-col h-[calc(100vh-14rem)] min-h-[30rem] overflow-hidden">
           {!sessionId ? (
-            <p className="text-sm text-gray-400 m-auto">
-              Pick a conversation, or start one from a document.
-            </p>
+            <div className="m-auto text-center px-6 py-10">
+              <span className="icon-tile icon-tile-soft w-12 h-12 mb-3">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                </svg>
+              </span>
+              <p className="text-[14px] font-semibold text-heading m-0">No conversation selected</p>
+              <p className="text-[13px] text-muted mt-1 m-0">
+                Pick one on the left, or start a new one from a document.
+              </p>
+            </div>
           ) : (
             <>
-              <div className="border-b pb-2 mb-4">
-                <p className="text-sm font-medium">{current?.filename || "Conversation"}</p>
-                <p className="text-xs text-gray-500">
-                  Answers are drawn from this document; anything it does not cover is answered
-                  from general knowledge and labelled as such.
-                </p>
+              <div className="card-head">
+                <div className="min-w-0">
+                  <h2 className="truncate">{current?.filename || "Conversation"}</h2>
+                  <p className="text-[11.5px] text-muted mt-0.5 leading-snug">
+                    Answers are drawn from this document; anything it does not cover is answered
+                    from general knowledge and labelled as such.
+                  </p>
+                </div>
               </div>
 
-              <div className="flex-1 space-y-3 overflow-y-auto">
+              <div className="flex-1 space-y-3.5 overflow-y-auto px-4 py-5 bg-background">
                 {loadingTurns ? (
-                  <p className="text-sm text-gray-500">Loading conversation...</p>
+                  <p className="flex items-center gap-2.5 text-[13px] text-muted">
+                    <span className="spinner" />
+                    Loading conversation...
+                  </p>
                 ) : turns.length === 0 ? (
-                  <p className="text-sm text-gray-400">
+                  <p className="text-[13px] text-muted text-center py-6">
                     Ask a question about this document to get started.
                   </p>
                 ) : (
@@ -256,20 +281,32 @@ function Chat() {
                 <div ref={bottomRef} />
               </div>
 
-              <form onSubmit={handleSend} className="mt-4 flex gap-2">
+              <form onSubmit={handleSend} className="flex gap-2.5 p-3.5 border-t border-border bg-surface">
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Ask a question about this document..."
                   disabled={job.isRunning}
-                  className="flex-1 border rounded px-3 py-2 text-sm"
+                  className="input flex-1 rounded-full"
                 />
                 <button
                   type="submit"
                   disabled={job.isRunning || !draft.trim()}
-                  className="bg-blue-600 text-white rounded px-4 py-2 text-sm disabled:opacity-50"
+                  className="btn-primary rounded-full px-5 shrink-0"
                 >
-                  {job.isRunning ? "Thinking..." : "Send"}
+                  {job.isRunning ? (
+                    <>
+                      <span className="spinner spinner-light" />
+                      Thinking...
+                    </>
+                  ) : (
+                    <>
+                      Send
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </form>
             </>

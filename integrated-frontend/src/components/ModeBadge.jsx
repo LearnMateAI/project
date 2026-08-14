@@ -21,11 +21,7 @@ function ModeBadge({ mode, topScore, className = "" }) {
 
   return (
     <span
-      className={`inline-block text-xs border rounded px-2 py-0.5 ${
-        grounded
-          ? "bg-blue-50 text-blue-700 border-blue-200"
-          : "bg-gray-100 text-gray-600 border-gray-200"
-      } ${className}`}
+      className={`badge ${grounded ? "badge-blue" : "badge-gray"} ${className}`}
       // A replayed turn carries the mode but not the retrieval score -- the stored meta
       // has no room for it -- so the number is omitted rather than shown as 0.00.
       title={
@@ -36,6 +32,9 @@ function ModeBadge({ mode, topScore, className = "" }) {
           : "Nothing relevant was found in your document, so this is the model's general knowledge."
       }
     >
+      {/* The dot is not decoration: it carries the same distinction as the fill, for
+          anyone reading this in greyscale or with a colour vision deficiency. */}
+      <span className="badge-dot" />
       {grounded ? "From your document" : "General knowledge"}
     </span>
   );

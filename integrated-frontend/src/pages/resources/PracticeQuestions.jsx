@@ -25,33 +25,30 @@ function PracticeQuestions({ questions }) {
 
   return (
     <div>
-      <button onClick={toggleAll} className="text-sm text-blue-600 hover:underline mb-3">
+      <button onClick={toggleAll} className="btn-secondary mb-4">
         {allShown ? "Hide all answers" : "Show all answers"}
       </button>
 
-      <ol className="space-y-3">
+      <ol className="space-y-3 list-none p-0 m-0">
         {questions.map((item, index) => (
-          <li key={index} className="bg-white rounded-lg shadow-sm p-5">
-            <p className="font-medium mb-2">
-              {index + 1}. {item.question}
+          <li key={index} className="card p-5">
+            <p className="text-[14.5px] font-semibold text-heading m-0 mb-2.5 leading-relaxed">
+              <span className="text-primary mr-1.5">{index + 1}.</span>
+              {item.question}
             </p>
 
             {revealed[index] ? (
-              <div className="text-sm text-gray-800 bg-gray-50 border rounded p-3">
-                {item.answer}
-              </div>
+              <>
+                <div className="text-[13.5px] leading-relaxed text-body bg-surface-alt border border-border-light rounded-xl p-3.5">
+                  {item.answer}
+                </div>
+                <button onClick={() => toggle(index)} className="btn-ghost mt-2">
+                  Hide answer
+                </button>
+              </>
             ) : (
-              <button onClick={() => toggle(index)} className="text-sm text-blue-600 hover:underline">
+              <button onClick={() => toggle(index)} className="btn-secondary py-1.5 px-3 text-[12.5px]">
                 Show answer
-              </button>
-            )}
-
-            {revealed[index] && (
-              <button
-                onClick={() => toggle(index)}
-                className="text-sm text-gray-500 hover:underline mt-2 block"
-              >
-                Hide
               </button>
             )}
           </li>

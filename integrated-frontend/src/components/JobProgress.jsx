@@ -14,11 +14,7 @@ function JobProgress({ job, className = "" }) {
   if (job.status === "idle") return null;
 
   if (job.isFailed) {
-    return (
-      <div className={`text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2 ${className}`}>
-        {job.error}
-      </div>
-    );
+    return <div className={`notice notice-error ${className}`}>{job.error}</div>;
   }
 
   if (!job.isRunning) return null;
@@ -27,14 +23,14 @@ function JobProgress({ job, className = "" }) {
   const percent = total ? Math.min(100, Math.round((current / total) * 100)) : null;
 
   return (
-    <div className={`text-sm text-gray-600 ${className}`}>
-      <p className="flex items-center gap-2">
-        <span className="inline-block w-3 h-3 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+    <div className={`rounded-xl bg-primary-soft border border-primary-light px-3.5 py-3 ${className}`}>
+      <p className="flex items-center gap-2.5 text-[13px] font-medium text-primary-dark m-0">
+        <span className="spinner" />
         {message || "Working..."}
       </p>
       {percent !== null && (
-        <div className="mt-2 w-full bg-gray-200 rounded h-2">
-          <div className="bg-blue-600 h-2 rounded transition-all" style={{ width: `${percent}%` }} />
+        <div className="track mt-2.5">
+          <span style={{ width: `${percent}%` }} />
         </div>
       )}
     </div>

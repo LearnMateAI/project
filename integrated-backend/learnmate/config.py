@@ -50,6 +50,12 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    """Read a flag. Anything but the recognised falsey words counts as on."""
+    return _env(name, "1" if default else "0").lower() not in (
+        "0", "false", "no", "off")
+
+
 # --- Filesystem ----------------------------------------------------------------------
 
 # Where the GGUF model files live, and where a missing one is downloaded to.
@@ -96,9 +102,50 @@ JUDGE_N_CTX = _env_int("LEARNMATE_JUDGE_N_CTX", 8192)
 JUDGE_API_URL = _env("LEARNMATE_JUDGE_API_URL", "http://localhost:8002/v1")
 JUDGE_API_KEY = _env("LEARNMATE_JUDGE_API_KEY", "")
 
-# None lets llama.cpp auto-detect physical cores.
-N_THREADS = int(_env("LEARNMATE_N_THREADS", "0")) or None
+# --- llama.cpp runtime -----------------------------------------------------------------
+# How the two GGUFs are executed. These describe the *machine*, not the role, so both the
+# generator and the judge are loaded with the same values -- see llm/runtime.py, which
+# reads them directly rather than having them threaded through every model wrapper.
+#
+# This block is the difference between a 40-second reply and a 6-second one, and none of
+# it is portable: the right values on the Windows laptop and on the demo MacBook are not
+# the same numbers. .env carries one set commented out beside the other.
+
+# None lets llama.cpp pick, which is cpu_count() // 2. That is a reasonable guess on a
+# uniform CPU and a poor one on a hybrid: counting Intel's E-cores as if they were P-cores
+# spreads the work onto cores that finish late and hold everyone else up. Set it explicitly
+# after measuring rather than trusting either number.
+N_THREADS = _env_int("LEARNMATE_N_THREADS", 0) or None
+
+# Prefill is a separate knob from decode because it is a different shape of work: reading
+# the prompt is a big parallel matrix multiply that scales with cores, while writing tokens
+# is memory-bound and stops scaling early. llama.cpp defaults this to *all* logical
+# processors. None keeps that default.
+N_THREADS_BATCH = _env_int("LEARNMATE_N_THREADS_BATCH", 0) or None
+
+# How many layers run on the GPU. 0 is pure CPU; **-1 offloads every layer**, which is what
+# a Metal Mac wants -- a 3B Q4 model is ~2 GB and fits in unified memory whole. Anything in
+# between splits the model and pays a transfer per token for the privilege, so the useful
+# settings are really just 0 and -1.
 N_GPU_LAYERS = _env_int("LEARNMATE_N_GPU_LAYERS", 0)
+
+# Prompt-processing batch size: how many tokens are prefilled per pass. Bigger means fewer,
+# larger matrix multiplies, which is what a GPU wants; on CPU the gain flattens out and the
+# scratch buffers grow. 512 is llama.cpp's own default and a sane floor.
+N_BATCH = _env_int("LEARNMATE_N_BATCH", 512)
+
+# Flash attention. Worth knowing that this is *not* a no-op when left off: llama.cpp's own
+# default is AUTO (enable it where the backend supports it), but llama-cpp-python's boolean
+# only reaches ENABLED or DISABLED -- so not setting it forces attention onto the slow path
+# even on Metal, where it is a clear win. Off by default here to keep CPU behaviour exactly
+# as it was; turn it on with the GPU.
+FLASH_ATTN = _env_bool("LEARNMATE_FLASH_ATTN", False)
+
+# Pin the weights in RAM so the OS cannot page them out. Worth it when a model is used
+# steadily and there is memory to spare; on a laptop that is also running two databases and
+# a browser it can push everything else into swap instead. Needs privileges to take effect,
+# and llama.cpp warns and carries on when it cannot.
+USE_MLOCK = _env_bool("LEARNMATE_USE_MLOCK", False)
 
 # --- Gemini --------------------------------------------------------------------------
 # Only read when a role's backend is "gemini". The model name for that role comes from
@@ -136,8 +183,7 @@ EMBEDDING_DOC_PREFIX = _env("LEARNMATE_EMBEDDING_DOC_PREFIX", "")
 # It also pays for itself twice: better chunks mean fewer replies the judge rejects, and
 # every rejection costs a full regeneration.
 
-RERANK_ENABLED = _env("LEARNMATE_RERANK_ENABLED", "1").lower() not in (
-    "0", "false", "no", "off")
+RERANK_ENABLED = _env_bool("LEARNMATE_RERANK_ENABLED", True)
 RERANK_MODEL = _env("LEARNMATE_RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 # How many chunks the vector search hands the reranker. The reranker is only allowed to
@@ -216,8 +262,7 @@ QDRANT_BATCH_SIZE = _env_int("LEARNMATE_QDRANT_BATCH_SIZE", 128)
 # ingested into it and a second upload is refused rather than silently paying that cost
 # again. A new PDF means a new session id.
 # Set LEARNMATE_ONE_PDF_PER_SESSION=0 to lift the restriction.
-ONE_PDF_PER_SESSION = _env("LEARNMATE_ONE_PDF_PER_SESSION", "1").lower() not in (
-    "0", "false", "no", "off")
+ONE_PDF_PER_SESSION = _env_bool("LEARNMATE_ONE_PDF_PER_SESSION", True)
 
 # Largest PDF accepted, in MB. A 10 MB textbook is already a few thousand chunks and
 # several minutes of embedding on CPU; past that the ingest looks hung rather than slow.

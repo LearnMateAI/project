@@ -61,6 +61,14 @@ PASSWORD_MIN_LENGTH = _env_int("PASSWORD_MIN_LENGTH", 8)
 # are restarting constantly and not uploading. See app/jobs/worker.py:warm_up.
 WARM_UP_ON_START = _env_bool("API_WARM_UP", True)
 
+# The same idea carried to the two ~2 GB GGUFs, and off by default because the trade only
+# works one way round. In development it is the wrong deal: four gigabytes read at every
+# restart, and under --reload that means every time a file is saved. On the demo machine it
+# is the right one -- the first question otherwise pays for both models to load, plus the
+# Metal shader compilation that happens on a model's first generation rather than when it
+# is constructed. Independent of API_WARM_UP: either may be set without the other.
+WARM_MODELS_ON_START = _env_bool("API_WARM_MODELS", False)
+
 # --- Listings --------------------------------------------------------------------------
 MAX_DOCUMENTS = _env_int("API_MAX_DOCUMENTS", 200)
 MAX_RESOURCES = _env_int("API_MAX_RESOURCES", 100)

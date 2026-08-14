@@ -34,6 +34,8 @@ from typing import Dict, Optional
 
 from learnmate.storage import jobs as job_store
 
+from .. import config
+
 logger = logging.getLogger("learnmate.api.jobs")
 
 # Held for the duration of anything that touches a model. See the module docstring.
@@ -166,45 +168,111 @@ def _check_embedding_model() -> None:
         logger.debug("Embedding-model check skipped", exc_info=True)
 
 
+def _warm_models() -> None:
+    """
+    Load the generator and the judge, and push one token through each.
+
+    A token, rather than only opening the files, because construction is not the whole of
+    the first call's cost: the KV cache is allocated, the chat template is resolved, and on
+    Metal the shaders are compiled, on a model's first *generation*. Loading without
+    generating would move about half the cliff and leave the rest on the first question.
+
+    Only llama.cpp models are warmed. An `http` endpoint is somebody else's process to warm,
+    and a dummy Gemini call would spend quota to save nothing local.
+
+    The probe goes through the same no-argument accessors the agents use, so it warms the
+    exact cache entries they will ask for -- see llm/registry.py, which keys wrappers by
+    role and sampling settings over a single set of weights.
+    """
+    from langchain_core.messages import HumanMessage
+
+    from learnmate import config as engine_config
+    from learnmate.evaluator.verdict import VERDICT_SCHEMA
+    from learnmate.llm import get_generator_llm, get_judge_llm
+
+    probe = [HumanMessage(content="Hello.")]
+
+    if engine_config.GENERATOR_BACKEND == "llamacpp":
+        started = time.time()
+        get_generator_llm().invoke(probe, max_tokens=1, temperature=0.0)
+        logger.info("Generator ready in %.1fs (%s)",
+                    time.time() - started, engine_config.GENERATOR_MODEL)
+
+    if engine_config.JUDGE_BACKEND == "llamacpp":
+        started = time.time()
+        # With the schema, so the JSON grammar is compiled here as well. Every verdict is
+        # decoded through it, and compiling it is part of what the first one pays for.
+        get_judge_llm().invoke(probe, max_tokens=1, response_schema=VERDICT_SCHEMA)
+        logger.info("Judge ready in %.1fs (%s)",
+                    time.time() - started, engine_config.JUDGE_MODEL)
+
+
 def warm_up() -> None:
     """
     Pay this process's one-time costs before a user does.
 
-    Ingesting a small PDF is about a second of real work -- extract, chunk, embed thirty-odd
-    chunks -- sitting behind roughly sixteen seconds of first-use overhead: importing the
-    text splitter's dependency chain (~3,900 modules, ~8s) and loading the 90 MB embedding
-    model (~7s). Without this the first upload after every start absorbs all of it, and
-    under `--reload` that means every time the code is touched.
+    Two phases, separately switched, because they are very different bargains.
 
-    Deliberately **not** the two ~2 GB GGUFs. Those are what the lifespan docstring refuses
-    to load, and rightly: they would add a minute to every restart. This loads only the
-    embedding model, which ingestion and every retrieval need anyway.
+    The first is the embedding model and the ingestion import chain, and it is on by
+    default. Ingesting a small PDF is about a second of real work -- extract, chunk, embed
+    thirty-odd chunks -- sitting behind roughly sixteen seconds of first-use overhead:
+    importing the text splitter's dependency chain (~3,900 modules, ~8s) and loading the
+    90 MB embedding model (~7s). Without this the first upload after every start absorbs all
+    of it, and under `--reload` that means every time the code is touched.
+
+    The second is the two ~2 GB GGUFs, and it is off by default -- this is what the lifespan
+    docstring means by refusing to load them. In development that refusal is right: four
+    gigabytes at every restart makes `--reload` unusable. On the demo machine it is wrong,
+    because the cost does not disappear, it just moves onto the first question somebody
+    asks. API_WARM_MODELS=1 pays it at boot instead.
 
     Runs on its own thread so start-up does not block on it, and takes MODEL_LOCK so it
     cannot race a job that arrives first -- an upload in the opening seconds waits for this
-    load rather than starting a second one alongside it.
+    load rather than starting a second one alongside it. The lock is taken **once per
+    phase** rather than once for the whole run, so an upload arriving two seconds in waits
+    only for the embedding model and not for four gigabytes of GGUF behind it.
     """
+    if not (config.WARM_UP_ON_START or config.WARM_MODELS_ON_START):
+        return
+
     def _warm() -> None:
-        started = time.time()
-        try:
-            with MODEL_LOCK:
-                # Imported for the side effect: pulling the dependency chain in is the
-                # point, not calling anything in it.
-                from learnmate.ingestion import ingest_pdf  # noqa: F401
-                from learnmate.llm import rerank
-                from learnmate.llm.embeddings import get_embeddings
+        if config.WARM_UP_ON_START:
+            started = time.time()
+            try:
+                with MODEL_LOCK:
+                    # Imported for the side effect: pulling the dependency chain in is the
+                    # point, not calling anything in it.
+                    from learnmate.ingestion import ingest_pdf  # noqa: F401
+                    from learnmate.llm import rerank
+                    from learnmate.llm.embeddings import get_embeddings
 
-                get_embeddings().model
-                # ~90 MB, and every chat turn goes through it. Loading it here rather than
-                # on the first question keeps it off the path a user is waiting on.
-                rerank.available()
-            logger.info("Warm-up complete in %.1fs", time.time() - started)
-        except Exception:
-            # Never fatal. A failed warm-up costs the first upload its old latency and
-            # nothing else, so it must not take the server down with it.
-            logger.warning("Warm-up failed; the first job will pay the cost instead",
-                           exc_info=True)
+                    get_embeddings().model
+                    # ~90 MB, and every chat turn goes through it. Loading it here rather
+                    # than on the first question keeps it off the path a user is waiting on.
+                    rerank.available()
+                logger.info("Warm-up complete in %.1fs", time.time() - started)
+            except Exception:
+                # Never fatal. A failed warm-up costs the first upload its old latency and
+                # nothing else, so it must not take the server down with it.
+                logger.warning("Warm-up failed; the first job will pay the cost instead",
+                               exc_info=True)
 
+        if config.WARM_MODELS_ON_START:
+            started = time.time()
+            try:
+                with MODEL_LOCK:
+                    _warm_models()
+                logger.info("Models warm in %.1fs", time.time() - started)
+            except Exception:
+                # Same rule as above, and it matters more here: a missing GGUF downloads on
+                # first use, and that download failing at boot must not stop a server whose
+                # other half works.
+                logger.warning("Model warm-up failed; the first turn will pay the cost "
+                               "instead", exc_info=True)
+
+        # Last, and outside both phases: this warns about a corpus embedded by a different
+        # model than is configured now, which is worth saying whichever phase ran and is
+        # not warming at all. It only needs Mongo.
         _check_embedding_model()
 
     threading.Thread(target=_warm, name="learnmate-warmup", daemon=True).start()

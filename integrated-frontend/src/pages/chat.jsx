@@ -8,8 +8,10 @@
  * unfinished upload.
  *
  * Sending is a job: POST returns 202, then useJob polls until the reply lands. That is
- * 30-60 seconds on the local models, so the pending turn shows the backend's own
- * commentary — "Generating (attempt 1/2)...", "Evaluating..." — instead of a spinner.
+ * 30-60 seconds on the local models, so the pending turn streams the reply as the model
+ * writes it — see StreamingMessage — with the backend's own commentary ("Generating
+ * (attempt 1/2)...", "Evaluating...") underneath it. The total wait is unchanged; what
+ * changes is that the first words appear in a couple of seconds rather than at the end.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -19,6 +21,7 @@ import { errorMessage } from "../api/client.js";
 import { listDocuments } from "../api/documents.js";
 import ChatMessage from "../components/ChatMessage.jsx";
 import JobProgress from "../components/JobProgress.jsx";
+import StreamingMessage from "../components/StreamingMessage.jsx";
 import { useJob } from "../hooks/useJob.js";
 
 function Chat() {
@@ -246,7 +249,10 @@ function Chat() {
                   turns.map((turn) => <ChatMessage key={turn.id} turn={turn} />)
                 )}
 
-                <JobProgress job={job} />
+                {/* While the turn is running its reply streams in here; JobProgress is
+                    left to report a failure, which is the one state the streaming bubble
+                    has nothing to say about. */}
+                {job.isRunning ? <StreamingMessage progress={job.progress} /> : <JobProgress job={job} />}
                 <div ref={bottomRef} />
               </div>
 

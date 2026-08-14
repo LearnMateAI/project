@@ -16,7 +16,7 @@ from typing import Dict
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_generator_llm
-from .helpers import _as_messages, _log
+from .helpers import _as_messages, _emit_token, _log
 from .prompts import GENERAL_SYSTEM, GROUNDED_SYSTEM
 from .state import ChatState
 
@@ -63,10 +63,25 @@ def generate_node(state: ChatState) -> Dict:
                 HumanMessage(content=user)]
 
     try:
+        # Streamed rather than awaited whole. The decode takes exactly as long either way
+        # -- what changes is that the reader sees the first words in about two seconds
+        # instead of a wall of text after thirty. Backends that cannot stream (Gemini)
+        # fall back to a single chunk automatically, so this path is safe for all three.
+        #
         # Low but non-zero temperature: enough variation that a regeneration can differ
         # from the reply the judge just rejected, not so much that it drifts.
-        reply = get_generator_llm().invoke(messages, temperature=0.3, max_tokens=512)
-        return {"attempt": attempt, "reply": (reply.content or "").strip()}
+        pieces = []
+        for chunk in get_generator_llm().stream(messages, temperature=0.3, max_tokens=512):
+            text = chunk.content or ""
+            if not text:
+                continue
+            pieces.append(text)
+            # Accumulated, not the delta -- see helpers._emit_token. Sent unstripped so
+            # the consumer sees the text exactly as it is being produced; the strip
+            # happens once, below, on what is actually kept.
+            _emit_token(state, "".join(pieces))
+
+        return {"attempt": attempt, "reply": "".join(pieces).strip()}
     except Exception as exc:
         # Return an empty reply rather than raising: the graph continues, the judge
         # scores the emptiness badly, and the retry loop gets a chance to recover.

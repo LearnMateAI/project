@@ -87,13 +87,40 @@ def set_progress(job_id, message: str, current: int = None, total: int = None) -
         pass
 
 
+def set_partial(job_id, text: str) -> None:
+    """
+    Update the answer a running job has produced so far.
+
+    Separate from `set_progress` because the two say different things and a client renders
+    them differently: `progress.message` is commentary that replaces the line before it
+    ("Evaluating..."), `progress.partial` is the reply itself, growing. Sharing one field
+    would mean the answer flickering away every time a node logged something.
+
+    The caller is expected to throttle -- this is one Mongo write per call and a 3B model
+    emits several tokens a second. See the reporter in app/jobs/runners.py.
+
+    Never raises, for the same reason set_progress does not: a client watching is a
+    courtesy, and the generation must outlive it.
+    """
+    try:
+        _collection().update_one({"_id": coerce_id(job_id)},
+                                 {"$set": {"progress.partial": text}})
+    except Exception:
+        pass
+
+
 def finish(job_id, result: Any = None, message: str = "Done.") -> None:
     """Mark a job done, with whatever the caller should be handed back."""
     _collection().update_one(
         {"_id": coerce_id(job_id)},
         {"$set": {"status": DONE, "result": result, "error": None,
                   "finished_at": datetime.now(timezone.utc),
-                  "progress.message": message}},
+                  "progress.message": message,
+                  # Cleared, not kept. The streamed text was the newest *attempt*; the
+                  # result holds the attempt that actually won, which is not always the
+                  # same one (see chat_agent/persist.best_attempt). Leaving both on the
+                  # record invites a client to render the wrong one.
+                  "progress.partial": None}},
     )
 
 

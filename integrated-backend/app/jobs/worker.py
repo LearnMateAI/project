@@ -130,6 +130,42 @@ def start_worker() -> None:
     logger.info("Job worker started")
 
 
+def _check_embedding_model() -> None:
+    """
+    Warn when documents on disk were embedded by a different model than is configured now.
+
+    This is the one configuration mistake in this system that produces no error at all.
+    Vectors from two different embedding models have the same shape and the same dtype;
+    comparing them returns confident numbers that mean nothing, so retrieval quietly
+    starts answering from general knowledge -- or worse, grounds replies on whichever
+    chunks happened to land near the query in the wrong space. Nothing about that looks
+    like a failure from the outside.
+
+    A warning rather than a refusal: the fix is to re-ingest, which is minutes of work, and
+    a server that will not start is a worse answer than one that says what is wrong.
+    """
+    try:
+        from learnmate import config
+        from learnmate.storage import pdf_store
+
+        stale = pdf_store.stale_embeddings()
+        if not stale:
+            return
+
+        models = sorted({row.get("embedding_model") for row in stale})
+        logger.warning(
+            "%d document(s) were embedded with %s but LEARNMATE_EMBEDDING_MODEL is now %r. "
+            "Their vectors are not comparable to queries embedded by the new model and "
+            "retrieval will be wrong. Re-ingest them (force=True), or set the setting back. "
+            "Affected: %s",
+            len(stale), ", ".join(repr(name) for name in models), config.EMBEDDING_MODEL,
+            ", ".join(row.get("filename", "?") for row in stale[:5]),
+        )
+    except Exception:
+        # A check that cannot run must not be the reason a server fails to start.
+        logger.debug("Embedding-model check skipped", exc_info=True)
+
+
 def warm_up() -> None:
     """
     Pay this process's one-time costs before a user does.
@@ -155,15 +191,21 @@ def warm_up() -> None:
                 # Imported for the side effect: pulling the dependency chain in is the
                 # point, not calling anything in it.
                 from learnmate.ingestion import ingest_pdf  # noqa: F401
+                from learnmate.llm import rerank
                 from learnmate.llm.embeddings import get_embeddings
 
                 get_embeddings().model
+                # ~90 MB, and every chat turn goes through it. Loading it here rather than
+                # on the first question keeps it off the path a user is waiting on.
+                rerank.available()
             logger.info("Warm-up complete in %.1fs", time.time() - started)
         except Exception:
             # Never fatal. A failed warm-up costs the first upload its old latency and
             # nothing else, so it must not take the server down with it.
             logger.warning("Warm-up failed; the first job will pay the cost instead",
                            exc_info=True)
+
+        _check_embedding_model()
 
     threading.Thread(target=_warm, name="learnmate-warmup", daemon=True).start()
 

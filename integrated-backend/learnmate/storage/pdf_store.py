@@ -27,6 +27,7 @@ from .documents import (
     mark_ingested,
     resolve_document,
     set_status,
+    stale_embeddings,
     store_pdf,
 )
 from .pages import count_pages, delete_pages, get_pages, store_pages
@@ -52,6 +53,7 @@ __all__ = [
     "read_source",
     "resolve_document",
     "set_status",
+    "stale_embeddings",
     "store_pages",
     "store_pdf",
 ]

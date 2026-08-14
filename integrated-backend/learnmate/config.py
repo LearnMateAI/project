@@ -114,6 +114,42 @@ GEMINI_API_KEY = _env("GEMINI_API_KEY", "")
 
 EMBEDDING_MODEL = _env("LEARNMATE_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 
+# Some retrieval models are trained with an instruction prefix on the query side only --
+# bge-*-en-v1.5 and the e5-* family are the common ones -- and lose a noticeable amount of
+# accuracy without it. MiniLM is not one of them, so both default to empty.
+#
+# Switching to bge-small-en-v1.5 (same 384 dims, same speed, 512-token window instead of
+# MiniLM's 256) means setting:
+#     LEARNMATE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+#     LEARNMATE_EMBEDDING_QUERY_PREFIX=Represent this sentence for searching relevant passages:
+# ...and then re-ingesting every document, because vectors from two different models are
+# not comparable. See EMBEDDING_MISMATCH below for what happens if you forget.
+EMBEDDING_QUERY_PREFIX = _env("LEARNMATE_EMBEDDING_QUERY_PREFIX", "")
+EMBEDDING_DOC_PREFIX = _env("LEARNMATE_EMBEDDING_DOC_PREFIX", "")
+
+# --- Reranking -------------------------------------------------------------------------
+# A cross-encoder re-scores the chunks the vector search returned, reading each one
+# *together with* the question instead of comparing two independently-made vectors. That
+# is a much better judgement of relevance, and on a 22M-parameter model it costs ~100ms
+# against a generation measured in tens of seconds.
+#
+# It also pays for itself twice: better chunks mean fewer replies the judge rejects, and
+# every rejection costs a full regeneration.
+
+RERANK_ENABLED = _env("LEARNMATE_RERANK_ENABLED", "1").lower() not in (
+    "0", "false", "no", "off")
+RERANK_MODEL = _env("LEARNMATE_RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+# How many chunks the vector search hands the reranker. The reranker is only allowed to
+# reorder what retrieval already found, so this is the real recall ceiling -- TOP_K is
+# just how many survive. Larger costs a few ms per candidate and nothing else.
+RERANK_CANDIDATES = _env_int("LEARNMATE_RERANK_CANDIDATES", 20)
+
+# Cross-encoder scores are raw logits; they are put through a sigmoid so this threshold
+# lives in [0, 1] like the cosine one it replaces. 0.5 is the model's own decision
+# boundary. This is what decides "pdf" vs "general" mode whenever reranking is on.
+RERANK_THRESHOLD = _env_float("LEARNMATE_RERANK_THRESHOLD", 0.5)
+
 # --- MongoDB -------------------------------------------------------------------------
 # An external server, not an embedded file store. A plain mongodb:// URI works; an
 # Atlas mongodb+srv:// URI additionally unlocks server-side $vectorSearch.
@@ -194,16 +230,39 @@ MAX_PAGE_COUNT = _env_int("LEARNMATE_MAX_PAGE_COUNT", 300)
 
 # --- Retrieval and chunking ----------------------------------------------------------
 
+# A chunk longer than the embedding model's window is silently truncated -- the tail is
+# simply not in the vector, and nothing warns you. all-MiniLM-L6-v2 stops at 256 word
+# pieces, so this number is really a bet on how much text 900 characters tokenises to.
+#
+# The bet holds, and it was checked rather than assumed. Tokenising every chunk in this
+# project's corpus (755 chunks over four PDFs) against MiniLM's own tokeniser: nothing was
+# truncated, median 133 tokens, longest 235 against the 256 limit. The recursive splitter
+# breaks at sentence boundaries well before the character ceiling, which is what keeps the
+# real distribution far under it.
+#
+# Worth re-checking rather than trusting if the corpus changes character: 235/256 is 92% of
+# the budget, so a document with denser tokenisation -- tables, code, heavy numerals -- has
+# little room left. Lowering this to ~600 buys that margin back, at the cost of re-ingesting
+# every document for a gain that, on the corpus measured here, is zero.
 CHUNK_SIZE = _env_int("LEARNMATE_CHUNK_SIZE", 900)
 CHUNK_OVERLAP = _env_int("LEARNMATE_CHUNK_OVERLAP", 150)
 
 # Shortest chunk worth embedding; below this it is a running head or a stray caption.
 MIN_CHUNK_CHARS = _env_int("LEARNMATE_MIN_CHUNK_CHARS", 80)
 
-TOP_K = _env_int("LEARNMATE_TOP_K", 4)
+# How many chunks reach the prompt. With reranking on these are the best of
+# RERANK_CANDIDATES rather than the vector search's own top 4, so a smaller number carries
+# more signal -- and every chunk dropped is prefill saved twice over, once in the
+# generator and again in the judge.
+TOP_K = _env_int("LEARNMATE_TOP_K", 3)
 
 # Cosine similarity below which retrieved context is treated as irrelevant and the chat
 # agent answers from general knowledge instead.
+#
+# Only consulted when reranking is off or unavailable -- RERANK_THRESHOLD decides the mode
+# otherwise. Note that this number is model-specific: raw cosine under MiniLM puts even
+# unrelated text around 0.1-0.3, whereas bge-* compresses everything much higher. Retune it
+# against your own score distribution rather than carrying it across a model change.
 RELEVANCE_THRESHOLD = _env_float("LEARNMATE_RELEVANCE_THRESHOLD", 0.25)
 
 # --- Agent behaviour -----------------------------------------------------------------

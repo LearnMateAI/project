@@ -31,6 +31,27 @@ def _log(state: ChatState, message: str) -> None:
             pass
 
 
+def _emit_token(state: ChatState, text: str) -> None:
+    """
+    Hand the reply-so-far to whoever is streaming it.
+
+    Called once per token, with the full accumulated text rather than the delta: the
+    consumer stores a whole string anyway, and passing the accumulation means a dropped
+    call costs nothing -- the next one carries everything the missed one would have.
+    That is what lets the consumer throttle freely.
+
+    Silenced like `_log`: a client that has gone away, or a slow write, must not be able
+    to break the generation it is watching.
+    """
+    report = state.get("on_token")
+    if not report:
+        return
+    try:
+        report(text)
+    except Exception:
+        pass
+
+
 def _as_messages(history: List[Dict[str, str]]) -> List[BaseMessage]:
     """
     Convert stored history into LangChain message objects.

@@ -7,12 +7,13 @@ LEARNMATE_GENERATOR_BACKEND and nothing else -- the agents never learn which bac
 answered them.
 """
 
-from typing import Any, Dict, List, Optional
+import json
+from typing import Any, Dict, Iterator, List, Optional
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import BaseMessage
-from langchain_core.outputs import ChatResult
+from langchain_core.messages import AIMessageChunk, BaseMessage
+from langchain_core.outputs import ChatGenerationChunk, ChatResult
 
 from .messages import _as_result, _to_payload
 
@@ -88,3 +89,64 @@ class HttpChatModel(BaseChatModel):
                 pass
 
         return _as_result(self._post(body))
+
+    def _stream(
+        self,
+        messages: List[BaseMessage],
+        stop: Optional[List[str]] = None,
+        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        **kwargs: Any,
+    ) -> Iterator[ChatGenerationChunk]:
+        """
+        Server-sent events from `/chat/completions`, one chunk per token.
+
+        The same contract as the llama.cpp backend's `_stream`, so the chat agent cannot
+        tell which one answered -- which is the whole point of having two backends behind
+        one interface. llama-server, vLLM and anything else OpenAI-compatible all speak
+        this format.
+        """
+        import requests
+
+        headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        body: Dict[str, Any] = {
+            "model": self.model_name,
+            "messages": _to_payload(messages),
+            "max_tokens": kwargs.get("max_tokens", self.max_tokens),
+            "temperature": kwargs.get("temperature", self.temperature),
+            "stream": True,
+        }
+        if stop:
+            body["stop"] = stop
+
+        with requests.post(f"{self.base_url.rstrip('/')}/chat/completions",
+                           json=body, headers=headers, timeout=self.timeout,
+                           stream=True) as response:
+            response.raise_for_status()
+
+            for line in response.iter_lines(decode_unicode=True):
+                # Keep-alive blanks and any comment line the server sends between events.
+                if not line or not line.startswith("data:"):
+                    continue
+
+                payload = line[len("data:"):].strip()
+                if payload == "[DONE]":
+                    break
+
+                try:
+                    piece = json.loads(payload)
+                except ValueError:
+                    # A malformed frame is one lost token, not a lost answer.
+                    continue
+
+                choices = piece.get("choices") or [{}]
+                token = (choices[0].get("delta") or {}).get("content")
+                if not token:
+                    continue
+
+                chunk = ChatGenerationChunk(message=AIMessageChunk(content=token))
+                if run_manager:
+                    run_manager.on_llm_new_token(token, chunk=chunk)
+                yield chunk

@@ -67,6 +67,7 @@ const sleep = (ms, signal) =>
  */
 export async function waitForJob(jobId, { onProgress, signal } = {}) {
   let lastMessage;
+  let lastPartial;
   const startedAt = Date.now();
 
   for (;;) {
@@ -74,11 +75,17 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
 
     const { data: job } = await getJob(jobId);
 
-    const message = job.progress?.message;
+    // `message` is commentary that replaces the line before it; `partial` is the reply
+    // itself being written, token by token. Both live under `progress` and either can
+    // change on its own, so both are watched.
+    const { message, partial } = job.progress || {};
+
     // Only fire on change: the same string arriving forty times is not progress, and
     // re-rendering on each poll makes the UI flicker.
-    if (onProgress && message && message !== lastMessage) {
+    const changed = message !== lastMessage || partial !== lastPartial;
+    if (onProgress && changed && (message || partial)) {
       lastMessage = message;
+      lastPartial = partial;
       onProgress(job.progress, job);
     }
 
@@ -87,7 +94,13 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
       throw new Error(job.error || "The job failed.");
     }
 
+    // A job that is streaming an answer is polled at the fast rate for as long as it
+    // keeps streaming, not just for the opening seconds. At 1.5s the text would arrive
+    // in visible lumps, which reads worse than no streaming at all; at 300ms it reads as
+    // typing. The slow rhythm still covers the long non-streaming runs it was written
+    // for -- a whole-document generation reports a new line every page or so.
     const elapsed = Date.now() - startedAt;
-    await sleep(elapsed < FAST_POLL_FOR_MS ? FAST_POLL_MS : SLOW_POLL_MS, signal);
+    const fast = partial !== undefined || elapsed < FAST_POLL_FOR_MS;
+    await sleep(fast ? FAST_POLL_MS : SLOW_POLL_MS, signal);
   }
 }

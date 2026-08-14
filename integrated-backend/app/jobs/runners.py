@@ -18,6 +18,7 @@ the worker records both.
 
 import logging
 import re
+import time
 from typing import Dict
 
 from learnmate.ingestion import ingest_pdf
@@ -46,6 +47,46 @@ def _reporter(job_id: str):
     def report(message: str) -> None:
         job_store.set_progress(job_id, _MARKER.sub("", str(message)).strip())
 
+    return report
+
+
+# How often the streamed reply is flushed to the job record. A 3B model emits several
+# tokens a second and the client polls every 300-1500ms, so writing on every token would
+# be a Mongo round trip per token to deliver text nobody reads until the next poll. A
+# fifth of a second is below what reads as lag and roughly an order of magnitude fewer
+# writes.
+_STREAM_FLUSH_S = 0.2
+
+
+def _token_reporter(job_id: str):
+    """
+    A callback that streams the reply onto the job record as it is written.
+
+    Throttled, and safe to throttle: the chat agent sends the accumulated text rather than
+    each new token (see chat_agent/helpers._emit_token), so a skipped call loses nothing --
+    the next one carries everything it would have said.
+
+    The final flush is what makes the throttle correct rather than merely cheap. Without
+    it the last fragment before the generation ends could be dropped, and the client would
+    sit on a visibly truncated answer for the second or two until the result lands.
+    """
+    state = {"last_flush": 0.0, "pending": None}
+
+    def report(text: str) -> None:
+        state["pending"] = text
+        now = time.monotonic()
+        if now - state["last_flush"] < _STREAM_FLUSH_S:
+            return
+        state["last_flush"] = now
+        state["pending"] = None
+        job_store.set_partial(job_id, text)
+
+    def flush() -> None:
+        if state["pending"] is not None:
+            job_store.set_partial(job_id, state["pending"])
+            state["pending"] = None
+
+    report.flush = flush
     return report
 
 
@@ -107,15 +148,23 @@ def _run_resource(job: Dict) -> Dict:
 
 
 def _run_chat(job: Dict) -> Dict:
-    """Answer one message."""
+    """Answer one message, streaming the reply onto the record as it is written."""
     params = job["params"]
-    return chat_service.send_message(
-        user_id=job["user_id"],
-        session_id=params["session_id"],
-        message=params["message"],
-        evaluate=params.get("evaluate", True),
-        on_progress=_reporter(str(job["_id"])),
-    )
+    on_token = _token_reporter(str(job["_id"]))
+    try:
+        return chat_service.send_message(
+            user_id=job["user_id"],
+            session_id=params["session_id"],
+            message=params["message"],
+            evaluate=params.get("evaluate", True),
+            on_progress=_reporter(str(job["_id"])),
+            on_token=on_token,
+        )
+    finally:
+        # In `finally` so a turn that fails mid-generation still leaves the text it did
+        # produce on the record, rather than whatever the last throttled write happened
+        # to catch.
+        on_token.flush()
 
 
 RUNNERS = {

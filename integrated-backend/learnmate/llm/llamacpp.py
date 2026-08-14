@@ -10,12 +10,12 @@ This is a real BaseChatModel, so it composes with prompts, output parsers and La
 nodes exactly like any stock LangChain chat model.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import BaseMessage
-from langchain_core.outputs import ChatResult
+from langchain_core.messages import AIMessageChunk, BaseMessage
+from langchain_core.outputs import ChatGenerationChunk, ChatResult
 
 from .messages import _as_result, _to_payload
 from .runtime import _load_llama
@@ -89,3 +89,48 @@ class LlamaCppChatModel(BaseChatModel):
 
         result = llama.create_chat_completion(**params)
         return _as_result(result["choices"][0]["message"]["content"])
+
+    def _stream(
+        self,
+        messages: List[BaseMessage],
+        stop: Optional[List[str]] = None,
+        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        **kwargs: Any,
+    ) -> Iterator[ChatGenerationChunk]:
+        """
+        The same generation, yielded token by token. `.stream(...)` arrives here.
+
+        Total time is unchanged -- this is the same decode either way. What changes is when
+        the first token is visible: about two seconds instead of the thirty it takes to
+        finish 512 of them. On a local 3B model that difference is most of what "fast"
+        means to somebody waiting.
+
+        Deliberately no `response_schema` handling. Grammar-constrained JSON is only useful
+        once it is complete and parsed, so the judge and the resource generators call
+        `_generate` and there is nothing to gain by streaming a half-written object.
+        """
+        llama = _load_llama(self.gguf_path, self.n_ctx, self.n_threads,
+                            self.n_gpu_layers, self.chat_format)
+
+        params: Dict[str, Any] = {
+            "messages": _to_payload(messages),
+            "max_tokens": kwargs.get("max_tokens", self.max_tokens),
+            "temperature": kwargs.get("temperature", self.temperature),
+            "stream": True,
+        }
+        if stop:
+            params["stop"] = stop
+
+        for piece in llama.create_chat_completion(**params):
+            # The opening chunk of an OpenAI-style stream carries only the role, and the
+            # closing one only a finish_reason; both have no "content" key at all.
+            token = (piece["choices"][0].get("delta") or {}).get("content")
+            if not token:
+                continue
+
+            chunk = ChatGenerationChunk(message=AIMessageChunk(content=token))
+            # Feeds LangChain's own callback handlers. Separate from this project's
+            # on_token plumbing, which the chat agent drives itself.
+            if run_manager:
+                run_manager.on_llm_new_token(token, chunk=chunk)
+            yield chunk

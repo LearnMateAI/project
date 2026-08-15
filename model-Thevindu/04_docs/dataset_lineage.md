@@ -37,7 +37,7 @@ Sources: 21 files in `data/raw_pdfs/`. `Black's-Law-4th-edition-1891.pdf` moved 
 | Stage | Result |
 |-------|--------|
 | 1 — parse/clean/chunk | 19 of 21 OK, **1,280 chunks**; 52 TOC chunks dropped; every subject tagged from the manifest, none guessed |
-| 1 — failures | `Arbitration act 2.pdf` and `Mediation Boards Act no 27.pdf`: scanned images, no text layer. Need OCR or a text-based source |
+| 1 — failures | Two scanned PDFs, no text layer. **Do not OCR** — text-layer replacements exist (see below). Not in `lm-legal-v0.1`; add in a later version |
 | 2 — pair generation | live `gpt-4o-mini`, 2 per chunk → **2,534 kept, 26 rejected (1.0%)** by the GI-001 grounding gate, 0 API errors |
 | 3 — split | `--group_by chapter --strict_holdout`, 189 units, seed 42 |
 
@@ -50,6 +50,26 @@ Sources: 21 files in `data/raw_pdfs/`. `Black's-Law-4th-edition-1891.pdf` moved 
 
 Verified: no strict-holdout document appears in train/val/test, no duplicate `pair_id`
 across splits, no chunk in more than one split.
+
+### Scanned-PDF replacements (not yet in the corpus)
+
+Research on 2026-08-13 found text-layer sources for both Stage 1 FAIL files. OCR is not
+needed. They were **not** downloaded into this dataset version — train `lm-legal-v0.1` as
+it stands, then add these in a later version after a spot-read.
+
+| Local file | What it actually is | Replacement | Caveats |
+|------------|---------------------|-------------|---------|
+| `Arbitration act 2.pdf` (35.5 MB scan) | Arbitration Act No. 11 of 1995 — identification confirmed | https://slnarbcentre.com/pdf/ARBITRATION-ACT.pdf (Tier B, 95 KB, 22 pages, extractable text, zero images) | OCR-derived text layer: typos such as `awad`/`award`, `shall like`/`shall lie`, `©` for `(c)`. Normalise before training |
+| `Mediation Boards Act no 27.pdf` (20.6 MB scan) | **No Act No. 27 exists.** No. 27 of 1999 is the Judicature (Amendment) Act. Likely a 72→27 filename transposition for Mediation Boards Act No. 72 of 1988 (contents UNVERIFIED — local file has no text) | https://lankalaw.net/wp-content/uploads/2025/03/Mediation-Boards-Act-Consolidated-2024.pdf (Tier B, 294 KB, 17 pages, clean extractable text) | This is the **2024 consolidation** (amendments 15/1997, 21/2003, 4/2011, 9/2016, 2/2024), not the 1988 original. The official `mediation.gov.lk` 1988 PDF is Tier A but is itself a scan with zero extractable text |
+
+Also corrected in the manifest from the file's own heading: `Mediation Boards Act no 21.pdf`
+is **Mediation (Special Categories of Disputes) Act, No. 21 of 2003**, not "Mediation
+Boards Act No. 21 of 1990". `subject_area` (`civil_procedure`) is unchanged; that file is
+the `lm-legal-v0.1` strict holdout for civil procedure.
+
+`documents.gov.lk` `/view/act/...` paths now 404 (site rebuilt as a JS app). Manifest
+rows DOC-020, DOC-028, DOC-035, and the provenance URL on DOC-026 are marked stale.
+DOC-026 itself is already downloaded and parsed.
 
 ### Two accuracy numbers, deliberately not interchangeable
 
@@ -149,6 +169,50 @@ three that must *pass* (a legitimately inherited `153A`, a marginal-note `5.`, a
 line-initial `147/148/149`) so the validator can't drift into over-rejecting. The TOC case
 is deliberately expected to pass the validator — its citations really are in the excerpt —
 and is caught upstream by fix 1 instead.
+
+## Known issue GI-002 — whole-document split left subjects with zero training pairs
+
+**Found:** 2026-08-13, first Stage 3 run of `lm-legal-v0.1` after GI-001. Whole-document
+assignment produced 61/31/8 ratios against a 70/15/15 target, `family_law` and
+`property_land` with **zero training pairs**, eight subjects missing from val or test,
+and val 80% a single subject.
+
+**Why it happened:** the splitter assigns whole `doc_id`s. With 19 documents of very
+unequal size (Criminal Procedure Code 312 chunks, Registration of Documents 16) and most
+subjects holding one document, a subject must land entirely in one split. No seed or
+manual document move can fix that.
+
+**Fix:** group by `(doc_id, chapter/part)` — 189 units instead of 19 — and stratify per
+subject. `--strict_holdout` reserves one whole document per multi-document subject as
+`test_strict.jsonl`, unseen at any granularity. `family_law` is skipped because holding
+out one of its two documents would leave a single unit that cannot cover train/val/test.
+
+**Before / after (`lm-legal-v0.1`):**
+
+| | Whole-document | Chapter-group + strict holdout |
+|--|----------------|--------------------------------|
+| Units | 19 | 189 |
+| train / val / test | 1549 / 781 / 204 | 1590 / 339 / 325 |
+| Subjects in all three splits | no | **yes, all 11** |
+| Subjects with zero train pairs | family_law, property_land | none |
+| True document-held-out set | none | 280 pairs / 4 documents |
+
+**Metric names (not interchangeable):**
+
+- `in_corpus_accuracy (chapter-held-out)` on `test.jsonl`
+- `accuracy (document-held-out)` on `test_strict.jsonl`
+
+The 0.70 bar in `acceptance_thresholds.yaml` was written against the second. Registry
+rows carry `eval_split` and `metric_definition`.
+
+**Subjects with no true generalisation test until another source document exists**
+(corpus-coverage gap, not a splitter bug): `administrative_public`, `company_commercial`,
+`criminal_law`, `evidence`, `intellectual_property`, `property_land`. `family_law` has two
+documents but still no strict holdout for the reason above — needs a third.
+
+Measured on the first real eval (`qwen25-lora-20260815-090709`): chapter-test accuracy
+0.717 vs strict-test 0.836. They did **not** diverge in the direction leakage would
+predict (strict was higher), so chapter leakage was not inflating the in-corpus number.
 
 ## Source tiering and Tier B disclosure
 

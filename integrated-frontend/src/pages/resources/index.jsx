@@ -9,24 +9,35 @@
  * from, and when. The reviewer's verdict lives on the resource's own page, where the
  * reasoning that goes with it is also on screen; a number in a list invites comparison
  * without any of the context that makes it mean something.
+ *
+ * Generations still running are listed above the finished ones, read from the job queue
+ * rather than from the resources themselves -- a resource does not exist in the database
+ * until its job completes, so without this the page looked empty for the several minutes
+ * it takes to fill.
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
 import { listDocuments } from "../../api/documents.js";
+import { listJobs } from "../../api/jobs.js";
 import { RESOURCE_TYPES, listResources, resourceLabel } from "../../api/resources.js";
+
+// A generation runs for minutes, and its own commentary changes about once a page. Only
+// polled while something is actually in flight -- see the effect below, which stops.
+const POLL_MS = 3000;
 
 function Resources() {
   const [resources, setResources] = useState([]);
+  const [pending, setPending] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [documentId, setDocumentId] = useState("");
   const [resourceType, setResourceType] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchResources = useCallback(async () => {
-    setLoading(true);
+  const fetchResources = useCallback(async ({ quiet = false } = {}) => {
+    if (!quiet) setLoading(true);
     try {
       const res = await listResources({
         documentId: documentId || undefined,
@@ -37,7 +48,39 @@ function Resources() {
     } catch (err) {
       setError(errorMessage(err, "Could not load your resources."));
     } finally {
-      setLoading(false);
+      if (!quiet) setLoading(false);
+    }
+  }, [documentId, resourceType]);
+
+  /**
+   * Generations that have not finished yet.
+   *
+   * A resource is only written to the database once its job completes, so until then it is
+   * nowhere in listResources and the page looked idle while the machine was busy for
+   * minutes. The job queue does know about it, so that is what is read here: every resource
+   * job, narrowed to the ones still queued or running.
+   *
+   * Filtered client-side rather than by asking twice, because the endpoint takes one status
+   * at a time and this is one short list either way.
+   */
+  const fetchPending = useCallback(async () => {
+    try {
+      const res = await listJobs({ kind: "resource" });
+      setPending(
+        res.data.filter((job) => {
+          if (job.status !== "queued" && job.status !== "running") return false;
+          // The page's own filters apply to pending rows too; a row that ignored them
+          // would look like the filter had failed.
+          const params = job.params || {};
+          if (documentId && params.document_id !== documentId) return false;
+          if (resourceType && params.resource_type !== resourceType) return false;
+          return true;
+        }),
+      );
+    } catch {
+      // The list is still useful without it, and a failure here must not replace the page
+      // with an error about something that is only decoration until it finishes.
+      setPending([]);
     }
   }, [documentId, resourceType]);
 
@@ -46,7 +89,26 @@ function Resources() {
     // this is a request to an external system, which is what an effect is for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResources();
-  }, [fetchResources]);
+    fetchPending();
+  }, [fetchResources, fetchPending]);
+
+  // Re-poll only while something is in flight, and stop the moment nothing is.
+  useEffect(() => {
+    if (pending.length === 0) return undefined;
+    const timer = setInterval(fetchPending, POLL_MS);
+    return () => clearInterval(timer);
+  }, [pending.length, fetchPending]);
+
+  // When a job leaves the pending list it has finished, and the resource it produced is now
+  // in the database -- so this is the moment to go and fetch it. Quietly: the list is
+  // already on screen and should gain a row, not blink through a loading state.
+  const previousPending = useRef(0);
+  useEffect(() => {
+    if (pending.length < previousPending.current) {
+      fetchResources({ quiet: true });
+    }
+    previousPending.current = pending.length;
+  }, [pending.length, fetchResources]);
 
   useEffect(() => {
     listDocuments()
@@ -125,12 +187,43 @@ function Resources() {
             <span className="spinner" />
             Loading...
           </p>
-        ) : resources.length === 0 ? (
+        ) : resources.length === 0 && pending.length === 0 ? (
           <p className="px-5 py-8 text-[13px] text-muted text-center">
             Nothing generated yet — open a document and use the panel beside it.
           </p>
         ) : (
           <div>
+            {/* In-flight generations, above the finished ones because they are newer than
+                anything below and because this is the half of the page a waiting user is
+                actually watching. Not links: there is nothing to open yet. */}
+            {pending.map((job) => (
+              <div key={job.id} className="list-row bg-primary-soft/40">
+                <span className="flex items-center gap-3.5 min-w-0">
+                  <span className="icon-tile icon-tile-soft w-10 h-10">
+                    <span className="spinner" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[13.5px] font-semibold text-heading">
+                      {resourceLabel(job.params?.resource_type)}
+                    </span>
+                    <span className="block text-[11.5px] text-muted truncate">
+                      {filenames[job.params?.document_id] || "Unknown document"} ·{" "}
+                      {/* The engine's own commentary while it runs -- "Generating...",
+                          "Evaluating...", "Group 2/5: ..." -- which is the only honest
+                          answer to "how far along is it" for a job with no percentage. */}
+                      {job.status === "queued"
+                        ? "Waiting to start"
+                        : job.progress?.message || "Working..."}
+                    </span>
+                  </span>
+                </span>
+                <span className="badge badge-blue shrink-0">
+                  <span className="badge-dot" />
+                  {job.status === "queued" ? "Queued" : "Generating"}
+                </span>
+              </div>
+            ))}
+
             {resources.map((resource) => (
               <Link key={resource.id} to={`/resources/${resource.id}`} className="list-row">
                 <span className="flex items-center gap-3.5 min-w-0">

@@ -36,16 +36,25 @@ logger = logging.getLogger("learnmate.api.jobs")
 # so they are removed wherever they appear rather than stripped from the front.
 _MARKER = re.compile(r"\[[*!+=]\]\s*")
 
+# "(attempt 1/2)" is retry bookkeeping. In a terminal it is the useful part of the line --
+# it is how you see the judge rejecting things -- but on screen it invites a reader to
+# wonder what went wrong with the attempt they never saw, during a wait they can do nothing
+# about. Dropped for the UI only; the CLI still prints it, and the real count is recorded on
+# the turn either way (chat_agent/persist stores len(attempts)).
+_ATTEMPT = re.compile(r"\s*\(attempt \d+\s*/\s*\d+\)")
+
 
 def _reporter(job_id: str):
     """
     A progress callback that writes onto the job record.
 
-    The only formatting done here is dropping those markers: the messages themselves were
-    already written to be read.
+    Formatting is limited to dropping the terminal markers and the attempt counter: the
+    messages themselves were already written to be read.
     """
     def report(message: str) -> None:
-        job_store.set_progress(job_id, _MARKER.sub("", str(message)).strip())
+        text = _MARKER.sub("", str(message))
+        text = _ATTEMPT.sub("", text)
+        job_store.set_progress(job_id, text.strip())
 
     return report
 

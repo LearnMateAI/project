@@ -253,10 +253,7 @@ function Chat() {
               <div className="card-head">
                 <div className="min-w-0">
                   <h2 className="truncate">{current?.filename || "Conversation"}</h2>
-                  <p className="text-[11.5px] text-muted mt-0.5 leading-snug">
-                    Answers are drawn from this document; anything it does not cover is answered
-                    from general knowledge and labelled as such.
-                  </p>
+                  
                 </div>
               </div>
 

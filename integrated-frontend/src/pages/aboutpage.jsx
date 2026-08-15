@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/useAuth.js";
 
 const steps = [
   {
@@ -63,6 +64,8 @@ const techHighlights = [
 ];
 
 function AboutPage() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="animate-fade-in max-w-4xl">
       {/* Header */}
@@ -125,9 +128,15 @@ function AboutPage() {
       {/* CTA */}
       <div className="card p-6 text-center">
         <p className="text-[14px] text-muted mb-4">Ready to transform your study workflow?</p>
-        <div className="flex justify-center gap-3">
-          <Link to="/tour" className="btn-secondary">Take a Tour</Link>
-          <Link to="/dashboard" className="btn-primary">Go to Dashboard</Link>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link to="/tour" className="btn-secondary no-underline">Take a Tour</Link>
+          {/* Signed out, "Go to Dashboard" is a link to the login page wearing a
+              misleading label. Offer the step that is actually available instead. */}
+          {isAuthenticated ? (
+            <Link to="/dashboard" className="btn-primary no-underline">Go to Dashboard</Link>
+          ) : (
+            <Link to="/register" className="btn-primary no-underline">Create a free account</Link>
+          )}
         </div>
       </div>
     </div>

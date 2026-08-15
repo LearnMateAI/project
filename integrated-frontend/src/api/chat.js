@@ -3,7 +3,8 @@
  *
  * `sendMessage` returns `202 {job_id}`; the reply arrives as the job's result and carries
  * more than text -- which mode answered, what it scored, and the chunks it was written
- * from. See ModeBadge for why the mode is the most important part of that.
+ * from. The UI now shows only the last of those; the rest are still returned, and still
+ * stored on the turn, for anyone reading the API or the database directly.
  *
  * The document must be Ready before a session can be opened against it. A session bound to
  * a PDF that is still being embedded would retrieve nothing and answer everything from

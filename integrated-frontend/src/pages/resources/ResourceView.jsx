@@ -16,7 +16,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
 import { deleteResource, getResource, resourceLabel } from "../../api/resources.js";
-import QualityBadge from "../../components/QualityBadge.jsx";
 import McqQuiz from "./McqQuiz.jsx";
 import PracticeQuestions from "./PracticeQuestions.jsx";
 
@@ -160,8 +159,6 @@ function ResourceView() {
         {params.whole_document ? " from the whole document" : ""}
         {params.groups ? ` (${params.groups} group${params.groups === 1 ? "" : "s"})` : ""}
       </p>
-
-      <QualityBadge resource={resource} className="mb-5" />
 
       <Body resource={resource} />
     </div>

@@ -1,21 +1,19 @@
 /**
  * One turn in a conversation.
  *
- * A user turn is just text. An assistant turn carries an audit trail, and showing it is
- * the point of this component rather than an extra:
+ * A user turn is just text. An assistant turn carries what the answer was built from:
  *
- *   mode      whether the answer came from the document or from the model's own knowledge.
- *             The prose reads identically either way, so the badge is the only thing that
- *             can tell them apart -- see ModeBadge.
  *   pages     which pages it drew on, with the retrieved text behind a disclosure, so the
  *             answer can be checked against the source rather than trusted.
- *   score     what the judge gave it, and a warning when it did not clear the threshold.
+ *   attempts  shown only when the reply needed regenerating.
+ *
+ * The evaluator's score and the pdf/general mode badge used to sit above the text and no
+ * longer do. The warning below the reply stays: a score is a number a reader cannot act
+ * on, whereas "check this against the document" is an instruction they can.
  *
  * The same fields arrive on a live reply and on a turn replayed from history, so a resumed
  * conversation looks identical to one still in progress.
  */
-
-import ModeBadge from "./ModeBadge.jsx";
 
 function ChatMessage({ turn }) {
   const isUser = turn.role === "user";
@@ -37,15 +35,13 @@ function ChatMessage({ turn }) {
   return (
     <div className="flex justify-start animate-fade-in">
       <div className="bg-surface border border-border rounded-2xl rounded-bl-md px-4 py-3.5 max-w-[85%] shadow-card">
-        <div className="flex flex-wrap items-center gap-2 mb-2.5">
-          <ModeBadge mode={turn.mode} topScore={turn.top_score} />
-          {turn.score !== null && turn.score !== undefined && (
-            <span className="text-[11.5px] text-muted">Reviewed {turn.score}/100</span>
-          )}
-          {turn.attempts > 1 && (
+        {/* The row only exists when there is something to put in it -- rendered
+            unconditionally it would leave an empty strip of margin above the reply. */}
+        {turn.attempts > 1 && (
+          <div className="flex flex-wrap items-center gap-2 mb-2.5">
             <span className="text-[11.5px] text-subtle">{turn.attempts} attempts</span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Shown only when the rewrite actually changed the question. On a follow-up like
             "what about his powers?" the retrieval is only as good as this line, so a bad

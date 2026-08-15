@@ -5,8 +5,18 @@
  * on it: the active route's pill. Everything else -- section labels, inactive items, the
  * footer -- is grey, so the eye finds "where am I" without reading a word.
  *
+ * It lists the workspace and the account, and nothing else. Home, About and Take a Tour
+ * used to sit here under "Explore"; they are now public pages reached from the marketing
+ * header (components/PublicLayout.jsx), and repeating them in here would put a signed-in
+ * student one click from a page trying to sell them what they already have.
+ *
  * On small screens the same markup is a drawer: `open` slides it in over the content and
  * `onClose` dismisses it, which is why every link calls onClose on the way out.
+ *
+ * `collapsed` is the desktop counterpart -- the rail hidden so the content has the full
+ * width. It is deliberately not the same flag: navigating closes a drawer but must leave a
+ * collapsed rail exactly as it was, and only the X sets it. See Layout.jsx, which owns
+ * both and pairs this with the button in the header that reverses it.
  */
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -46,33 +56,13 @@ const mainNav = [
   },
 ];
 
-const exploreNav = [
-  {
-    to: "/home",
-    label: "Home",
-    icon: icon("M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"),
-  },
-  {
-    to: "/about",
-    label: "About",
-    icon: icon("M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"),
-  },
-  {
-    to: "/tour",
-    label: "Take a Tour",
-    icon: icon("M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"),
-  },
-  {
-    to: "/try",
-    label: "Try It Now",
-    icon: icon("M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"),
-  },
-];
-
 const accountNav = [
   {
     to: "/account",
     label: "My Account",
+    // Exact match only: /account/settings is a separate item below, and prefix matching
+    // would light both.
+    end: true,
     icon: icon("M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"),
   },
   {
@@ -98,6 +88,12 @@ function NavSection({ label, items, onNavigate }) {
           <li key={item.to}>
             <NavLink
               to={item.to}
+              // NavLink matches by prefix, which is what a section wants -- /chat should
+              // stay lit on /chat/abc123, and /resources on /resources/42. It is wrong only
+              // where one nav item's path is a prefix of another's, and `end` marks those:
+              // without it /account stays highlighted while you are on /account/settings
+              // and two items claim to be the current page at once.
+              end={item.end}
               onClick={onNavigate}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold no-underline transition-all duration-150 ${
@@ -117,7 +113,7 @@ function NavSection({ label, items, onNavigate }) {
   );
 }
 
-function Sidebar({ open = false, onClose }) {
+function Sidebar({ open = false, collapsed = false, onClose, onHide }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -142,7 +138,8 @@ function Sidebar({ open = false, onClose }) {
       <nav
         className={`bg-sidebar border-r border-border shrink-0 w-64 flex flex-col z-40 transition-transform duration-200
           fixed inset-y-0 left-0 lg:static lg:translate-x-0 lg:h-auto
-          ${open ? "translate-x-0" : "-translate-x-full"}`}
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          ${collapsed ? "lg:hidden" : ""}`}
       >
         {/* Brand */}
         <div className="px-5 py-5 flex items-center gap-3">
@@ -159,11 +156,16 @@ function Sidebar({ open = false, onClose }) {
             </span>
           </div>
 
+          {/* Not lg:hidden any more. Below lg this dismisses the drawer; above lg it
+              collapses the rail and gives the width back to the content. Layout owns both
+              halves of that -- see hideNav there -- because only it knows about the header
+              button that reverses it. */}
           <button
             type="button"
-            onClick={onClose}
-            aria-label="Close navigation"
-            className="lg:hidden ml-auto btn-icon w-8 h-8"
+            onClick={onHide}
+            aria-label="Hide navigation"
+            title="Hide navigation"
+            className="ml-auto btn-icon w-8 h-8"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -173,7 +175,6 @@ function Sidebar({ open = false, onClose }) {
 
         <div className="flex-1 overflow-y-auto px-3 py-2">
           <NavSection label="Main" items={mainNav} onNavigate={onClose} />
-          <NavSection label="Explore" items={exploreNav} onNavigate={onClose} />
           <div className="mx-3 mb-5 border-t border-border-strong/60" />
           <NavSection label="Account" items={accountNav} onNavigate={onClose} />
         </div>

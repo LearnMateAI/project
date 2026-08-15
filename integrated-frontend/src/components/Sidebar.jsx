@@ -12,6 +12,11 @@
  *
  * On small screens the same markup is a drawer: `open` slides it in over the content and
  * `onClose` dismisses it, which is why every link calls onClose on the way out.
+ *
+ * `collapsed` is the desktop counterpart -- the rail hidden so the content has the full
+ * width. It is deliberately not the same flag: navigating closes a drawer but must leave a
+ * collapsed rail exactly as it was, and only the X sets it. See Layout.jsx, which owns
+ * both and pairs this with the button in the header that reverses it.
  */
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -55,6 +60,9 @@ const accountNav = [
   {
     to: "/account",
     label: "My Account",
+    // Exact match only: /account/settings is a separate item below, and prefix matching
+    // would light both.
+    end: true,
     icon: icon("M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"),
   },
   {
@@ -80,6 +88,12 @@ function NavSection({ label, items, onNavigate }) {
           <li key={item.to}>
             <NavLink
               to={item.to}
+              // NavLink matches by prefix, which is what a section wants -- /chat should
+              // stay lit on /chat/abc123, and /resources on /resources/42. It is wrong only
+              // where one nav item's path is a prefix of another's, and `end` marks those:
+              // without it /account stays highlighted while you are on /account/settings
+              // and two items claim to be the current page at once.
+              end={item.end}
               onClick={onNavigate}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold no-underline transition-all duration-150 ${
@@ -99,7 +113,7 @@ function NavSection({ label, items, onNavigate }) {
   );
 }
 
-function Sidebar({ open = false, onClose }) {
+function Sidebar({ open = false, collapsed = false, onClose, onHide }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -124,7 +138,8 @@ function Sidebar({ open = false, onClose }) {
       <nav
         className={`bg-sidebar border-r border-border shrink-0 w-64 flex flex-col z-40 transition-transform duration-200
           fixed inset-y-0 left-0 lg:static lg:translate-x-0 lg:h-auto
-          ${open ? "translate-x-0" : "-translate-x-full"}`}
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          ${collapsed ? "lg:hidden" : ""}`}
       >
         {/* Brand */}
         <div className="px-5 py-5 flex items-center gap-3">
@@ -141,11 +156,16 @@ function Sidebar({ open = false, onClose }) {
             </span>
           </div>
 
+          {/* Not lg:hidden any more. Below lg this dismisses the drawer; above lg it
+              collapses the rail and gives the width back to the content. Layout owns both
+              halves of that -- see hideNav there -- because only it knows about the header
+              button that reverses it. */}
           <button
             type="button"
-            onClick={onClose}
-            aria-label="Close navigation"
-            className="lg:hidden ml-auto btn-icon w-8 h-8"
+            onClick={onHide}
+            aria-label="Hide navigation"
+            title="Hide navigation"
+            className="ml-auto btn-icon w-8 h-8"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

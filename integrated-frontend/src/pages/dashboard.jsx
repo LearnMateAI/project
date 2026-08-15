@@ -1,24 +1,17 @@
 /**
- * The workspace overview.
+ * The workspace overview: what to do next, and what you last made.
  *
- * Laid out the way a dashboard is read rather than the way the API is shaped: the three
- * things you might have come here to *do* sit at the top, the wide left column carries the
- * measurements, and the right column is the working column -- upload, and what you last
- * made.
- *
- * The activity chart is built from the resources' own `created_at`, not from a stats
- * endpoint: the backend has no time series, and seven days of counts derived on the client
- * is honest about what it is.
+ * Deliberately not a measurement page. The activity chart, the running totals and the mix
+ * by type moved to Analytics, which is where a question like "how am I doing" is actually
+ * being asked -- on the way in they were read as decoration above the two controls anybody
+ * came here to use.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getAnalytics } from "../api/analytics.js";
+import { listDocuments } from "../api/documents.js";
 import { listResources, resourceLabel } from "../api/resources.js";
 import DocumentsCard from "../components/DocumentsCard.jsx";
-import { BarChart, LineChart } from "../components/charts.jsx";
-
-const DAY_MS = 86400000;
 
 const quickStart = [
   {
@@ -41,45 +34,27 @@ const quickStart = [
   },
 ];
 
-const figures = [
-  {
-    key: "documents",
-    label: "Documents",
-    to: "/documents",
-    icon: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z",
-  },
-  {
-    key: "resources",
-    label: "Resources generated",
-    to: "/resources",
-    icon: "M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.331 0 4.472.89 6.042 2.346M12 6.042a8.967 8.967 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.346",
-  },
-  {
-    key: "questions",
-    label: "Questions asked",
-    to: "/chat",
-    icon: "M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z",
-  },
-];
-
 function Dashboard() {
   const [resources, setResources] = useState([]);
-  const [stats, setStats] = useState(null);
+  const [documents, setDocuments] = useState([]);
 
   const refresh = useCallback(async () => {
     // Neither call is worth failing the page over: a dashboard that renders the upload card
-    // and two empty panels is far more useful than an error screen.
+    // and an empty panel is far more useful than an error screen.
     try {
       const res = await listResources();
       setResources(res.data);
     } catch {
       setResources([]);
     }
+    // Only for the names in "Recent resources": a resource carries the id of the document
+    // it came from but not its filename, and "Summary" on its own does not say which PDF
+    // it summarises once there is more than one.
     try {
-      const res = await getAnalytics();
-      setStats(res.data);
+      const res = await listDocuments();
+      setDocuments(res.data);
     } catch {
-      setStats(null);
+      setDocuments([]);
     }
   }, []);
 
@@ -90,44 +65,14 @@ function Dashboard() {
     refresh();
   }, [refresh]);
 
-  // Seven days ending today, so the rightmost point is always "now" and an empty day is a
-  // zero rather than a gap.
-  const daily = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const buckets = Array.from({ length: 7 }, (_, index) => {
-      const day = new Date(today.getTime() - (6 - index) * DAY_MS);
-      return {
-        label: day.toLocaleDateString(undefined, { weekday: "short" }),
-        start: day.getTime(),
-        value: 0,
-      };
-    });
-
-    for (const resource of resources) {
-      const created = new Date(resource.created_at).getTime();
-      const bucket = buckets.find((entry) => created >= entry.start && created < entry.start + DAY_MS);
-      if (bucket) bucket.value += 1;
-    }
-    return buckets;
-  }, [resources]);
-
-  const byType = useMemo(() => {
-    const source = stats?.resources?.by_type || {};
-    return Object.entries(source).map(([type, entry]) => ({
-      label: resourceLabel(type).replace("Practice Questions", "Practice"),
-      value: entry.total,
-    }));
-  }, [stats]);
+  // document_id -> filename, so a recent row can name the PDF it came from. Built once per
+  // documents change rather than scanning the list inside the render for every row.
+  const filenames = useMemo(
+    () => new Map(documents.map((document) => [document.id, document.filename])),
+    [documents],
+  );
 
   const recent = resources.slice(0, 5);
-  const weekTotal = daily.reduce((sum, day) => sum + day.value, 0);
-
-  const values = {
-    documents: stats?.documents ?? 0,
-    resources: stats?.resources?.total ?? 0,
-    questions: stats?.questions_asked ?? 0,
-  };
 
   return (
     <div>
@@ -158,68 +103,13 @@ function Dashboard() {
         ))}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-3 items-start">
-        {/* Measurements ──────────────────────────────────────────── */}
-        <div className="xl:col-span-2 space-y-5">
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>Study activity</h2>
-                <p className="text-[12px] text-muted mt-0.5">Resources you generated, last 7 days</p>
-              </div>
-              <span className="badge badge-blue">
-                <span className="badge-dot" />
-                {weekTotal} this week
-              </span>
-            </div>
-            <div className="px-3 pb-3 pt-4">
-              <LineChart
-                data={daily}
-                height={244}
-                formatValue={(n) => `${n} resource${n === 1 ? "" : "s"}`}
-                emptyMessage="Nothing generated in the last 7 days."
-              />
-            </div>
-          </section>
+      {/* The measurements -- activity over time, the running totals and the mix by type --
+          live on Analytics rather than here. A dashboard answers "what do I do next"; the
+          numbers answer "how am I doing", and they were being read as decoration. */}
+      <div className="grid gap-5 xl:grid-cols-2 items-start">
+        <DocumentsCard onUploaded={refresh} />
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-4">
-              {figures.map((figure) => (
-                <Link key={figure.key} to={figure.to} className="stat-row no-underline hover:border-border-strong transition-colors">
-                  <span className="icon-circle">
-                    <svg className="w-[19px] h-[19px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d={figure.icon} />
-                    </svg>
-                  </span>
-                  <span>
-                    <span className="stat-label block">{figure.label}</span>
-                    <span className="stat-value block">{values[figure.key]}</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-
-            <section className="card">
-              <div className="card-head">
-                <h2>By type</h2>
-              </div>
-              <div className="px-2 pb-2 pt-3">
-                <BarChart
-                  data={byType}
-                  height={216}
-                  formatValue={(n) => `${n} generated`}
-                  emptyMessage="Generate something to see the mix."
-                />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        {/* Working column ────────────────────────────────────────── */}
-        <div className="space-y-5">
-          <DocumentsCard onUploaded={refresh} />
-
-          <section className="card">
+        <section className="card">
             <div className="card-head">
               <h2>Recent resources</h2>
               <Link to="/resources" className="text-[12.5px] font-semibold text-primary no-underline hover:underline">
@@ -240,6 +130,14 @@ function Dashboard() {
                       <span className="block text-[13.5px] font-semibold text-heading truncate">
                         {resourceLabel(resource.resource_type)}
                       </span>
+                      {/* Which PDF it came from. Omitted rather than shown as a blank line
+                          when the document has since been deleted and the id resolves to
+                          nothing. */}
+                      {filenames.get(resource.document_id) && (
+                        <span className="block text-[11.5px] text-muted truncate">
+                          {filenames.get(resource.document_id)}
+                        </span>
+                      )}
                       <span className="block text-[11.5px] text-subtle">
                         {new Date(resource.created_at).toLocaleDateString(undefined, {
                           month: "short",
@@ -249,25 +147,11 @@ function Dashboard() {
                         })}
                       </span>
                     </span>
-                    <span
-                      className={`badge shrink-0 ${
-                        resource.score === null || resource.score === undefined
-                          ? "badge-gray"
-                          : resource.accepted
-                            ? "badge-green"
-                            : "badge-amber"
-                      }`}
-                    >
-                      {resource.score === null || resource.score === undefined
-                        ? "Not reviewed"
-                        : `${resource.score}/100`}
-                    </span>
                   </Link>
                 ))}
               </div>
             )}
-          </section>
-        </div>
+        </section>
       </div>
     </div>
   );

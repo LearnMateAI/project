@@ -1,5 +1,10 @@
 /**
- * The document library: list on the left, viewer and generation panel on the right.
+ * The document library: upload and list on the left, viewer and generation panel on the
+ * right.
+ *
+ * Upload is the same DocumentsCard the dashboard uses rather than a second implementation
+ * of it. It polls its own count and reports its own job progress, so the only wiring here
+ * is refreshing the table once a file has finished processing.
  *
  * The one behaviour worth knowing: while any row is still `Processing`, the list re-polls
  * every few seconds and stops as soon as none are. Ingestion runs on the job queue, so a
@@ -11,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
+import DocumentsCard from "../components/DocumentsCard.jsx";
 import ResourcesPanel from "../components/ResourcesPanel.jsx";
 
 const POLL_MS = 3000;
@@ -150,88 +156,94 @@ function Documents() {
       {notice && <p className="notice notice-info mb-4">{notice}</p>}
 
       <div className="grid gap-5 xl:grid-cols-2 items-start">
-        <section className="card overflow-hidden">
-          <div className="card-head">
-            <h2>Library</h2>
-            {anyProcessing && (
-              <span className="badge badge-blue">
-                <span className="spinner w-3 h-3" />
-                Processing
-              </span>
-            )}
-          </div>
+        {/* Left column: the documents you have, and the way to add another. Upload sits
+            above the table it feeds, so a new row appears directly under the control that
+            created it. The right column is for working with whichever one is selected, and
+            keeping the two apart stops an upload card shifting the preview down the page. */}
+        <div className="space-y-5">
+          <DocumentsCard onUploaded={() => fetchDocuments({ quiet: true })} />
 
-          <div className="overflow-x-auto">
-            {loading ? (
-              <p className="px-5 py-6 text-[13px] text-muted">Loading documents...</p>
-            ) : documents.length === 0 ? (
-              <p className="px-5 py-6 text-[13px] text-muted">
-                No documents yet — upload one from the Dashboard to get started.
-              </p>
-            ) : (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Filename</th>
-                    <th>Subject</th>
-                    <th className="num">Pages</th>
-                    <th className="num">Size</th>
-                    <th className="num">Chunks</th>
-                    <th>Status</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.map((doc) => (
-                    <tr
-                      key={doc.id}
-                      onClick={() => handleSelect(doc)}
-                      className={`is-clickable ${selectedId === doc.id ? "is-selected" : ""}`}
-                    >
-                      <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
-                        {doc.filename}
-                      </td>
-                      <td className="text-muted whitespace-nowrap">{doc.subject}</td>
-                      <td className="num">{doc.page_count ?? "—"}</td>
-                      <td className="num whitespace-nowrap">{formatSize(doc.file_size)}</td>
-                      <td className="num">{doc.chunk_count || "—"}</td>
-                      <td>
-                        <span
-                          className={`badge ${STATUS_STYLES[doc.processing_status] || "badge-gray"}`}
-                          title={doc.processing_error || undefined}
-                        >
-                          <span className="badge-dot" />
-                          {doc.processing_status}
-                        </span>
-                      </td>
-                      <td className="num">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(doc);
-                          }}
-                          className="text-[12px] font-semibold text-muted hover:text-danger"
-                        >
-                          Delete
-                        </button>
-                      </td>
+          <section className="card overflow-hidden">
+            <div className="card-head">
+              <h2>Library</h2>
+              {anyProcessing && (
+                <span className="badge badge-blue">
+                  <span className="spinner w-3 h-3" />
+                  Processing
+                </span>
+              )}
+            </div>
+
+            <div className="overflow-x-auto">
+              {loading ? (
+                <p className="px-5 py-6 text-[13px] text-muted">Loading documents...</p>
+              ) : documents.length === 0 ? (
+                <p className="px-5 py-6 text-[13px] text-muted">
+                  No documents yet — upload a PDF above to get started.
+                </p>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Filename</th>
+                      <th>Subject</th>
+                      <th className="num">Pages</th>
+                      <th className="num">Size</th>
+                      <th>Status</th>
+                      <th />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+                  </thead>
+                  <tbody>
+                    {documents.map((doc) => (
+                      <tr
+                        key={doc.id}
+                        onClick={() => handleSelect(doc)}
+                        className={`is-clickable ${selectedId === doc.id ? "is-selected" : ""}`}
+                      >
+                        <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
+                          {doc.filename}
+                        </td>
+                        <td className="text-muted whitespace-nowrap">{doc.subject}</td>
+                        <td className="num">{doc.page_count ?? "—"}</td>
+                        <td className="num whitespace-nowrap">{formatSize(doc.file_size)}</td>
+                        <td>
+                          <span
+                            className={`badge ${STATUS_STYLES[doc.processing_status] || "badge-gray"}`}
+                            title={doc.processing_error || undefined}
+                          >
+                            <span className="badge-dot" />
+                            {doc.processing_status}
+                          </span>
+                        </td>
+                        <td className="num">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(doc);
+                            }}
+                            className="text-[12px] font-semibold text-muted hover:text-danger"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
 
-          {/* A failed ingest has a reason, and it is usually actionable -- a scanned PDF
-              needs OCR, an encrypted one needs an unprotected copy. Surface it. */}
-          {documents
-            .filter((doc) => doc.processing_status === "Failed Processing" && doc.processing_error)
-            .map((doc) => (
-              <p key={doc.id} className="notice notice-error mx-4 mb-4 text-[12px]">
-                <span className="font-semibold">{doc.filename}:</span> {doc.processing_error}
-              </p>
-            ))}
-        </section>
+            {/* A failed ingest has a reason, and it is usually actionable -- a scanned PDF
+                needs OCR, an encrypted one needs an unprotected copy. Surface it. */}
+            {documents
+              .filter((doc) => doc.processing_status === "Failed Processing" && doc.processing_error)
+              .map((doc) => (
+                <p key={doc.id} className="notice notice-error mx-4 mb-4 text-[12px]">
+                  <span className="font-semibold">{doc.filename}:</span> {doc.processing_error}
+                </p>
+              ))}
+          </section>
+        </div>
 
         <div className="space-y-5">
           <section className="card overflow-hidden">

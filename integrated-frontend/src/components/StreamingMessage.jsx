@@ -49,8 +49,10 @@ function StreamingMessage({ progress }) {
               </p>
             ) : (
               /* Once text is flowing the commentary is demoted: the answer is the thing
-                 being watched, and "Generating (attempt 2/2)..." still matters because it
-                 is the only signal that a regeneration has started over. */
+                 being watched, and the line below it only says which stage is running.
+                 The attempt counter is stripped before it gets here -- see the reporter in
+                 app/jobs/runners.py -- so a regeneration reads as "Generating..." again
+                 rather than advertising that the last one was rejected. */
               message && <p className="text-[11.5px] text-subtle mt-2">{message}</p>
             )}
           </>

@@ -1,9 +1,14 @@
 /**
  * Everything this user has generated, newest first.
  *
- * Rejected resources are listed alongside accepted ones, marked. That is what the backend
- * stores and what the evaluation log counts, and filtering them out here would quietly
- * hide the failure rate from the person best placed to notice it.
+ * Rejected resources are listed alongside accepted ones. That is what the backend stores
+ * and what the evaluation log counts, and filtering them out here would quietly hide the
+ * failure rate from the person best placed to notice it.
+ *
+ * The list itself is deliberately quiet about scores -- what a row is, which PDF it came
+ * from, and when. The reviewer's verdict lives on the resource's own page, where the
+ * reasoning that goes with it is also on screen; a number in a list invites comparison
+ * without any of the context that makes it mean something.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -66,7 +71,7 @@ function Resources() {
     <div>
       <div className="page-header">
         <h1>Your Resources</h1>
-        <p>Everything you have generated, newest first — including what the reviewer flagged</p>
+        <p>Everything you have generated, newest first — open one to see how it was reviewed</p>
       </div>
 
       {/* Filters in one row above the list, which is where a filter belongs. */}
@@ -150,21 +155,6 @@ function Resources() {
                       {new Date(resource.created_at).toLocaleString()}
                     </span>
                   </span>
-                </span>
-
-                <span
-                  className={`badge shrink-0 ${
-                    resource.score === null || resource.score === undefined
-                      ? "badge-gray"
-                      : resource.accepted
-                        ? "badge-green"
-                        : "badge-amber"
-                  }`}
-                >
-                  <span className="badge-dot" />
-                  {resource.score === null || resource.score === undefined
-                    ? "Not reviewed"
-                    : `${resource.score}/100`}
                 </span>
               </Link>
             ))}

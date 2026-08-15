@@ -24,6 +24,7 @@ model-Thevindu/01_dataset_pipeline/data/intermediate/
 model-Thevindu/01_dataset_pipeline/data/output/
 model-Thevindu/01_dataset_pipeline/processed*/
 model-Thevindu/01_dataset_pipeline/data/excluded_from_corpus/
+model-Thevindu/03_testing_and_versioning/New/
 model-Thevindu/01_dataset_pipeline/data/raw_pdfs/*
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/.gitkeep
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/README.md

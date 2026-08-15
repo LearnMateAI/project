@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/useAuth.js";
 
 const tourSteps = [
   {
@@ -61,6 +62,7 @@ const tourSteps = [
 ];
 
 function TakeATourPage() {
+  const { isAuthenticated } = useAuth();
   const [expandedStep, setExpandedStep] = useState(null);
 
   return (
@@ -123,8 +125,14 @@ function TakeATourPage() {
               <div className="px-5 pb-5 animate-fade-in">
                 <div className="ml-16 pl-4 border-l-2 border-primary-light">
                   <p className="text-[13px] text-body leading-relaxed mb-3">{step.detail}</p>
-                  <Link to={step.link} className="btn-primary text-[13px] py-1.5 px-4">
-                    {step.linkLabel} →
+                  {/* Every step points into the workspace, which a visitor cannot reach.
+                      Showing them the step and then sending them to a login form reads as
+                      a trap, so signed out they are offered the account instead. */}
+                  <Link
+                    to={isAuthenticated ? step.link : "/register"}
+                    className="btn-primary text-[13px] py-1.5 px-4 no-underline"
+                  >
+                    {isAuthenticated ? `${step.linkLabel} →` : "Sign up to try this →"}
                   </Link>
                 </div>
               </div>
@@ -137,9 +145,15 @@ function TakeATourPage() {
       <div className="card p-6 text-center">
         <h3 className="text-[15px] font-semibold text-heading mb-2">Ready to start learning?</h3>
         <p className="text-[13px] text-muted mb-4">Upload your first document and experience AI-powered study.</p>
-        <Link to="/dashboard" className="btn-primary py-2.5 px-6">
-          Go to Dashboard
-        </Link>
+        {isAuthenticated ? (
+          <Link to="/dashboard" className="btn-primary py-2.5 px-6 no-underline">
+            Go to Dashboard
+          </Link>
+        ) : (
+          <Link to="/register" className="btn-primary py-2.5 px-6 no-underline">
+            Create a free account
+          </Link>
+        )}
       </div>
     </div>
   );

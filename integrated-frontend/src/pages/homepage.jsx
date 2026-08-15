@@ -4,12 +4,33 @@ import { getAnalytics } from "../api/analytics.js";
 import { listResources, resourceLabel } from "../api/resources.js";
 import { useAuth } from "../context/useAuth.js";
 
+// The routes a signed-out visitor is allowed to reach, so `go()` leaves them alone.
+const PUBLIC_PATHS = new Set(["/", "/home", "/about", "/tour"]);
+
 function HomePage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [stats, setStats] = useState(null);
   const [recent, setRecent] = useState([]);
 
+  // Where a link should go for somebody who has not signed up yet. Most destinations on
+  // this page need a session to do anything, so pointing a visitor at one would bounce
+  // them to /login off the page that was meant to be selling them the idea -- send them
+  // to sign up instead. The Explore pages are the exception: they are the reason a visitor
+  // is allowed this far, so they are never redirected. See App.jsx.
+  const go = (path) =>
+    isAuthenticated || PUBLIC_PATHS.has(path) ? path : "/register";
+
   const refresh = useCallback(async () => {
+    // Not merely pointless when signed out -- actively harmful. Both calls need a token,
+    // and the 401 interceptor in api/client.js answers a rejection by wiping storage and
+    // hard-redirecting to /login. Firing them here would throw a visitor off the public
+    // home page a moment after it rendered. See api/client.js.
+    if (!isAuthenticated) {
+      setStats(null);
+      setRecent([]);
+      return;
+    }
+
     try {
       const res = await getAnalytics();
       setStats(res.data);
@@ -22,7 +43,7 @@ function HomePage() {
     } catch {
       setRecent([]);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // Fetch-on-mount. The rule guards against cascading renders from derived state;
@@ -81,7 +102,9 @@ function HomePage() {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
             <h1 className="text-[30px] lg:text-[34px] leading-tight font-bold text-white tracking-tight m-0">
-              Welcome to LearnMateAI{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+              {isAuthenticated
+                ? `Welcome to LearnMateAI${user?.name ? `, ${user.name.split(" ")[0]}` : ""}`
+                : "Turn any PDF into study material"}
             </h1>
             <p className="text-white/75 text-[15px] leading-relaxed max-w-xl mt-3 mb-0">
               Your AI-powered study companion. Upload documents, generate tailored study materials,
@@ -89,13 +112,13 @@ function HomePage() {
             </p>
           </div>
           <Link
-            to="/try"
+            to={go("/try")}
             className="inline-flex items-center gap-2 shrink-0 bg-white text-primary font-semibold text-[13.5px] rounded-xl px-6 py-3 no-underline hover:bg-white/90 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
-            Get Started
+            {isAuthenticated ? "Get Started" : "Create a free account"}
           </Link>
         </div>
       </div>
@@ -125,7 +148,7 @@ function HomePage() {
       {/* Features */}
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         {features.map((f) => (
-          <Link key={f.title} to={f.link} className="card card-hover p-6 block no-underline">
+          <Link key={f.title} to={go(f.link)} className="card card-hover p-6 block no-underline">
             <div className={`w-10 h-10 rounded-lg ${f.color} flex items-center justify-center mb-4`}>
               {f.icon}
             </div>
@@ -135,7 +158,25 @@ function HomePage() {
         ))}
       </div>
 
-      {/* Quick actions + recent resources */}
+      {/* Quick actions + recent resources. Both describe a workspace, so signed out they
+          are replaced by the one thing there is to do instead: sign up. */}
+      {!isAuthenticated ? (
+        <div className="card p-8 text-center">
+          <h2 className="text-[19px] font-bold text-heading mb-2">Ready to start?</h2>
+          <p className="text-[13.5px] text-muted leading-relaxed max-w-lg mx-auto mb-5">
+            Create an account, upload your first PDF, and have summaries, key points, practice
+            questions and a chat that answers from your own material.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link to="/register" className="btn-primary no-underline px-6 py-2.5">
+              Create a free account
+            </Link>
+            <Link to="/tour" className="btn-secondary no-underline px-6 py-2.5">
+              Take a tour first
+            </Link>
+          </div>
+        </div>
+      ) : (
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card p-6">
           <h2 className="text-[15px] font-semibold text-heading mb-4">Quick Actions</h2>
@@ -185,6 +226,7 @@ function HomePage() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

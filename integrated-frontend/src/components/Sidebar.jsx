@@ -5,6 +5,11 @@
  * on it: the active route's pill. Everything else -- section labels, inactive items, the
  * footer -- is grey, so the eye finds "where am I" without reading a word.
  *
+ * It lists the workspace and the account, and nothing else. Home, About and Take a Tour
+ * used to sit here under "Explore"; they are now public pages reached from the marketing
+ * header (components/PublicLayout.jsx), and repeating them in here would put a signed-in
+ * student one click from a page trying to sell them what they already have.
+ *
  * On small screens the same markup is a drawer: `open` slides it in over the content and
  * `onClose` dismisses it, which is why every link calls onClose on the way out.
  */
@@ -43,29 +48,6 @@ const mainNav = [
     to: "/analytics",
     label: "Analytics",
     icon: icon("M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"),
-  },
-];
-
-const exploreNav = [
-  {
-    to: "/home",
-    label: "Home",
-    icon: icon("M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"),
-  },
-  {
-    to: "/about",
-    label: "About",
-    icon: icon("M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"),
-  },
-  {
-    to: "/tour",
-    label: "Take a Tour",
-    icon: icon("M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"),
-  },
-  {
-    to: "/try",
-    label: "Try It Now",
-    icon: icon("M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"),
   },
 ];
 
@@ -173,7 +155,6 @@ function Sidebar({ open = false, onClose }) {
 
         <div className="flex-1 overflow-y-auto px-3 py-2">
           <NavSection label="Main" items={mainNav} onNavigate={onClose} />
-          <NavSection label="Explore" items={exploreNav} onNavigate={onClose} />
           <div className="mx-3 mb-5 border-t border-border-strong/60" />
           <NavSection label="Account" items={accountNav} onNavigate={onClose} />
         </div>

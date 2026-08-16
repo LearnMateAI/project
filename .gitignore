@@ -19,6 +19,9 @@ scores.jsonl
 
 *.zip
 
+# Server and dev-server logs; written on every run, never worth a merge conflict
+*.log
+
 # model-Thevindu local artifacts / secrets / corpus
 model-Thevindu/01_dataset_pipeline/data/intermediate/
 model-Thevindu/01_dataset_pipeline/data/output/

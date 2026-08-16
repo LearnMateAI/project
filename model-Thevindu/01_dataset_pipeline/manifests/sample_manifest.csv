@@ -1,0 +1,7 @@
+doc_id,filename,title,subject_area,doc_type
+SAMPLE-001,sample_penal_code_excerpt.pdf,Synthetic Penal Code Excerpt (Theft & Robbery),criminal_law,statute
+SAMPLE-002,sample_constitution_fr.pdf,Synthetic Constitution Chapter — Fundamental Rights,constitutional_law,constitution
+SAMPLE-003,sample_evidence_ordinance.pdf,Synthetic Evidence Ordinance Excerpt,evidence,statute
+SAMPLE-004,sample_civil_procedure.pdf,Synthetic Civil Procedure Code Excerpt,civil_procedure,statute
+SAMPLE-005,sample_companies_act.pdf,Synthetic Companies Act Excerpt,company_commercial,statute
+SAMPLE-006,sample_sc_judgment.pdf,Synthetic Supreme Court Judgment Excerpt,case_law_methodology,case_law

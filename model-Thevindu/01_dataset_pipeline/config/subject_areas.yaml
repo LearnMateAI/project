@@ -1,0 +1,43 @@
+# Subject areas supported by LearnMateAI (Sri Lankan legal education)
+# Keys are used as subject_area tags in the manifest and all pipeline outputs.
+
+subject_areas:
+  constitutional_law:
+    label: Constitutional Law
+    description: Constitution of Sri Lanka, fundamental rights, franchise, devolution
+  criminal_law:
+    label: Criminal Law
+    description: Penal Code offences, general principles of criminal liability
+  criminal_procedure:
+    label: Criminal Procedure
+    description: Code of Criminal Procedure, arrest, bail, trial procedure
+  civil_procedure:
+    label: Civil Procedure
+    description: Civil Procedure Code, institution of actions, pleadings, appeals
+  evidence:
+    label: Law of Evidence
+    description: Evidence Ordinance, admissibility, burden of proof, documentary evidence
+  contract_law:
+    label: Contract Law
+    description: Formation, consideration, breach, sale of goods, consumer contracts
+  company_commercial:
+    label: Company & Commercial Law
+    description: Companies Act, corporate governance, commercial regulation
+  property_land:
+    label: Property & Land Law
+    description: Immovable property, trusts, registration, prevention of frauds
+  family_law:
+    label: Family Law
+    description: Marriage, divorce, custody — general, Kandyan, and Muslim systems
+  intellectual_property:
+    label: Intellectual Property
+    description: Copyright, trademarks, patents under the IP Act
+  labour_industrial:
+    label: Labour & Industrial Law
+    description: Industrial disputes, labour tribunals, employment rights
+  administrative_public:
+    label: Administrative & Public Law
+    description: Judicial review, public authorities, consumer/regulatory statutes
+  case_law_methodology:
+    label: Case Law & Legal Method
+    description: Landmark judgments, ratio decidendi, statutory interpretation

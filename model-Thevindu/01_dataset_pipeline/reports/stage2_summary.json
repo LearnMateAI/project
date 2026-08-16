@@ -1,0 +1,14 @@
+{
+  "stage": 2,
+  "processed_at": "2026-08-06T15:36:40+00:00",
+  "generation_mode": "mock",
+  "chunks_in": 33,
+  "pairs_out": 99,
+  "errors": [],
+  "pairs_path": "data\\intermediate\\stage2_pairs.jsonl",
+  "pair_type_counts": {
+    "qa": 33,
+    "summary": 33,
+    "mcq": 33
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "ran_at": "2026-08-06T15:36:41+00:00",
+  "dataset_version": "lm-legal-smoke-v1",
+  "stage1": {
+    "documents_ok": 6,
+    "documents_failed": 0,
+    "chunks_total": 33
+  },
+  "stage2": {
+    "generation_mode": "mock",
+    "pairs_out": 99,
+    "errors": 0
+  },
+  "stage3": {
+    "pairs_per_split": {
+      "train": 69,
+      "val": 15,
+      "test": 15
+    },
+    "warnings": [
+      "SUBJECT MISSING FROM VAL: 'case_law_methodology' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM VAL: 'company_commercial' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM VAL: 'constitutional_law' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM VAL: 'criminal_law' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM VAL: 'evidence' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM TEST: 'case_law_methodology' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM TEST: 'civil_procedure' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM TEST: 'constitutional_law' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM TEST: 'criminal_law' has zero pairs. Consider adding another document in this subject before production training.",
+      "SUBJECT MISSING FROM TEST: 'evidence' has zero pairs. Consider adding another document in this subject before production training."
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "doc_id": "SAMPLE-002",
+  "filename": "sample_constitution_fr.pdf",
+  "status": "ok_with_warnings",
+  "errors": [],
+  "warnings": [
+    "SAMPLE-002-C0001 below min_chunk_chars (85)",
+    "SAMPLE-002-C0003 below min_chunk_chars (102)"
+  ],
+  "page_count": 1,
+  "lines_stripped": 2,
+  "units_detected": 6,
+  "chunks_emitted": 6,
+  "subject_area": "constitutional_law",
+  "processed_at": "2026-08-06T15:36:40+00:00"
+}

@@ -1,0 +1,79 @@
+# Explicit acceptance thresholds for LearnMateAI domain adapter promotion.
+# Edit only with team agreement — values here are the contract used by
+# evaluate_candidate.ipynb and the promotion checklist.
+
+version: 2
+dataset_split: test
+notes: >
+  Fail-closed: any metric below threshold, or a missing fallback comparison,
+  blocks promotion. The live app must keep Gemini (or equivalent) API fallback
+  regardless of this gate.
+
+  Two accuracy numbers exist for lm-legal-v0.1 and are not interchangeable.
+  Registry rows MUST set eval_split + metric_definition:
+    - test.jsonl        -> in_corpus_accuracy (chapter-held-out)
+    - test_strict.jsonl -> accuracy (document-held-out)
+  The 0.70 minimum was written against document-held-out generalisation.
+  Clearing 0.70 on chapter-held-out alone is not a promotion.
+
+metrics:
+  accuracy:
+    description: >
+      Fraction of test items judged correct. Preferred: LLM-as-judge (same
+      strict "unsupported claim = fail" idea as the live Verification Agent
+      in components-Dinura/learnmate/evaluator/rubrics.py CHAT_GROUNDED).
+      Fallback if no judge API: MCQ exact letter, else token-F1 >=
+      f1_pass_threshold vs the gold assistant turn. Record which grader ran
+      in the registry notes.
+    minimum: 0.70
+    f1_pass_threshold: 0.50
+    grader: llm_judge_preferred
+
+  groundedness:
+    description: >
+      Fraction of answers that stay inside the provided source excerpt.
+      MUST use the same citation checker as Stage 2 (validate_pairs.py):
+      a labelled section/article number in the answer that is not in the
+      excerpt (allowing inherited section_id) counts as ungrounded.
+      Empty answers are ungrounded.
+      Do NOT use a raw "section 108" vs "108." string-set diff — that
+      over-flagged ~40-50% of the first live eval as hallucinations.
+      Groundedness = 1 - hallucination_rate.
+    minimum: 0.85
+
+  hallucination_rate:
+    description: >
+      Fraction of answers with unsupported statutory citations or empty text,
+      per validate_pairs.check_pair. Matches production's rule that a claim
+      not supported by retrieved context is a hallucination.
+    maximum: 0.15
+
+  latency_p95_ms:
+    description: >
+      p95 end-to-end generation latency on the hardware named in
+      eval_hardware. A Colab T4 4-bit sequential number does NOT transfer to
+      a different serving stack. Do not promote on a T4 eval latency if
+      production hardware is unspecified.
+    maximum_ms: 8000
+    eval_hardware: "Colab T4, 4-bit QLoRA, sequential generate, max_new_tokens=256"
+    serving_hardware: "unspecified — do not treat eval_hardware as production"
+
+  fallback_comparison:
+    description: >
+      Candidate must be scored against the production fallback (Gemini, or a
+      configured OpenAI-compatible endpoint) on the same test items.
+      Promotion requires candidate_accuracy >= fallback_accuracy
+      OR (candidate_groundedness >= fallback_groundedness AND
+      candidate_accuracy >= fallback_accuracy - accuracy_slack).
+    required: true
+    accuracy_slack: 0.05
+    fallback_env_api_key: GEMINI_API_KEY
+    fallback_env_model: FALLBACK_MODEL
+    default_fallback_model: gemini-2.0-flash
+
+promotion_gates:
+  - run_record_present
+  - all_thresholds_passed
+  - fallback_comparison_completed
+  - version_registry_row_written
+  - checklist_signed

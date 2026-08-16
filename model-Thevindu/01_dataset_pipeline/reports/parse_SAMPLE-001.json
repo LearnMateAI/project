@@ -1,0 +1,15 @@
+{
+  "doc_id": "SAMPLE-001",
+  "filename": "sample_penal_code_excerpt.pdf",
+  "status": "ok_with_warnings",
+  "errors": [],
+  "warnings": [
+    "SAMPLE-001-C0001 below min_chunk_chars (40)"
+  ],
+  "page_count": 1,
+  "lines_stripped": 3,
+  "units_detected": 6,
+  "chunks_emitted": 6,
+  "subject_area": "criminal_law",
+  "processed_at": "2026-08-06T15:36:40+00:00"
+}

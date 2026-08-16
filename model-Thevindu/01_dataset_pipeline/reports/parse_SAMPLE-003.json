@@ -1,0 +1,16 @@
+{
+  "doc_id": "SAMPLE-003",
+  "filename": "sample_evidence_ordinance.pdf",
+  "status": "ok_with_warnings",
+  "errors": [],
+  "warnings": [
+    "SAMPLE-003-C0001 below min_chunk_chars (78)",
+    "SAMPLE-003-C0004 below min_chunk_chars (80)"
+  ],
+  "page_count": 1,
+  "lines_stripped": 2,
+  "units_detected": 6,
+  "chunks_emitted": 6,
+  "subject_area": "evidence",
+  "processed_at": "2026-08-06T15:36:40+00:00"
+}

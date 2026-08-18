@@ -36,7 +36,7 @@ model-Thevindu/03_testing_and_versioning/New/
 model-Thevindu/01_dataset_pipeline/data/raw_pdfs/*
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/.gitkeep
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/README.md
-model-Thevindu/02_finetuning/adapters/
+
 
 # Trained weights and training state, wherever they land. The previous rule only
 # covered adapters/*/, so a download unpacked anywhere else (e.g. Real_Weights/)

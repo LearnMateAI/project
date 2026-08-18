@@ -31,6 +31,25 @@ llama-cpp-python>=0.3,<0.4
 # Uninstall it if you are running fully offline; nothing else references it.
 google-genai>=1.0
 
+# --- Building the finetuned GGUF (optional, build-time only) ------------------------------
+# Needed only to run scripts/build_finetuned_gguf.py, which merges the model-Thevindu LoRA
+# adapter into its base and converts the result to GGUF. Deliberately left commented: the
+# server never imports either package, the build is a one-off, and its output is a plain
+# file in models/ that needs nothing installed to load. Install them when you build:
+#
+#     pip install "peft>=0.20" "gguf>=0.10" sentencepiece
+#
+# torch and transformers are already required above (sentence-transformers pulls them in),
+# so those three are the whole additional cost.
+#
+# sentencepiece is needed even though Qwen2.5 uses BPE, not sentencepiece: the converter's
+# Qwen class calls _set_vocab_sentencepiece() first and falls back to BPE when it finds no
+# tokenizer.model. That fallback catches FileNotFoundError, so without the package the
+# import raises ImportError and the conversion dies before it can fall back.
+# peft>=0.20
+# gguf>=0.10
+# sentencepiece
+
 # --- Embeddings ---------------------------------------------------------------------------
 sentence-transformers>=5.0,<6
 torch>=2.6

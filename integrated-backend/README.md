@@ -95,6 +95,42 @@ The generator and the judge are deliberately different model families. A judge s
 generator's weights rates its own writing style highly, and the quality gate stops firing —
 which looks like everything passing rather than like a broken evaluator.
 
+#### Running the domain finetune instead of the stock generator
+
+The ML track (`model-Thevindu/`) trains a QLoRA adapter on Qwen2.5-1.5B-Instruct over the
+`lm-legal-v0.1` Sri Lankan legal corpus. It ships as a ~74 MB adapter, which this backend
+cannot load — llama.cpp runs GGUF — so one script bridges the two:
+
+```bash
+pip install "peft>=0.20" "gguf>=0.10" sentencepiece   # build-time only
+python scripts/build_finetuned_gguf.py    # merge adapter into base, then convert
+```
+
+The first run also downloads the ~3.1 GB base weights the adapter was trained
+against, which dominates the wall clock on a slow link; the merge and conversion
+themselves are a few minutes. Every step is skipped if its output already exists, so
+an interrupted build resumes rather than restarting.
+
+That writes `models/learnmate-legal-qwen2.5-1.5b-q8_0.gguf` plus a `.json` sidecar
+recording which training run it came from. Point the generator at it in `.env` — and empty
+both download settings with it, because a locally built file exists in no repository and
+the base model's repo/file would otherwise quietly download the stock 3B and run *that*
+under the finetune's name:
+
+```
+LEARNMATE_GENERATOR_MODEL=models/learnmate-legal-qwen2.5-1.5b-q8_0.gguf
+LEARNMATE_GENERATOR_REPO=
+LEARNMATE_GENERATOR_FILE=
+```
+
+Know what the swap costs before making it. The finetune is 1.5B where the stock generator
+is 3B, so it is a weaker general-purpose writer, and it did **not** pass the ML track's
+acceptance gate — 0.557 / 0.621 LLM-judge accuracy against a 0.70 minimum, losing to the
+API fallback on both accuracy and groundedness
+(`model-Thevindu/03_testing_and_versioning/version_registry.csv`). It is better on
+statutory question answering and weaker elsewhere: a deliberate demo choice, not a
+promotion. The rollback is the three lines above set back to their defaults.
+
 ### Two databases
 
 `docker compose up -d` starts both.

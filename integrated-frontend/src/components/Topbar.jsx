@@ -8,6 +8,7 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth.js";
+import { useTheme } from "../hooks/useTheme.js";
 
 const TITLES = [
   { match: /^\/dashboard/, title: "Dashboard" },
@@ -25,6 +26,7 @@ const TITLES = [
 
 function Topbar({ onOpenNav, navHidden = false }) {
   const { user } = useAuth();
+  const { isDark, toggle } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -64,6 +66,29 @@ function Topbar({ onOpenNav, navHidden = false }) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* The icon shows the theme you would get by pressing it, not the one you are in.
+            A sun while already light reads as a state indicator and invites a click that
+            appears to do nothing; aria-pressed carries the actual state for screen
+            readers, which is where a state belongs. */}
+        <button
+          type="button"
+          onClick={toggle}
+          className="btn-icon rounded-full"
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          title={isDark ? "Light mode" : "Dark mode"}
+          aria-pressed={isDark}
+        >
+          {isDark ? (
+            <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+            </svg>
+          ) : (
+            <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+          )}
+        </button>
+
         <button type="button" className="btn-icon rounded-full relative" aria-label="Notifications">
           <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />

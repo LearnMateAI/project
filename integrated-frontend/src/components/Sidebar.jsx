@@ -99,7 +99,7 @@ function NavSection({ label, items, onNavigate }) {
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold no-underline transition-all duration-150 ${
                   isActive
                     ? "bg-primary text-white shadow-[0_6px_16px_-6px_rgba(35,64,224,0.55)]"
-                    : "text-muted hover:bg-white hover:text-heading"
+                    : "text-muted hover:bg-surface hover:text-heading"
                 }`
               }
             >

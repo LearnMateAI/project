@@ -11,6 +11,11 @@ __pycache__/
 
 models/
 
+# Scratch space for scripts/build_finetuned_gguf.py: the LoRA adapter merged into its base
+# as a ~3.1 GB fp16 model, plus the fetched llama.cpp converter. Entirely reproducible from
+# the adapter and the base weights, and deletable once the GGUF in models/ exists.
+integrated-backend/build/
+
 # Runtime evaluation log; regenerated on every run
 scores.jsonl
 

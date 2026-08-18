@@ -7,51 +7,47 @@
  * behaviour: a student waiting on a quiz is better served by flagged output than by
  * nothing, and hiding rejections would make the failure rate invisible.
  *
- * So this badge always says which happened. `score` is null when evaluation was switched
- * off for that run, which is a third state and not the same as passing.
+ * qualityTone() is exported separately so the compact list badges in ResourcesPanel and
+ * resources/index.jsx can share this exact judgment rather than each hand-rolling their
+ * own slightly different copy of it.
  */
+
+export function qualityTone({ accepted, score } = {}) {
+  const unevaluated = score === null || score === undefined;
+  if (unevaluated) return { tone: "bg-gray-100 text-muted", label: "Not reviewed" };
+  if (accepted) return { tone: "bg-verified-bg text-verified", label: `Reviewed · ${score}/100` };
+  return { tone: "bg-pending-bg text-pending", label: `Flagged · ${score}/100` };
+}
 
 function QualityBadge({ resource, className = "" }) {
   const { accepted, score, threshold, n_attempts: attempts, reasoning } = resource || {};
-
   const unevaluated = score === null || score === undefined;
-
-  const tone = unevaluated
-    ? "bg-gray-100 text-gray-600 border-gray-200"
-    : accepted
-      ? "bg-green-50 text-green-700 border-green-200"
-      : "bg-amber-50 text-amber-700 border-amber-200";
-
-  const label = unevaluated
-    ? "Not reviewed"
-    : accepted
-      ? `Reviewed · ${score}/100`
-      : `Flagged · ${score}/100`;
+  const { tone, label } = qualityTone(resource);
 
   return (
     <div className={className}>
-      <span className={`inline-block text-xs border rounded px-2 py-1 ${tone}`}>
+      <span className={`inline-block text-xs rounded-full px-2.5 py-1 font-medium ${tone}`}>
         {label}
         {!unevaluated && threshold ? ` (pass ${threshold})` : ""}
         {attempts > 1 ? ` · ${attempts} attempts` : ""}
       </span>
 
       {unevaluated && (
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-muted mt-1">
           Generated with evaluation switched off — nothing has checked this against the
           document.
         </p>
       )}
 
       {!unevaluated && !accepted && (
-        <p className="text-xs text-amber-700 mt-1">
+        <p className="text-xs text-pending mt-1">
           This scored below the pass mark and is shown anyway. Check it against the document
           before relying on it.
         </p>
       )}
 
       {reasoning && (
-        <details className="text-xs text-gray-500 mt-1">
+        <details className="text-xs text-muted mt-1">
           <summary className="cursor-pointer">What the evaluator said</summary>
           <p className="mt-1 whitespace-pre-wrap">{reasoning}</p>
         </details>

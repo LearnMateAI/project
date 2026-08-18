@@ -3,7 +3,7 @@ import Topbar from "./Topbar.jsx";
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col sm:flex-row bg-gray-50">
+    <div className="min-h-screen flex flex-col sm:flex-row bg-paper">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar />

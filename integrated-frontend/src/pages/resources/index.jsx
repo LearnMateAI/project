@@ -1,9 +1,5 @@
 /**
  * Everything this user has generated, newest first.
- *
- * Rejected resources are listed alongside accepted ones, marked. That is what the backend
- * stores and what the evaluation log counts, and filtering them out here would quietly
- * hide the failure rate from the person best placed to notice it.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -11,6 +7,7 @@ import { Link } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
 import { listDocuments } from "../../api/documents.js";
 import { RESOURCE_TYPES, listResources, resourceLabel } from "../../api/resources.js";
+import { qualityTone } from "../../components/QualityBadge.jsx";
 
 function Resources() {
   const [resources, setResources] = useState([]);
@@ -37,8 +34,6 @@ function Resources() {
   }, [documentId, resourceType]);
 
   useEffect(() => {
-    // Fetch-on-mount. The rule guards against cascading renders from derived state;
-    // this is a request to an external system, which is what an effect is for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResources();
   }, [fetchResources]);
@@ -49,7 +44,6 @@ function Resources() {
       .catch(() => setDocuments([]));
   }, []);
 
-  // Resources carry a document id, not a filename, so the lookup happens here.
   const filenames = useMemo(
     () => Object.fromEntries(documents.map((doc) => [doc.id, doc.filename])),
     [documents],
@@ -57,13 +51,13 @@ function Resources() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Your Resources</h1>
+      <h1 className="font-display text-2xl font-bold mb-6 text-ink">Your Resources</h1>
 
       <div className="flex flex-wrap gap-3 mb-4">
         <select
           value={documentId}
           onChange={(e) => setDocumentId(e.target.value)}
-          className="border rounded px-2 py-1.5 text-sm bg-white"
+          className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm bg-white"
         >
           <option value="">All documents</option>
           {documents.map((doc) => (
@@ -76,7 +70,7 @@ function Resources() {
         <select
           value={resourceType}
           onChange={(e) => setResourceType(e.target.value)}
-          className="border rounded px-2 py-1.5 text-sm bg-white"
+          className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm bg-white"
         >
           <option value="">All types</option>
           {RESOURCE_TYPES.map((entry) => (
@@ -87,48 +81,41 @@ function Resources() {
         </select>
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-danger mb-4">{error}</p>}
 
-      <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="bg-white rounded-xl border border-gray-100 p-4">
         {loading ? (
-          <p className="text-sm text-gray-500">Loading...</p>
+          <p className="text-sm text-muted">Loading...</p>
         ) : resources.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             Nothing generated yet — open a document and use the panel beside it.
           </p>
         ) : (
-          <ul className="divide-y">
-            {resources.map((resource) => (
-              <li key={resource.id} className="py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <Link
-                    to={`/resources/${resource.id}`}
-                    className="text-sm font-medium text-blue-600 hover:underline"
-                  >
-                    {resourceLabel(resource.resource_type)}
-                  </Link>
-                  <p className="text-xs text-gray-500 truncate">
-                    {filenames[resource.document_id] || "Unknown document"} ·{" "}
-                    {new Date(resource.created_at).toLocaleString()}
-                    {Array.isArray(resource.content) ? ` · ${resource.content.length} items` : ""}
-                  </p>
-                </div>
+          <ul className="divide-y divide-gray-100">
+            {resources.map((resource) => {
+              const { tone, label } = qualityTone(resource);
+              return (
+                <li key={resource.id} className="py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      to={`/resources/${resource.id}`}
+                      className="text-sm font-medium text-ink hover:underline"
+                    >
+                      {resourceLabel(resource.resource_type)}
+                    </Link>
+                    <p className="text-xs text-muted truncate">
+                      {filenames[resource.document_id] || "Unknown document"} ·{" "}
+                      {new Date(resource.created_at).toLocaleString()}
+                      {Array.isArray(resource.content) ? ` · ${resource.content.length} items` : ""}
+                    </p>
+                  </div>
 
-                <span
-                  className={`text-xs rounded px-2 py-1 shrink-0 ${
-                    resource.score === null || resource.score === undefined
-                      ? "bg-gray-100 text-gray-600"
-                      : resource.accepted
-                        ? "bg-green-100 text-green-700"
-                        : "bg-amber-100 text-amber-700"
-                  }`}
-                >
-                  {resource.score === null || resource.score === undefined
-                    ? "Not reviewed"
-                    : `${resource.score}/100`}
-                </span>
-              </li>
-            ))}
+                  <span className={`text-xs rounded-full px-2.5 py-1 font-medium shrink-0 ${tone}`}>
+                    {label}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

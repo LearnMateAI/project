@@ -3,11 +3,7 @@
  *
  * The backend writes real commentary onto the job record -- "Summarising page 4 (4/7)...",
  * "Group 2/5: Generating mcq (attempt 1/2)...", "Embedding 1240 chunks into Qdrant..." --
- * so this shows that text rather than a spinner. During a five-minute generation the
- * difference between the two is whether the user can tell it is working.
- *
- * The bar only appears when the backend gave a total; most jobs report a message and no
- * numbers, and an indeterminate bar pretending to be a determinate one is worse than none.
+ * so this shows that text rather than a spinner.
  */
 
 function JobProgress({ job, className = "" }) {
@@ -15,7 +11,7 @@ function JobProgress({ job, className = "" }) {
 
   if (job.isFailed) {
     return (
-      <div className={`text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2 ${className}`}>
+      <div className={`text-sm text-danger bg-danger-bg rounded-lg p-3 ${className}`}>
         {job.error}
       </div>
     );
@@ -27,14 +23,14 @@ function JobProgress({ job, className = "" }) {
   const percent = total ? Math.min(100, Math.round((current / total) * 100)) : null;
 
   return (
-    <div className={`text-sm text-gray-600 ${className}`}>
+    <div className={`text-sm text-muted ${className}`}>
       <p className="flex items-center gap-2">
-        <span className="inline-block w-3 h-3 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+        <span className="inline-block w-3 h-3 rounded-full border-2 border-ink border-t-transparent animate-spin" />
         {message || "Working..."}
       </p>
       {percent !== null && (
-        <div className="mt-2 w-full bg-gray-200 rounded h-2">
-          <div className="bg-blue-600 h-2 rounded transition-all" style={{ width: `${percent}%` }} />
+        <div className="mt-2 w-full bg-gray-100 rounded-full h-2">
+          <div className="bg-ink h-2 rounded-full transition-all" style={{ width: `${percent}%` }} />
         </div>
       )}
     </div>

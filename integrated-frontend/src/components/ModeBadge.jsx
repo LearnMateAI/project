@@ -10,10 +10,6 @@
  *   general  nothing relevant came back, so the reply is the model's own knowledge about
  *            the subject. It may well be right. It is not from the student's document, and
  *            nothing checked it against one.
- *
- * The text of an answer looks the same either way, so the badge is the only thing that can
- * tell them apart, and reading a law summary that turned out to be general knowledge is
- * exactly the mistake this project exists to avoid.
  */
 
 function ModeBadge({ mode, topScore, className = "" }) {
@@ -21,13 +17,9 @@ function ModeBadge({ mode, topScore, className = "" }) {
 
   return (
     <span
-      className={`inline-block text-xs border rounded px-2 py-0.5 ${
-        grounded
-          ? "bg-blue-50 text-blue-700 border-blue-200"
-          : "bg-gray-100 text-gray-600 border-gray-200"
+      className={`inline-block text-xs rounded-full px-2.5 py-1 font-medium ${
+        grounded ? "bg-ink-light text-ink" : "bg-gray-100 text-muted"
       } ${className}`}
-      // A replayed turn carries the mode but not the retrieval score -- the stored meta
-      // has no room for it -- so the number is omitted rather than shown as 0.00.
       title={
         grounded
           ? `Written from your document${

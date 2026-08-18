@@ -3,13 +3,6 @@
  *
  * The shape of this changed with the backend: the POST returns `202 {document, job_id}`,
  * so uploading is now two phases with very different durations.
- *
- *   sending the bytes     seconds -- the progress bar
- *   processing the PDF    extract, clean, chunk, and a few thousand embeddings on CPU.
- *                         Minutes -- the job, which reports what it is doing.
- *
- * The document row exists as soon as the first phase finishes, so it appears in the list
- * straight away as "Processing" whether or not this card is still on screen.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,9 +19,6 @@ const SUBJECTS = [
   "General",
 ];
 
-// Matches LEARNMATE_MAX_PDF_MB in integrated-backend/.env. Kept in step deliberately:
-// a browser limit looser than the server's just means the upload finishes and is then
-// rejected, after the user has waited for it.
 const MAX_MB = 10;
 
 function DocumentsCard({ onUploaded }) {
@@ -51,8 +41,6 @@ function DocumentsCard({ onUploaded }) {
   }, []);
 
   useEffect(() => {
-    // Fetch-on-mount. The rule guards against cascading renders from derived state;
-    // this is a request to an external system, which is what an effect is for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshCount();
   }, [refreshCount]);
@@ -65,7 +53,6 @@ function DocumentsCard({ onUploaded }) {
     setSuccess("");
     job.reset();
 
-    // Checked here as well as on the server so an obviously wrong file costs nothing.
     if (file.type !== "application/pdf") {
       setError("Only PDF files are accepted.");
       e.target.value = "";
@@ -80,9 +67,6 @@ function DocumentsCard({ onUploaded }) {
     setSending(true);
     setProgress(0);
 
-    // Phase 1 and phase 2 in one call: `run` takes the function that produces the 202 and
-    // then polls the job it names. It never throws -- a rejected upload and a failed job
-    // both land in job.error, which JobProgress renders -- so there is nothing to catch.
     const result = await job.run(() =>
       uploadDocument({
         file,
@@ -110,9 +94,9 @@ function DocumentsCard({ onUploaded }) {
   const busy = sending || job.isRunning;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-5">
-      <h2 className="font-medium mb-2">Documents</h2>
-      <p className="text-sm text-gray-500 mb-3">
+    <div className="bg-white rounded-xl border border-gray-100 p-5">
+      <h2 className="font-medium mb-2 text-ink">Documents</h2>
+      <p className="text-sm text-muted mb-3">
         {documentCount === null
           ? "Loading..."
           : documentCount === 0
@@ -121,12 +105,12 @@ function DocumentsCard({ onUploaded }) {
       </p>
 
       {documentCount > 0 && (
-        <a href="/documents" className="text-sm text-blue-600 hover:underline block mb-3">
+        <a href="/documents" className="text-sm text-ink font-medium hover:underline block mb-3">
           View all documents →
         </a>
       )}
 
-      <label className="block text-sm font-medium mb-1" htmlFor="subject">
+      <label className="block text-sm font-medium mb-1 text-ink" htmlFor="subject">
         Subject
       </label>
       <select
@@ -134,7 +118,7 @@ function DocumentsCard({ onUploaded }) {
         value={subject}
         onChange={(e) => setSubject(e.target.value)}
         disabled={busy}
-        className="w-full mb-3 border rounded px-2 py-1.5 text-sm"
+        className="w-full mb-3 border border-gray-200 rounded-lg px-2 py-1.5 text-sm"
       >
         {SUBJECTS.map((s) => (
           <option key={s} value={s}>
@@ -152,19 +136,16 @@ function DocumentsCard({ onUploaded }) {
         className="text-sm w-full"
       />
 
-      {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the
-          server has the file, the interesting number is the job's. */}
       {sending && job.isRunning && progress < 100 && (
-        <div className="mt-2 w-full bg-gray-200 rounded h-2">
-          <div className="bg-blue-600 h-2 rounded transition-all" style={{ width: `${progress}%` }} />
+        <div className="mt-2 w-full bg-gray-100 rounded-full h-2">
+          <div className="bg-ink h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
         </div>
       )}
 
-      {/* Phase 2: what the backend is doing with it. */}
       <JobProgress job={job} className="mt-3" />
 
-      {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
-      {success && <p className="text-sm text-green-600 mt-2">{success}</p>}
+      {error && <p className="text-sm text-danger mt-2">{error}</p>}
+      {success && <p className="text-sm text-verified mt-2">{success}</p>}
     </div>
   );
 }

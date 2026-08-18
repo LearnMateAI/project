@@ -1,15 +1,5 @@
 /**
  * One generated resource, whichever kind it is.
- *
- * The route is `/resources/:resourceId` and the *type* comes from the fetched record, not
- * from the URL. One route rather than four means a resource can be linked, bookmarked and
- * refreshed — none of which works when the object is handed over in router state, which is
- * how this used to be done.
- *
- *     summary       a string           prose
- *     keypoints     ["...", ...]       bulleted list
- *     mcq           [{question, options[4], correct_answer}]   an interactive quiz
- *     practice_qsn  [{question, answer}]                       question, answer on demand
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -25,7 +15,7 @@ function Body({ resource }) {
 
   if (content === null || content === undefined || (Array.isArray(content) && !content.length)) {
     return (
-      <p className="bg-white rounded-lg shadow-sm p-5 text-sm text-gray-500">
+      <p className="bg-white rounded-xl border border-gray-100 p-5 text-sm text-muted">
         This resource came back empty. Try generating it again.
       </p>
     );
@@ -33,7 +23,7 @@ function Body({ resource }) {
 
   if (type === "summary") {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6 whitespace-pre-wrap leading-relaxed text-gray-800">
+      <div className="bg-white rounded-xl border border-gray-100 p-6 whitespace-pre-wrap leading-relaxed text-gray-800">
         {content}
       </div>
     );
@@ -41,7 +31,7 @@ function Body({ resource }) {
 
   if (type === "keypoints") {
     return (
-      <ul className="bg-white rounded-lg shadow-sm p-6 space-y-3 list-disc list-inside text-gray-800">
+      <ul className="bg-white rounded-xl border border-gray-100 p-6 space-y-3 list-disc list-inside text-gray-800">
         {content.map((point, index) => (
           <li key={index}>{point}</li>
         ))}
@@ -52,10 +42,8 @@ function Body({ resource }) {
   if (type === "mcq") return <McqQuiz questions={content} />;
   if (type === "practice_qsn") return <PracticeQuestions questions={content} />;
 
-  // A type this build does not know about -- a fifth resource type added to the backend,
-  // say. Showing the raw content beats showing nothing.
   return (
-    <pre className="bg-white rounded-lg shadow-sm p-6 text-sm overflow-x-auto">
+    <pre className="bg-white rounded-xl border border-gray-100 p-6 text-sm overflow-x-auto">
       {JSON.stringify(content, null, 2)}
     </pre>
   );
@@ -82,8 +70,6 @@ function ResourceView() {
   }, [resourceId]);
 
   useEffect(() => {
-    // Fetch-on-mount. The rule guards against cascading renders from derived state;
-    // this is a request to an external system, which is what an effect is for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResource();
   }, [fetchResource]);
@@ -98,13 +84,13 @@ function ResourceView() {
     }
   }
 
-  if (loading) return <p className="text-sm text-gray-500">Loading...</p>;
+  if (loading) return <p className="text-sm text-muted">Loading...</p>;
 
   if (error || !resource) {
     return (
       <div>
-        <p className="text-sm text-red-600 mb-4">{error || "Resource not found."}</p>
-        <Link to="/resources" className="text-sm text-blue-600 hover:underline">
+        <p className="text-sm text-danger mb-4">{error || "Resource not found."}</p>
+        <Link to="/resources" className="text-sm text-ink font-medium hover:underline">
           ← Back to Resources
         </Link>
       </div>
@@ -115,20 +101,19 @@ function ResourceView() {
 
   return (
     <div>
-      <Link to="/resources" className="text-sm text-blue-600 hover:underline mb-4 block">
+      <Link to="/resources" className="text-sm text-ink font-medium hover:underline mb-4 block">
         ← Back to Resources
       </Link>
 
       <div className="flex items-start justify-between gap-4 mb-2">
-        <h1 className="text-2xl font-semibold">{resourceLabel(resource.resource_type)}</h1>
-        <button onClick={handleDelete} className="text-sm text-red-600 hover:underline shrink-0">
+        <h1 className="font-display text-2xl font-bold text-ink">{resourceLabel(resource.resource_type)}</h1>
+        <button onClick={handleDelete} className="text-sm text-danger hover:underline shrink-0">
           Delete
         </button>
       </div>
 
-      <p className="text-xs text-gray-400 mb-3">
+      <p className="text-xs text-muted mb-3">
         Generated {new Date(resource.created_at).toLocaleString()}
-        {/* whole_document runs record this; a passage run does not. */}
         {params.whole_document ? " from the whole document" : ""}
         {params.groups ? ` (${params.groups} group${params.groups === 1 ? "" : "s"})` : ""}
       </p>

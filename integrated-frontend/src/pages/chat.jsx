@@ -1,15 +1,5 @@
 /**
  * Chat about one document.
- *
- * Sessions on the left, transcript and composer on the right. A session is bound to
- * exactly one PDF, so "new chat" is really "pick a document" — and the document has to be
- * Ready, because a session bound to one still being embedded retrieves nothing and answers
- * everything from general knowledge, which reads as a broken assistant rather than an
- * unfinished upload.
- *
- * Sending is a job: POST returns 202, then useJob polls until the reply lands. That is
- * 30-60 seconds on the local models, so the pending turn shows the backend's own
- * commentary — "Generating (attempt 1/2)...", "Evaluating..." — instead of a spinner.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -48,8 +38,6 @@ function Chat() {
   }, []);
 
   useEffect(() => {
-    // Fetch-on-mount. The rule guards against cascading renders from derived state;
-    // these are requests to an external system, which is what an effect is for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshSessions();
     listDocuments()
@@ -57,15 +45,10 @@ function Chat() {
       .catch(() => setDocuments([]));
   }, [refreshSessions]);
 
-  // Load the transcript whenever the session in the URL changes.
   useEffect(() => {
-    // No session selected: the placeholder renders instead of the transcript, so there is
-    // nothing to clear. Picking a different session refetches and replaces it.
     if (!sessionId) return undefined;
 
     let cancelled = false;
-    // Loading the transcript for the session named in the URL -- an external fetch,
-    // not derived state.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingTurns(true);
     getMessages(sessionId)
@@ -110,10 +93,6 @@ function Chat() {
     setError("");
     setDraft("");
 
-    // Shown straight away so the question is on screen during the minute it takes to
-    // answer. The backend writes *both* halves only once the reply exists, so if this
-    // fails the turn was never stored -- and the optimistic one is removed below rather
-    // than left to vanish on the next reload.
     const pendingId = `pending-${Date.now()}`;
     setTurns((current) => [...current, { id: pendingId, role: "user", content: message }]);
 
@@ -121,7 +100,7 @@ function Chat() {
 
     if (!result) {
       setTurns((current) => current.filter((turn) => turn.id !== pendingId));
-      setDraft(message); // give the question back so it can be sent again
+      setDraft(message);
       return;
     }
 
@@ -162,15 +141,15 @@ function Chat() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Chat</h1>
+      <h1 className="font-display text-2xl font-bold mb-6 text-ink">Chat</h1>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-danger mb-4">{error}</p>}
 
       <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
-        <aside className="bg-white rounded-lg shadow-sm p-4 h-fit">
-          <h2 className="font-medium text-sm mb-3">New conversation</h2>
+        <aside className="bg-white rounded-xl border border-gray-100 p-4 h-fit">
+          <h2 className="font-medium text-sm mb-3 text-ink">New conversation</h2>
           {documents.length === 0 ? (
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted mb-4">
               No documents are ready yet. Upload one and wait for it to finish processing.
             </p>
           ) : (
@@ -178,7 +157,7 @@ function Chat() {
               value=""
               onChange={(e) => handleNewSession(e.target.value)}
               disabled={starting}
-              className="w-full border rounded px-2 py-1.5 text-sm mb-4"
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mb-4"
             >
               <option value="">Choose a document...</option>
               {documents.map((doc) => (
@@ -189,19 +168,19 @@ function Chat() {
             </select>
           )}
 
-          <h2 className="font-medium text-sm mb-2">Your conversations</h2>
+          <h2 className="font-medium text-sm mb-2 text-ink">Your conversations</h2>
           {sessions.length === 0 ? (
-            <p className="text-sm text-gray-500">None yet.</p>
+            <p className="text-sm text-muted">None yet.</p>
           ) : (
             <ul className="space-y-1">
               {sessions.map((session) => (
                 <li key={session.session_id} className="flex items-center gap-1">
                   <button
                     onClick={() => navigate(`/chat/${session.session_id}`)}
-                    className={`flex-1 text-left text-sm rounded px-2 py-1.5 truncate ${
+                    className={`flex-1 text-left text-sm rounded-lg px-2 py-1.5 truncate ${
                       session.session_id === sessionId
-                        ? "bg-blue-100 text-blue-700"
-                        : "text-gray-600 hover:bg-gray-100"
+                        ? "bg-ink-light text-ink"
+                        : "text-muted hover:bg-gray-50"
                     }`}
                     title={session.filename}
                   >
@@ -209,7 +188,7 @@ function Chat() {
                   </button>
                   <button
                     onClick={() => handleDeleteSession(session)}
-                    className="text-xs text-gray-400 hover:text-red-600 px-1"
+                    className="text-xs text-gray-300 hover:text-danger px-1"
                     title="Delete conversation"
                   >
                     ×
@@ -220,16 +199,16 @@ function Chat() {
           )}
         </aside>
 
-        <section className="bg-white rounded-lg shadow-sm p-4 flex flex-col min-h-[32rem]">
+        <section className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col min-h-[32rem]">
           {!sessionId ? (
-            <p className="text-sm text-gray-400 m-auto">
+            <p className="text-sm text-muted m-auto">
               Pick a conversation, or start one from a document.
             </p>
           ) : (
             <>
-              <div className="border-b pb-2 mb-4">
-                <p className="text-sm font-medium">{current?.filename || "Conversation"}</p>
-                <p className="text-xs text-gray-500">
+              <div className="border-b border-gray-100 pb-2 mb-4">
+                <p className="text-sm font-medium text-ink">{current?.filename || "Conversation"}</p>
+                <p className="text-xs text-muted">
                   Answers are drawn from this document; anything it does not cover is answered
                   from general knowledge and labelled as such.
                 </p>
@@ -237,9 +216,9 @@ function Chat() {
 
               <div className="flex-1 space-y-3 overflow-y-auto">
                 {loadingTurns ? (
-                  <p className="text-sm text-gray-500">Loading conversation...</p>
+                  <p className="text-sm text-muted">Loading conversation...</p>
                 ) : turns.length === 0 ? (
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted">
                     Ask a question about this document to get started.
                   </p>
                 ) : (
@@ -256,12 +235,12 @@ function Chat() {
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Ask a question about this document..."
                   disabled={job.isRunning}
-                  className="flex-1 border rounded px-3 py-2 text-sm"
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 />
                 <button
                   type="submit"
                   disabled={job.isRunning || !draft.trim()}
-                  className="bg-blue-600 text-white rounded px-4 py-2 text-sm disabled:opacity-50"
+                  className="bg-ink text-white rounded-lg px-4 py-2 text-sm hover:bg-ink/90 transition-colors disabled:opacity-50"
                 >
                   {job.isRunning ? "Thinking..." : "Send"}
                 </button>

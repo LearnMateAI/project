@@ -61,6 +61,28 @@ def get_by_id(user_id: Union[str, ObjectId]) -> Optional[Dict]:
         return None
     return _collection().find_one({"_id": oid})
 
+def get_by_keycloak_sub(sub: str) -> Optional[Dict]:
+    """Look up an account by its linked Keycloak subject, if any."""
+    return _collection().find_one({"keycloak_sub": sub})
+
+
+def create_keycloak_user(sub: str, name: str, email: str) -> Dict:
+    """
+    Provision a local account for a Keycloak identity, the first time it's seen.
+
+    No password_hash: this account can never authenticate through /api/auth/login, only
+    by presenting a valid Keycloak token. That's enforced by construction, not a check --
+    there's simply no hash for verify_password to compare against.
+    """
+    record = {
+        "name": (name or "").strip(),
+        "email": normalise_email(email),
+        "password_hash": None,
+        "keycloak_sub": sub,
+        "created_at": datetime.now(timezone.utc),
+    }
+    record["_id"] = _collection().insert_one(record).inserted_id
+    return record
 
 def public_view(user: Dict) -> Dict:
     """

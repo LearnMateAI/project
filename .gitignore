@@ -47,3 +47,7 @@ model-Thevindu/01_dataset_pipeline/data/raw_pdfs/*
 *.pt
 *.pth
 model-Thevindu/02_finetuning/**/checkpoints/
+
+# macOS Finder metadata. Committed by accident on the Keycloak branch, once per folder
+# anyone opened in Finder; there is nothing in them any checkout needs.
+.DS_Store

@@ -1,0 +1,14 @@
+{
+  "processed_at": "2026-08-13T07:14:41+00:00",
+  "mode": "live",
+  "model": "gpt-4o-mini",
+  "chunks_in": 20,
+  "pairs_out": 40,
+  "pairs_rejected": 0,
+  "rejection_rate": 0.0,
+  "rejections": [],
+  "validation_enabled": true,
+  "errors": [],
+  "limit": 20,
+  "pairs_per_chunk": 2
+}

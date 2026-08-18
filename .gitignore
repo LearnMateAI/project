@@ -23,6 +23,10 @@ scores.jsonl
 *.log
 
 # model-Thevindu local artifacts / secrets / corpus
+# Default: ignore. On thevindu-dev only, an evaluation snapshot was force-added:
+#   data/raw_pdfs/*.pdf|html, processed_v01/, excluded_from_corpus/,
+#   adapters/qwen25-lora-20260815-090709/adapter/adapter_model.safetensors
+# Do not copy that snapshot onto main without a team decision.
 model-Thevindu/01_dataset_pipeline/data/intermediate/
 model-Thevindu/01_dataset_pipeline/data/output/
 model-Thevindu/01_dataset_pipeline/processed*/

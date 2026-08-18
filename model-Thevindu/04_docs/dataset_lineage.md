@@ -25,8 +25,8 @@ official free legal PDF / HTML
 |-----------------|-------|--------|
 | `lm-legal-smoke-v1` | Synthetic sample PDFs | Smoke only (see EXP-001) |
 | `lm-legal-smoke-v2` | Synthetic sample PDFs; first live `gpt-4o-mini` pair generation (33 chunks → 66 pairs → 46/10/10) | Smoke only — pipeline proof, not a training candidate |
-| `lm-legal-v0.1` | **First build from the real corpus.** 21 documents → 19 parsed → 1,280 chunks → 2,534 pairs → 1,590/339/325 + 280 strict | Built, untrained |
-| Local outputs | Under gitignored `processed*/` | Not in git |
+| `lm-legal-v0.1` | **First build from the real corpus.** 21 documents → 19 parsed → 1,280 chunks → 2,534 pairs → 1,590/339/325 + 280 strict | Built, trained, **eval FAIL** — do not promote |
+| Local outputs | `processed_v01/` is **tracked on `thevindu-dev`** for evaluation. Smoke `processed/` and `processed_real/` stay gitignored. | See `FULL_WORKFLOW_AND_BRANCH_INVENTORY.md` |
 
 ### `lm-legal-v0.1` build record
 

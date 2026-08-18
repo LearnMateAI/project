@@ -15,15 +15,17 @@ This track is **separate from the live application**. The app should only ever r
 
 ## Honesty board — executed vs template
 
+Full walkthrough for evaluators: [`04_docs/FULL_WORKFLOW_AND_BRANCH_INVENTORY.md`](04_docs/FULL_WORKFLOW_AND_BRANCH_INVENTORY.md).
+
 | Part | Artifact | Executed / tested in this repo? | Notes |
 |------|----------|----------------------------------|-------|
-| **1** Dataset pipeline | `01_dataset_pipeline/` | **YES — smoke test PASS** | Ran end-to-end on 6 synthetic PDFs with Stage 2 `--mock`. See `01_dataset_pipeline/experiments/EXP-001_smoke_test.md`. Real 25-doc corpus **not** downloaded yet. Live LLM pair generation **not** run. |
-| **2** Fine-tuning | `02_finetuning/` | **NO — template ready** | Colab LoRA/PEFT notebook + mandatory run-record cell are complete. No GPU training run has been executed here. |
-| **3** Testing & versioning | `03_testing_and_versioning/` | **PARTIAL** | Thresholds, checklist, notebook, and registry schema are ready. One **dry-run** failing registry row was written to prove CSV plumbing. No real adapter eval / Gemini comparison yet. |
-| **4** Docs | `04_docs/` | **YES — templates filled with current truth** | Model card / lineage / training log correctly state that no production model exists yet. |
-| **5** MLOps | `05_mlops_workflow/` | **YES — process doc** | Lifecycle written; not automated into FastAPI. |
+| **1** Dataset pipeline | `01_dataset_pipeline/` | **YES — smoke + real v0.1** | Smoke: EXP-001. Real: 21 files → 19 parsed → 1,280 chunks → 2,534 pairs (`lm-legal-v0.1`). On `thevindu-dev`, `data/raw_pdfs/` and `processed_v01/` are tracked for evaluation. |
+| **2** Fine-tuning | `02_finetuning/` | **YES — one real Colab run** | `qwen25-lora-20260815-090709` on v0.1 (1,590/339, 3 epochs, T4). Smoke runs exist; do not promote any of them. |
+| **3** Testing & versioning | `03_testing_and_versioning/` | **YES — live eval, both splits** | Registry: **FAIL**. LLM-as-judge accuracy 0.557 / 0.621. Groundedness 0.877 / 0.921 after `validate_pairs`. Do not promote. |
+| **4** Docs | `04_docs/` | **YES** | Lineage GI-001/002, training log, mentor disclosure, this honesty board. |
+| **5** MLOps | `05_mlops_workflow/` | **YES — process doc** | Not wired into FastAPI. App must keep GGUF / API fallback. |
 
-If something is only a correct template, do **not** treat it as a completed training or promotion.
+If something is only a correct template, do **not** treat it as a completed training or promotion. The real candidate **failed the gate**.
 
 ---
 

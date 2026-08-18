@@ -1,0 +1,12 @@
+subject_area,train_pairs,val_pairs,test_pairs,test_strict_pairs,missing_in
+administrative_public,84,18,18,0,
+civil_procedure,184,40,38,52,
+company_commercial,118,26,26,0,
+constitutional_law,202,44,42,76,
+contract_law,76,17,16,48,
+criminal_law,225,48,49,0,
+criminal_procedure,435,94,92,104,
+evidence,70,16,14,0,
+family_law,62,8,2,0,
+intellectual_property,112,24,24,0,
+property_land,22,4,4,0,

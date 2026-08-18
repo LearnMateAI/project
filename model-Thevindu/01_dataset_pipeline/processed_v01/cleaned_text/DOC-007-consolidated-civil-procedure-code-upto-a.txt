@@ -1,0 +1,3772 @@
+CHAPTER 105
+CIVIL PROCEDURE CODE
+AN ORDINANCE TO CONSOLIDATE AND AMEND THE LAW
+RELATING TO THE PROCEDURE OF THE CIVIL COURTS.
+Ordinance Nos,
+2 of 1889
+12 of 1895
+23 of 1901
+12 of 1904
+14 of 1907
+31 of 1909
+9 of 1917
+39 of 1921
+42 of 1921
+21 of 1927
+23 of 1927
+25 of 1927
+15 of 1930
+26 of 1930
+4 of 1940
+18 of 1944
+39 of 1945
+Law Nos,
+12 of 1973
+44 of 1973
+25 of 1975
+19 of 1977
+20 of 1977
+Act Nos,
+7 of 1949
+43 of 1949
+20 of 1954
+48 of 1954
+32 of 1957
+49 of 1958
+3 of 1960
+24 of 1961
+5 of 1964
+23 of 1969
+24 of 1969
+53 of 1980
+79 of 1988
+2 of 1990
+6 of 1990
+9 of 1991
+6 of 1993
+14 of 1993
+11 of 1995
+12 of 1996
+14 of 1997
+38 of 1998
+34 of 2000
+20 of 2002
+4 of 2005
+11 of 2010
+8 of 2017
+5 of 2022
+17 of 2022
+36 of 2022
+7 of 2023
+20 of 2023
+29 of 2023
+43 of 2024
+st
+[1 August , 1890 ]
+CHAPTER I
+PRELIMINARY
+Short title. 1. This Ordinance may be cited as the Civil Procedure Code.
+[section 2 and 3 - Omitted]
+Where no provision 4. In every case in which no provision is made by this Ordinance, the
+is made special
+directions to be procedure and practice hitherto in force shall be followed, and if any
+given by Court of matter of procedure or practice for which no provision is made by this
+Appeal.
+Ordinance or by any law for the time being in force shall after this
+Ordinance comes into operation arise before any court, such court
+shall thereupon make application to the Court of Appeal for, and the
+Court of Appeal shall and is hereby required to give, such special
+orders and directions thereupon as the justice of the case shall require
+:
+Provided always that nothing in this Ordinance contained shall be held
+in any way to affect or modify any special rules of procedure which,
+under or by virtue of the provisions of any enactment, may have from
+time to time been laid down or prescribed to be followed by any civil
+court in Sri Lanka in the conduct of any action, matter, or thing of
+which any such court can lawfully take cognizance, except in so far as
+any such provisions are by this Ordinance expressly repealed or
+modified.
+Interpretation. 5. The following words and expressions in this Ordinance shall have
+[2, 8 of 2017]
+the meanings hereby assigned to them, unless there is something in
+[7, 27 of 2023]
+the subject or context repugnant thereto;
+[2, 43 of 2024]
+"action" is a proceeding for the prevention or redress of a wrong;
+[2,20 of 1977] "Attorney-General" includes the Solicitor-General, the Additional
+Solicitor-General and any State Counsel specially authorized by the
+Attorney-General to represent the Attorney-General;
+"cause of action" is the wrong for the prevention or redress of which
+an action may be brought, and includes the denial of a right, the
+refusal to fulfill an obligation, the neglect to perform a duty and the
+infliction of an affirmative injury;
+"civil court" means a court in which civil actions may be brought;
+"counsel" means an attorney-at-law instructed by a registered
+attorney;
+"court" means a Judge empowered by law to act judicially alone, or a
+body of Judges empowered by law to act judicially as a body, when
+such Judge or body of Judges is acting judicially;
+[2, 8 of 2017] "court expert" shall mean a person specially skilled or knowledgeable
+in any subject, field or disciplines;
+"decree" means the formal expression of an adjudication upon any
+right claimed or defence set up in a civil court, when such adjudication,
+so far as regards the court expressing it, decides the action or appeal;
+(An order rejecting a plaint is a decree within this definition.)
+[2, 43 of 2024] "electronic" shall have the same meaning assigned to it by the
+Electronic Transactions Act, No.19 of 2006;".
+[2, 29 of 2023] "document" includes a document in electronic form;
+"document in electronic form" includes -
+(a) any information consisting of any contemporaneous
+recording or reproduction thereof or any information
+contained in a statement produced by a computer within
+the meaning of the Evidence (Special Provisions) Act, No.
+14 of 1995;
+(b) any information contained in a data message, electronic
+document, electronic record, electronic communication or
+other information or transaction in electronic form within the
+meaning of the Electronic Transactions Act, No. 19 of
+2006;
+(c) such other document or information or record or
+communication or transaction in electronic form that may
+be specified by any other written law;
+(d) such other document or information or record or
+communication that is stored on devices, servers and
+back-up systems in any medium that encompasses
+computer technology or any such document or information
+or record or communication that has been deleted; or
+(e) any metadata and other embedded data which is not
+typically visible on a computer screen or print out;
+[2,79 of 1988] "Fiscal" includes a Deputy Fiscal
+"foreign court" means a court situate beyond the limits of, and not
+having authority in, Sri Lanka;
+"foreign judgment" means the judgment of a foreign court;
+[2,20 of 1977] "Judge" means the presiding officer of a court and includes Judges of
+the Supreme Court and of the Court of Appeal, District Judges, Judges
+of Family Courts and Judges of Primary Courts;
+"judgment" means the statement given by the Judge of the grounds of
+a decree or order;
+"judgment-creditor" and " decree-holder " mean any person in whose
+favor a decree or order capable of execution has been made, and
+include any transferee of such decree or order;
+"judgment-debtor" means any person against whom a decree or order
+capable of execution has been made;
+[2,20 of 1977] "legal document" includes all processes, pleadings, petitions,
+affidavits, notices, motions and other documents, proceedings, and
+written communications;
+[2, 8 of 2017] "local authority" means any Municipal Council, Urban Council or
+Pradeshiya Sabha and includes any Authority created and established
+by or under any law to exercise, perform and discharge powers, duties
+and functions corresponding to or similar to the powers, duties and
+functions exercised, performed and discharged by any such Council or
+Sabha;
+"order" means the formal expression of any decision of a civil court
+which is not a decree;
+"original court " includes District Courts, Family Courts and Primary
+Courts;
+[2, 8 of 2017] "Provincial Council" shall mean a Provincial Council established under
+Article 154A of the Constitution of the Democratic Socialist Republic of
+Sri Lanka 1978;
+"Public Corporation" means any corporation, board or other body
+which was or is established by or under any written law other than the
+Companies Act, No. 7 of 2007, with funds or capital wholly or partly
+provided by the Government by way of grant, loan or otherwise;
+"Public Office" shall have the same meaning as defined in the National
+Archives Law No. 48 of 1973;
+[2,20 of 1977] "Public Trustee" means the Public Trustee of Sri Lanka appointed
+under the Public Trustee Ordinance and includes a Deputy Public
+Trustee or any other state officer generally or specially authorized by
+the Public Trustee to act on his behalf;
+"recognized agent" includes the persons designated under that name
+in section 25 and no others;
+[2,20 of 1977] " registered attorney " means an attorney-at-law appointed under
+Chapter V by a party or his recognized agent to act on his behalf;
+[2,20 of 1977] "Registrar" in relation to a court - includes an Additional, Deputy or
+Assistant Registrar;
+"signed" includes "marked" when the person making the mark is
+unable to write;
+[2,20 of 1977] "the Island" and "this Island" means respectively the Island of Sri
+lanka;
+"written" and "writing" include "printed" and "print" and "lithographed"
+and "lithograph" respectively.
+PART I
+OF ACTIONS IN GENERAL
+CHAPTER II
+GENERAL PROVISIONS
+Action. 6. Every application to a court for relief or remedy obtainable through
+the exercise of the court's power or authority, or otherwise to invite its
+interference, constitutes an action.
+Procedure of an 7. The procedure of an action may be either " regular " or " summary ".
+action.
+Illustrations
+In actions of which the procedure is regular, the
+person against whom the application is made is
+called upon to formally state his answer to the
+case which is alleged against him in the
+application before any question of fact is
+entertained by the court, or its discretion thereon is
+in any degree exercised.
+In actions of which the procedure is summary, the
+applicant simultaneously with preferring his
+application supports with proper evidence the
+statement of fact made therein; and if the court in
+its discretion considers that a prima facie case is
+thus made out
+(a) either the order sought is immediately passed
+against the defendant before he has been afforded
+an opportunity of opposing it, but subject to the
+expressed qualification that it will only lake effect
+in the event of his not showing any good cause
+against it on a day appointed therein for the
+purpose;
+(b) or a day is appointed by the court for
+entertaining the matter of the application on the
+evidence furnished, and notice is given to the
+defendant that he will be heard in opposition to it
+on that day if he thinks proper to come before the
+court for that purpose.
+Procedure of action 8. Save and except actions in which it is by this Ordinance or any
+to be ordinarily
+regular. other law specially provided that proceedings may be taken by way of
+[2, 53 of 1980] summary procedure, every action shall commence and proceed by a
+course of regular procedure, as hereinafter prescribed.
+CHAPTER III
+OF THE COURT OF INSTITUTION OF ACTION
+Institution of 9. Subject to the pecuniary or other limitations prescribed by any law,
+actions: in what
+court. action shall be instituted in the court within the local limits of whose
+[3, 43 of 2024] jurisdiction -
+[3, 43 of 2024] (a) a party plaintiff or a party defendant resides; or
+(b) the land in respect of which the action is brought lies or
+is situate in whole or in part; or
+(c) the cause of action arises; or
+(d) the contract sought to be enforced was made.
+When one of two or When it is alleged to be uncertain within the local limits of the
+more courts may
+jurisdiction of which of two or more courts any immovable property is
+entertain an action.
+situate, any one of those courts may, if satisfied that there is ground
+for the alleged uncertainty, record a statement to that effect, and
+thereupon proceed to entertain and dispose of any action relating to
+that property; and its decree in the action shall have the same effect
+as if the property were situate within the local limits of its jurisdiction:
+Provided that the action is one with respect to which the court is
+competent as regards the nature and value of the action to exercise
+jurisdiction.
+Of application for 10. Any of the parties to an action which is pending in any original
+withdrawal and
+transfer of action. court may, before trial, and after notice in writing to the other parties of
+[3,20 1977] his intention so to do, apply to the Court of Appeal by motion, which
+shall be supported by affidavit setting out the grounds on which it is
+based, for the withdrawal of such action from the court in which it is
+pending and for the transfer of it for trial to any other court competent
+to try the same in respect of its nature and the amount or value of its
+subject-matter. And the Court of Appeal may, on any such application
+after hearing such of the parties as desire to be heard, and on being
+satisfied that such withdrawal and transfer are desirable for any of the
+following reasons;
+(a) that a fair and impartial trial cannot be had in any
+particular court or place; or
+(b) that some question of law of unusual difficulty is likely to
+arise; or
+(c) that it is expedient on any other ground,
+Withdraw any such action pending in any such court, and transfer it for
+trial to any other such court as aforesaid, upon any terms that the
+Court of Appeal shall think fit. When the action might have been
+instituted in any one of several courts, the balance of convenience
+only shall be deemed sufficient cause for such withdrawal and transfer
+to one of the alternative courts.
+Stamp duty. In no case in which any action is so transferred as aforesaid from one
+court to another shall any stamp fee be leviable in the court to which
+the action is transferred on any pleading or exhibit on which the proper
+stamp fee has been paid in the court from which the action is so
+transferred.
+CHAPTER IV
+OF PARTIES AND THEIR APPEARANCES,
+APPLICATIONS, AND ACTS
+Plaintiffs. 11. All persons may be joined as plaintiffs in whom the right to any
+relief claimed is alleged to exist, whether jointly, severally, or in the
+alternative, in respect of the same cause of action. And judgment may
+be given for such one or more of the plaintiffs as may be found to be
+entitled to relief for such relief as he or they may be entitled to, without
+any amendment of the plaint for that purpose. But the defendant
+though unsuccessful, shall be entitled to his costs occasioned by so
+joining any person who is not found entitled to relief, unless the court
+in disposing of the costs of the action otherwise directs.
+Where joint tenants 12. Where two or more persons are entitled to the possession of
+or tenants in
+common. immovable property as joint tenants or tenants in common, one or
+more of them may maintain an action in respect of his or their
+undivided shares in the property in any case where such an action
+might be maintained by all.
+Substituted and 13. Where an action has been instituted in the name of the wrong
+added plaintiffs.
+person as plaintiff, or where it is doubtful whether it has been instituted
+in the name of the right plaintiff, the court may at any stage of the
+action, if satisfied that the action has been so commenced through a
+bona fide mistake, and that it is necessary for the determination of the
+real matter in dispute so to do, order any other person or persons, with
+his or their consent, to be substituted or added as plaintiff or plaintiffs,
+upon such terms as the court thinks just.
+Defendants. 14. All persons may be joined as defendants against whom the right to
+any relief is alleged to exist, whether jointly, severally, or in the
+alternative, in respect of the same cause of action. And judgment may
+be given against such one or more of the defendants as may be found
+to be liable, according to their respective liabilities, without any
+amendment.
+Substitution where 14A.
+person against
+whom a right to any (1) Where a person against whom the right to any relief is
+relief is alleged to alleged to exist is dead and the right to sue for such relief
+exist dies and the
+right to sue for relief survives, the person in whom such right is alleged to exist,
+survives. may make an application by way of summary procedure
+[2,6 of 1990]
+supported by affidavit to the court in which an action for the
+same may be instituted, in the following manner:-
+(a) Where such person has died intestate leaving
+an estate, specifying the name, description, and
+place of abode of any person whom he alleges to
+be the legal representative, as defined in section
+394 (2), of the deceased and whom he desires to
+be made the defendant in the proposed action in
+place of the deceased. Such application shall
+also specify the name, description, and place of
+abode of the person or persons whom the
+applicant alleges to be the other heir or heirs of
+the deceased; or
+(b) Where probate of the will or letters of
+administration to the estate of the deceased has
+not been issued or its issue is likely to be unduly
+delayed, specifying, the name, description, and
+place of abode of any person whom he alleges to
+be the person to whom probate of the will or
+letters of administration to the estate of the
+deceased would ordinarily be issued and whom
+he desires to be made the defendant in the
+proposed action in place of the deceased. Such
+application shall also specify the name,
+description, and place of abode of the person or
+persons whom the applicant alleged to be the
+heir or heirs of the deceased.
+(2) Upon receipt of an application under paragraph (a) of
+subsection (1), and the court where it is satisfied that there
+are grounds therefor, and, after the issue of notice on the
+representative named in such application and such other
+persons, if any, and after causing notice of such
+application, (in the form No.2A in the First Schedule) to be
+advertised in a local newspaper to be selected by the
+court, or by such other mode of advertisement in lieu of
+such publication as to the court seems sufficient, and after
+such inquiry as the court may consider necessary and
+upon such terms as it thinks fit, the court may order that
+such representative or such other person as the court may
+consider fit be appointed in place of the deceased, for the
+institution of such action:
+Provided, that the person to be so appointed in place of the
+deceased may object that he is not the legal representative
+of the deceased or that he should not be appointed in
+place of the deceased.
+(3) Upon receipt of an application under paragraph (b) of
+subsection (1), the court may, where it is satisfied that
+probate of the will or letters of administration to the estate
+of the deceased has not been issued or is likely to be
+unduly delayed, and, after the issue of notice on the person
+alleged in such application to be the person to whom
+probate of the will or letters of administration to the estate
+of the deceased would ordinarily be issued and such other
+persons, if any, causing notice of such application, (in the
+form No. 2A in the First Schedule) to be advertised in a
+local newspaper to be selected by the court or by some
+other mode of advertisement in lieu of such publication as
+to the court seems sufficient, and after such inquiry as the
+court may consider necessary and upon such terms as it
+thinks fit, order that the person, who appears to the court to
+be the person to whom probate of the will or letters of
+administration to the estate of the deceased would
+ordinarily be issued, be appointed in place of the
+deceased, for the institution of such action:
+Provided, that the person to be so appointed may object
+that he is not the person to whom probate of the will or
+letters of administration to the estate of the deceased
+would ordinarily be issued or that he should not be
+appointed in place of the deceased.
+(4) Notwithstanding the provisions of subsection (2) or
+subsection (3), the court may make an order under any
+one of those subsections, only where-
+(a) it is satisfied that the delay in the institution of
+the action would render such action not
+maintainable by reason of the provisions of the
+Prescription Ordinance; or
+(b) a period of six months had lapsed after the
+death of the deceased.
+(5) Where after an order appointing a representative in
+place of the deceased has been made under subsection
+(2) or subsection (3) and an action instituted against such
+person in place of such deceased, an executor of the will,
+or an administrator of the estate, as the case may be, of
+such deceased, is appointed in proceedings instituted
+under Chapter XXXVIII of this Code, such executor or
+administrator shall, on the application by way of summary
+procedure, supported by affidavit, made by the plaintiff or
+any other party to such action or by such executor or
+administrator, be substituted in place of the person
+appointed under subsection (2) or subsection (3), and the
+action shall thereupon proceed in the same manner as if
+such executor or administrator had originally been made a
+defendant, and had been a party to the previous
+proceedings in the action.
+Who may be joined 15. The plaintiff may, at his option, join as parties to the same action
+as parties
+defendant. all or any of the persons severally, or jointly and severally, liable on
+any one contract, including parties to bills of exchange and promissory
+notes.
+Where numerous 16. Where there are numerous parties having a common interest in
+parties, one may
+sue or defend for bringing or defending an action, one or more of such parties may, with
+all. Notice. the permission of the court, sue or be sued, or may defend in such an
+action on behalf of all parties so interested. But the court shall in such
+case give, at the expense of the party applying so to sue or defend,
+notice of the institution of the action to all such parties, either by
+personal service or (if from the number of parties or any other cause
+such service is not reasonably practicable, then) by public
+advertisement, as the court in each case may direct.
+Misjoinder not to 17. No action shall be defeated by reason of the misjoinder or non-
+defeat action.
+joinder of parties, and the court may in every action deal with the
+matter in controversy so far as regards the rights and interests of the
+parties actually before it.
+Nothing in this Ordinance shall be deemed to enable plaintiffs to join in
+respect of distinct causes of action.
+If the consent of anyone who ought to be joined as a plaintiff cannot
+be obtained, he may be made a defendant, the reasons therefor being
+stated in the plaint.
+Parties improperly 18.
+joined may be
+struck out. Addition of (1) The court may on or before the day first fixed for the
+parties.
+[3, 29 of 2023] pre-trial conference, upon the application of either party,
+[3, 29 of 2023]
+and on such terms as the court thinks just, order that the
+name of any party, whether as plaintiff or as defendant
+improperly joined, be struck out; and the court may at any
+time, either upon or without such application, and on such
+terms as the court thinks just, order that any plaintiff be
+made a defendant, or that any defendant be made a
+plaintiff, and that the name of any person who ought to
+have been joined, whether as plaintiff or defendant, or
+whose presence before the court may be necessary in
+order to enable the court effectually and completely to
+adjudicate upon and settle all the questions involved in that
+action, be added.
+(2) Every order for such amendment or for alteration of
+parties shall state the facts and reasons which together
+form the ground on which the order is made. And in the
+case of a party being added, the added party or parties
+shall be named, with the designation " added party ", in all
+pleadings or processes or papers entitled in the action and
+made after the date of the order.
+Intervention not 19. No person shall be allowed to intervene in a pending action
+otherwise allowed.
+otherwise than in pursuance of, and in conformity with, the provisions
+of the last preceding section. And no person shall be added as
+plaintiff, or as the next friend of a plaintiff, without his own consent
+thereto;
+Except in under Provided however that any person on cases whose behalf an action is
+section 16.
+instituted or under section defended may apply to the 16. court to be
+made a party, and all parties whose names are so added as
+defendants shall be served with a summons in manner hereinafter
+mentioned, and the proceedings as against them shall be deemed to
+have begun only on the service of such summons.
+Conduct of the 20. The court may give the conduct of the action to such plaintiff as it
+action.
+deems action proper.
+Amendment of 21. Where a defendant is added, the plaint shall, unless the court
+plaint.
+direct otherwise, be amended in such manner as may be necessary,
+and a copy of the amended plaint shall be served on the new
+defendant and on the original defendants.
+Objections for non- 22. All objections for want of parties, or for joinder of parties who have
+joinder or mis
+joinder to be taken no interest in the action, or for misjoinder as co- plaintiffs or co-
+before theday first defendants, shall be taken at the earliest possible opportunity, and in
+fixedfor pre-trial
+conference. all cases before the day first fixed for pre-trial conference. And any
+[4, 29 of 2023] such objection not so taken shall be deemed to have been waived by
+the defendant.
+Plaintiffs (or 23. When there are more plaintiffs than one, any one or more of them
+defendants) may
+authorize one of may be authorized by any other of them to appear, plead, or act for
+them to act for such other in any proceeding under this Ordinance; and in like
+them.
+manner, when there are more defendants than one, any one or more
+of them may be authorized by any other of them to appear, plead, or
+act for such other in any such proceeding. The authority shall be in
+writing signed by the party giving it, and shall be filed in court.
+CHAPTER V
+OF RECOGNIZED AGENTS AND ATTORNEYS-
+AT-LAW
+Appearances may 24. Any appearance, application, or act in or to any court, required or
+be by party in
+person, his authorized by law to be made or done by a party to an action or
+recognized agent, appeal in such court, except only such appearances, applications, or
+or attorney-at-law.
+acts as by any law for the time being in force only attorneys-at-law are
+authorized to make or do, and except when by any such law otherwise
+expressly provided, may be made or done by the party in person, or
+by his recognized agent, or by an attorney-at-law duly appointed by
+the party or such agent to act on behalf of such party :
+Provided that any such appearance shall be made by the party in
+person, if the court so directs. An attorney-at-law instructed by a
+registered attorney for this purpose, represents the registered attorney
+in court.
+Recognized agents.25. The recognized agents of parties by whom such appearances and
+applications may be made or acts may be done are
+(a) the Attorney-General, on behalf of the State in respect
+of any court; who is also authorized to depute his power of
+appointing a registered attorney on behalf of the State in
+respect to any court to any person by a written document
+to be signed by the Attorney-General, and to be filed in that
+court;
+(b) persons holding general powers of attorney from parties
+not resident within the local limits of the jurisdiction of the
+court within which limits the appearance or application is
+made or act done, authorizing them to make such
+appearances and applications, and do such acts on behalf
+of such parties; which power, or a copy thereof certified by
+an attorney-at-law or notary, shall in each case be filed in
+the court;
+[4,20 of 1977] (c) persons carrying on trade or business for and in the
+names of parties not resident within the local limits of the
+jurisdiction of the court within which limits the appearance
+or application is made or act done, in matters connected
+with such trade or business only, where no other agent is
+expressly authorized to make such appearances and
+applications and do such acts.
+Processes served 26.
+on the recognized
+agent, effectual. (1) Processes served on the recognized agent of a party to
+an action or appeal shall be as effectual as if the same had
+been served on the party in person, unless the court
+otherwise directs.
+(2) The provisions of this Ordinance for the service of
+process on a party to an action shall apply to the service of
+process on his recognized agent.
+Appointment of 27.
+registered Attorney.
+(1) The appointment of a registered attorney to make any
+[3, 8 of 2017]
+[4, 43 of 2024] appearance or application, or to do any act as aforesaid,
+shall:-
+(a) be substantially in such form specified in Form
+No. 7 of the First Schedule to this Code and shall
+be filed in court;
+[4, 43 of (b) contain an address at which service of any
+2024]
+process under the provisions of this Chapter may
+be served on such registered attorney, instead of
+the party whom he represents;
+[4, 43 of (c) include an electronic mail address and a
+2024]
+mobile phone number to which service of any
+process, notice or any other legal documents
+may also be served on a registered attorney;
+[4, 43 of (d) contain a memorandum substantially in the
+2024]
+Form No. 16A of the First Schedule in duplicate
+setting out the address, mobile phone number
+and the electronic mail address, if any, of such
+party which shall be considered as the registered
+address, the registered mobile phone number
+and the registered electronic mail address,
+respectively of such party. The registered
+attorney shall with such memorandum tender to
+the Registrar stamps to the value required to
+cover cost of service of such notices or other
+legal document by registered post and the
+registered attorney shall bear the cost of courier
+service or service through electronic means;
+(2)
+(a) Where a party who appoints a registered
+Attorney is a natural person, a memorandum
+nominating a legal representative for the purpose
+of the legal proceedings in the event of the death
+of such party before the final determination of the
+proceedings, shall also submitted.
+(b) The memorandum referred to above shall,
+substantially be in the form specified in Form
+No.7A of the First Schedule hereto.
+(c) The provisions of section 393 shall apply in
+regard to the nomination of such legal
+representatives and filing of such memorandum.
+[4, 43 of 2024] (2A)
+(a) Where a party is represented by a registered
+attorney, such attorney shall in the appointment,
+state the national identity card number, passport
+number or any other mode of identification, as the
+case may be, of the party and shall also make an
+endorsement thereon certifying the identity of
+such party. Where the party is a company or a
+body corporate the appointment shall be made
+under the seal of such company or a body
+corporate as the case may be.
+(b) In the event a person who resides outside Sri
+Lanka is unable to meet his registered attorney to
+sign the appointment under subsection (1), such
+appointment shall be signed in the presence of
+any of the following authorized persons who shall
+certify the identity of such person: -
+(i) an Attorney-at-Law, a solicitor, a lawyer
+or a Notary of the country where such
+party resides; or
+(ii) the High Commissioner, the
+Ambassador, a diplomatic officer or a
+consular officer of the Sri Lankan High
+Commission, Embassy or Consular Office
+in the country in which such party
+resides.
+(c) In the case of any delay or any difficulty to
+produce the original of the appointment within the
+specified time, a copy of the original in electronic
+form may be produced in court subject to
+production of the original of such appointment
+within a reasonable time as the court may
+direct.".
+(3) When an appointment under subsection (1) is filed, an
+appointment of a registered attorney shall be in force until -
+(a) revoked by the client in writing with the leave
+of the court and after notice to the registered
+attorney in writing signed by the client and filed in
+court;
+(b) revoked by the registered attorney-
+(i) in writing signed by the client and filed
+in Court;
+(ii) with leave of the court having given
+thirty days’ notice to the client;
+(c) the client dies;
+(d) the death or incapacity of registered attorney;
+or
+(e) all proceedings in the action are ended and
+judgment satisfied so far as regards the client.
+(4) No Counsel shall be required to present any document
+empowering him to make any appearance or application or
+to do any act. The Attorney-General may appoint a
+registered attorney to act specially in any particular case or
+to act generally on behalf of the State.
+Death or incapacity 28. If any such registered attorney as in the last preceding section is
+Of registered
+attorney. mentioned shall die, or be removed or suspended, or otherwise
+become incapable to act as aforesaid, at any time before judgment, no
+further proceeding shall be taken in the action against the party for
+whom he appeared until thirty days after notice to appoint another
+registered attorney has been given to that party either personally or in
+such other manner as the court directs.
+Service on 29.
+registered attorney.
+[4, 8 of 2017] [4, 8 of 2017] (1) Any process served on the registered attorney of any
+party or left at the office or ordinary residence of such
+registered attorney, relative to an action or appeal, except
+where the same is for the personal appearance of the
+party, shall be presumed to be duly communicated and
+made known to the party whom the registered attorney
+represents; and, unless the court otherwise directs, shall
+be as effectual for all purposes in relation to the action or
+appeal as if the same had been given to, or served on, the
+party in person.
+(2) Service of any process, notice or any other document at
+the address given under paragraph (b) of subsection (1) of
+section 27 and sent to the electronic mail address given
+under paragraph (c) of subsection (1) of section 27 shall be
+deemed to be sufficient delivery to the party who has
+appointed the registered attorney, unless the court
+otherwise directs.
+(3) Service of process, notice or any other document at the
+address given in the memorandum submitted under
+section 27(2) shall be deemed to be sufficient delivery to
+the nominee or nominees appointed under section 393.
+Agent to accept 30. Besides the recognized agents described in section 25, any
+service.
+person residing within the jurisdiction of the court may be appointed an
+agent to accept service of process. Such appointment may be special
+or general, and shall be made by an instrument in writing signed by
+the principal, which shall contain an address at which such service
+may be made, and which, or, if the appointment be general, a duly
+attested copy thereof, shall be filed in court.
+No appointment under this section shall be of any force or effect for
+the purpose of enabling or authorizing process to be served on an
+agent so appointed in any action to recover money due upon the
+mortgage of immovable property.
+Agent to accept 30A.
+service in action
+upon mortgage of (1) The mortgagor of any immovable property may make
+immovable property. application for the registration of the address of any
+[2,12 of 1973]
+registered attorney or any person for the service of process
+in any action upon the mortgage. The application shall be
+made substantially in the form No. 11A in the First
+Schedule.
+(2) The address for service shall be registered in or in
+continuation of the folio in which is registered the mortgage
+of the immovable property.
+(3) Where the applicant declares in his application that a
+previously registered address is cancelled, the Registrar
+shall make a new entry in the register and cancel the
+registration of the previous address.
+(4) The fee for registration of the address for service or for
+a change of such address shall be fifty cents, with an
+addition of ten cents for each folio after the first in which
+the address is to be registered.
+[Sections 31 and 32 repealed by Law No. 20 of 1977]
+CHAPTER VI
+OF THE SCOPE AND SUBJECT OF ACTION
+Regular action how 33. Every regular action shall, as far as Regular action, practicable, be
+to be framed.
+so framed as to afford how to be ground for a final decision upon the
+subjects framed, in dispute, and so to prevent further litigation
+concerning them,
+Every action shall 34.
+include whole claim.
+(1) Every action shall include the Every action whole of the
+claim which the plaintiff is shall include entitled to make in
+respect of the cause of w _e c aim-action; but a plaintiff
+may relinquish any portion of his claim in order to bring the
+action within the jurisdiction of any court.
+(2) If a plaintiff omits to sue in respect of, or intentionally
+relinquishes any portion of, his claim, he shall not
+afterwards sue in respect of the portion so omitted or
+relinquished. A person entitled to more than one remedy in
+respect of the same cause of action may sue for all or any
+of his remedies; but if he omits (except with the leave of
+the court obtained before the hearing) to sue for any of
+such remedies, he shall not afterwards sue for the remedy
+so omitted.
+(3) For the purpose of this section, an obligation and a
+collateral security for its performance shall be deemed to
+constitute but one cause of action.
+Illustration
+A lets a house to B at a yearly rent of Rs. 1000.
+The rent for the whole of the two years 1886 and
+1887 is due and unpaid. A sues B only for the rent
+due for one of those years. A shall not afterwards
+sue B for the rent due for the other year.
+Joinder of claims in 35.
+actions for
+immovable property. (1) In an action for the recovery of immovable property, or
+to obtain a declaration of title to immovable property, no
+other claim, or any cause of action, shall be made unless
+with the leave of the court, except
+(a) claims in respect of mesne profits or arrears
+of rent in respect of the property claimed;
+(b) damages for breach of any contract under
+which the property or any part thereof is held; or
+consequential on the trespass which constitutes
+the cause of action; and
+(c) claims by a mortgagee to enforce any of his
+remedies under the mortgage. Example. A sues B
+to recover land upon the allegation that the land
+belongs to C, and that he. A, has bought it of C. A
+makes C a party defendant; but he cannot,
+without leave of the court, join with this claim an
+alternative claim for damages against C for non-
+performance of his contract of sale.
+In actions (2) No claim by or against an executor, administrator, or
+against
+heir, as such, shall in any action be joined with claims by or
+executors, & c.
+against him personally unless the last-mentioned claims
+are alleged to arise with reference to the estate in respect
+of which the plaintiff or defendant sues or is sued as
+executor, administrator, or heir, or are such as he was
+entitled to or liable for jointly with the deceased person
+whom be represents.
+In other cases. 36.
+(1) Subject to the rules contained in the last section, the
+plaintiff may unite in the same action several causes of
+action against the same defendant or the same defendants
+jointly, and any plaintiffs having causes of action in which
+they are jointly interested against the same defendant or
+defendants may unite such causes of action in the same
+action.
+Exception: courtBut if it appears to the court that an such causes of action
+may order
+cannot be conveniently tried or disposed of together, the
+separation.
+court may, at any time before the hearing, of its own motion
+or on the application of any defendant, in both cases either
+in the presence of, or upon notice to, the plaintiff, or at any
+subsequent stage of the action if the parties agree, order
+separate trials of any such causes of action to be had, or
+make such other order as may be necessary or expedient
+for the separate disposal thereof.
+(2) When causes of action are united, the jurisdiction of the
+court as regards the action shall depend on the amount or
+value of the aggregate subject-matter at the date of
+instituting the action, whether or not an order has been
+made under the second paragraph of subsection (1).
+Application by 37. Any defendant alleging that the plaintiff has united in the same
+defendant in such
+cases. action several causes of action, which cannot be conveniently
+disposed of in one action, may at any time before the hearing apply to
+the court for an order confining the action to such of the causes of
+action as may be conveniently disposed of in one action.
+Order of court 38.
+thereon.
+(1) If, on the hearing of such application, it appears to the
+court that the causes of action are such as cannot all be
+conveniently disposed of in one action, the court may order
+any of such causes of action to be excluded, and may
+direct the plaint to be amended accordingly, and may make
+such order as to costs as may be just.
+(2) Every amendment made under this section shall be
+attested by the signature of the Judge.
+CHAPTER VII
+OF THE MODE OF INSTITUTION OF ACTION
+Regular action to 39. Every action of regular procedure shall be instituted by presenting
+commence by
+plaint. a duly stamped written plaint to the court, or to such officer as the
+[6,20 of 1977] court shall appoint in that behalf. The plaint shall be accompanied by
+[3,79 of 1988]
+such number of summonses in Form No, 16 in the First Schedule as
+there are defendants, and a precept in Form" No. 17 of the said
+Schedule.
+Requisites of Plaint 40. The plaint shall be distinctly written upon good and suitable paper,
+[7,20 of 1977]
+and shall plaint contain the following particulars.
+(a) the name of the court and date of filing the plaint;
+(b) the name, description, and place of residence of the
+plaintiff;
+(c) the name, description, and the place of residence of the
+defendant so far as the same can be ascertained;
+(d) a plain and concise statement of the circumstances
+constituting each cause of action, and where and when it
+arose. Such statement shall be set forth in duly numbered
+paragraphs; and where two or more causes of action are
+set out, the statement of the circumstances constituting
+each cause of action must be separate, and numbered;
+(e) a demand of the relief which the plaintiff claims; and
+(f) if the plaintiff has allowed a set-off or relinquished a
+portion of his claim, the amount so allowed or relinquished,
+If the plaintiff seeks the recovery of money, the plaint must state the
+precise amount, so far as the case admits. In an action for a specific
+chattel, or to establish, recover, or enforce any right, status, or
+privilege, or for mesne profits, or for the amount which will be found
+due to the plaintiff on taking unsettled accounts between him and the
+defendant, the plaint need only state approximately the value of the
+chattel, right, status, or privilege, or the amount sued for.
+Land sued for to be 41. When the claim made in the action is for some specific portion of
+described by metes
+and bounds or land, or for some snare or interest in a specific portion of land, then
+sketch. the portion of land must be described in the plaint so far as possible by
+reference to physical metes and bounds, or by reference to a sufficient
+sketch, map, or plan to be appended to the plaint, and not by name
+only.
+Plaintiff suing in a 42. When the plaintiff sues in a representative character, the plaint
+representative
+character must should show, not only that he has an actual existing interest in the
+show that the subject-matter, but that he has taken the steps necessary to enable
+character has
+accrued to him. him to institute an action concerning it.
+Illustrations
+(a) A sues as B's executor. The plaint must state
+that A has proved B's will.
+(b) A sues as C's administrator- The plaint must
+state that A has taken out administration to C's
+estate.
+Plaint must show 43. The plaint must show that the defendant is or claims to be
+defendant's interest
+and liability to be interested in the subject-matter, and that he is liable to be called upon
+sued. to answer the plaintiffs demand.
+Exemption from bar44. If the cause of action arose beyond the period ordinarily allowed
+from lapse of time to
+be shown. by any law for instituting the action, the plaint must show the ground
+upon which exemption from such law is claimed.
+Jurisdiction of court 45. Every plaint shall contain a statement of facts setting out the
+to be averred.
+jurisdiction of the court to try arid determine the claim in respect of
+which the action is brought.
+Subscription of 46.
+plaint
+(1) Every plaint presented by a registered attorney on
+behalf of a plaintiff shall be subscribed by such registered
+attorney. In every other case in which a plaint is presented,
+it shall be subscribed by the plaintiff; and his signature
+shall be verified by the signature of some officer authorized
+by the court in that behalf.
+Court may (2) Before the plaint (whether presented by the plaintiff or
+refuse to
+by a registered attorney in his behalf) is allowed to be filed,
+entertain plaint.
+the court may, if in its discretion it shall think fit, refuse to
+entertain the same for any of the following reasons,
+namely:
+(a) if it does not state correctly, and without
+prolixity, the several particulars hereinbefore
+required to be specified therein;
+(b) if it contains any particulars other than those
+so required;
+(c) if it is not subscribed, or subscribed and
+verified, as the case may be, as hereinbefore
+required;
+(d) if it does not disclose a cause of action;
+(e) if it is not framed in accordance with section
+33;
+(f) if it is wrongly framed by reason of non-joinder
+or misjoinder of parties, or because the plaintiff
+has joined causes of action which ought not to be
+joined in the same action;
+and may return the same for amendment then and there,
+or within such time as may be fixed by the court, upon such
+terms as to the payment of costs occasioned by the
+amendment as the court thinks fit;
+Provided that no amendment shall be allowed which would
+have the effect of converting an action of one character
+into an action of another and inconsistent character;
+And may reject.And provided further, that in each of the following cases,
+namely:-
+(g) Where the relief sought is undervalued, and
+the plaintiff, on being required by the court to
+correct the valuation within a time to be fixed by
+the court, fails to do so;
+(h) Where the relief sought is properly valued, but
+the plaint is written upon paper insufficiently
+stamped, and the plaintiff on being required by
+the court to supply the requisite stamps within a
+time to be fixed by the court fails to do so;
+(i) When the action appears from the statement in
+the plaint to be barred by any positive rule of law;
+[4,79 of 1988](j) When the plaint having been returned for
+amendment within a time fixed by the court is not
+amended within such time,
+[4,79 of 1988](k) When the plaint is not accompanied by such
+number of summonses as there are defendants,
+the plaint shall be rejected; but such rejection shall not of
+its own force preclude the plaintiff from presenting a fresh
+plaint in respect of the same cause of action.
+Where plaint 47. In every case where an action has been instituted in a court not
+presented to wrong
+court. having jurisdiction by reason of the amount or value involved, or by
+reason of the conditions made necessary to the institution of an action
+in any particular court by section 9 not being present, the plaint shall
+be returned to be presented to the proper court.
+Order on rejection 48. Every order returning or rejecting a plaint shall specify the date
+of plaint.
+when the plaint was presented and so returned or rejected, the name
+of the person by whom it was presented and whether such person was
+plaintiff or registered attorney, and the fault or defect constituting the
+ground of return or rejection; and every such order shall be in writing
+signed by the Judge, and filed of record.
+Memorandum of 49.
+documents to be
+endorsed on plaint. (1) The plaintiff shall endorse on the plaint, or annex
+[8,20 of 1977] thereto, a memorandum of the documents, if any, which he
+has produced along with it; and if the plaint is admitted,
+shall present as many copies on unstamped paper of the
+plaint as there are defendants, translated into the language
+of each defendant whose language is not the language of
+the court; unless the court, by reason of the length of the
+plaint or the number of the defendants or for any other
+sufficient reason, permits him to present a like number of
+concise statements of the nature of the claim made, or of
+the relief or remedy required in the action, in which case he
+shall present such statements.
+(2) If the plaintiff sues or the defendant or any of the
+defendants is sued in a representative capacity, such
+statement shall show in what capacity such plaintiff or
+defendant sues or is sued; and the plaintiff may by leave of
+the court amend such statements so as to make them
+correspond with the plaint.
+Such memorandum and copies or statements shall be
+examined by the Registrar of the court and signed by him if
+he finds them correct.
+Plaintiff to produce 50. If a plaintiff sues upon a document in his possession or power, he
+with plaint
+document sued on. shall produce it in court when the plaint is presented, and document
+sued shall at the same time deliver the document on or a copy thereof
+to be filed with the plaint.
+To annex list of 51. If he relies on any other documents (whether in his possession or
+other documents.
+power or not) as evidence in support of his claim, he shall enter such
+documents in a list to be added or annexed to the plaint.
+And to state where 52. In the case of any such document not being in his possession or
+document not in his
+possession is. power, he shall, if possible, state in whose possession or power it is.
+Action on lost 53. In the case of any action founded upon a bill of exchange,
+negotiable
+instrument. promissory note, cheque, or any negotiable instrument, if it be proved
+that the instrument is lost, and if an indemnity be given by the plaintiff,
+to the satisfaction of the court, against the claims of any other person
+upon such instrument, the court may make such decree as it would
+have made if the plaintiff had produced the instrument in court when
+the plaint was presented, and had at the same time delivered a copy
+of the instrument to be filed with the plaint.
+Document not 54. A document which ought to be produced in court by the plaintiff
+produced with plaint
+inadmissible when the plaint is presented, or to be entered in the list to be added or
+afterwards without annexed to the plaint, and which is not produced or entered
+leave.
+accordingly, shall not, without the leave of the court, be received in
+[9,20 of 1977]
+evidence on his behalf at the hearing of the action.
+CHAPTER VIII
+OF THE ISSUE AND SERVICE OF SUMMONS
+Summons. 55.
+[10,20 of 1977]
+(1) Upon the plaint being filed and the copies of concise
+[2,14 of 1997]
+statements required by section 49 presented, the court
+[5, 43 of 2024]
+shall order summons in the form No. 16 in the First
+Schedule to issue, signed by the Registrar of the court,
+requiring the defendant to answer the plaint on or before a
+day to be specified in the summons, such day, being a day
+not later than three months from the date of the institution
+of the action in court.
+[5, 43 of 2024] (2)
+(a) Every party to an action, not appearing by a
+registered attorney, shall on or before the date
+specified in the summons deliver to the Registrar
+a memorandum substantially in the Form No. 16A
+in the First Schedule in duplicate setting out the
+address, mobile phone number and the electronic
+mail address if any, which shall be considered as
+the registered address, the registered mobile
+phone number and the registered electronic mail
+address respectively of such party for the service
+of the notices or any other legal document
+required to be served on such party under the
+provisions of this Code unless otherwise
+provided. Every party shall inform the Registrar
+forthwith of any change in the address, the
+mobile phone number or the electronic mail
+address.
+(b) Every party shall with such memorandum
+tender to the Registrar stamps to the value
+required to cover cost of service of such notices
+or other legal document by registered post. He
+shall bear the cost of courier service or service
+through electronic means.
+(3) Where a party appears by a registered attorney, the
+address, the mobile phone number and the electronic mail
+address of the registered attorney contained in his
+appointment under section 27 shall be deemed to be the
+registered address, the registered mobile phone number
+and the registered electronic mail address of such
+Attorney-at-Law so long as the appointment is in force.
+(4) Any notice or other legal document required to be
+served on any party shall be deemed sufficient service if
+served by registered post or courier service or through
+electronic means-
+(i) on such party on the registered address, the
+registered mobile phone number or the registered
+electronic mail address of such party; or
+(ii) on such registered attorney, where a party
+appears by a registered attorney and such
+appointment is in force, on the registered
+address, the registered mobile phone number
+and the registered electronic mail address of
+such registered attorney.
+(5) The Registrar shall file one copy of the memorandum
+substantially in the Form No. 16A furnished to him as part
+of the record of the case and keep and maintain the other
+copy by way of a separate ledger.
+[Sections 56,57 and 58 is repealed by Law No. 20 of 1977]
+SERVICE
+Service of summons59.
+[6, 43 of 2024]
+(1)
+(a) Summons shall ordinarily be served by the
+process server, registered post or courier service.
+(b) Where the plaintiff wishes summons may also
+be served through electronic mail, all necessary
+documents shall be submitted by the plaintiff to
+the relevant court in electronic form.
+(2) In the case of a company or a body corporate summons
+may be delivered by the process server, registered post,
+courier service or electronic mail if any to the registered
+office or to the principal place of business of such company
+or body corporate.
+(3) Where the defendant is a public officer, the court may
+send summons by the process server, registered post or
+courier service to the head of the department in which the
+defendant is employed, and it shall be the duty of such
+head of department to cause the summons to be served
+personally on the defendant.
+(4) Where the court is prima facie satisfied that the
+defendant is in the employment of another person, the
+court may send the summons by the process server,
+registered post or courier service to the employer at his
+place of business or, where the employer is a company or
+a body corporate, to any secretary, manager or other like
+officer of the company or the body corporate, and it shall
+be the duty of such employer or officer, as the case may
+be, to cause the summons to be served personally on the
+defendant.
+(5) Where a defendant appears in court in person on
+summons being served on him in the manner referred to
+above, he shall produce the national identity card or
+passport or any other mode of identification as the court
+may deem fit.
+(6) In this section-
+" head of department "-
+(a) when used with reference to a
+member of any unit of the Sri Lanka
+Army, Navy or Air Force, means the
+Commanding Officer of that unit;
+(b) when used with reference to a person
+employed in a local authority, where the
+local authority is a Municipal Council,
+means the Municipal Commissioner of
+that Council and where the local authority
+is an Urban Council or a Pradeshiya
+Sabha, means the Chairman or the
+Secretary of that Council or Sabha;
+(c) when used with reference to any other
+public officer means the head of the
+department of Government in which such
+person is employed; and
+"national identity card" means the identity card
+issued to such person under the Registration of
+Persons Act, No. 32 of 1968.".
+Service by the 60.
+process server
+(1)
+[7, 43 of 2024]
+(a) Where the summons are served by the
+process server, the summons shall be
+accompanied by a precept in the Form No. 17 of
+the First Schedule.
+(b)
+(i) The process server may, upon the
+summons being served on the defendant,
+obtain the signature or the thumb
+impression of such defendant on the
+precept as acknowledgment of the
+service of summons.
+(ii) The process server shall return the
+precept to the court, together with a
+report setting out the manner in which the
+summons was served on the defendant
+containing particulars relating to the
+identity of the person, date, time and
+place the summons were served. The
+report shall also state whether defendant,
+placed or refused to place his signature
+or thumb impression, on the precept as
+acknowledgment of the service of
+summons.
+(iii) The refusal by any defendant to place
+the signature or thumb impression, as the
+case may be, on the precept shall not be
+considered as an invalidation of the
+service of summons.
+(2) If the service referred to in the preceding provisions of
+this section cannot by the exercise of due diligence be
+effected, the court may having obtained an affidavit from
+the plaintiff stating that to the best of his knowledge the
+defendant resides in the captioned address and not living
+outside Sri Lanka, order the process server to affix the
+summons at some conspicuous part of the house in which
+the defendant ordinarily resides or in the case of a
+company or a body corporate, at the registered office or at
+the usual place of business or office of such company or a
+body corporate and in every such case the summons shall
+be deemed to have been duly served on the defendant.
+(3) The Court may authorise the process server to serve
+the summons outside the local limits of the court as
+directed by the court.
+(4) Where it is reported by the process server that the
+summons could not be affected personally on the
+defendant on the last known address given by the plaintiff
+and the plaintiff informs Court by filling affidavit that the
+plaintiff is unaware of the place where the defendant
+resides, the court upon being satisfied on the contents of
+such affidavit, order that the summons be served by way of
+publication in newspapers in all three languages as the
+court may in each case direct.
+(5) For the purpose of this chapter-
+"process server" means a fiscal, a deputy fiscal,
+an officer authorized by the Judge or Registrar of
+the court to serve documents of the court within
+the local limits or outside the local limits of the
+court as directed by the court, or the Grama
+Niladhari within whose division the defendant
+resides.".
+Proof of service 61. When summons are served by-
+[8, 43 of 2024]
+(a) registered post or courier service, the registered post
+article receipt or proof of delivery of courier service;
+(b) electronic mail, the proof of sending of the electronic
+mail by the Registrar and filed as part of the case record;
+(c) publication in newspapers, copies of such publications;
+or
+(d) in any other manner, an affidavit of such service,
+shall be sufficient evidence of the service of the summons and of the
+date of such service, and shall be admissible in evidence and the
+statements contained therein shall be deemed to be correct unless
+and until the contrary is proved.
+Substituted service.62. Whenever service is substituted by order of the court, the court
+[12,20 of 1977]
+shall fix a day, not being a day later than three months from the day on
+[4,14 of 1997]
+which the defendant was earlier required to answer the plaint, on or
+before which the defendant shall file his answer and comply with the
+other requirements of section 55.
+When more 63. When there are more defendants when more than one, service of
+defendants than
+one, service on the summons shall be defendants made on each defendant.
+each.
+Agents to accept 64. When a defendant has an appointed under section 30 empowered
+service; partners
+and manager. to accept service, service of summons on such agent shall be
+sufficient. And in the case of an action against partners relative to a
+partnership transaction, or to an actionable wrong in respect of which
+relief is claimable from the partners, as a firm, each partner is an
+agent so empowered of each other partner, as is also the person (if
+any) not being a partner, who has the management of the business of
+the partnership at the principal place of such business within the local
+limits of the court's ordinary jurisdiction.
+Nothing in the preceding provisions of this section shall be deemed to
+authorize summons in an action to recover moneys due on a
+mortgage of immovable property to be served on any agent appointed
+under section 30.
+Service on agent in 64A. Where the mortgagor has registered the address of an agent
+mortgage action.
+under section 30A, service of summons may be made on such agent
+and shall be sufficient.
+When defendant out65. In an action relating to any business or work against a person who
+of jurisdiction has
+manager within it. does not reside within the local limits of the jurisdiction of the court
+from which the summons issued, service on any manager or agent
+who at the time of the service personally carries on such business or
+work for such person within such limits shall be deemed good service;
+and for the purpose of this section the master of a ship is the agent of
+his owner or charterer.
+Service on agent or 66. In an action to obtain relief or compensation for wrong in respect
+affixing on
+immovable property.of an immovable property or connected thereto, if the service cannot
+[9, 43 of 2024]
+be made on the defendant in person, it may be made on any agent of
+the defendant in charge of the property and in cases where such
+agent cannot be found the court may direct that the summons shall be
+affixed at some conspicuous part of such property.
+Misdescription not 67. No misnomer or misdescription of any person or place in any such
+to vitiate summons,
+& c. summons, order, or process shall vitiate the same, provided that the
+person or place be therein described as he or it is commonly known,
+and provided that such misnomer or misdescription be not such as to
+mislead the party served therewith.
+Service on 68.
+defendant in jail
+(1) If the defendant be in jail, the summons shall be
+[10, 43 of 2024]
+delivered by the process server to the officer in charge of
+the jail in which the defendant is confined, and such officer
+shall cause the summons to be served personally on the
+defendant and obtain an acknowledgement of receipt of
+the summons by the defendant.
+(2) The precept shall be returned through the process
+server to the court from which it is issued, with a statement
+of the service endorsed thereon, and signed by the officer
+in charge of the jail.
+(3) Where any defendant is in prison on the summons
+returnable date the officer in charge of the prison shall
+produce the defendant to the Court .
+Service out of Sri 69. Service of a summons out of Sri Lanka may be allowed by the
+Lanka. Application
+for, how made. court in all cases in which the court has jurisdiction. Every application
+for an order for leave to serve such summons on a defendant out of
+Sri Lanka shall be by motion and shall be supported by evidence (by
+affidavit or otherwise) showing in what place or country such
+defendant is or may probably be found, and the grounds on which the
+application is made.
+Order granting 70. Every order granting leave to effect service of summons out of Sri
+leave for service of
+summons out of Sri Lanka shall direct the mode by which such service shall be effected,
+Lanka. and also direct that the defendant shall on or before the date specified
+[6,79 of 1988]
+in the summons, such date being a date not later than six months from
+[11, 43 of 2024]
+the date of the order for service outside Sri Lanka, file his answer and
+comply with the other requirements of section 55. Such service can be
+effected by courier service or by any legal firm authorised by the laws
+of such country where the defendant resides and the proof of personal
+service of summons shall be submitted to the court.
+Communication of 71. A summons under sections 69 and 70 shall be in the form No. 18
+Orders
+in the First Schedule.
+CHAPTER VIIIA
+SERVICE OF ORDERS
+Communication of 71A. The Court may, in addition to the service of documents, direct
+Orders
+the Registrar to communicate any order of court including an enjoining
+[12, 43 of 2024]
+order, an injunction, an interim injunction, a sequestration order and an
+interim order to the parties concerned by way of electronic or
+telephone devices.
+CHAPTER IX
+OF FILING ANSWER
+Judgment against 72. If the defendant admits the claim of the plaintiff, the court shall
+defendant if he
+admits claim of the give judgment against the defendant according to the admission so
+plaintiff. made. Such admission shall be in writing, signed by the defendant and
+[15,20 of 1977]
+his signature attested by an attorney-at-law.
+Answer to be in 73. If the defendant does not admit the plaintiffs claim, he shall
+writing.
+himself, or his registered attorney shall on his behalf, deliver to the
+[15,20 of 1977]
+court a duly stamped written answer.
+[Section 74 is repealed by Law No. 20 of 1977]
+Requisites of 75. Every such answer shall be distinctly written upon good and
+answer.
+suitable paper, shall be duly stamped, shall be subscribed by the
+[17,20 of 1977]
+defendant or his duly 1977] constituted representative as in the case
+of a plaint is provided for the plaintiffs subscription, or if he is
+represented by a registered attorney, by such registered attorney, and
+shall contain the following particulars:-
+(a) the name of the court, the number of the case, and the
+date of filing the answer;
+(b) the name of the plaintiff;
+(c) the name, description, and residence of the defendant;
+(d) a statement admitting or denying the several averments
+of the plaint, and setting out in detail plainly and concisely
+the matters of fact and law, and the circumstances of the
+case upon which the defendant means to rely for his
+defence; this statement shall be drawn in duly numbered
+paragraphs, referring by number, where necessary, to the
+paragraphs of the plaint;
+(e) when the defendant sets up a claim in reconvention the
+answer must contain a plain and concise statement of the
+facts constituting the ground of such claim which the
+defendant makes in reconvention. A claim in reconvention
+duly set up in the answer shall have the same effect as a
+plaint in a cross action so as to enable the court to
+pronounce a final judgment in the same action both on the
+original and on the cross claim; but it shall not affect the
+lien upon the amount decreed of any registered attorney in
+respect of the costs payable to him under the decree.
+Jurisdiction of court 76. If the defendant intends to dispute the averment in the plaint as to
+to be specially
+traversed. the jurisdiction of the court, he must do so by a separate and distinct
+plea, expressly traversing such averment.
+Rejection and 77. If any answer is substantially defective in any of the particulars
+amendment of
+answer. hereinbefore defined, or is argumentative or prolix, or contains matter
+[7,79 of 1988] irrelevant to the action, the court may, by an order to be endorsed
+thereon, reject the same or return it to the party by whom it was made,
+for amendment within a period not exceeding one month from the date
+on which the answer was so returned, and the court may impose such
+terms as to costs or otherwise as it thinks fit.
+If the answer is rejected or left unamended as ordered, the defendant
+shall be regarded as having failed to file answer.
+The order so endorsed shall specify the ground of the rejection.
+Copy of answer to 78. A copy of the answer shall be served on the plaintiff, or each of the
+be delivered to
+plaintiff or his plaintiffs, if more than one, or his or their registered attorney.
+registered attorney.
+[18,20 of 1977]
+CHAPTER X
+OF THE REPLICATION AND FURTHER
+PLEADINGS
+When replication 79. Except in the case of a claim by a defendant in reconvention no
+may be allowed.
+pleading after answer shall be filed except by order of court on special
+[19,20 of 1977]
+motion to be made after due notice to the other side, and before the
+day appointed for the hearing of the action, upon such terms as to
+costs and the postponement of the hearing of the action as the court
+shall think fit. Such order shall not be made (except in the case of a
+claim in reconvention on the part of the defendant) unless the court is
+satisfied on such motion that the real issues between the parties
+cannot be conveniently raised without such further pleading. All
+pleadings after answer shall be subject to the rules prescribed by
+section 75 relative to the form and substance of the answer, so far as
+the same can be made applicable, and copies of such pleadings shall
+be served on the opposite party or his registered attorney.
+CHAPTER XA
+FIXING DAY OF PRE-TRIAL CONFERENCE
+Date for pre-trial 79A. The court shall-
+conference order
+(a) upon the filing of the answer; or
+[5, 8 of 2017]
+[5, 29 of 2023]
+(b) where a replication is permitted, on the last day of the
+period of time allowed for the filing of the replication,
+whether such replication is filed or not,
+appoint a date not less than three months and not exceeding five
+months from such date, for pre-trial conference to be commenced,
+either in the presence of all parties to the action or such parties as are
+present.
+CHAPTER XB
+PRE-TRIAL STEPS TO BE TAKEN BEFORE THE
+PRE-TRIAL CONFERENCE
+Pre- trial steps to be79B. The parties shall, in addition to any other pre-trial step that may
+taken before the
+date fixed for the be taken by such parties before the case is fixed for pre-trial
+pre-trial conference conference, tender -
+(a) their proposed admissions and issues of fact and law in
+writing;
+(b)
+(i) lists of witnesses to be called by such parties
+at the trial; and
+(ii) lists of documents relied upon by such parties
+and to be produced at the trial;
+(c) copies of documents listed in the lists of documents
+which are in the possession of or under the control of such
+parties,
+to the registry of the court, not less than thirty days before the date
+first fixed for the pre-trial conference and after giving notice to all other
+parties with proof of service thereof.
+Tendering of 79C.
+documents in
+electronic form (1) Notwithstanding anything to the contrary contained in
+the Evidence (Special Provisions) Act, No. 14 of 1995,
+Electronic Transactions Act, No. 19 of 2006 or any other
+written law, where any party proposes to tender any
+document in electronic form, the provisions of this section
+shall apply in relation to the tendering of such documents.
+(2) Any party proposing to tender documents in electronic
+form shall, not less than thirty days before the date first
+fixed for pre-trial conference, file in court, after giving notice
+to the opposing party or parties -
+(a) the list of such documents in electronic form
+together with an index thereof; and
+(b) a copy or copies of such documents as is
+sufficient to enable the party to understand the
+nature of such evidence.
+(3) Any party to whom a notice has been given under
+subsection (2) may, within fifteen days of the receipt of
+such notice apply for permission from the party giving such
+notice, to access and inspect -
+(a) the documents in electronic form, sought to be
+tendered in court under subsection (2);
+(b) the machine, device, computer or information
+system, as the case may be, used to produce,
+reproduce, generate, create, send, receive, store,
+display, communicate or process the documents
+in electronic form referred to in paragraph (a);
+and
+(c) any records relating to the production,
+reproduction, generation, creation, sending,
+receipt, storage, display, communication or
+processing of the documents referred to in
+paragraph (a).
+(4) Upon receipt of an application for permission to access
+and inspection under subsection (3), the party proposing to
+tender such documents in electronic form shall, within
+reasonable time, but not later than fifteen days after the
+receipt of such application, provide a reasonable
+opportunity to the party applying or his agents or
+nominees, to have access to, and inspect such documents
+in electronic form, machine, device, computer, information
+system or records referred to in the application.
+(5) Where -
+(a) the party proposing to tender documents in
+electronic form is unable to give permission or
+does not give permission for access and
+inspection as applied for under subsection (3); or
+(b) the parties are unable to agree on any matter
+relating to -
+(i) the notice given under subsection (2);
+or
+(ii) an application for access and
+inspection made under subsection (3) or
+the manner and extent of such access
+and inspection,
+the court may on application made by either party, make
+such order or give such direction, as the interest of the
+justice may require.
+(6) The time period referred to in subsection (3) or (4) may
+be extended at the discretion of the court, based on the
+special circumstances of each case.
+(7) Where any party proposing to tender any document in
+electronic form under this section -
+(a) fails to give notice under subsection (2);
+(b) upon application being made for access and
+inspection under subsection (3), fails to provide a
+reasonable opportunity therefor; or
+(c) fails to comply with any order or direction
+given by court under subsection (5),
+such party shall not be permitted to tender such documents
+in electronic form, in respect of which the failure was
+occasioned:
+Provided however, the steps or applications referred to in
+this Chapter shall be followed prior to the conclusion of the
+pre-trial conference.
+(8) Where any party objects to the admissibility of any
+document in electronic form tendered under this section,
+such party shall file in court, objections with reasons
+therefor in writing with copies to all other parties, either
+before the pre trial conference or at the pre trial
+conference, as the case may be.
+(9) Where any party files objections under subsection (8),
+the court shall hear the parties to ascertain whether the
+parties can admit such documents in electronic form, and
+where no such admission is recorded, the court shall make
+an appropriate pre-trial order under section 142B with
+regard to the admissibility of such documents at the pre-
+trial conference.
+CHAPTER XI
+OF FIXING DAY OF TRIAL
+Fixing the case for 80.
+trial
+(1) After the issues are settled and the Judge conducting
+[7, 29 of 2023]
+the pre-trial conference is satisfied that the case is ready
+for trial, the Judge shall forthwith appoint a date not later
+than fourteen days from the date of the conclusion of the
+pre-trial conference for the case to be called in order to fix
+a date for the trial, in the trial court.
+(2) The trial shall be conducted by a Judge appointed for
+such purpose, other than the Judge who conducted the
+pre-trial conference:
+Provided that, where a Judge has not been separately
+appointed to conduct the pre-trial conference, the Judge
+who has been appointed for such court shall conduct both
+pre-trial conference and the trial of such action.
+(3) The Judge who is fixing the case for trial may, in any
+appropriate case, fix several dates for trial.
+80A. Repealed by [§8, 29 of 2023]
+A reasonable 81. The court shall, in fixing the day of hearing, be careful not to
+number of cases to
+be fixed for each appoint more cases for one day than there is a probability of the court
+day. getting through on that day.
+Postponement. 82. When any case is in its turn called on for hearing upon the day
+appointed there for, the court may, for sufficient cause to be specified
+in its written order, direct that the hearing be postponed to a day which
+shall be fixed in the order, upon such terms as to costs or otherwise as
+the court shall think fit;
+Provided that the court may in its discretion take and deal with a case
+out of its order in the cause list on any day for good reason to be
+adjudicated upon and recorded by the court before entering upon the
+case.
+Un disposed of 83.
+cases to be placed
+at the head of the (1) The cases in any day's cause list not disposed of on
+roll. that day, by reason of want of time, will be placed at the
+head of the next court-day's cause list, unless the Judge
+directs otherwise.
+[21,20 of 1977] (2) As soon as the cause list for any day is prepared,
+legibly-written copies of it in the language of the court and
+the language or languages of the parties shall be placed in
+some fit and conspicuous place outside the court-house,
+so that the suitors and all others interested may be enabled
+readily to be informed of the contents of the same.
+CHAPTER XII
+OF THE CONSEQUENCES AND CURE (WHEN
+PERMISSIBLE) OF DEFAULT IN PLEADING OR
+APPEARING
+Default of 84. If the defendant fails to file his answer on or before the day fixed
+defendant.
+for the filing of the answer, or on or before the day fixed for the
+[23,20 of 1977]
+subsequent filing of the answer or having filed his answer, if he fails to
+appear on the day fixed (or the hearing of the action, and if the court is
+satisfied that the defendant has been duly served with summons, or
+has received due notice of the day fixed for the subsequent filing of
+the answer, or of the day fixed for the hearing of the action, as the
+case may be, and if, on the occasion of such default of the defendant,
+the plaintiff appears, then the court shall proceed to hear the case ex
+pane forthwith, or on such other day as the court may fix.
+Procedure in ex 85.
+parte trial.
+(1) The plaintiff may place evidence before the court in
+[23,20 of 1977]
+support of his claim by affidavit, or by oral testimony and
+move for judgment, and the court, if 1977] satisfied that the
+plaintiff is entitled to the relief claimed by him, either in its
+entirety or subject to modification, may enter such
+judgment in favour of the plaintiff as to it shall seem proper,
+and enter decree accordingly.
+(2) Where the court is of opinion that the entirety of the
+relief claimed by the plaintiff cannot be granted, the court
+shall hear the plaintiff before modifying the relief claimed.
+(3) Where there are several defendants of whom one or
+more file answer and another or others of whom fail to file
+answer, the plaintiff may move for judgment against such
+of the defendants as may be in default without prejudice to
+his right to proceed with the action against such of the
+defendants as may have filed answer. The provisions of
+this subsection shall apply notwithstanding that the
+defendants are jointly liable upon a bill of exchange,
+promissory note or cheque.
+(4) The court shall cause a copy of the decree entered
+under this section to be served on the defendant in the
+manner prescribed for the service of summons. Such copy
+of the decree shall bear an endorsement that any
+application to set aside the decree under subsection (2) of
+section 86 shall be made to court within fourteen days of
+such service.
+If defendant 86.
+excuses his default,
+any order or [13, 43 of 2024] (2) Where,
+judgment to be set (a) at anytime after the case is fixed for ex-parte
+aside.
+trial against the defendant for default; or
+[23,20 of 1977]
+[ [3, 53 of 1980]
+[13, 43 of 2024]
+(b) any time after the decree is entered against
+him for default but without the service of the
+decree on him; or
+(c) within fourteen days of the service of the
+decree entered against him for default,
+the defendant, with notice to the plaintiff makes application
+to and thereafter satisfies court, that he did not receive the
+summons or that he had reasonable grounds for such
+default, the court shall set aside the order fixing the case
+for ex-parte trial, the judgement and decree as the case
+may be and permit the defendant to proceed with his
+defence as from the stage of default upon such terms as to
+costs or otherwise as to the court shall deem fit.
+[3, 53 of 1980] (2A) At any time prior to the entering of judgment against a
+defendant for default, the court may, if the plaintiff
+consents, but not otherwise, set aside any order made on
+the basis of the default of the defendant and permit him to
+proceed with his defence as from the stage of default upon
+such terms as to costs or otherwise as to the court shall
+appear fit.
+(3) Every application under this section shall be made by
+petition supported by affidavit.
+Non-appearance of 87.
+Plaintiff.
+(1) Where the plaintiff or where both the plaintiff and the
+[23,20 of 1977]
+defendant make default in appearing on the day fixed for
+the trial, the court shall dismiss the plaintiff's action.
+(2) Where an action has been dismissed under this
+section, the plaintiff shall be precluded from bringing a
+fresh action in respect of the same cause of action.
+(3) The plaintiff may apply within a reasonable time from
+the date of dismissal, by way of petition supported by
+affidavit, to have the dismissal set aside, and if on the
+hearing of such application, of which the defendant shall be
+given notice, the court is satisfied that there were
+reasonable grounds for the non-appearance of the plaintiff,
+the court shall make order setting aside the dismissal upon
+such terms as to costs or otherwise as it thinks fit, and
+shall appoint a day for proceeding with the action as from
+the stage at which the dismissal for default was made.
+No appeal against 88.
+Judgment for
+default but order (1) No appeal shall lie against any judgment entered upon
+setting aside or default.
+refusing to set aside
+judgment
+appealable.
+[23, 20 of 1977] [2, 5 of 2022] (2) The order setting aside or refusing to set aside the
+[2, 5 of 2022] judgment entered upon default shall accompany the facts
+upon which it is adjudicated and specify the grounds upon
+which it is made, and shall be liable to an appeal to the
+relevant High Court established by Article 154P of the
+Constitution, with leave first had and obtained from such
+High Court.
+[4, 53 of 1980] (3) The provisions of sections 761 and 763 shall, mutatis
+mutandis, apply to and in relation to the execution of a
+decree entered upon default, where an order refusing to
+set aside such decree has been made.
+Where two or more 89. In the case of an action against two or more defendants alleged to
+defendants
+severally liable. be severally liable, where a summons is served upon any of them, the
+plaintiff may proceed against the person or persons served as if no
+other defendant were named in the summons. Where it is served upon
+all of them, the plaintiff may take judgment against one or more of
+them, where he would be entitled to judgment if the action was against
+him or them alone. Where judgment is so taken the plaintiff may
+proceed in the same action against the other defendants.
+One of many 90. In the case of an action where there are more defendants than
+defendants
+appearing, no one, the court shall not be obliged to pass a decree for default against
+decree for default a defendant for failing to appear at a stage of the action, provided that
+need be passed
+against others. one defendant at least appears at that stage against whom the action
+must proceed,
+CHAPTER XIII
+OF MOTIONS
+Motions. 91. Every application made to the court in the course of an action,
+[23,20 of 1977]
+incidental thereto, and not a step in the regular procedure, shall be
+made by motion by the applicant in person or his counsel or registered
+attorney, and a memorandum in writing of such motion shall be at the
+same time delivered to the court.
+Postponements, 91A.
+adjournments and
+extensions of time. (1) Where a day is fixed or time appointed for doing any act
+[25,20 of 1977] or taking any proceeding by a party to the action, the court
+may, from time to time, upon the motion of such party and,
+if sufficient cause is shown, fix another day or enlarge or
+abridge the time appointed, upon such terms, if any, as to it
+may seem proper.
+(2) The day may be refixed or the time enlarged although
+the application for the same is not made until after the
+expiration of the day or time fixed or appointed.
+(3) The court may, for sufficient cause, either on the
+application of the parties or of its own motion, advance,
+postpone or adjourn the trial to any other date upon such
+terms as to costs or otherwise as to it shall seem proper.
+(4) Where a date is fixed on or before which an act has to
+be done by a party to the action or a return has to be made
+to a commission issued by the court, the case shall be
+called in open court on such date for the purpose of
+making an appropriate order in connection therewith or
+relating thereto.
+CHAPTER XIV
+OF THE JOURNAL
+Journal. 92. With the institution of the action the court shall commence a
+journal entitled as of the action, in which shall be minuted, as they
+occur, all the events in the course of the action, i.e., the original
+application, and every subsequent step, proceeding, and order; each
+minute shall be signed and dated by the Judge, and the journal so
+kept shall be the principal record of the action.
+CHAPTER XV
+OF AMENDMENT
+Amendments of 93.
+pleadings.
+[9,79 of 1988] [8, 8 of 2017] (1) Upon application made to it before the day first fixed for
+[3,9 of 1991] [9, 29 of 2023] pre-trial conference of the action, in the presence of, or
+[8, 8 of 2017] after reasonable notice to all the parties to the action, the
+[9, 29 of 2023]
+Court shall have full power of amending in its discretion, all
+pleadings in the action, by way of addition, or alteration, or
+of omission.
+[8, 8 of 2017] (2) On or after the day first fixed for pre-trial conference, of
+[9, 29 of 2023] the action and before final judgement, no application for
+the amendment of any pleadings shall be allowed unless
+the Court is satisfied, for reasons to be recorded by the
+Court, that grave and irremediable injustice will be caused
+if such amendment is not permitted, and on no other
+ground, and that the party so applying has not been guilty
+of laches.
+(3) Any application for amendment of pleadings which may
+be allowed by the Court under subsection (1) or (2) shall
+be upon such terms as to costs and postponement or
+otherwise as the Court may think fit.
+(4) The additions or alterations or omissions shall be
+clearly made on the face of the pleading affected by the
+Order ;or if this cannot conveniently be done, a fair copy of
+the pleading as altered shall, be appended in the record of
+the action to the pleading amended. Every such addition or
+alteration or omission shall be signed by the Judge.
+CHAPTER XVI
+OF DISCOVERY, INSPECTION, PRODUCTION,
+IMPOUNDING, AND RETURN OF DOCUMENTS
+Interrogatories. 94.
+[10, 29 of 2023]
+[10, 29 of 2023] (1) Any party may, fifteen days before the date first fixed for
+the pre-trial conference, by leave of the court to be
+obtained on motion ex parte, deliver through the court
+interrogatories in writing for the examination of the opposite
+party, or, where there are more opposite parties than one,
+any one or more of such parties, with a note at the foot
+thereof stating which of such interrogatories each of such
+persons is required to answer:
+Provided that no party shall deliver more than one set of
+interrogatories to the same person without the permission
+of the court, and that no defendant shall deliver
+interrogatories for the examination of the plaintiff unless
+such defendant has previously tendered his answer, and
+such answer has been received and placed on the record.
+(2) For the purposes of this Chapter, " opposite party ",
+means a party between whom and the party interrogating
+an issue has been raised.
+Service of 95. Interrogatories delivered under the last section shall be served on
+interrogatories.
+the registered attorney (if any) of the party interrogated, or in the
+manner hereinbefore provided for the service of summons, and the
+provisions herein contained with regard to service of summons shall,
+in the latter case, apply, so far as may be practicable.
+Cost of 96. The court, in adjusting the costs of the action, shall at the instance
+unreasonable
+interrogatories to beof any party, inquire, or cause inquiry to be made, into the propriety of
+borne by party in delivering such interrogatories; and if it thinks that such interrogatories
+fault.
+have been delivered unreasonably, exatiously, or at improper length,
+the costs occasioned by the said interrogatories, and the answers
+thereto, shall be borne by the party in fault.
+Interrogatories to 97. If any party to an action is a body corporate or a company,
+company, & c.
+whether incorporated or not, or any other body of persons empowered
+by law to sue or be sued, whether in its own name or in the name of
+any officer or other person, any opposite party may apply to the court
+for an order allowing him to deliver interrogatories to any member or
+officer of such corporation, company, or body, and an order may be
+made accordingly.
+When party may 98. Any party called upon to answer interrogatories, whether by
+refuse to answer.
+himself or by any such member or officer, may refuse to answer any
+interrogatory on the ground that it is scandalous or irrelevant, or is not
+put bona fide for the purposes of the action, or that the answer will
+tend to criminate himself, or that the matter inquired after is not
+sufficiently material at that stage of the action, or on any other like
+ground.
+To be answered by 99. Interrogatories shall be answered by affidavit to be filed in court
+affidavit.
+within ten days from the service thereof, or within such further time as
+the court may allow.
+Application for 100. If any person interrogated omits or refuses to answer or answers
+further answer.
+insufficiently any interrogatory, the party interrogating may apply to the
+court for an order requiring him to answer or to answer further, as the
+case may be. And an order may be made requiring him to answer or to
+answer further, either by an affidavit or by viva voce examination, as
+the court may direct:
+Provided that the court shall not require an answer to an interrogatory
+which in its opinion need not have been answered under section 98.
+Notice to admit 101.
+genuineness of
+Documents [11, 29 of 2023] (1) Either party may, by a notice issued by order of court, to
+[11, 29 of 2023] be obtained on motion ex-parte not less than fifteen days
+before the date first fixed for the pre-trial conference,
+require the other party to admit (saving ail just exceptions
+to the admissibility of such document in evidence) the
+genuineness of any document material to the action.
+(2) The admission shall also be made in writing, signed by
+the other party or his registered attorney, and filed in court.
+(3) If such notice be not given, no costs of proving such
+document shall be allowed, unless the court otherwise
+orders.
+(4) If such notice is not complied with within four days after
+its being served, and the court thinks it reasonable that the
+admission should have been made, the party refusing shall
+bear the expense of proving such document, whatever may
+be the result of the action.
+Order for discovery 102.
+of documents.
+[12, 29 of 2023] [12, 29 of 2023] (1) The court may, at any time during the pendency therein
+of any action, order any party to the action to declare by
+affidavit all the documents which are or have been in his
+possession or power relating to any matter in question in
+the action, and any parties to the action may, fifteen days
+before the date first fixed for the pre-trial conference, apply
+to the court for a like order.
+(2) Every affidavit made under this section shall specify
+which, if any, of the documents therein mentioned the
+declarant objects to produce, together with the grounds of
+such objection.
+Orders for 103.
+preservation,
+disclosure or (1) The court may, at any time during the pendency therein
+production of of any action, order the production or preservation by any
+documents or
+documents in party thereto or such of the documents in his possession or
+electronic form. power relating to any matter in question in such action or
+[13, 29 of 2023]
+proceeding as the court thinks right; and the court may
+deal with such documents when produced or preserved in
+such manner as appears just.
+(2) A party intending to institute any proceeding before
+court may, prior to the institution of such proceedings,
+make an application ex parte, by way of petition supported
+by an affidavit, for an order to be made requiring a person
+or entity having possession of any document in electronic
+form, who shall be made the respondent in such
+application, to preserve, disclose or produce such
+document, as may be specified in such order.
+(3) The court may, upon the receipt of an application under
+subsection (2), make an order as prayed for in such
+application, if –
+(a) the person or entity against whom an order is
+sought is likely to be a party to the proceeding to
+be instituted subsequently;
+(b) the applicant is also likely to be a party to
+such proceeding to be instituted subsequently;
+(c) the document in electronic form sought to be
+preserved, disclosed or produced is relevant to
+the matter in dispute in respect of which the
+proceedings are intended to be instituted and is
+in the possession or control of such respondent;
+(d) the duty to preserve, disclose or produce any
+electronic document upon the receipt of such
+order extends to the document in electronic form
+of which the applicant seeks preservation,
+disclosure or production, if proceedings had
+commenced against such person or entity;
+(e) preservation, disclosure or production of such
+document in electronic form is desirable in order
+to –
+(i) dispose the intended proceedings in a
+fair manner;
+(ii) assist the dispute to be resolved
+without proceedings; or
+(iii) save costs.
+(4) Any person who or entity which receives an order made
+under subsection (3) shall have a duty to comply therewith
+and in the event of non- compliance, such person or entity
+shall be guilty of the offence of contempt of court.
+(5) Any party to any proceeding pending before a court
+may, not less than forty-five days before the date first fixed
+for the pre-trial conference, make an application for an
+order to be made requiring any other party to such action
+to preserve, disclose or produce any relevant document in
+electronic form, as may be specified in such order.
+(6) Any party making an application under subsection (5) of
+this section shall -
+(a) describe with reasonable particularity each
+item or category of items to be preserved or
+disclosed or produced; and
+(b) specify the manner of preservation, disclosure
+or production and by whom such preservation,
+disclosure or production is to be performed.
+(7) A party who receives an order made under subsection
+(5) shall have a duty to comply therewith and in the event
+of non-compliance, the court may-
+(a) where the restoration of such document in
+electronic form is possible, order for the
+restoration of the same and award costs;
+(b) where the restoration of the document in
+electronic form is not possible and where the
+court is of the opinion that prejudice has been
+caused to the party making the application, due
+to the loss of such document and that non-
+complying party has acted with the intention of
+depriving the use of such document by the other
+party-
+(i) impose costs in a sum as may be
+deemed reasonable by the court; or
+(ii) where the prejudice cause cannot be
+cured by way of costs, in case of a
+plaintiff, order to have his action
+dismissed for want of prosecution, and in
+case of a defendant, to have his defence,
+if any, struck out, and to be placed in the
+same position as if he had not appeared
+and answered.
+(8) A party or person failing to comply with an order made
+under subsection (5) of this section shall not be entitled to
+produce any such document in electronic form in evidence
+on his behalf in such action, unless he satisfies the court
+that such electronic document relates only to his own title,
+or that he had some other sufficient cause for not
+complying with such order.
+(9) A party to any proceeding may make an application ex-
+parte by way of a petition supported by an affidavit, not
+less than forty-five days before the date fixed for pre-trial
+conference, for an order to be made requiring any person
+or entity who is not a party to such proceeding, to preserve,
+disclose, or produce any document in electronic form in the
+possession or control of such person or entity. The person
+or entity against whom such order is sought shall only be
+made the respondent in such application.
+(10) Upon receipt of an application under subsection (9),
+the court may make an order as prayed for in such
+application, if -
+(a) the document in electronic form of which the
+preservation, disclosure or production is sought is
+likely to support the case of the applicant or
+adversely affect the case of any party to such
+proceeding;
+(b) preservation, disclosure or production is
+necessary in order to disprove the claim in a fair
+manner or to save costs.
+(11) An order made under subsection (10) may-
+(a) specify the documents in electronic form
+which the respondent is required to preserve,
+disclose or produce;
+(b) if relevant, specify the time and place of
+preservation, disclosure or production to take
+place;
+(c) specify the format or formats in which
+document in electronic form is to be produced;
+and
+(d) require the respondent, when making
+preservation or disclosure, to specify the
+documents, if any, which are or not in his control
+or possession with reasons therefor.
+(12) Any person or entity who fails to comply with an order
+made under subsection (10), shall be guilty of the offence
+of contempt of court.
+(13) Where a person, entity or party from whom
+preservation, disclosure or production of a document is
+sought under subsection (2), (5) or (9) objects to such
+preservation, disclosure or production from the source of
+such document for not being reasonably accessible due to
+the burden of cost, the court may limit the extent of such
+preservation, disclosure or production otherwise allowed
+under the said subsections where -
+(a) the preservation, discovery or production
+sought is unreasonably cumulative, duplicative,
+disproportionate or excessive to the material facts
+of the case;
+(b) the requested document in electronic form
+can be obtained from any other source which is
+more convenient, less burdensome or less
+expensive;
+(c) the party seeking preservation, disclosure or
+production has had ample opportunity to obtain
+such document by discovery in the action; or
+(d) the requested document in electronic form is
+irrelevant or not proportionate to the issues in
+dispute or the party’s resources or the burden of
+expense of the proposed discovery outweighs the
+possible benefits and importance in resolving the
+issues:
+Provided however, the court may order preservation,
+disclosure or production from the sources of such
+document in electronic form, if the party making the
+application for preservation, disclosure or production is
+able to show good cause, subject to such limitations as
+may be imposed by the court.
+(14) Unless otherwise agreed or ordered, electronic copies
+of the disclosed documents in electronic form shall be
+produced -
+(a) in their native format;
+(b) in a manner which preserves metadata
+relating to the date of creation of each such
+document; and
+(c) organised and labeled in a manner that
+corresponds with the categories of such
+documents as requested."; and
+State required to 103A.
+make discovery or
+give inspection of (1) In any action to which the State is a party, the State
+documents under may also be required to make discovery or give inspection
+certain
+circumstances. of documents.
+[26,20 of 1977]
+(2) The provisions of subsection (1) shall not prejudice the
+right of the State to withhold any document on the ground
+that in the opinion of the Minister in charge of the subject to
+which the document relates, the public interest would suffer
+by such disclosure.
+Notice to produce 104.
+documents for
+inspection. [14, 29 of 2023] (1) Any party to an action may, fifteen days before the date
+[14, 29 of 2023] first fixed for the pre-trial conference thereof, by motion ex
+parte, obtain an order of court for notice to issue to any
+other party in whose pleadings or affidavits reference is
+made to any document, to produce such document for the
+inspection of the party giving such notice, or of his
+registered attorney, and to permit such party or registered
+attorney to take copies thereof.
+(2) No party failing to comply with such notice shall
+afterwards be at liberty to put any such document in
+evidence on his behalf in such action, unless he satisfies
+the court that such document relates only to his own title,
+or that he had some other and sufficient cause for not
+complying with such notice.
+Protective orders 104A. A party, person or an entity against whom the discovery,
+[15, 29 of 2023]
+production or preservation of a document or document in electronic
+form is sought, may apply for a protective order to the court within
+which such action is pending. The court may, for good cause, make
+one or more of the following orders to protect any such document or
+the interests of a person, entity or party: -
+(a) prohibiting the disclosure or discovery;
+(b) specifying terms, including the time, place, forms and
+manner of the disclosure or discovery;
+(c) prescribing a discovery method other than the one
+selected by the party seeking discovery;
+(d) prohibiting inquiry into certain matters or limiting the
+scope of disclosures or discovery to other matters;
+(e) designating persons or experts who may be present
+while the discovery is conducted;
+(f) appointing persons or experts who shall conduct the
+disclosure, discovery, preservation, inspections, keep
+custody, examination, analysis, reporting and presenting
+them in court;
+(g) directing that a confidential research, development or
+trade secret or undisclosed or confidential information of
+commercial nature not to be disclosed or disclosed only in
+a specified manner; or
+(h) directing that a document in relation to undisclosed
+confidential research, development or trade secret or
+undisclosed or confidential information of commercial
+nature not to be disclosed or disclosed only in a specified
+manner.".
+Time and place of 105A. The party to whom such notice is given shall, within ten days
+such production to
+be specified by from the receipt thereof, deliver through the court to the party giving
+party receiving the same a notice stating a time within three days from such delivery
+notice.
+at which the documents, or such of them as he does not object to
+produce, may be inspected at his registered attorney's office or some
+other convenient place, and stating which, if any, of the documents he
+objects to produce, and on what grounds.
+Otherwise, order for106. If any party served with notice under section 104 omits to give
+inspection to be
+made by court. notice under section 105 of the time for inspection, or objects to give
+inspection, or names an inconvenient place for inspection, the party
+desiring it may apply to the court for an order of inspection.
+Application for order107. Except In the case of documents referred to in any pleading or
+to be supported by
+affidavit. affidavit of the party against whom the application is made, or
+disclosed in his affidavit of documents, such application shall be
+founded upon an affidavit showing-
+(a) of what documents inspection is sought,
+(b) that the party applying is entitled to inspect them, and
+(c) that they are in the possession or power of the party
+against whom the application is made.
+Court may reserve 108. If the party from whom discovery of any kind or inspection is
+question as to
+discovery or sought objects to the same or any part thereof, and if the court is
+inspection. satisfied that the right of such discovery or inspection depends on the
+determination of any issue or question in dispute in the action, or that
+for any other reason it is desirable that any such issue or question
+should be determined before deciding upon the right to the discovery
+or inspection, the court may order that the issue or question be
+determined first, and reserve the question as to the discovery or
+inspection.
+Consequence of not109.
+complying with
+order under this [16, 29 of 2023] (1) If any party fails to comply with any order under this
+Chapter. Chapter to answer interrogatories, or for discovery,
+[16, 29 of 2023]
+production, inspection, preservation or protection, which
+has been duly served, he shall, if a plaintiff, be liable to
+have his action dismissed for want of prosecution, and if a
+defendant, to have his defence, if any, struck out, and to be
+placed in the same position as if he had not appeared and
+answered. And the party interrogating or seeking discovery,
+production, or inspection may apply to the court for an
+order to this effect, and the court may make such order
+accordingly.
+(2) Any party failing to comply with any order under this
+Chapter to answer interrogatories, or for discovery,
+production, or inspection which has been served personally
+upon him, shall also be deemed guilty of the offence of
+contempt of court.
+Court may inspect 110.
+records of other
+courts. (1) The court may of its own accord, or in its discretion
+upon the application of any of the parties to an action, send
+for, either from its own records or from any other court, the
+record of any 'other action or proceeding, and inspect the
+same.
+(2) Every application made under this section shall (unless
+the court otherwise directs) be supported by an affidavit of
+the applicant or his registered attorney, showing how the
+record is material to the action in which the application is
+made, and that the applicant cannot, without unreasonable
+delay or expense, obtain a duly authenticated copy of the
+record or of such portion thereof as the applicant requires,
+or that the production of- the original is necessary for the
+purposes of justice.
+(3) Nothing in this section shall be deemed to enable the
+court to use in evidence any document which by the law of
+evidence in force in Sri Lanka would be inadmissible in the
+action.
+Parties to he ready 111. The parties or their registered attorneys shall bring with them and
+with all documents
+at trial. have in readiness at the hearing of the action, to be produced when
+called for by the court, all the documentary evidence of every
+description in their possession or power, on which they intend to rely,
+and which has not already been filed in court, and all documents
+which the court at any time before such hearing has ordered to be
+produced.
+Document called for112. No documentary evidence in the possession or power of any
+and not produced
+shall not be party which should have been, but has not been, produced in
+received afterwards.accordance with the requirements of section 111, shall be received at
+any subsequent stage of the proceedings, unless good cause be
+shown to the satisfaction of the court for the non- production thereof.
+And the court on receiving any such evidence shall record its reason
+for so doing.
+Documents to be 113.
+received by court.
+(1) The court shall receive the documents respectively
+produced by the parties at the hearing, provided that the
+documents produced by each party be accompanied by an
+accurate list thereof. Rejection of irrelevant or inadmissible
+documents.
+(2) The court may at any stage of the action reject any
+document which it considers irrelevant or otherwise
+inadmissible, recording the grounds of such rejection.
+No documents to be114.
+placed on record
+unless proved. (1) No document shall be placed on the record unless it
+has been proved or admitted in accordance with the law of
+evidence for the time being in force.
+Proved (2) Every document so proved or admitted shall be
+documents to
+endorsed with some number or letter sufficient to identity it.
+be marked and
+filed. The Judge shall then make an entry on the record to the
+effect that such document was proved against or admitted
+by (as the case may be) the person against whom it is
+used, and shall in such entry refer to such document by
+such number or letter in such a way as to identify it with the
+document so proved or admitted. The document shall then
+be filed as part of the record.
+Documents (3) All documents produced at the hearing and not so
+which are not
+proved or admitted shall be returned to the parties
+proved to be
+returned to respectively producing them.
+parties.
+Court may order 115. Notwithstanding anything contained in section 114, the court may,
+any document to be
+impounded. if it sees sufficient cause, direct any document or book produced
+before it in any action to be impounded and kept in the custody of an
+officer of the court for such period and subject to such conditions as
+the court thinks fit.
+When document 116.
+admitted in
+evidence may be (1) When an action has been disposed of, or when the time
+returned. for preferring an appeal from the decree has elapsed, or if
+an appeal has been preferred, then after the appeal has
+been disposed of, any person, whether a party to the
+action or not, desirous of receiving back any document
+produced by him in the action, and placed on the record,
+shall, unless the document is impounded under section
+115, be entitled to receive back the same:
+Provided that a document may be returned at any time if
+the person applying for such return deliver to the proper
+officer a certified copy of such document to be substituted
+for the original;
+Certain And provided further, that no document shall be returned
+documents not
+which by force of the decree has become void or useless.
+to be returned.
+Receipt for (2) On the return of a document which has been admitted
+returned
+in evidence, a receipt shall be given by the party receiving
+documents.
+it, in a receipt book to be kept for the purpose.
+Provisions as to 117. The provisions of this Chapter as to documents shall, mutatis
+documents apply to
+other material mutandis, apply to all other material objects producible as evidence
+objects and
+documents in and to all documents in electronic form, to the extent not inconsistent
+electronic form
+with the provisions of this Chapter.
+[17, 29 of 2023]
+TRANSLATIONS OF DOCUMENTS
+Translations of 118. No translation of any document tendered in evidence in any court
+documents.
+shall be permitted to be read as a translation of such document,
+unless the same shall be signed by an interpreter of the Supreme
+Court, or the Court of Appeal, or by a Government sworn translator, or
+by a sworn translator or interpreter of some District Court, Family
+Court or Primary Court.
+Who shall be 119. No person other than an interpreter of the Supreme Court, or the
+deemed a
+translator. Court of Appeal, or a Government sworn translator, or an interpreter of
+a District Court, or Family Court or Primary Court, shall be deemed to
+be a translator of any court unless he shall have received a certificate
+from the Judge of such court that he is competent to fulfill the duties of
+a translator, and shall have taken an oath before such Judge faithfully
+to perform the duties of his office.
+Fees of translators. 120. No such translator as aforesaid shall be entitled to have or
+recover in respect of fees for any translation any sum of money in
+excess of the following rates, namely:-
+[27,20 of 1977] For every folio of 120 words .. Rs. 1.25.
+For every fractional part of a folio .. Rs. 1.25.
+CHAPTER XVII
+OF WITNESSES AND DOCUMENTS
+Summonses to 121.
+witnesses.
+(1) The parties may, after the summons has been delivered
+[18, 29 of 2023]
+for service on the defendant, obtain, on application to the
+court or to such officer as the court appoints in that behalf,
+before the day fixed for the hearing, summonses to
+persons whose attendance is required either to give
+evidence or to produce documents.
+(2) Repealed by [§18, 29 of 2023]
+Payment of 122. The party applying for a summons shall, before the summons is
+witness's expenses.
+granted, and within a period to be fixed by the court, pay into court, or
+give security for payment of, such a sum of money as appears to the
+court to be sufficient to defray the traveling and other expenses of the
+person summoned, in passing to and from the court in which he is
+required to attend, and for one day's attendance:
+Provided that in the case of a witness residing within four miles of the
+court at which his attendance is required, no such payment shall be
+made nor security given;
+And provided further that the making of any such payment and the
+giving of any such security shall in no case be a condition precedent to
+the issue of a summons, but in every case (except the case of a
+witness residing within four miles from the court) where summons
+issues without such payment having been made or security given, the
+witness shall be informed on the face of the summons that such is the
+case, and that it is not obligatory on him to attend.
+Witness's expenses123. The sum so paid into court, or so secured, shall at least be paid
+to be paid before he
+gives evidence. or tendered to the person summoned at the time when he is called on
+to give his evidence, if he demands the same.
+Court may order a 124. If it appears to the court or to such officer as it appoints in this
+sufficient sum to be
+paid. behalf that the sum paid into court is not sufficient to cover such
+expenses, the court may direct such further sum to be paid to the
+person summoned as appears to be necessary on that account; and in
+case of default in payment, may, by writ issued to the Fiscal, order
+such sum to be levied by sequestration and sale of the movable
+property of the party obtaining the summons as is hereinafter
+provided; or the court may discharge the person summoned without
+requiring him to give evidence ; or may both order such levy and
+discharge such person as aforesaid.
+Expenses of 125. If it is necessary to detain the person summoned for a longer
+detention.
+period than one day, the court may from time to time order the party at
+whose instance he was summoned to pay into court such sum as is
+sufficient to defray the expenses of his detention for such further
+period; and in default of such deposit being made, may, by writ issued
+to the Fiscal, order such sum to be levied by sequestration and sale of
+the movable property of the party at whose instance he was
+summoned; or the court may discharge the person summoned without
+requiring him to give evidence; or may both order such levy and
+discharge such person as aforesaid.
+Summons to specify126.
+time, place, and
+purpose of (1) Every summons for the attendance of a person to give
+attendance. evidence or produce a document shall specify the time and
+place at which he is required to attend and also whether
+his attendance is required for the purpose of giving
+evidence or to produce a document, or for both purposes;
+and any particular document which the person summoned
+is called on to produce shall be described in the summons
+with reasonable accuracy.
+(2) If money has been deposited or security given for his
+expenses under the provisions of section 122, the
+summons shall contain a statement to that effect.
+Summons to 127. Any person may be summoned to produce a document without
+produce document.
+being summoned to give evidence; and any person summoned merely
+to produce a document shall be deemed to have complied with the
+summons if he cause such document to be produced, instead of
+attending personally to produce the same.
+Person in court may128. Any person present in court may be required by the court to give
+be required to
+produce a evidence, or to produce any document then and there in his actual
+document. possession or power.
+Service of 129. Every summons to a person to give evidence or produce a
+summons.
+document shall be served as nearly as may be in the manner
+hereinbefore prescribed for the service of summons on the defendant;
+and the rules contained in this Ordinance as to proof of service of
+summons on the defendant shall apply in case of all summonses
+served under this section.
+Service must afford 130. The service shall in all cases be made a sufficient time before the
+reasonable time for
+attendance. time specified in the summons for the attendance of the person
+summoned, to allow him a reasonable time for preparation and for
+traveling to the place at which his attendance is required.
+Procedure to be 131.
+followed when
+summons cannot be (1) If the Fiscal returns to the court that the summons for
+served. the attendance of a person, either to give evidence or to
+produce a document, cannot be served, the court may take
+evidence touching the non-service.
+And upon being satisfied that such evidence or production
+is material, and that the person for whose attendance the
+summons has been issued is absconding, or keeping out
+of the way for the purpose of avoiding the service of
+summons, the court may in its discretion either issue a
+warrant for the apprehension of such witness or may issue
+a proclamation requiring him to attend to give evidence, or
+produce the document, at a time and place to be named
+therein; and a copy of such proclamation shall be affixed
+on the outer door of the house in which he ordinarily
+resides.
+Proclaimed (2) If he does not attend at the time and place named in
+Witness how
+such proclamation, the court may in its discretion, at the
+dealt with.
+instance of the party on whose application the summons
+was issued make an order for the sequestration of the
+property of the person whose attendance is required, to
+such amount as the court thinks fit, not exceeding the
+amount of the costs of sequestration and of the fine which
+may be imposed under section 133.
+If witness appears 132. If, on the sequestration of his 'property, such person appears and
+sequestration may
+be withdrawn. satisfies the court that he did not abscond or keep out of the way to
+avoid service of the summons, and that he had not notice of the
+proclamation in time to attend at the time and place named therein,
+the court shall direct that the property be released from sequestration,
+and shall make such order as to the costs of the sequestration as it
+thinks fit.
+Procedure when 133. If such person does not appear, or appearing, fails to satisfy the
+witness fails to
+appear. court that he did not abscond or keep out of the way to avoid service
+of the summons, and that he had not notice of the proclamation in time
+to attend at the time and place named therein, the court may impose
+upon him such fine, in the case of the Primary Court not exceeding
+fifty rupees, and in the case of the District Court not exceeding two
+hundred rupees, as the court thinks fit, having regard to his condition
+in life and all the circumstances of the case; and may order the
+property sequestered, or any part thereof, to be sold for the purpose of
+satisfying all costs incurred in consequence of such sequestration,
+together with the amount of the said fine, if any:
+Provided that if the person whose attendance is required pays into
+court the costs and the fine as aforesaid, the court shall order the
+property to be released from sequestration.
+Court may summon134 Subject to the rules of this Ordinance as to attendance and
+and examine any
+person as witness. appearance, if the court at any time thinks it necessary to examine any
+person other than a party to the action, and not named as a witness by
+a party to the action, the court may, of its own motion, cause such
+person to be summoned as a witness to give evidence, or to produce
+any document in his possession, on a day to be appointed; and may
+examine him as a witness, or require him to produce such document.
+Person summoned 135. Subject as last aforesaid, whoever is summoned to appear and
+must attend at time
+and place named ingive evidence in an action must attend at the time and place named in
+the summons. the summons for that purpose, and whoever is summoned to produce
+a document must either attend to produce it, or cause it to be
+produced, at such time and place.
+When witness may 136. No person so summoned and attending shall depart unless and
+depart.
+until-
+(a) he has been examined or has produced the document
+and the court has risen; or
+(b) he has obtained the court's leave to depart.
+Witness may be 137.
+arrested for non-
+compliance with (1) If any person on whom a summons to give evidence or
+summons. produce a document has been served fails to comply with
+the summons, or if any person so summoned and
+attending departs in contravention of section 136, the court
+may order him to be arrested and brought before the court:
+Provided that no such order shall be made when the court
+has reason to believe that the person so failing had a
+lawful excuse for such failure.
+Non-compliance(2) When any person so brought before the court fails to
+with summons
+satisfy it that he had a lawful excuse for not complying with
+without awful
+excuse deemedthe summons, he shall be deemed to be guilty of the
+to be contempt
+offence of contempt of court, and punishable therefor.
+of court.
+Court may release 138. If any person so apprehended and brought before the court
+arrested witness on
+bail. cannot, owing to the absence of the parties or any of them give the
+evidence or produce the document which he has been summoned to
+give or produce, the court may require him to give reasonable bail or
+other security for his appearance at such time and place as it thinks fit,
+and on such bail or security being given may release him.
+Procedure when 139. If any person so failing to comply with a summons absconds or
+witness absconds.
+keeps out of the way, so that he cannot be apprehended and brought
+before the court, the provisions of sections 131, 132, and 133 shall,
+mutatis mutandis apply.
+Court may pass 140. If any party to an action being present in court refuses, without
+decree against party
+refusing to give lawful excuse, when required by the court, to give evidence, or to
+evidence. produce any document then and there in his actual possession or
+power, the court may in its discretion either pass a decree against him,
+or make such other order in relation to the action as the court thinks fit,
+or may punish him as for a contempt of court.
+Rules as to 141.
+witnesses to apply
+to a party (1) Whenever any party to an action is required to give
+summoned to give evidence or produce a document, the rules as to witnesses
+evidence.
+contained in this Ordinance shall apply to him, so far as
+they are applicable.
+(2) Nothing in this Chapter contained shall be deemed in
+any way to contravene or affect the provisions of the Proof
+of Public Documents Ordinance except in so far as the
+same may be hereby expressly repealed or modified.
+Privilege from arrest142. Any person duly and in good faith summoned or ordered to
+of witness.
+attend for the purpose of being examined in a case is privileged from
+arrest in a civil action or special proceeding while going to, remaining
+at, and returning from the place where he is required to attend.
+CHAPTER XVIIA
+PRE -TRIAL CONFERENCE AND PRE-TRIAL
+ORDERS [§19, 29 of 2023]
+Pre-trial conference.142A.
+[19, 29 of 2023]
+(1) The court shall conduct a pre-trial conference with the
+Attorneys-at-law representing the parties and the parties
+not so represented, for the following purposes :-
+(a) to facilitate a settlement between the parties
+as specified in subsection (2), ensuring that the
+matters not so settled shall only be fixed for trial;
+(b) to expedite the disposition of the action
+through judicial case management;
+(c) improving the quality of the trial through prior
+preparation and case management orders so that
+the action will not be protracted due to lack of trial
+management;
+(d) to identify the key issues at an early stage, in
+order to discourage unnecessary pre-trial
+applications;
+(e) to facilitate the discovery of evidence;
+(f) to identify the witnesses and documents and
+avoid unnecessary production of evidence at the
+trial; and
+(g) to fix strict time limits for pre-trial orders and
+enforcement thereof.
+(2)
+(a) The Judge shall, at the pre-trial conference,
+make every effort to persuade the parties to
+arrive at a settlement of the dispute and where
+the parties agree for a settlement, such
+settlement shall be recorded and signed by the
+parties and an order shall be made in accordance
+with the terms of such settlement.
+(b) The Judge in an appropriate case, may direct
+the parties to appear either in person or in the
+case of a party being a legal person, an
+authorized representative thereof to be present at
+the pre-trial conference in order to facilitate a
+settlement, adjustment, compromise or other
+agreements.
+(3) The judge at the pre-trial conference may determine
+unresolved jurisdictional and legal issues.
+Pre-trial orders. 142B. Subject to the provisions of section 104A, the Judge shall, at
+[19, 29 of 2023]
+the pre-trial conference, discuss with the parties, and make
+appropriate pre-trial orders on the following matters: -
+(a) identifying and obtaining admissions of facts or
+documents;
+(b) identifying the number of witnesses to be called at the
+trial based on the relevancy and admissibility to the case
+and dispensing with calling of unnecessary witnesses;
+(c) identifying the documents to be produced at the trial
+based on the relevancy, admissibility, to the case and
+authenticity of documents and in appropriate instances
+dispense with proof of such documents;
+(d) with regard to the discovery, inspection, protection,
+preservation and production of documents and tangible
+things including specification of terms, time, place, manner
+and form in which such documents and tangible things to
+be discovered, protected, preserved and produced in court
+and authentication of documents and signatures;
+(e) the protection of trade secrets, other confidential
+research information and undisclosed commercial
+information subject to privileges and limitations;
+(f) issuing of certified copies of documents in the custody of
+any public office, public corporation, provincial council,
+local authority, bank, body incorporate or unincorporate,
+partnership, hospital, medical institute, court, tribunal or
+any such similar institution:
+Provided that, the provisions of this paragraph shall not
+prejudice the right of the State to withhold any document
+on the ground that in the opinion of the Minister assigned in
+terms of Article 44 or 45 of the Constitution the subject to
+which the document relates, the public interest would suffer
+by such disclosure;
+(g) upon the agreement of the parties, issuing of
+commissions to a single, joint or court appointed
+independent experts to inquire and report on any question
+of fact and express an opinion thereof:
+Provided that, any application for the issue of a
+commission for local investigation as referred to in Chapter
+XXIX shall be made prior to the day first fixed for the pre-
+trial conference:
+Provided further, that the court may, in its discretion, issue
+a commission for such local investigation after the day first
+fixed for pre-trial conference if it is satisfied, for reasons to
+be recorded and subject to terms as to costs or otherwise,
+that a commission is necessary for the determination of the
+matters in dispute or settlement of the dispute between the
+parties;
+(h) recording of any agreement of parties with regard to
+any matter, including any issues of facts or law, mode of
+proof of any fact or document or the number of witnesses
+to be called or number of documents to be produced at the
+trial, and entering of orders or judgment in accordance with
+such agreement of parties:
+Provided that, the court shall read out and explain the
+effect of such agreement to the parties concerned and
+record the fact that the parties understand the contents of
+such agreement and the effect thereof and the parties shall
+sign the agreement or the case record where such
+agreement is recorded orally in open court;
+(i) consolidating two or more actions, subject to the
+provisions of section 149A;
+(j) withdrawal of actions;
+(k) the use of technology or employing a special interpreter
+at the trial;
+(l) identifying the number of trial dates or period within
+which a trial may be concluded and how the time available
+for the trial will be used; or
+(m) any other step as may be necessary or desirable for
+the just and expeditious disposal of the action.
+Parties to be ready 142C. The parties or their registered attorneys shall, at the pre-trial
+with original
+documents. conference, bring with them and have in readiness at the pre-trial
+[19, 29 of 2023] conference, original or certified copies of all documents specified in
+the list of documents and tendered to the registry of the court under
+section 79B.
+Permission of court 142D.
+to call additional
+witnesses and (1) The court shall, at the pre-trial conference, on
+additional application of any party, grant permission to such party, to
+documents
+identified or call any witness or produce any document at the trial, if
+discovered at pre- such witness or document is identified at such conference
+trial conference.
+to be relevant to the matters in dispute, notwithstanding
+[19, 29 of 2023]
+such witness or document not being included in the list of
+witnesses or documents filed under paragraph (b) of
+section 79B:
+Provided that, the pre-trial Judge may award costs against
+the party seeking to tender documents or summon
+witnesses which had not been included in the list filed
+under paragraph (b) of section 79B unless such party can
+adduce sufficient reasons for the failure to include such
+documents or witnesses in the said list.
+(2) The court may, at its discretion, grant permission at the
+pre- trial conference, to any party to produce any document
+at the trial and call any witness in proof thereof, if such
+document is discovered under Chapter XVI relevant to the
+matters in dispute.
+(3) Where the court grants permission to call any additional
+witness or document under subsection (1) or (2), the court
+shall, at the pre- trial conference, record the fact that such
+party is entitled to call such witness or produce such
+document at the trial and no further list of witnesses or
+documents is required to be filed thereafter.
+Pre-trial steps not to142E. Subject to the provisions of this Act, any application for pre-trial
+be allowed after
+fixing the date of steps shall not be allowed after the conclusion of the pre-trial
+trial. conference of an action unless the court is satisfied for reasons to be
+[19, 29 of 2023]
+recorded and subject to costs that a grave and irremediable injustice
+would be caused if such steps are not permitted and the party
+applying for such steps is not guilty of laches.
+Determination of 142F.
+issues.
+(1) Where the judge is satisfied that all the pre-trial steps
+[19, 29 of 2023]
+have been taken, the Judge shall determine the issues,
+taking into consideration the pleadings, proposed
+admissions and issues of the parties, interrogatories,
+documents, agreement of the parties and reports if any,
+submitted to court during the pre-trial conference.
+(2) Where issues both of law and facts arise in the same
+action, and the court is of the opinion that the case may be
+disposed of on the issues of law only, the court shall try
+such issues first and for that purpose the court may, if it
+thinks fit, postpone the settlement of the issues of fact until
+after the issues of law have been determined.
+Advancement or 142G. The Judge conducting the pre-trial conference may, either on
+postponement of
+pre-trial. his own motion or on the application of any party and for sufficient
+[19, 29 of 2023] cause shown, advance or postpone the date fixed for the pre-trial
+conference:
+Provided that, the Judge conducting the pre- trial conference shall
+conclude the hearing within four months from the commencement of
+such conference, unless the Judge is prevented from acting
+accordingly for reasons which shall be recorded, including delays in
+adducing evidence or discoveries.
+Default of parties. 142H. Where any party-
+[19, 29 of 2023]
+(a) fails to diligently take steps according to the provisions
+of Chapters XB and this Chapter or diligently prosecute or
+defend the case during the pre- trial conference or fails to
+comply with any pre-trial order without any reasonable
+ground; or
+(b) fails to appear without sufficient cause on the day fixed
+for the pretrial conference or on any other day to which it is
+adjourned,
+the Judge conducting the pre-trial conference may, taking
+into consideration all appropriate circumstances -
+(i) subject to the payment of costs or pre-payment
+of costs, make such appropriate order as he may
+think fit, including, directing such party to comply
+with the requirement which was not complied
+with, unless such non-compliance was
+substantially justified;
+(ii) continue further proceedings notwithstanding
+such default was made by any party who has
+obtained any pre- trial order, disregarding any
+such pre- trial order and upon such terms as to
+costs being awarded against such defaulting
+party; or
+(iii) proceed to dispose of the action in one of the
+methods specified in Chapter XII:
+Provided that, the Judge shall make every endeavor to
+make orders in terms of paragraph (i) or (ii), prior to an
+order being made under paragraph (iii), unless a party is
+absent and unrepresented at the pre-trial conference.".
+CHAPTER XVIII
+OF ADJOURNMENTS
+Adjournments. 143.
+[10,79 of 1988] (1) The court may, if sufficient cause be shown at any
+stage of the action, grant time to the parties or to any of
+them, and may from time to time adjourn the hearing of the
+action:
+Provided however, that no adjournment in excess of Six
+weeks may be granted except in exceptional
+circumstances, and for reasons to be recorded.
+(2) In all such cases the court shall fix a day for the further
+hearing of the action, and may make such order as it thinks
+fit with respect to the costs occasioned by the adjournment:
+Provided that, when the hearing of evidence has once
+begun, the hearing of the action shall be continued from
+day to day until all the witnesses in attendance have been
+examined, unless the court finds the adjournment of the
+hearing to be necessary for reasons to be recorded and
+signed by the Judge.
+Non-appearance of 144. If on any day to which the hearing of the action is adjourned, the
+a party on the
+adjourned day. parties or any of them fail to appear, the court may proceed to dispose
+of the action in one of the modes directed in that behalf by Chapter
+XII, or make such other order as it thinks fit.
+Default of party to 145. If any party to an action, to whom time has been granted, fails to
+carry out purpose of
+adjournment. produce his evidence, or to cause the attendance of his witnesses, or
+to perform any other act necessary to the further progress of the
+action, for which time has been allowed, the court may,
+notwithstanding such default, proceed to decide the action forthwith.
+[Section 146, 147 and 148 is repealed by Law No. 8 of 2017]
+Amendment of 149. The court may, at any time before passing a decree, amend the
+Issues.
+issues or frame additional issues on such terms as it thinks fit.
+Consolidation of 149A.
+actions.
+(1) The court may order, two or more actions in which the
+[11, 8 of 2017]
+questions of law or fact in issue are substantially the same,
+to be consolidated upon such terms as the court may deem
+fit and on the agreement of Parties.
+(2) The Court may order -
+(a) several actions to be tried at the same time
+and on the same evidence; or
+(b) the evidence in one action to be used as
+evidence in another; or
+(c) one of several actions to be tried and other
+actions to be stayed to abide by the result,
+with the consent of the parties:
+Provided that on the application of any party the court shall
+have power to try another of the actions so stayed where
+the selected action fails to be a real trial of the issues
+involved.
+Party having right to150. The party having the right to begin shall state his case, giving the
+begin to state his
+case. substance of the facts which he proposes to establish by his evidence.
+Explanation 1
+Rules as to right to begin
+The plaintiff has the right to begin unless where
+the defendant admits the facts alleged by the
+plaintiff, and contends that either in point of law or
+on some additional facts alleged by the defendant
+the plaintiff is not entitled to any part of the relief
+which he seeks, in which case the defendant has
+the right to begin.
+Explanation 2
+The case enunciated must reasonably accord with
+the party's pleading, i.e., plaint or answer, as the
+case may be. And no party can be allowed to
+make at the trial a case materially different from
+that which he has placed on record, and which his
+opponent is prepared to meet. And the facts
+proposed to be established must in the whole
+amount to so much of the material part of his case
+as is not admitted in his opponent's pleadings.
+Party having right to151. After stating his case in person, or by his registered attorney or
+begin to produce his
+evidence. counsel, the same party shall produce his evidence, calling his
+witnesses and by questions eliciting from each of them the relevant
+and material facts to which such witness can speak of his own
+observation.
+Explanation
+The questions should be simple, and so framed as
+to obtain from the witnesses, as nearly as may be
+in a chronological order, a narrative of all the facts
+relevant to the matter in issue between the parties
+which he has witnessed- i.e., which he has in any
+manner directly observed or perceived, and no
+others. And on any disputed point the questions
+should not be such as to lead, or suggest, the
+answer; nor such as to induce a witness, other
+than an expert, to state a conclusion of his
+reasoning, an inference of fact, or a matter of
+belief, in the place of describing what he actually
+observed.
+Also, a general request to a witness to tell what he
+knows, or to state the facts of the case, is, as a
+rule, not to be permitted, because it gives an
+opening for a prepared story.
+Nothing in this explanation operates to prevent a
+witness from stating hearsay, or giving any
+opinion, where the hearsay or opinion is a relevant
+fact in the case.
+Affidavit may be 151A.
+substituted.
+(1) Notwithstanding the provisions of section 151, the court
+[12, 8 of 2017]
+may, on its own motion or at the request of one of the
+parties to the action, order that an affidavit be substituted
+for an oral examination in chief of a witness and direct the
+party calling such witness to tender such affidavit on a date
+fixed by the court which date shall be at least one month
+prior to the date of trial, to enable the opposite party to
+prepare for the trial.
+(2) Where an order is made by the court under subsection
+(1), the party who is responsible for tendering the affidavit
+shall tender it together with the documents referred to
+therein, to the Registrar of the court with the proof of
+service of a copy of the affidavit with copies of all
+documents of the opposite party.
+(3) On the date of the trial, the party tendering the affidavit
+shall produce the affidavit through the witness who has
+affirmed to or sworn to it, including all documents referred
+therein. The opposite party is entitled to object to its being
+received, either on the inadmissibility of such evidence or a
+part of the evidence or on the inadmissibility or authenticity
+of any documents annexed to such affidavit. In such event,
+the court may make a ruling on such objection, prior to the
+witness being cross examined by the opposite party:
+Provided that, the court may, in appropriate circumstances,
+permit the leading of oral evidences, in addition to the
+evidence contained in the affidavit.
+(4) If an affidavit contains evidence of matters of hearsay
+or any matter which is scandalous, the court may order
+deletion of such matters and may proceed with the rest of
+the matters in the affidavit or may order the party who filed
+such affidavit to tender a fresh admissible affidavit and the
+party filing such inadmissible affidavit shall be liable to the
+payment of costs.
+Cross-examination. 152. After the examination-in-chief by the party who called the
+witness, the cross-examination of the same witness, if required, shall
+in like manner be effected by the opposite side, only that in this case
+leading questions may be put.
+Re-examination. 153. Then shall follow re-examination by the first side if required, for
+the purpose of enabling the witness to explain such answers given by
+him on cross-examination as may have left facts imperfectly stated by
+him, and to add such further facts as may have been suggested and
+made admissible by the cross-examination
+Explanation
+During the course of the examination, cross-
+examination, and re-examination, the court ought
+not, as a general rule, to interfere, except when
+necessary for the purpose of causing questions to
+be put in a clear and proper shape, of checking
+improper questions and of making the witness give
+precise answers. At the end of it, however, if it has
+been reasonably well conducted, the court ought
+to know fairly the position of the witness with
+regard to the material facts of the case, and it
+should then put such questions to the witness as it
+may consider necessary to possess itself of all the
+detailed relevant facts to which the witness can
+speak from personal observation, or which bear
+upon his trustworthiness.
+Tender of 154.
+documents in
+evidence. (1) Every document or writing which a party intends to use
+as evidence against his opponent must be formally
+tendered by him in the course of proving his case at the
+time when its contents or purport are first immediately
+spoken to by a witness. If it is an original document already
+filed in the record of some action, or the deposition of a
+witness made therein, it must previously be procured from
+that record by means of, and under an order from, the
+court. If it is a portion of the pleadings, or a decree or order
+of court made in another action, it shall not generally be
+removed there from, but a certified copy thereof shall be
+used in evidence instead.
+Records of (2) It shall not be competent to the court to admit in
+other actions
+evidence the entire body of proceedings and papers of
+not to be
+admitted in another action indiscriminately. Each of the constituent
+bulk.
+documents, pleadings, or processes of the former action,
+which may be required in the pending action, must be dealt
+with separately as above directed.
+Documents (3) The document or writing being admitted in evidence,
+admitted to be
+the court, after marking it with a distinguishing mark or
+read aloud in
+court. letter by which it should, when necessary, be ever after
+referred to throughout the trial, shall cause it, or so much of
+it as the parties may desire, to be read aloud.
+Explanation
+If the opposing party does not, on the document
+being tendered in evidence, object to its being
+received, and if the document is not such as is
+forbidden by law to be received in evidence, the
+court should admit it.
+If, however, on the document being tendered the
+opposing party objects to its being admitted in
+evidence, then commonly two questions arise for
+the court:-
+Firstly, whether the document is authentic- in other
+words, is what the party tendering it represents it
+to be; and
+Secondly, whether, supposing it to be authentic, it
+constitutes legally admissible evidence as against
+the party who is sought to be affected by it.
+The latter question in general is matter of
+argument only, but the first must be supported by
+such testimony as the party can adduce. If the
+court is of opinion that the testimony adduced for
+this purpose, developed and tested by cross-
+examination, makes out a prima facie case of
+authenticity and is further of opinion that the
+authentic document is evidence admissible
+against the opposing party, then it should admit
+the document as before.
+If, however, the court is satisfied that either of
+those questions must be answered in the
+negative, then it should refuse to admit the
+document.
+Whether the document is admitted or not it should
+be marked as soon as any witness makes a
+statement with regard to it; and if not earlier
+marked on this account, it must, at least, be
+marked when the court decides upon admitting it.
+Proof of deed or 154A.
+document
+unnecessary in (1) Notwithstanding the provisions of the Evidence
+certain events Ordinance (Chapter 14), in any proceedings under this
+[2, 17 of 2022]
+Code, it shall not be necessary to adduce formal proof of
+the execution or genuineness of any deed, or document
+which is required by law to be attested, other than a will
+executed under the Wills Ordinance (Chapter 60), and on
+the face of it purports to have been duly executed, unless-
+(a) in the pleadings or further pleadings in an
+action filed under regular procedure in terms of
+this Code, the execution or genuineness of such
+deed or document is impeached and raised as an
+issue; or
+(b) the court requires such proof:
+Provided that, the provisions of this section shall
+not be applicable in an event, a party to an action
+seeks to produce any deed or document not
+included in the pleadings of that party at any
+proceedings under this Code.
+(2) The provisions of subsection (1), shall mutatis mutandis
+apply in the actions on summary procedure under this
+Code.
+Procedure to be 155. Before a witness is allowed to, in any way, identify a document,
+followed before
+witness is asked to he should generally be made, by proper questioning, to state the
+identify document. grounds of his knowledge with regard to it.
+Illustration
+If the witness is about to speak to the act, or
+factum, of signature he should first be made to
+explain concisely the occurrences which led to his
+being present on the occasion of the signing; and
+if he is about to recognize a signature on the
+strength of his knowledge of the supposed signer's
+handwriting, he should first be made to slate the
+mode in which this knowledge was acquired.
+Cross-examination 156. The questioning for this purpose should be effected by the party
+as to knowledge.
+who is seeking to prove the document; and the opposing party, if he
+desires to do so, should be allowed to interpose with cross-
+examination on this point before the document is shown to the
+witness.
+Court to see witness157. It is the duty of the court, in the Court to see event of a witness
+thus tested.
+professing to be able to witness thus tested recognize or identify
+writing, always to take care that his capacity to do so is thus tested,
+unless the opposite party admits it.
+And to decide on his158. If on the examination effected for this purpose it appears to the
+competency.
+court that the witness was not in tact present at the time Of signing, or
+is not reasonably competent to identify the handwriting, then the court
+shall not permit him to give his testimony on the matter of the
+signature.
+Signature by a mark159.
+how proved.
+(1) The signature of a person, which purports or which
+appears by the evidence to have been written by the pen of
+another, is not proved until both the fact of the writing and
+the authority of the writer to write the name on the
+document as a signature is proved.
+(2) Subsection (1) applies to the case where the signature
+is a mark explained by the name written adjacent thereto.
+Proof in the case of 160. In the case of an illiterate person, who cannot read, it must also
+an illiterate person.
+be proved that at the time when his name was written on, or his mark
+put to, the document, he understood the contents of it:
+Provided that where the name of such illiterate person shall have been
+written on, or his mark put to, any document for the purpose merely of
+attesting the signature of another, it shall not be necessary to prove
+that he understood the contents of such document, but it shall be
+sufficient to prove that he was aware of the purpose for which this
+name was so written or his mark so put, and that the person whose
+signature he purports to attest was known to him.
+Case of documents 161. When the document purports on the face of it to be so old that
+whose execution
+need not be proved.proof of the actual execution is not required by law, it is not proved
+until sufficient evidence has been given to prove both that it comes
+into court from the proper custody, and that it has continued to be in
+proper custody throughout the period during which it can be
+reasonably accounted for.
+Copy of absent 162. When the document, the admission of which is objected to, is put
+original how proved.
+forward as the copy of an absent original, it is not proved until both
+such evidence as is sufficient to prove the correctness of the copy,
+and also such evidence as would be sufficient to prove the original,
+had it been tendered instead of the copy, has been given.
+Note:- The question whether a copy document is admissible in
+evidence between the parties in the place of the original is quite
+distinct from the question whether the document (original or copy) is
+admissible as evidence relevant to the issue under trial.
+On termination of 163. When the party beginning has stated his case and adduced his
+beginning party's
+case the opposing evidence in accordance with the foregoing rules, then the opposing
+party to state and party or parties (if there are more than one, who have distinct cases)
+prove his in like
+manner. Reply. shall in person, or by registered attorney or counsel, state his or their
+When rebutting case or cases (and in the latter event in succession), and when the
+evidence is
+admissible. case of each opposing party has been so stated each such party shall
+adduce in order his evidence, oral and documentary, and the same
+shall be received and dealt with precisely as in the case of the party
+beginning, who shall then be entitled to reply. But where there are
+several issues, the burden of proving some of which lies on the other
+party or parties, the party beginning may at his option either produce
+his evidence on those issues or reserve it by way of answer to the
+evidence produced by the opposing party or parties; and in the latter
+case the party beginning may produce evidence on those issues after
+the other party or parties has or have produced all his or their
+evidence, and such other party or parties may then reply specially on
+the evidence so produced by the party beginning, but the party
+beginning will in that case be entitled to reply generally on the whole
+case.
+Court may question 164. The court may at any time, whether before or after the
+witness at any time.
+examination of a witness by the respective parties or during such
+examination, put and interpose such questions as it may consider
+conducive to the attainment of truth and justice. And the answers to
+such questions shall be made to appear on the face of the record as
+having been given to the court.
+Court may recall 165. The court may also in its discretion recall any witness, whose
+Witness.
+testimony has been taken, for further examination or cross-
+examination, whenever in the course of the trial it thinks it necessary
+for the ends of justice to do so.
+When may court 166. The court may for grave cause, to be recorded by it at the time,
+permit departure
+from above Rules. permit a departure from the course of trial prescribed in the foregoing
+rules.
+Evidence of witness167. The evidence of the witnesses shall be given orally, as above
+to be given orally in
+open court. prescribed, in open court in the presence and under the personal
+direction and superintendence of the Judge.
+Witness to be 168. Witnesses professing to be Christians or Jews, who have
+examined on oath,
+or affirmation. discretion to understand the nature of an oath, shall be examined
+upon oath, unless they state that, according to their religious tenets or
+on other grounds they object to the taking of an oath, in which case
+they shall be examined on affirmation. Witnesses not professing to be
+Christians or Jews shall be examined on affirmation. The same rule
+shall apply to affidavits. And except when hereinafter otherwise
+expressly provided, the oath or affirmation shall be administered in
+open court.
+Evidence of witness169. The evidence of each witness shall be taken down in writing by
+how taken down.
+the Judge, or in his presence and hearing and under his personal
+[30,20 of 1977]
+direction and superintendence. The evidence shall be taken down
+ordinarily in the form of a narrative.
+Any particular 170. The court may of its own motion or on the application of any party
+question and
+answer may be take down or cause to be taken down any particular question and
+taken down. answer, or any objection to any question, if there appear to the court
+any special reason for so doing.
+The objection to 171. If any question put to a witness be objected to, and the court
+question which is
+allowed and the allows the same to be put, the Judge may in his discretion take down
+decision of court in writing the question, the answer, the objection, and the name of the
+thereon may be
+taken down. party making it, together with the decision of the court thereon.
+The objection to 172. If on objection made the court refuses to allow the question to be
+question disallowed
+and the decision of put, the Judge shall, on the request of the questioner, take down in
+court thereon to be writing the question, the objection, and the name of the party making
+taken down.
+it, together with the decision of the court thereon.
+Court may record 173. The court may record such remarks as it thinks material
+remarks on
+demeanour of respecting the demeanour of any witness while under examination.
+witness.
+Witnesses may be 174. The witnesses on either side or on both or all sides shall, on
+kept out of court.
+motion of any of the parties, be kept out of court and of hearing,
+except the witness immediately under examination; nor shall any
+witness, who shall remain in court or within hearing after order made
+to that effect, be permitted to give evidence, unless in the case of a
+witness called to prove some fact which has incidentally become
+essential in the course of the trial, and the necessity of which could not
+reasonably have been anticipated. And every witness who has been
+examined shall be kept separate from, and shall be allowed no
+communication with, those who still remain to be examined:
+Provided that it shall be lawful for the court in its discretion to allow
+any witness to be examined, if it shall think such examination
+conducive to the attainment of truth or justice, notwithstanding that
+such witness shall have remained in court or within hearing contrary to
+such order aforesaid.
+No witness to be 175.
+called or document
+to be produced [20, 29 of 2023] (1) No witness shall be called on behalf of any party unless
+unless included in such witness shall have been included in the list of
+list of witnesses or
+documents. witnesses previously filed in court by such party as
+[20, 29 of 2023] provided by subparagraph (i) of paragraph (b) of section
+79B or permitted by court under section 142D:
+Provided, however, that the court may in its discretion, if
+special circumstances appear to it to render such a course
+advisable in the interests of justice, permit a witness to be
+examined, although such witness may not have been
+included in such list aforesaid,
+Provided also that any party to an action may be called as
+a witness without his name having been included in any
+such list.
+[31,20 of 1977] (2) A document which is required to be included in the list
+[20, 29 of 2023] of documents filed in court by a party as provided by
+subparagraph (ii) of paragraph (b) of section 79B and
+which is not so included or not permitted by court under
+section 142D shall not, without the leave of the court, be
+received in evidence at the trial of the action:
+Provided that nothing in this subsection shall apply to
+documents produced for cross examination of the
+witnesses of the opposite party or handed over to a
+witness merely to refresh his memory.
+[20, 29 of 2023] (3) Where an order is made under this section, the court
+shall take into consideration any order made under section
+142B.
+Court may forbid 176. The court may forbid any questions or inquiries which it regards
+indecent or
+scandalous as indecent or scandalous, although such questions or inquiries may
+questions. have some bearing on the questions before the court, unless they
+relate to facts in issue or to matters necessary to be known in order to
+determine whether or not the fact in issue existed.
+Court shall forbid 177. The court shall forbid any question which appears to it to be
+insulting questions.
+intended to insult or annoy, or which, though proper in itself, appears
+to the court needlessly offensive in form.
+Evidence de bene 178.
+esse.
+(1) If a witness is about to leave the jurisdiction of the
+court, or if other sufficient cause is shown to the
+satisfaction of the court why his evidence should be taken
+immediately, the court may upon the application of either
+party or of the witness, at any time after the institution of
+the action and before trial, take the evidence of such
+witness in manner hereinbefore provided.
+(2) Where such evidence is not taken forthwith, and in the
+presence of the parties, such notice as the court thinks
+sufficient of the day fixed for the examination shall be given
+to the parties.
+(3) The evidence so taken may be read at any hearing of
+the action, provided that the witness cannot then be
+produced.
+Evidence taken on 179. The court may at any time, for sufficient reason, order that any
+affidavit or on
+commission. particular factor facts may be proved by affidavit, or by depositions
+taken on commission, instead of by the testimony of witnesses given
+viva voce before it, or that the affidavit, or deposition taken on
+commission, of any witness may be read at the hearing of the action
+on such conditions as the court shall think reasonable;
+Provided that when it appears to the court that either party bona fide
+desires the production of a witness before the court for cross-
+examination viva voce, and that such witness can be so produced, an
+order shall not be made authorizing the evidence of such witness to be
+given otherwise than viva voce.
+Court may examine 180. In the event of an order having been made for the proof of facts
+witness viva voce
+notwithstanding by affidavit, or by deposition taken on commission, the court may,
+affidavit or nevertheless, at the instance of either party order the attendance of
+commission.
+the declarant or deponent at the hearing of the action for viva voce
+cross-examination, if he is in Sri Lanka and can be produced.
+What statements 181. Affidavits shall be confined to the statement of such facts as the
+may affidavit
+contain. declarant is able of his own knowledge and observation to testify to,
+except on interlocutory applications in which statement of his belief
+may be admitted, provided that reasonable grounds for such belief be
+set forth in the affidavit.
+Petitions cannot be 182. A petition stating facts of observation and belief is not converted
+converted to
+affidavits. into an affidavit by the addition of a verifying clause, an affirmation or
+oath, to the effect that the statements in the petition are true.
+Who may 183. In the case of any affidavit under this Chapter -
+administer oaths.
+(a) any court, or Magistrate, or Justice of the Peace; or
+[11,79 of 1988]
+(b) any officer whom the Minister in charge of the subject of
+Justice may appoint for the purpose (and who shall be
+styled " Commissioner for Oaths ") may administer the oath
+to the declarant.
+(c) any person qualified to administer an Oath or
+affirmation according to the law of the country, in which the
+affidavit is sworn or affirmed.
+Who may make 183A. Where any person is required under the provisions of this
+affidavits in lieu of
+the parties to the Code, or under any other law for the time being in force, to make an
+action. affidavit, then-
+[12,79 of 1988]
+(a) where the action is brought by or against the Attorney-
+General, any officer of the State, and
+(b) where the action is brought by or against a corporation,
+board, public body, or company, any secretary, director or
+other principal officer of such corporation, board, public
+body or company; and
+(c) where any party to the action is absent from Sri Lanka,
+his attorney duly authorized to bring, conduct or defend the
+action, as the case may be; and
+(d) where any party to the action, or where there is more
+than one party to the action such of the parties as are in Sri
+Lanka, or when such attorney of the parties as is just
+above mentioned, is or are unable, for want of personal
+knowledge or bodily or mental infirmity, to make the
+required affidavit, any recognized agent of such party,
+may make an affidavit in respect of these matters, instead of the party
+to the action:
+Provided that in each of the foregoing cases the person who makes
+the affidavit instead of the party to the action, must be a person having
+personal knowledge of the facts of the cause of action, and must in his
+affidavit swear or affirm that he deposes from his own personal
+knowledge of the matter therein contained and shall be liable to be
+examined as to the subject-matter thereof at the discretion of the
+Judge, as the party to the action would have been, if the affidavit had
+been made by such party.
+Punishment for 183B. Where any person wilfully makes any false statement by
+willful false
+statement made affidavit or otherwise, in the course of any of the proceedings
+under section 183A.aforesaid he may be punished as for a contempt of court, besides his
+[12,79 of 1988]
+liability to be tried and punished under the Penal Code for the offence
+of giving false evidence, where such statement is on oath or
+affirmation.
+CHAPTER XX
+JUDGMENT AND DECREE
+Judgment when 184.
+pronounced.
+(1) The court, upon the evidence which has been duly
+taken or upon the facts admitted in the pleadings or
+otherwise, and after the parties have been heard either in
+person or by their respective counsel or registered
+attorneys (or recognized agents), shall, after consultation
+with the assessors (if any), pronounce judgment in open
+court, either at once or on some future day, of which notice
+shall be given to the parties or their registered attorneys at
+the termination of the trial.
+(2) On the day so fixed, if the court is not prepared to give
+its judgment, a yet future day may be appointed and
+announced for the purpose.
+Judge may 185. A Judge may pronounce a judgment written by his predecessor,
+pronounce
+judgment written by but not pronounced,
+predecessor.
+Judgment to be in 186. The judgment shall be in writing and shall be dated and signed
+writing and to be
+dated and signed inby the Judge in open court at the time of pronouncing it.
+open court.
+[32,20 of 1977]
+Validation in certain 186A. Where a Judge pronounces a judgment written by his
+circumstances of
+judgments predecessor but not pronounced as provided in section 185, such
+pronounced by judgment shall, if such predecessor was a judicial officer within the
+successors in office
+of Judges. meaning of Article 114(6) of the Constitution at the time such judgment
+[2,3 of 1960] was written, not be deemed to be invalid by reason only of the fact that
+such predecessor had no jurisdiction to write such judgment.
+Requisites of 187. The judgment shall contain a concise statement of the case, the
+Judgment.
+points for determination, the decision thereon, and the reasons for
+such decision; and the opinions of the assessors (if any) shall be
+prefixed to the judgment and signed by such assessors respectively.
+Decree. 188. As soon as may be after the judgment is pronounced, a formal
+decree bearing the same date as the judgment shall be drawn up by
+the court in the form No. 41 in the First Schedule or to the like effect,
+specifying in precise words the order which is made by the judgment
+in regard to the relief granted or other determination of the action. The
+decree shall also state by what parties and in what proportions costs
+are to be paid, and in cases in the Primary Courts shall state the
+amount of such cost. The decree shall be signed by the Judge.
+Amendment of 189.
+Judgments, decrees
+and orders. (1) The court may at any time, either on its own motion or
+on that of any of the parties, correct any clerical or
+arithmetical mistake in any judgment or order or any error
+arising therein from any accidental slip or omission, or may
+make any amendment which-is necessary to bring a
+decree into conformity with the judgment.
+(2) Reasonable notice of any proposed amendment under
+this section shall in all cases be given to the parties or their
+registered attorneys.
+Requisites of 190. Where the decree relates to immovable property the property
+decree relating to
+immovable property.affected thereby shall be described therein by the boundaries and in
+[33,20 of 1977] such other manner by reference to surveys or otherwise as may
+secure, as far as possible, correctness of identification; and the
+description shall be in such form as to enable such decree to be
+registered under the Registration of Documents Ordinance.
+Requisites of 191. When the action is for movable property, if the decree be for the
+decree relating to
+movable property. delivery of such property, it shall also state the amount of money to be
+paid as an alternative, if delivery cannot be had.
+At what rate may 192.
+interest on money
+be decreed. (1) When the action is for a sum of rate may interest on
+[5, 53 of 1980] money due to the plaintiff, the court may, 192 of the in the
+[3,6 of 1990]
+decree order interest according to the rate agreed on
+between the parties by the instrument sued on, or in the
+absence of any such agreement at the legal rate, to be
+paid, on the principal sum adjudged from the date of action
+to the date of the decree, in addition to any interest
+adjudged on such principal superior any period prior to the
+institution of the action, with further interest at such rate on
+the aggregate sum so adjudged from the date of the
+decree to the date of payment, or to such earlier date as
+the court thinks fit.
+(2) For the purposes of this section, "the legal rate " means
+the rate per centum per annum determined by the
+Monetary Board established by the Monetary Law Act, by
+Notification published in the Gazette, having regard to
+current rates of bank interest.
+(3) Where such decree is silent with regard to the payment
+of further interest on such aggregate sum as aforesaid
+from the date of the decree to the date of payment or other
+earlier date, the court shall be deemed to have refused
+such interest, and i separate action therefor shall not lie.
+When may court 193. When the action is for damages for breach of contract, if it
+decree specific
+performance. appear that the defendant is able to perform the contract, the court,
+with the consent of the plaintiff, may decree the specific performance
+of the contract within a time to be fixed by the court, and in such case
+shall award an amount of damages to be paid as an alternative if the
+contract is not performed.
+When may court 194. In all decrees for the payment of money, except money due on
+decree payment by
+instalments. mortgage of movable or immovable property, the court may order that
+the amount decreed to be due shall be paid by instalments, with or
+without interest, and the court may in its discretion impose such terms
+as it may think fit as to giving security for the payments so to be made:
+Provided always that on failure to pay the first or any other instalment,
+the whole amount or any balance then due shall on such failure
+become immediately payable;
+Provided also, that if the party ordered to pay by instalments shall
+appeal against the decree, and the appeal shall be decided against
+him, his right to pay by instalments shall cease, and the whole amount
+shall be immediately payable, unless the Court of Appeal or the
+Supreme Court, as the case may be, give express direction to the
+contrary;
+Provided also, that no appeal shall lie against the refusal of the court
+to make an order for payment by instalments.
+Decree when set-off195. If the defendant shall have been allowed to set off any demand
+or claim in
+reconvention is against the claim of the plaintiff, the decree shall state what amount is
+allowed. due to the plaintiff and what amount (if any) is due to the defendant,
+and the mandatory part of the decree shall be for the recovery of any
+balance which shall on that statement appear to be due to either party.
+The decree of the court with respect to anything awarded to the
+defendant on any matter on which the defendant obtains judgment by
+set-off or in reconvention, shall be to the same effect, and be subject
+to the same rules, as if such thing had been claimed by the defendant
+in a separate action against the plaintiff.
+Decree when claim 196. When the action is for the recovery of the possession of
+in respect of mesne
+profits from date of immovable property, yielding rent or other profit, the court may,
+action is allowed. whenever the prayer of the plaint asks for damages in respect of
+[6, 53 of 1980]
+mesne profits or rent, provide in the decree for the payment of money
+in lieu of mesne profits or rent in respect of such property from the
+date of the institution of the action until the delivery of possession to
+the party in whose favour the decree is made, with interest thereon at
+such rate not exceeding twelve per centum as the court thinks fit.
+Explanation
+" Mesne profits " of property mean those profits
+which the person in wrongful possession of such
+property actually received, or might, with ordinary
+diligence, have received therefrom.
+Mesne profits prior 197. When the action is for the recovery of possession of immovable
+to date of action.
+property and for mesne profits which have accrued thereon during a
+period prior to the institution of the action, the court may either
+determine the amount and make an order for the payment thereof
+additional to and embodied in the decree itself, or may pass a decree
+for the property and reserve the inquiry into the amount of mesne
+profits to be entered upon after the execution of the decree for the
+property, as may appear most convenient.
+Interlocutory order 198. When the action is for an account of any property and for its due
+for accounts.
+administration under the decree of the court, the court, before making
+the final decree between the parties, shall order such accounts and
+inquiries to be taken and made, and give such other directions, as it
+thinks fit.
+Administration by 199. In the administration by the court of the property of any person
+the court.
+who dies after this Ordinance comes into force, if such property proves
+to be insufficient for the payment in full of his debts and liabilities, the
+same rules shall be observed as to the respective rights of secured
+and unsecured creditors, and as to debts and liabilities provable, and
+as to the valuation of annuities and future and contingent liabilities
+respectively as may be in force for the time being with respect to the
+estates of persons adjudged insolvent. And all persons who in any
+such case would be entitled to be paid out of such property may come
+in under the decree for its administration and make such claims
+against the same as they may respectively be entitled to by virtue of
+this Ordinance.
+Decree in action for 200. When the action is to enforce a right of pre-emption in respect of
+preemption & c.
+a particular sale of property, and the court finds for the plaintiff, if the
+amount of purchase money has not been paid into court, the decree
+shall specify a day on or before which it shall be so paid, and shall
+declare that on payment of such purchase money, together with the
+costs (if any) decreed against him, the plaintiff shall obtain possession
+of the property, but that if such money and costs are not so paid on or
+before such day or any extension thereof which shall have been
+allowed for good cause shown, the action shall stand dismissed with
+costs.
+[Section 201 is repealed by Ordinance No. 21 of 1927]
+Interlocutory order 202. When the action is for the dissolution of partnership, the court
+in action for
+dissolution of before making its decree may pass an order fixing the day on which
+partnership. the partnership shall stand dissolved, and directing such accounts to
+be taken and other acts to be done as it thinks fit.
+Suit for account 203. When the action is for an account of pecuniary transactions
+between principal
+and agent. between principal and agent, and in all other actions not hereinbefore
+provided for, where it is necessary in order to ascertain the amount of
+money due to or from any party that an account should be taken, the
+court shall before making its decree pass an order directing such
+account to be taken as it thinks fit.
+Decree or order 204. When a decree or order made at the hearing of the action is such
+postponing hearing.
+as to have the effect of postponing the further hearing and the final
+determination of the action, as for instance a decree for the taking of
+accounts, or an order for the issue of a commission to take evidence,
+or of a commission to divide by metes and bounds, it shall specify the
+time at which the further hearing of the action shall be proceeded with.
+Persons to be 205.
+entitled to certified
+copies of judgment, (1) The Registrar of the court shall, where the respective
+decree or parties to an action apply for a certified copy of the
+proceedings in any
+action judgment or final decree of the action or both, issue one
+[2, 20 of 2023] certified copy of the same to each such party free of
+charge.
+(2) Subject to the provisions of subsection (1), the
+Registrar of the court shall, upon any person-
+(a) making an application accompanied by such
+fee as may be determined from time to time by
+the Secretary to the Ministry of the Minister
+assigned the subject of Justice by Notification
+published in the Gazette and supplying the
+necessary stamps, furnish to such person copies
+of the judgment, decree or proceedings in an
+action or any part thereof; or
+(b) making an application and producing the
+necessary stamps, examine and certify to the
+correctness of any such copies made by such
+person:
+Provided that, a person other than a party to a matrimonial
+action, an adoption application or a custody application
+shall not be entitled to obtain certified copies of any
+proceedings or documents of such action or application,
+except the judgment, order or decree thereof:
+Provided further that, upon being satisfied as to the
+requirement of an applicant who is not a party to such
+matrimonial action, adoption application or custody
+application, the court may direct the Registrar of such court
+to issue to such applicant, certified copies of the
+proceedings or documents of such action or application.
+(3) Notwithstanding anything to the contrary in section 76
+of the Evidence Ordinance (Chapter 14) or any other
+written law, a document issued or transmitted electronically
+by a court shall be deemed for the purposes of
+authentication and verification, to have been signed,
+sealed and dated by court, where such document-
+(a) if originally created in electronic form, contains
+the electronic signature and electronic seal of the
+Registrar or such other officer authorized by law
+to place the signature together with his name and
+official title, the electronic seal of the court, and
+the date; or
+(b) if originally created in paper form and
+converted into an electronic copy in portable
+document format (PDF) or by similar file
+converter technology, contains the signature and
+seal of the Registrar or such other officer
+authorized by law to place the signature, together
+with his name and official title, the seal of the
+court, and the date.
+Decree or copy to 206. The decree or such certified copy thereof shall constitute the sole
+be primary evidence
+of decision. primary evidence of the decision or order passed by the court.
+Decrees must be 207. All decrees passed by the court shall, subject to appeal, when an
+decisive, and must
+not direct non-suit. appeal is allowed, be final between the parties; and no plaintiff shall
+hereafter be non-suited.
+Explanation
+Every right of property, or to money, or to
+damages, or to relief of any kind which can be
+claimed, set up, or put in issue between the
+parties to an action upon the cause of action for
+which the action is brought, whether it be actually
+so claimed, set up, or put in issue or not in the
+action, becomes, on the passing of the final
+decree in the action, a res adjudicata, which
+cannot afterwards be made the subject of action
+for the same cause between the same parties.
+CHAPTER XXI
+OF COSTS
+Costs. 208. Under the denomination of costs are included the whole of the
+expenses necessarily incurred by either party on account of the action
+and in enforcing the decree passed therein, such as the expense of
+stamps, of summoning the defendants and witnesses, and of other
+processes, or of procuring copies of documents, fees and charges of
+counsel and registered attorneys, such just and reasonable charges
+as appear to have been properly incurred in procuring evidence and
+the attendance of witnesses, and expenses of commissioners either in
+taking evidence or in local investigations, or in investigations into
+accounts; and all of other expenses of procuring and adducing
+necessary evidence.
+Court always to 209. When disposing of any application or action under this
+have Power to give
+or reserve costs. Ordinance, whether of regular or of summary procedure, the court
+[5,14 of 1997] may, unless elsewhere in this Ordinance otherwise directed, give to
+either party, the costs of such application or action, or may reserve the
+consideration of such costs for any future stage of the proceedings.
+The court may in its order, fix the amount of the costs of such
+application or action, so however, that the amount so fixed shall not be
+less than fifty per centum of the amount of costs that may be given in
+an application or action of that category, at such rates as may be
+prescribed for the purposes of section 214, and not more than two
+hundred per centum of the amount of costs that may be given in an
+application or action of that category, at such rates as may be
+prescribed for the purposes of section 214. Any order for the payment
+of costs only, is a decree for money within the provisions of section
+194 as to payments by instalments.
+Court shall direct by210. The decree or order shall direct by whom, the costs of each party
+whom costs are be
+paid and estimate are to be paid, and whether in whole or in what part or proportion. The
+value in certain court shall, in decrees entered in such classes of action as are
+cases.
+prescribed, give its estimate of the value of the action, and such
+[6,14 of 1997]
+estimate shall be deemed to be the value of the action, for the
+purposes of applying the rates prescribed for the purposes of section
+214, to that action.
+Court may apportion211.
+costs.
+(1) The court shall have full power to give and apportion
+[7,14 of 1997]
+costs of every application and action in any manner it
+thinks fit, and the fact that the court has no jurisdiction to
+try the case is no bar to the exercise of such power:
+Provided that if the court directs that the costs of any
+application or action shall not follow the event, the court
+shall state its reasons in writing.
+(2) Without prejudice to the generality of the powers of the
+court under subsection (1), the court may give costs to a
+party, in the case of any frivolous or vexatious action or
+application or defence by the other party or in the case of
+expense to such party, occasioned by the delay or default
+of the other party or by the making of any unnecessary or
+unreasonable application by the other party, so however,
+that the costs so ordered shall in no case exceed five
+hundred per centum of the costs that may be ordered in an
+application or action of that category, at the rates
+prescribed for the purposes of section 214.
+Set-off costs. 212. The court may direct that the costs of payable to one party by
+another shall be set off against a sum which is admitted or is found in
+the action to be due from the former to the latter. But such direction
+shall not affect the lien upon the amount decreed of any registered
+attorney in respect of the costs payable to him under the decree.
+Court may give 213. The court may give interest on costs at the legal rate per annum
+interest on costs.
+as specified in section 192 of the Ordinance, calculated from the date
+[7, 53 of 1980]
+[8,14 of 1997] of the decree, and may direct that costs, with or without interest, be
+paid out of, or charged upon, the subject matter of the action.
+Costs to be taxed. 214. All bills of costs, whether between party and parties, or between
+[9,14 of 1997]
+registered attorney and client, shall be taxed by the Registrar of the
+court in either case according to such rates as may be prescribed. If
+either party is dissatisfied with this taxation, the matter in dispute shall
+be referred to the court for its decision, and the decision of the court
+(except when it is the decision of the Court of Appeal) he liable to an
+appeal to the Court of Appeal.
+Action for costs by 215. No registered attorney shall commence or maintain any action for
+registered attorney.
+the recovery of any fees, charges, or disbursements at law until the
+expiration of one month or more after he shall have delivered unto the
+party charged therewith, or left with him at his dwelling house or last
+known place of abode, a bill of such fees, charges and disbursements
+subscribed by such registered attorney. And after such delivery or
+service thereof, either the registered attorney or party charged
+therewith may obtain an appointment from the taxing officer for the
+taxation thereof; and if either party shall fail to attend, and the taxing
+officer is satisfied that such party has received due notice of the
+appointment, the taxation shall proceed in his absence.
+Registered attorney216. If more than one-sixth of the amount of any bill of costs is
+to bear costs of
+taxation in what disallowed by the taxing officer, the registered attorney shall bear the
+case. expense of taxation.
+CHAPTER XXII
+OF EXECUTIONS
+Classification of 217. A decree or order of court may command the person against
+decrees.
+whom it operates-
+(A) to pay money;
+(B) to deliver movable property;
+(C) to yield up possession of immovable property;
+(D) to grant, convey, or otherwise pass from himself any
+right to, or interest in, any property;
+(E) to do any act not falling under any one of the foregoing
+heads; or it may enjoin that person-
+(F) not to do a specified act, or to abstain from specified
+conduct or behaviour; or it may, without affording any
+substantive relief or remedy-
+(G) declare a right or status.
+And the method of procedure to be followed, when
+necessary, by the person party to the action in whose
+favour the decree or order is made, hereinafter called the
+"decree-holder" or "judgment-creditor ", in order to enforce
+satisfaction or execution of the decree in each case
+respectively by the person party to the action against
+whom the decree is made, hereinafter called " the
+judgment-debtor ", is that which is next hereinafter
+specified according to the above distinguishing heads.
+EXECUTION OF DECREE TO PAY MONEY
+Power of creditor to 218. When the decree falls under head (A) and is unsatisfied, the
+seize and sell
+debtor's property in judgment-creditor has the power to seize, and to sell or realize in
+satisfaction decree money by the hands of the Fiscal, except as hereinafter mentioned, all
+for payment of
+money. saleable property, movable or immovable, belonging to the judgment-
+debtor, or over which or the profits of which the judgment-debtor has a
+disposing power, which he may exercise for his own benefit, and
+whether the same be held by or in the name of the judgment-debtor or
+by another person in trust for him or on his behalf; Provided that the
+following shall not be liable to such seizure or sale, namely-
+Excepted (a) the necessary wearing apparel, beds, and bedding of
+property.
+the judgment- debtor, or of his wife and children;
+(b) tools, utensils, and implements of trade or business,
+and, where the judgment-debtor is an agriculturist, his
+implements of husbandry and such cattle and seed grain
+as may in the opinion of the court be necessary to enable
+him to earn his livelihood as such; and such quantity of
+paddy as may, in the opinion of the court, be necessary for
+the purpose of providing for the support of himself and his
+family until the next harvest;
+(c) professional instruments and library necessary for the
+carrying on of the judgment-debtor's profession or
+business to the value of one thousand rupees;
+(d) books of accounts;
+(e) mere rights to sue for damages;
+(f) any right of personal service;
+(g) the stipend, the cost of living allowance and the special
+living allowance of a naval, military, air force, civil or
+political pensioner of the Government;
+[35,20 of 1977] (h) so much of the salary and allowances of a state officer
+as does not in the aggregate exceed five hundred rupees
+per month;
+(i) the pay and allowances of persons to whom the articles
+of war apply;
+(j) the wages of labourers and domestic servants;
+(k) an expectancy of succession by survivorship or other
+merely contingent or possible right of interest;
+(l) a right to future maintenance and all maintenance,
+alimony and costs ordered in matrimonial suits or
+maintenance actions;
+(m) so much of the salary or wages and allowances of an
+employee other than a state officer as does not in the
+aggregate exceed five hundred rupees per month;
+(n) any house which is not mortgaged as security for the
+payment of the whole or part of the sum referred to in such
+decree and which is the actual residence of the judgment-
+debtor at the time of the execution of such decree and has
+been such residence from the time of the institution of the
+action in which such decree has been entered together
+with such extent of land appurtenant thereto as the court
+may consider necessary for its enjoyment;
+(o) the amount standing to the credit of an employee's
+individual account in the Employees' Provident Fund
+established under the Employees' Provident Fund Act, or in
+any other provident fund established for the benefit of
+employees in any employment.
+Explanation
+The particulars mentioned in clauses (g), (h), (i),
+(j), (m) and (o) are exempt from sequestration or
+sale, whether before or after they are actually
+payable.
+Examination of 219.
+judgment-debtor as
+to debts owing to (1) The party entitled to enforce any decree for the
+him. recovery or payment money may apply to the court for an
+order that the debtor (or, in the case of a him. corporation,
+that any officer thereof) be orally examined before the court
+on oath or affirmation, as to whether any and what debts
+are owing to the debtor, and whether the debtor has any
+and what other property or means of satisfying the decree;
+and the court may thereon make an order for the
+attendance and examination on oath or affirmation of such
+debtor or of any other person whom it thinks necessary,
+and for the production by such debtor or person of any
+books or documents.
+(2) If a debtor for whose attendance an order has been
+made under this section fails to comply with such order, the
+court may, on its own motion or on the application of the
+party entitled to enforce the decree, issue a warrant for the
+arrest of such debtor:
+Provided the court may make it a condition of the issue of
+such warrant that the person applying for it shall deposit
+such sum as the court may deem reasonable for the
+subsistence of the debtor from the time of his arrest until
+he can be brought before the court, and for the purpose of
+defraying any other expenditure that may be incurred in
+executing such warrant.
+Application need not220. It shall not be necessary to support any such application by
+to be supported by
+affidavit affidavits of the applicant's belief that any debts are owing to the
+debtor, or that he has any other property or means of satisfying the
+decree.
+Costs. 221. The costs of any such application and of any proceedings arising
+there out or incidental thereto shall be in the discretion of the court.
+Execution of decree222.
+against legal
+representative of a (1) If the decree is against a party as the legal
+deceased person. representative of a deceased person, and is for money to
+[8, 53 of 1980]
+be paid out of the property of the deceased, it may be
+executed by the attachment and sale of any such property
+in the hands or under the control of the party against whom
+the decree is made.
+(2) If no such property can be found, and the judgment-
+debtor fails to satisfy the court that he has duly applied
+such property of the deceased as is proved to have come
+into his possession, the decree may be executed against
+the judgment-debtor to the extent of the property not duly
+applied by him, in the same manner as if the decree had
+been against him personally.
+[8, 53 of 1980] (3) An application to execute a decree against the
+judgment-debtor as provided in subsection (2) shall be
+made, by petition supported by affidavit of the judgment-
+creditor setting out the material facts, to which application
+the judgment-debtor shall be made respondent. The court
+shall after inquiry, if satisfied that the decree should be
+executed against the judgment-debtor personally, grant
+such application.
+Seizure and sale to 223. For the purpose of effecting the required seizure and sale in any
+be effected under
+order of court. case the Fiscal must be put in motion by application for execution of
+decree to the court which made the decree sought to be enforced.
+Application therefor.224. The application for execution of the decree shall be in writing,
+signed by the applicant or his registered attorney, and shall contain the
+following particulars :-
+(a) the number of the action;
+(b) the names of the parties;
+(c) the date of the decree;
+(d) whether any appeal has been preferred from the
+decree;
+(e) whether any, and what, adjustment of the matter in
+dispute has been made between the parties subsequently
+to the decree;
+(f) whether any, and what previous applications have been
+made for execution of the decree, and with what result,
+including the dates and amounts of previous levies, if any;
+(g) the amount of the debt or compensation, with the
+interest, if any, due upon the decree, or other relief granted
+thereby;
+(h) the amount of costs, if any, awarded;
+(i) the name of the person against whom the enforcement
+of the decree is sought;
+(j) the mode in which the assistance of the court is
+required, whether by the delivery of property specifically
+decreed, by the arrest and imprisonment of the person
+named in the application, or by the attachment of his
+property, or otherwise as the nature of the relief sought
+may require.
+[TRUNCATED: processed first 80 of 233 pages]

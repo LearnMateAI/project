@@ -1,0 +1,2513 @@
+PARLIAMENT OF THE DEMOCRATIC
+SOCIALIST REPUBLIC OF
+SRI LANKA
+—————————
+COMPANIES ACT, No. 07 OF 2007
+—————————
+[Certified on 20th March, 2007]
+Printed on the Order of Government
+—————————
+Published as a Supplement to Part II of the Gazette of the Democratic
+Socialist Republic of Sri Lanka of March 23, 2007
+PRINTED AT THE DEPARTMENT OF GOVERNMENT PRINTING, SRI LANKA
+TO BE PURCHASED AT THE GOVERNMENT PUBLICATIONS BUREAU, COLOMBO 1
+Price : Rs. Postage : Rs.
+COMPANIES ACT No . 07 OF 2007
+TABLE OF SECTIONS
+Section Page No.
+1. Short title and date of operation 1
+PART I - INCORPORATION OF COMPANIES AND
+RELATED MATTERS
+ESSENTIAL CHARACTERISTICS OF COMPANIES
+2. Legal status and capacity of a company 1
+3. Different types of companies 2
+INCORPORATION OF COMPANIES
+4. Method of incorporating a company 2
+5. Incorporation of a company 3
+COMPANY NAMES
+6. Requirements as to names 4
+7. Restrictions on names 4
+8. Change of name 6
+9. Public notice of name 7
+10. Direction to change name 8
+11. Change of name upon change of status of company 9
+12. Use of company name and company number 10
+ARTICLES OF ASSOCIATION
+13. Contents of articles 11
+14. Application of model articles 12
+15. Adoption or amendment of articles 12
+16. Effect of articles 13
+17. Effect of statement of objects in articles 13
+18. Right of shareholders to a copy of the articles 14
+i
+Section Page No.
+COMPANY CONTRACTS ETC.
+19. Method of contracting 14
+20. Attorneys 15
+21. Authority of directors, officers and agents 16
+22. No constructive notice 17
+PRE - INCORPORATION CONTRACTS
+23. Pre-incorporation contracts may be ratified 17
+24. Warranties implied in pre-incorporation contracts 18
+25. Failure to ratify 19
+AUTHENTICATION OF DOCUMENTS BY COMPANY
+26. Authentication of documents by company 19
+PART II – PRIVATE COMPANIES
+27. Articles of a private company 19
+28. Company ceasing to be a private company 20
+29. Company may become a private company 21
+30. Private companies need not keep interests register 21
+31. Unanimous agreement of shareholders 21
+PART III – COMPANIES LIMITED BY GUARANTEE
+32. Application for incorporation of a company limited by guarantee 23
+33. Company limited by guarantee must have articles 24
+34. Power to dispose with “limited” in the name of charitable and
+other companies. 24
+35. Provisions which apply to companies limited by guarantee 26
+PART IV – SHARES AND DEBENTURES
+PROSPECTUS
+36. Dating of prospectus. 26
+37. Specific requirements as to particulars in prospectus 27
+ii
+38. Expert’s consent to issue of prospectus containing
+statement by him 29
+39. Consent of bank or attorney-at-law or auditor necessary for
+inclusion of name in prospectus 29
+40. Registration of prospectus 31
+41. Civil liability for untrue in prospectus 32
+42. Criminal liability for untrue statements in a prospectus 37
+43. Document containing offer of shares or debentures for sale
+to be deemed a prospectus 37
+44. Interpretation of provisions relating to prospectuses 39
+ALLOTMENT
+45. Prohibition of allotment unless minium subscription received 39
+46. Effect of irregular allotment 40
+47. Applications for and allotment of shares and debentures 40
+48. Construction of reference to offering shares or debentures
+to the public 42
+NATURE AND TYPE OF SHARES
+49. Nature and types of shares. 43
+ISSUE OF SHARES
+50. Initial shares 43
+51. Issue of shares 44
+52. Consideration for issue of shares 45
+53. Pre-emptive rights to new issues 45
+54. Method of issuing shares 46
+CALLS ON SHAREs
+55. Calls on shares 46
+DISTRIBUTIONS TO SHAREHOLDERS
+56. Distributions 46
+57. Solvency test 47
+58. Stated capital 48
+iii
+Section Page No.
+59. Reduction of stated capital 49
+60. Dividends 50
+61. Recovery of distributions 50
+62. Reduction of shareholder liability to be a distribution 51
+REPURCHASE OF SHARES
+63. Company may acquire or redeem its own shares 52
+64. Purchase of own shares 53
+65. Enforceability of contract to purchase shares 54
+REDEMPTION OF SHARES
+66. Meaning of “redeemable” 55
+67. Redemption option of company 55
+68. Redemption at option of shareholder 55
+69. Redemption on fixed date 56
+FINANCIAL ASSISTANCE IN CONNECTION
+WITH PURCHASE OF SHARES
+70. Restrictions on giving financial assistance 56
+71. Transactions not prohibited by section 70 57
+CROSS – HOLDINGS
+72. Restriction on subsidiary holding shares in holding company 59
+TRANSFER OF SHARES AND DEBENTURES, EVIDENCE OF TITLE & C.
+73. Transfer not to be registered except on production of instrument
+of transfer. 60
+74. Transfer by legal representative 60
+75. Registration of transfer at the request of transferor 60
+76. Notice of refusal to register transfer 60
+77. Certification of transfers 61
+78. Duties of company with respect to issue of certificates 62
+79. Certificate to be evidence of title 63
+80. Evidence of grant of probate, &c. 63
+iv
+SPECIAL PROVISIONS AS TO DEBENTURES
+81. Right of debenture holders and shareholders to inspect register
+of debenture holders and to have copies of any trust deed 63
+82. Directors prohibited from acting as trustees 64
+83. Perpetual debentures 65
+84. Power to re-issue redeemed debentures in certain cases 65
+85. Specific performance of contracts to subscribe for debentures 66
+PART V – SHAREHOLDERS AND THEIR RIGHTS AND
+OBLIGATIONS
+86. Meaning of “shareholder” 66
+LIABILITY OF SHAREHOLDERS
+87. Liability of shareholder 68
+88. Liability for calls 68
+89. Shareholders must agree to increase in liability 69
+POWERS OF SHAREHOLDERS
+90. Exercise of powers reserved to shareholders 69
+91. Exercise of powers by ordinary resolution 69
+92. Powers exercised by special resolution 69
+MINORITY BUY – OUT RIGHTS
+93. Shareholder may require company to purchase shares 70
+94. Notice requiring purchase 71
+95. Purchase by company 72
+96. Purchase of shares by third party 74
+97. Court may grant exemption 74
+98. Court may grant exemption if company is insolvent 75
+99. Alteration of shareholder rights 76
+100. Shareholder may require company to purchase shares 76
+101. Action not invalid 77
+v
+Section Page No.
+PART VI – REGISTRATION OF CHARGES
+REGISTRATION OF CHARGES WITH REGISTRAR
+102. Registration of charges created by companies registered in
+Sri Lanka 77
+103. Unregistered charges void in certain cases 81
+104. Duty of company to register charges existing on property
+acquired 81
+105. Register of charges to be kept by Registrar 82
+106. Endorsement of certificate of registration on debentures 83
+107. Entries of satisfaction and release 84
+108. Rectification of register of charges 84
+PROVISIONS AS TO COMPANY’S REGISTER OF CHARGES AND AS TO COPIES OF
+INSTRUMENTS CREATING CHARGES
+109. Copies of instruments creating charges to be kept by company 85
+110. Company’s register of charges. 85
+REVIEW OF REGISTER OF CHARGES
+111. Review of Register of charges 86
+APPLICATION OF THIS PART TO OVERSEAS COMPANIES
+112. Application of this Part to charges and property to be acquired
+by an overseas company 87
+PART VII – MANAGEMENT AND ADMINISTRATION
+REGISTERED OFFICE
+113. Registered office of a company 87
+114. Change of registered office 88
+115. Requirement to change registered office 88
+vi
+COMPANY RECORDS
+116. Location of company records 89
+117. Form of records 91
+INSPECTION OF COMPANY RECORDS
+118. Inspection of records by directors 92
+119. Inspection of company records by shareholders 92
+120. Public inspection of company records 93
+121. Manner of inspection 94
+122. Copies of documents 94
+SHARE REGISTER
+123. Company to maintain share register 95
+124. Place of share register 95
+125. Stamp duties in case of shares registered in register outside
+Sri Lanka 97
+126. Index of shareholders. 97
+127. Power to close register 98
+128. Power of court to rectify register. 98
+129. Trusts not to be entered on share register 99
+130. Share register to be evidence 99
+ANNUAL RETURN
+131. Annual return 100
+132. Declaration and certificate to be sent by private company
+with annual return 101
+MEETINGS AND PROCEEDINGS
+133. Annual general meeting 101
+134. Convening of extraordinary general meeting on requisition 103
+135. Length of notice for calling meetings 104
+136. Provisions as to meetings and votes 105
+137. Power of court to order meeting 106
+138. Representation of companies at meetings of other
+companies and of creditors 107
+vii
+Section Page No.
+139. Proxies 107
+140. Right to demand a poll 109
+141. Voting on a poll 110
+142. Circulation of shareholder’s resolutions on requisition 110
+143. Special resolutions 113
+144. Resolution in lieu of meeting 114
+145. Resolutions requiring special notice 115
+146. Resolutions passed at adjourned meetings 116
+147. Minutes of proceedings of meetings of shareholders and directors116
+ACCOUNTING RECORDS
+148. Duty to keep accounting records 117
+149. Place where accounting records are kept 118
+DUTY TO PREPARE FINANCIAL STATEMENTS
+150. Obligation to prepare financial statements 119
+151. Contents and form of financial statements 120
+152. Obligation to prepare group financial statements 120
+153. Contents and form of group financial statements 121
+AUDITORS
+154. Appointment of auditor. 123
+155. Auditor’s fees and expenses 124
+156. Appointment of partnership as auditor 124
+157. Qualifications of auditors 125
+158. Automatic re-appointment 126
+159. Appointment of first auditor 126
+160. Replacement of auditor 127
+161. Statement by person ceasing to hold office as auditor 127
+162. Auditor to avoid conflict of interest 128
+163. Auditor’s report 129
+164. Auditor’s access to information 130
+165. Auditor’s attendance at shareholders’ meeting 130
+viii
+ANNUAL REPORT TO SHAREHOLDERS
+166. Obligation to prepare annual report 131
+167. Sending of annual report to shareholders 131
+168. Contents of annual report 132
+169. Failure to send reports etc. 134
+REGISTRATION OF FINANCIAL STATEMENTS
+170. Registration of financial statements 134
+INTERPRETATION
+171. Balance sheet date 134
+INVESTIGATION OF COMPANY’S AFFAIRS
+172. Investigation of company’s affairs on application of
+shareholders 135
+173. Investigation of company’s affairs in other cases 136
+174. Power of inspectors to carry out investigations into
+affairs of related companies 137
+175. Production of documents and evidence at investigation 138
+176. Inspector’s report 140
+177. Proceedings on inspector’s report 141
+178. Expenses of investigation of company’s affairs 142
+179. Inspector’s report to be evidence 144
+180. Appointment and powers of inspectors to investigate
+ownership of company 144
+181. Power to require information as to persons interested in
+shares or debentures 146
+182. Power to impose restrictions on shares or debentures 147
+183. Registrar’s powers to verify assets and liabilities 149
+ix
+Section Page No.
+POWERS OF MANAGEMENT
+184. Management of company 149
+185. Major transactions 149
+186. Delegation of powers 151
+DIRECTORS’ DUTIES
+187. Duty of directors to act in good faith and in the interests of
+company 151
+188. Directors to comply with Act and company’s articles 151
+189. Directors standard of care 152
+190. Use of information and advice 152
+TRANSACTIONS IN WHICH A DIRECTORS IS INTERESTED
+191. Meaning of “interested” 153
+192. Disclosure of interest 154
+193. Avoidance of transactions 154
+194. Effect on third parties 155
+195. Non- application of sections 192 and 193 in certain cases 156
+196. Interested director may vote 156
+197. Use of company information 156
+DISCLOSURE OF DIRECTORS’ INTERESTS IN SHARES
+198. Meaning of “relevant interest” 157
+199. Relevant interests to be disregarded in certain cases 160
+200. Disclosure of share dealing by directors 161
+APPOINTMENT AND REMOVAL OF DIRECTORS
+201. Number of directors 162
+202. Qualification of directors 162
+203. Director’s consent required 163
+204. Appointment of first and subsequent directors 163
+205. Appointment of directors to be voted in individually 163
+x
+206. Removal of directors 164
+207. Director ceasing to hold office 165
+208. Resignation of last remaining director 165
+209. Validity of director’s acts 166
+RETIRING AGE OF DIRECTORS
+210. Age limit for directors 166
+211. Age limit not to apply if company so resolves 167
+212. Duty of directors to disclose age 167
+DISQUALIFICATION OF DIRECTORs
+213. Persons prohibited from managing companies 168
+214. Court may disqualify directors 169
+MISCELLANEOUS PROVISIONS RELATING TO DIRECTORS
+215. Proceedings of board 170
+216. Remuneration and other benefits 170
+217. Restrictions on loans to directors 172
+218. Indemnity and insurance 174
+219. Duty of directors on insolvency 176
+220. Duty of directors on serious loss of capital 177
+SECRETARIES
+221. Secretary 178
+222. Qualifications of secretary to be prescribed 178
+REGISTER OF DIRECTORS AND SECRETARIES
+223. Register of directors and secretaries 179
+PREVENTION OF OPPRESSION AND MISMANAGEMENT
+224. Oppression 180
+225. Mismanagement 181
+226. Who may make an application 182
+227. Power of court to act under section 224 or section 225
+during winding up proceedings. 183
+xi
+Section Page No.
+228. Powers of court on application under section 224 or section 225. 183
+229. Effect of alteration of articles of company by order under
+section 224 or 225 184
+230. Addition of respondents to application under section 224
+or section 225 185
+231. Consequences of termination or modification of
+certain agreements 185
+232. Extended meaning of “shareholder” 186
+RESTRAINING ORDERS
+233. Restraining orders 187
+DERIVATIVE ACTIONS
+234. Derivative actions 187
+235. Costs of derivative action to be met by company 189
+236. Powers of court where leave is granted 189
+237. Compromise, settlement or continuance of
+derivative action 190
+RATIFICATION
+238. Ratification of certain actions of directors 190
+PART VIII – AMALGAMATIONS
+239. Amalgamations 190
+240. Amalgamation proposal 190
+241. Approval of amalgamation proposal 192
+242. Short form amalgamation 195
+243. Registration of amalgamation proposal 197
+244. Certificate of amalgamation 198
+245. Effect of certificate of amalgamation 198
+246. Powers to acquire shares of shareholders dissenting from
+scheme or contract approved by majority 199
+xii
+PART IX – COMPROMISES WITH CREDITORS
+247. Interpretation 201
+248. Compromise proposal 202
+249. Notice of proposed compromise 202
+250. Effect of compromise 204
+251. Variation of compromise 205
+252. Powers of court 205
+253. Effect of compromise in liquidation of a company 206
+254. Costs of compromise 207
+PART X – APPROVAL OF ARRANGEMENTS, AMALGAMATIONS AND
+COMPROMISES BY COURT
+255. Interpretation 208
+256. Court approval of arrangements, amalgamation and
+compromises 208
+257. Court may make additional orders 210
+258. Application of Part VIII 211
+259. Application of section 253 to compromise approved
+under this Part 211
+PART XI – PROVISIONS RELATING TO OFFSHORE COMPANIES
+260. Interpretation 212
+261. Company incorporated for business outside Sri Lanka 212
+262. Grant of certificate of registration to off-shore company 213
+263. Continuation of business of off-shore company 214
+264. Prohibition on carrying on business in Sri Lanka 215
+265. Cessation of business as an off-shore company 215
+PART XII – WINDING UP
+(1) PRELIMINARY
+Modes of winding up
+266. Definition of contributory 215
+267. Modes of winding - up 215
+xiii
+Section Page No.
+CONTRIBUTORIES
+268. Power of liquidator to enforce liability of share holders and
+former shareholders 216
+269. Liability of former shareholders for unpaid calls 216
+(II) WINDING UP BY THE COURT
+CASES IN WHICH COMPANY MAY BE WOUND UP BY THE COURT
+270. Circumstance in which a company may be wound up
+by the court 217
+271. Definition of inability to pay debts 217
+PETITION FOR WINDING UP AND EFFECTS THEREOF
+272. Application for winding up 218
+273. Powers of court on hearing petition 219
+274. Power to stay or restrain proceedings against a Company 220
+275. Avoidance of disposition of property &c. after
+commencement of winding-up 220
+276. Avoidance of attachments &c. 220
+COMMENCEMENT OF WINDING UP
+277. Commencement of winding up by the court 221
+CONSEQUENCES OF WINDING UP ORDER
+278. Copy of order to be forwarded to Registrar 221
+279. Actions stayed on winding up 221
+280. Effect of winding up order 221
+OFFICIAL RECEIVER IN WINDING UP
+281. Official receiver 222
+282. Appointment of official receiver by court in certain cases 222
+xiv
+283. Statement of company’s affairs to be submitted to official
+receiver 222
+284. Report by official receiver 224
+LIQUIDATORS
+285. Power of court to appoint liquidators 225
+286. Appointment and powers of provisional liquidator 225
+287. Appointment style, &c. of liquidators 225
+288. Provisions where person other than official receiver is
+appointed a liquidator 226
+289. General provisions as to liquidators 226
+290. Custody of company’s property 227
+291. Vesting of property of company in liquidator 227
+292. Powers of liquidator 228
+293. Exercise and control of liquidator’s powers 230
+294. Books to be kept by liquidators 231
+295. Payments by liquidator into bank 231
+296. Audit of liquidator’s accounts 231
+297. Control of Registrar over liquidator 232
+298. Release of liquidators 233
+COMMITTEE OF INSPECTION
+299. Meetings of creditors and contributories to determine whether
+committee of inspections shall be appointed 234
+300. Constitution and proceedings of committee of inspection 234
+301. Powers of court where there is no committee of inspection 235
+GENERAL POWERS OF COURT IN CASE OF WINDING UP BY COURT
+302. Power to stay winding up 236
+303. Settlement of list of contributories and application of assets 236
+304. Delivery of property to liquidator 237
+305. Payment of debts due by contributory to company and extent
+to which set-off is allowed 237
+306. Payment into bank of moneys due to company 237
+xv
+Section Page No.
+307. Appointment of special manager 238
+308. Inspection of books by creditors and contributories 238
+309. Power to order costs of winding up to be paid out of assets 238
+310. Power to summon persons suspected of having property of
+company 238
+311. Power to order public examination of promoters, directors &c. 239
+312. Person or officer being examined to be represented by an
+attorney-at-law, &c. 240
+313. Power to arrest absconding contributory 241
+314. Powers of court cumulative 241
+315. Delegation to liquidator of certain powers of court 241
+316. Dissolution of a company 242
+317. Manner of enforcing order of court 242
+318. Enforcement of winding up order in another court 242
+(III) VOLUNTARY WINDING UP
+RESOLUTIONS FOR AND COMMENCEMENT OF VOLUNTARY WINDING UP
+319. Circumstances in which company may be wound up
+voluntarily 243
+320. Notice of resolution to wind up voluntarily 243
+321. Commencement of voluntary winding up 244
+CONSEQUENCES OF VOLUNTARY WINDING UP
+322. Effect of voluntary winding up on business and status of
+company 244
+323. Avoidance of transfers,&c. after commencement of voluntary
+winding up 244
+DECLARATION OF SOLVENCY
+324. Statutory declaration of solvency in case of proposal to wind up
+voluntarily 244
+xvi
+PROVISIONS APPLICABLE TO A SHAREHOLDERS’ VOLUNTARY WINDING UP
+325. Provisions relating to a shareholders’ voluntary winding up 245
+326. Power of company to appoint and fix remuneration of
+liquidators 245
+327. Power to fill vacancy in office of liquidator 246
+328. Power of liquidator to accept shares &c. in consideration
+for sale of property of company 246
+329. Duty of liquidators to call creditiors’ meeting in case of
+insolvency 247
+330. Duty of liquidator to call general meeting in case of insolvency 248
+331. Final meeting and dissolution 248
+332. Alternative provision as to annual and final meetings in case of
+insolvency 249
+PROVISIONS APPLICABLE TO A CREDITOR’S VOLUNTARY WINDING UP
+333. Provisions applicable to a creditors’ winding up 250
+334. Meeting of creditors 250
+335. Appointment of liquidator 251
+336. Appointment of committee of inspection 252
+337. Fixing of liquidators’ remuneration and ceasing of
+directors’ powers 253
+338. Power to fill vacancy in office of liquidator 253
+339. Application of section 328 to a creditors’ voluntary winding up 253
+340. Duty of liquidator to call meetings of company and of creditors
+at end of each year 253
+341. Final meeting and dissolution 254
+PROVISIONS APPLICABLE TO EVERY VOLUNTARY WINDING UP
+342. Provisions applicable to every voluntary winding up 255
+343. Distribution of property of company 255
+344. Powers and duties of liquidator in voluntary winding up 255
+345. Power of court to appoint and remove liquidator in voluntary
+winding up 256
+346. Notice by liquidator of his appointment 257
+347. Arrangement when binding on creditors 257
+xvii
+Section Page No.
+348. Power to apply to court to have question determined or powers
+exercised 257
+349. Costs of voluntary winding up 258
+350. Saving for rights of creditors and contributories 258
+(IV) WINDING UP SUBJECT TO SUPERVISION OF COURT
+351. Power to order winding up subject to supervision 258
+352. Effect of petition for winding up subject to supervision 258
+353. Applications of section 275 and 276 to winding up subject to
+supervision 258
+354. Power of court to appoint or remove liquidators 258
+355. Effect of supervision order 259
+PROOF AND RANKING OF CLAIMS
+356. Admissible claims 260
+357. Claims by unsecured creditors 260
+358. Rights and duties of secured creditors 261
+359. Ascertainment of amount of claim 265
+360. Claim not of an ascertained amount 265
+361. Fines, penalties or recoveries 265
+362. Claims relating to debts payable after commencement of
+winding up 266
+363. Mutual credit and set-off 266
+364. Interest on claims 267
+365. Preferential claims 267
+366. Claims of other creditors and distribution of surplus assets 268
+VOIDABLE TRANSACTIONS
+367. Transactions having preferential effect 268
+368. Voidable charges 269
+369. Uncommercial transactions 271
+370. Procedure for setting aside voidable transactions and charges 272
+371. Other orders 273
+372. Additional provisions relating to setting aside transactions
+and charges 274
+373. Interpretation in relation to preferences &c. 275
+xviii
+MALPRACTICE BEFORE WINDING UP AND LIABILITY OF OFFICERS
+374. Fraud etc. in anticipation of winding up 277
+375. Fraudulent trading 278
+376. Power of court to require persons to repay money or return
+property 279
+377. Disclaimer of onerous property 280
+378. Restriction of rights of creditors as to execution or attachment
+in case of company 283
+379. Duty of fiscal as to goods taken in execution 284
+OFFENCES ANTECEDENT TO OR IN THE COURSE OF WINDING UP
+380. Offences by officers of companies in liquidation 285
+381. Liability where proper accounts are not kept 287
+382. Prosecution of delinquent officers and members of the company 288
+SUPPLEMENTARY PROVISIONS AS TO WINDING UP
+383. Qualifications of liquidators 290
+384. Corrupt inducement affecting appointment as liquidator 291
+385. Enforcement of duty to liquidator to make returns, &c. 291
+386. Notification that a company is in liquidation 292
+387. Exemption of certain documents from stamp duty on
+winding up of companies. 292
+388. Books of company to be evidence 292
+389. Disposal of books and papers of the company 293
+390. Information as to pending liquidations 294
+391. Resolutions passed at adjourned meetings of creditors and
+contributories 294
+SUPPLEMENTARY POWERS OF COURT
+392. Meetings to ascertain wishes of creditors or contributories 294
+PROVISIONS AS TO DISSOLUTION
+393. Power of court to declare dissolution of company void 295
+394. Registrar may strike off defunct company from register 295
+395. Property of dissolved company to vest in the State 297
+xix
+Section Page No.
+COMPANIES LIQUIDATION ACCOUNT
+396. Establishment of Companies Liquation Account 297
+397. Payments into and out of Companies Liquidation Account 298
+398. Refusal to supply essential services prohibited 299
+RULES AND FEES
+399. Rules and fees for winding up 300
+PART XIII – ADMINISTRATORS
+APPOINTMENT OF ADMINISTRATOR
+400. Interpretation 300
+401. Power of board to appoint administrator 301
+402. Notice to charge holders of appointment of administrator 302
+403. Effect of appointment of administrator 302
+INITIAL MEETING AND CONFIRMATION OF APPOINTMENT
+404. Duty of administrator to summon initial meeting 303
+405. Effect of confirmation of administrator 304
+ADMINISTRATOR’S PROPOSALS
+406. Statement of proposals 305
+407. Consideration of proposals by creditors’ meeting 306
+408. Consequential orders where administrator ceases to hold office 306
+409. Approval of substantial revisions to proposals 306
+NOTICE OF ADMINISTRATION
+410. Notice of appointment of administrator 307
+411. Notice of administration 308
+xx
+THE ADMINISTRATOR
+412. Qualifications of administrator 308
+413. Validity of acts of administrator 310
+414. Consent to be appointmented 310
+415. Vacancy in office of administrator 310
+POWERS OF ADMINISTRATOR
+416. Powers of administrators 311
+417. Power to deal with charged property &c. 312
+418. General duties of administrator 314
+419. Discharge of administrator or variation of resolution appointing
+administrator 314
+420. Remuneration and expenses of administrator 315
+421. Liability of administrator 316
+422. Relief from liability 317
+ASCERTAINMENT AND INVESTIGATION OF COMPANY’S AFFAIRS
+423. Obligations of company and directors to provide
+information,etc. 318
+MISCELLANEOUS
+424. Creditors’ committee 318
+425. Protection of interests of creditors and share holders 319
+426. Application to administrator of provisions relating to receivers 320
+PART XIV– FLOATING CHARGES
+427. Company may grant floating charge 320
+428. Instrument creating floating charge 321
+429. Provisions of instrument creating floating charge 322
+430. Dealing with property subject to floating charge before
+attachment 323
+431. Ranking of floating charges 324
+432. Alteration and discharge of floating charges 326
+433. Circumstances in which floating charge attaches to property 327
+xxi
+Section Page No.
+PART XV – RECEIVERS AND MANAGERS
+434. Interpretation 330
+POWER TO APPOINT RECEIVER
+435. Instrument may confer power to appoint receiver 331
+QUALIFICATIONS OF RECEIVERS
+436. Qualifications of receivers 332
+APPOINTMENT OF RECEIVER
+437. Appointment of receiver under an instrument 333
+438. Extent of power to appoint receiver 334
+439. Court may appoint receiver 334
+440. Notice of appointment of receiver 335
+441. Notice of receivership 336
+442. Vacancy in office of receiver 336
+POWERS OF RECEIVERS
+443. Powers of receivers 337
+444. Precedence among receivers 338
+445. Power to make calls on shares 339
+446. Execution of documents 339
+447. Obligations of company and directors 340
+448. Validity of acts of receivers 340
+449. Consent of mortgagee to sale of property 341
+DUTIES OF RECEIVERS
+450. General duties of receivers 342
+451. Duty of receivers selling property 342
+452. No defence or indemnity 343
+453. Duty in relation to money 343
+454. Accounting records 343
+xxii
+REPORTS OF RECEIVERS
+455. First report by receivers 343
+456. Further reports by receiver 345
+457. Extension of time for preparing reports 346
+458. Persons entitled to receive reports 346
+459. Persons entitled to inspect reports 347
+460. Duty to notify breaches of any provisions of this Act 347
+461. Notice of end of receivership 347
+APPLICATION OF PROPERTY AND LIABILITY FOR COMPANY OBLIGATIONS
+462. Preferential claims 348
+463. Powers of receiver on liquidation 349
+464. Liability of receiver 349
+465. Relief from liability 351
+COURT SUPERVISION OF RECEIVERS
+466. Court supervision of receivers 352
+467. Court may terminate or limit receivership 353
+468. Orders to enforce receiver’s duties 354
+469. Orders protecting property in receivership 357
+REFUSAL TO SUPPLY ESSENTIAL SERVICES
+470. Refusal to supply essential services prohibited 358
+PART XVI – REGISTRAR-GENERAL OF COMPANIES AND
+REGISTRATION
+APPOINTMENT OF OFFICERS
+471. Appointment of officers 359
+472. Appeals from Registrar’s decisions 359
+REGISTERS AND REGISTRATION OF DOCUMENTS
+473. Registers to be kept 360
+474. Authentication of documents by seal 360
+xxiii
+Section Page No.
+475. Registration of documents, copies of documents, notices &c. 361
+476. Translations of documents filed 362
+477. Fees 362
+478. Recovery of expenses and fees 363
+FUND
+479. Fund 363
+INSPECTION AND PRODUCTION OF DOCUMENTS, ENFORCEMENT OF DUTY OF COMPANIES
+TO MAKE RETURNS AND THE PRODUCTION AND INSPECTION OF BOOKS
+480. Inspection, production and evidence of documents kept by
+Registrar 364
+481. Enforcement of duty of company to make returns to
+Registrar 366
+482. Unlawful disclosure of information relating to companies 366
+483. Production and inspection of books where an offence is
+suspected 366
+484. Registrar’s power to call for information and to inspect books,
+registers and documents 367
+PART XVII – APPLICATION OF ACT TO EXISTING COMPANIES
+485. Application of Act to existing companies 368
+486. Provisions relating to articles of existing companies 370
+487. Provisions relating to company numbers of existing
+companies &c. 370
+PART XVIII – OVERSEAS COMPANIES
+488. Interpretation 371
+489. Documents and particulars to be delivered to Registrar by
+overseas companies 372
+490. Power of overseas companies to hold lands 374
+491. Return to be delivered to Registrar where documents etc. altered 374
+492. Financial statements of overseas company 375
+493. Name of overseas company 375
+xxiv
+494. Obligation to state name and particulars of company 377
+495. Service on overseas company 378
+496. Registrar to be notified when company ceases to have place of
+business in Sri Lanka 378
+497. Liquidation of assets in Sri Lanka of overseas company 379
+498. Penalties for non-compliance 379
+499. Enforcement of duty to comply with provisions of this Part 379
+RESTRICTIONS ON SALE OF SHARES AND OFFER OF SHARE FOR SALE
+500. Dating of prospectus and particulars to be contained therein 380
+501. Provisions as to expert’s consent and allotment 383
+502. Registration of prospectus 384
+503. Penalty for contravention of section 500, section 501 or
+section 502 384
+504. Civil liability for misstatements in prospectus 384
+505. Interpretation of provisions as to prospectuses 385
+PART XIX – ADVISORY COMMISSION
+506. Appointment &c. of Advisory Commission 385
+PART XX – COMPANIES DISPUTES BOARD
+507. Companies Disputes Board 387
+508. Board members may mediate disputes 388
+509. Privilege in respect of mediation proceedings 390
+510. Fees payable in respect of mediation 390
+PART XXI – OFFENCES
+MISCELLANEOUS OFFENCES
+511. Penalty for false statement 391
+512. Penalty for falsification of records 391
+513. Penalty for improper use of word “Limited” 391
+xxv
+Section Page No.
+GENERAL PROVISIONS AS TO OFFENCES
+514. Compounding of certain offences 392
+515. Offences summarily triable 392
+516. Imposition and application of fines 393
+517. Savings as to private prosecutors 393
+518. Savings for privileged communications 393
+PART XXII – MISCELLANEOUS
+PROHIBITION OF PARTNERSHIP WITH MORE THAN TWENTY MEMBERS
+519. Prohibition of partnership with more than twenty members 393
+APPLICATION AND REFERENCE TO COURT
+520. Procedure 395
+521. Grant of interim relief 395
+522. Savings for attorney-at-law and bankers 397
+523. Service of documents on company 397
+524. Documents to be received in evidence 397
+525. Costs in action by certain limited companies 397
+526. Power of court to grant relief in certain cases 398
+527. Regulations 398
+528. Sinhala text to prevail in case of inconsistency 399
+529. Interpretation 399
+TRANSITIONAL PROVISIONS AND SAVINGS
+530. Transitional provisions 411
+531. Savings 412
+532. Savings of pending proceedings for winding up 413
+PART XXIII – REPEALS AND AMENDMENTS
+533. Repeals 414
+534. Amendment of the First Schedule of the Act, No. 10 of 1996 414
+xxvi
+Page No.
+FIRST SCHEDULE 414
+SECOND SCHEDULE 433
+THIRD SCHEDULE 434
+FOURTH SCHEDULE 434
+FIFTH SCHEDULE 442
+SIXTH SCHEDULE 443
+SEVENTH SCHEDULE 443
+EIGHTH SCHEDULE 448
+NINTH SCHEDULE 449
+TENTH SCHEDULE 452
+ELEVENTH SCHEDULE 454
+TWELFTH SCHEDULE 456
+THIRTEENTH SCHEDULE 458
+xxvii
+Companies Act, No. 07 of 2007 1
+[Certified on 20th March, 2007]
+L.D.—O. 44/2005
+AN ACT TO AMEND AND CONSOLIDATE THE LAW RELATING TO
+COMPANIES
+BE it enacted by the Parliament of the Democratic Socialist
+Republic of Sri Lanka as follows :-
+1. (1) This Act may be cited as the Companies Act, No. 07 Short title and
+of 2007. date of
+operation.
+(2) The provisions of this Act shall come into operation
+on such date (hereinafter referred to as the “appointed date”)
+as the Minister may appoint, by Order published in the
+Gazette.
+PART I
+INCORPORATION OF COMPANIES AND RELATED MATTERS
+ESSENTIAL CHARACTERISTICS OF COMPANIES
+2. (1) A company incorporated under this Act shall, by Legal status and
+the name by which it is registered from time to time, be a capacity of a
+company.
+body corporate.
+(2) A company shall have, both within and outside Sri
+Lanka—
+(a) subject to the provisions of section 13 of the Act,
+the capacity to carry on or undertake any business
+or activity, do any act or enter into any transaction ;
+and
+(b) subject to the provisions of any written law of Sri
+Lanka or of any other country, all the rights, powers
+and privileges necessary for the purposes of
+paragraph (a).
+2 —PL000786—425 (11/2005)
+2 Companies Act, No. 07 of 2007
+Different types 3. (1) A company incorporated under this Act may be
+of companies. either—
+(a) a company that issues shares, the holders of which
+have the liability to contribute to the assets of the
+company, if any, specified in the company’s articles
+as attaching to those shares (in this Act referred to as
+a “limited company”) ; or
+(b) a company that issues shares, the holders of which
+have an unlimited liability to contribute to the assets
+of the company under its articles (in this Act referred
+to as an “unlimited company”) ; or
+(c) a company that does not issue shares, the members
+of which undertake to contribute to the assets of the
+company in the event of its being put into
+liquidation, in an amount specified in the company’s
+articles (in this Act referred to as a “company limited
+by guarantee”).
+(2) Where a limited company is incorporated as a private
+company or as an off-shore company, the provisions of Part II
+or Part XI shall apply respectively, to such a company.
+INCORPORATION OF COMPANIES
+Method of 4. (1) Subject to the provisions of subsection (2), any
+incorporating a person or persons may apply to incorporate a company, other
+company. than a company limited by guarantee, by making an
+application for the same to the Registrar in the prescribed
+form signed by each of the initial shareholders, together with
+the following documents :-
+(a) a declaration stating that to the best of such person
+or persons knowledge, the name of the company is
+not identical or similar to that of an existing
+company;
+Companies Act, No. 07 of 2007 3
+(b) the articles of association of the company, if different
+from the articles set out in the First Schedule hereto,
+and signed by each of the initial shareholders ;
+(c) consent from each of the initial directors under section
+203, to act as a director of the company ; and
+(d) consent from the initial secretary under subsection
+(2) of section 221, to act as secretary of the company.
+(2) A company shall have not less than two shareholders,
+provided that a company may have a single shareholder where
+such single shareholder is the Secretary to the Treasury who
+is holding shares on behalf of the Government of Sri Lanka
+or is an individual or a body corporate.
+5. (1) On receipt of a properly completed application Incorporation of
+for incorporation in the prescribed form, the Registrar shall— a company.
+(a) enter the particulars of the company on the Register;
+(b) assign a unique number to that company as its
+company number ; and
+(c) issue a certificate of incorporation in the prescribed
+form to the applicant company.
+(2) The certificate of incorporation issued under
+subsection (1) shall specify—
+(a) the name and number of the company ;
+(b) the date on which the company was incorporated ;
+(c) whether the company is a limited company, an
+unlimited company or a company limited by
+guarantee ;
+(d) whether the company is a private company ; and
+(e) whether the company is an off-shore company ;
+4 Companies Act, No. 07 of 2007
+(3) A certificate of incorporation issued under this section
+in-respect of any company, shall be conclusive evidence of
+the fact that—
+(a) all the requirements under this Act relating to the
+incorporation of a company have been complied
+with ; and
+(b) the company has been incorporated under this Act
+on the date specified in such certificate of
+incorporation.
+COMPANY NAMES
+Requirements as 6. The name of every—
+to name.
+(a) limited company other than a listed company, shall
+end in the word “Limited” or by the abbreviation
+“Ltd” ;
+(b) private company, shall end in the words “(Private)
+Limited” or by the abbreviation “(Pvt) Ltd” ; and
+(c) limited company which is a listed company, shall
+end in the words “Public Limited Company” or by
+the abbreviation “PLC”.
+Restrictions on 7. (1) A company shall not be registered by a name
+names. which—
+(a) is identical with the name of any other company or
+of any registered overseas company ;
+(b) contains the words “Chamber of Commerce”, unless
+the company is a company which is to be registered
+under a licence granted under section 34 without
+the addition of the word “Limited” to its name ; or
+Companies Act, No. 07 of 2007 5
+(c) is in the opinion of the Registrar, misleading.
+(2) Except with the consent of the Minister given having
+regard to the national interest, no company shall be registered
+by a name which contains the words :—
+(a) “President”, “Presidential” or other words which in
+the opinion of the Registrar suggest or are calculated
+to suggest, the patronage of the President or
+connection with the Government or any Government
+Department ;
+(b) “Municipal”, “incorporated” or other words which
+in the opinion of the Registrar suggest or are
+calculated to suggest, connection with any
+Municipality or other local authority or with any
+society or body incorporated by an Act of
+Parliament;
+(c) “Co-operative” or “Society” ; or
+(d) “National”, “State” or “Sri Lanka” or other words
+which in the opinion of the Registrar suggest or are
+calculated to suggest, any connection with the
+Government or any Government Department.
+(3) In determining for the purposes of subsection (1)
+whether one name is identical with another, the following
+words shall be disregarded :—
+(a) the word “the”, where it is the first word of the name;
+(b) the following words and expressions, where they
+appear at the end of the name :
+(i) “company” ;
+(ii) “and company” ;
+(iii) “company limited” ;
+6 Companies Act, No. 07 of 2007
+(iv) “and company limited” ;
+(v) “limited” ;
+(vi) “unlimited” ;
+(vii) “(Private) limited” ;
+(viii) “Public Limited Company” ;
+(c) abbreviations referred to in section 6, where they
+appear at the end of the name ;
+(d) type and case of letters, accents, spaces between
+letters and punctuation marks ; and
+(e) “and” or “&”.
+Change of 8. (1) A company may change its name by special
+name. resolution with the prior approval in writing of the Registrar.
+(2) Where a company has resolved to change its name
+under subsection (1), it shall within ten working days of the
+change, give notice of the change to the Registrar in the
+prescribed form.
+(3) Upon receiving notice that a company has changed
+its name, the Registrar shall—
+(a) enter the new name on the Register in place of the
+former name ; and
+(b) issue a fresh certificate of incorporation in the
+prescribed form, altered to indicate—
+(i) the change of name ; and
+(ii) where the company has become or has ceased
+to be a private company, the fact of that change.
+Companies Act, No. 07 of 2007 7
+(4) The change of name shall not affect any rights or
+obligations of the company, or render ineffective any legal
+proceedings by or against the company. Any legal
+proceedings that might have been continued or commenced
+against it by its former name, may be continued or commenced
+against it by its new name.
+(5) Where a company fails to comply with
+subsection(2)—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees ; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding fifty thousand rupees.
+9. (1) A company shall within thirty working days of
+Public notice of
+its incorporation under this Act, give public notice of its name.
+incorporation, specifying —
+(a) the name and company number of the company ;
+and
+(b) the address of the company’s registered office.
+(2) Where a company changes its name in accordance
+with the provisions of section 8, it shall within twenty working
+days of such change give public notice of it, specifying—
+(a) the former name of the company ;
+(b) the company number ;
+(c) the address of the registered office of the company ;
+and
+(d) the new name of the company.
+8 Companies Act, No. 07 of 2007
+(3) Where a company fails to publish the notice required
+under subsection (1) or (2) :—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees ; and
+(b) the Registrar shall cause the relevant notice to be
+published.
+Direction to 10. (1) Notwithstanding the provisions of section 7, the
+change name. Registrar may direct a company to change its name in the
+following circumstances :—
+(a) where through inadvertence or otherwise, it has been
+registered with a name which contravenes the
+provisions of section 6 ;
+(b) a request is made to the Registrar to do so within
+three months of the company giving public notice
+of the name objected to under section 9, by another
+company or by a registered overseas company,
+where—
+(i) the name of the first-mentioned company is
+so similar to the name of the requesting
+company that it is likely to cause confusion;
+and
+(ii) the requesting company was registered with
+its current name before the first-mentioned
+company was registered with the name
+objected to ; or
+(c) a request is made to the Registrar to do so by any
+person and the Registrar is satisfied that the name
+was not applied for in good faith for the purpose of
+identifying the company.
+Companies Act, No. 07 of 2007 9
+(2) A company shall comply with a direction issued by a
+Registrar under subsection (1) within a period of six weeks
+from the date of the issue of such direction, or such longer
+period as the Registrar may in his discretion permit.
+(3) A company which fails to comply with a direction
+issued under this section shall be guilty of an offence and be
+liable on conviction to a fine not exceeding two hundred
+thousand rupees.
+11. (1) Where a company ceases to be a private company, Change of name
+it shall be deemed to have resolved to change its name in upon change of
+accordance with the provisions of subsection (1) of section status of
+company.
+8, by omitting the word “(Private)”.
+(2) Where a company which was not a private company
+becomes a private company under section 29, it shall be
+deemed to have resolved to change its name in accordance
+with the provisions of subsection (1) of section 8 by
+substituting for the word “Limited” at the end of its name, of
+the words “(Private) Limited”.
+(3) Where a limited company becomes a listed company,
+it shall be deemed to have resolved to change its name in
+accordance with the provisions of subsection (1) of section 8
+by substituting for the word “Limited” at the end of its name,
+of the words “Public Limited Company”.
+(4) Where a limited company ceases to be a listed
+company, it shall be deemed to have resolved to change its
+name in accordance with the provisions of subsection (1) of
+section 8, by substituting for the words “Public Limited
+Company” at the end of its name, of the word “Limited”.
+(5) Where a company is deemed to have resolved to
+change its name under this section, it shall within ten working
+days of such change, give public notice of the change and
+send a copy of such notice to the Registrar, and the provisions
+of subsections (3) and (4) of section 8, shall apply to and in
+relation to such change of name.
+10 Companies Act, No. 07 of 2007
+(6) Where a company fails to comply with the
+requirements of subsection (5) —
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees ; and
+(b) every officer of the company who is in default shall
+be guilty an offence and be liable on conviction to
+a fine not exceeding fifty thousand rupees.
+Use of company 12. (1) A company shall ensure that its name and its
+name and company number are clearly stated in—
+company
+number.
+(a) all business letters of the company ;
+(b) all notices and other official publications of the
+company ;
+(c) all bills of exchange, promissory notes,
+endorsements, cheques and orders for money or
+goods signed on behalf of the company ;
+(d) all invoices, receipts and letters of credit of the
+company ;
+(e) all other documents issued or signed by the
+company which creates or is evidence of a legal
+obligation of the company ; and
+(f) the company seal, if any.
+(2) Every company shall ensure that its name and its
+company number are clearly displayed at its registered office.
+(3) Where a company fails to comply with the provisions
+of subsection (1) or subsection (2)—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees ; and
+Companies Act, No. 07 of 2007 11
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding fifty thousand rupees.
+(4) Where—
+(a) a document that creates or is evidence of a legal
+obligation of a company, is issued or signed by or
+on behalf of the company ; and
+(b) the name and company number of the company are
+not correctly stated in the document,
+every person who issued or signed the document will be
+liable to the same extent as the company if the company
+fails to discharge the obligation, unless-
+(c) the person who issued or signed the document
+proves, that the person in whose favour the
+obligation was incurred was aware at the time the
+document was issued or signed, that the obligation
+was incurred by the company ; or
+(d) the court is satisfied that it would not be just and
+equitable for that person to be so liable.
+(5) For the purposes of subsections (1) and (2), a company
+may use a generally recognized abbreviation of any word in
+its name, unless it is misleading to do so.
+ARTICLES OF ASSOCIATION
+13. The articles of association of a company may provide Contents of
+for any matter not inconsistent with the provisions of this Act articles.
+other than the First Schedule hereto, and in particular may
+provide for—
+(a) the objects of the company ;
+12 Companies Act, No. 07 of 2007
+(b) the rights and obligations of shareholders of the
+company ; and
+(c) the management and administration of the company.
+Application of 14. The articles of association set out in the First
+model articles. Schedule hereto (hereinafter referred to as “model articles”)
+shall apply in respect of any company other than a company
+limited by guarantee, except to the extent that the company
+adopts articles which exclude, modify or are inconsistent
+with the model articles.
+Adoption or 15. (1) Subject to the provisions of this Act and any
+amendment of conditions contained in its articles, a company may at any
+articles.
+time by special resolution —
+(a) adopt new articles ;
+(b) if it has articles which differ from the articles of
+association set out in the First Schedule, adopt such
+articles as its articles ; or
+(c) alter its articles.
+(2) Where a company by a special resolution alters its
+articles, it shall give notice of such resolution to the Registrar
+within ten working days, setting out in full the text of the
+resolution and of any new articles or of any alterations to the
+company’s articles.
+(3) Where a company fails to comply with the requirement
+of subsection (2)—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees ; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding fifty thousand rupees.
+Companies Act, No. 07 of 2007 13
+16. Subject to the provision of section 89, the articles of Effect of articles.
+a company shall bind the company and its shareholders as if
+there were a contract between the company and its
+shareholders. In particular, all money payable by any
+shareholder to the company under the articles, shall be a debt
+due from that shareholder to the company.
+17. (1) Where the articles of a company sets-out the Effect of
+objects of the company, there shall be deemed to be a statement of
+objects in
+restriction placed by the articles in carrying on any business
+articles.
+or activity that is not within those objects, unless the articles
+expressly provide otherwise.
+(2) Where the articles of a company provide for any
+restriction on the business or activities in which the company
+may engage—
+(a) the capacity and powers of the company shall not
+be affected by such restriction ; and
+(b) no act of the company, no contract or other
+obligation entered into by the company and no
+transfer of property by or to the company, shall be
+invalid by reason only of the fact that it was done in
+contravention of such restriction.
+(3) Nothing in subsection (2) shall affect —
+(a) the ability of a shareholder or director of the
+company to make an application to court under
+section 233 to restrain the company from acting in a
+manner inconsistent with a restriction placed by the
+articles, unless the company has entered into a
+contract or other binding obligation to do so; or
+(b) the liability of a director of the company for acting
+in breach of the provisions of section 188.
+14 Companies Act, No. 07 of 2007
+Right of 18. (1) A shareholder has a right at any time to request
+shareholders to a a company in writing for a copy of the articles of the company,
+copy of the
+and subject to subsection (2), the company shall comply
+articles.
+with such request within five working days of the date of
+receipt and such request.
+(2) A company to which a request is made under
+subsection (1) may—
+(a) require the shareholder to pay a fee of not more than
+five hundred rupees before providing a copy of the
+articles; or
+(b) decline to provide a copy of the articles, if a copy
+has been provided to that shareholder within the
+previous six months.
+(3) Where a company fails to comply with the
+requirements of subsection (1) —
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding two
+hundred thousand rupees; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding one hundred thousand
+rupees.
+COMPANY CONTRACTS ETC.
+Method of 19. (1) A contract or other enforceable obligation may
+contracting. be entered into by a company as follows :—
+(a) an obligation which, if entered into by a natural
+person is required by law to be in writing signed by
+that person and be notarially attested, may be
+entered into on behalf of the company in writing
+signed under the name of the company by —
+(i) two directors of the company;
+Companies Act, No. 07 of 2007 15
+(ii) if there be only one director, by that director;
+(iii) if the articles of the company so provide, by
+any other person or class of persons; or
+(iv) one or more attorneys appointed by the
+company,
+and be notarially executed;
+(b) an obligation which, if entered into by a natural
+person is required by law to be in writing and signed
+by that person, may be entered into on behalf of the
+company in writing signed by a person acting under
+the company’s express or implied authority;
+(c) an obligation which if entered into by a natural
+person is not required by law to be in writing, may
+be entered into on behalf of the company in writing
+or orally, by a person acting under the company’s
+express or implied authority.
+(2) The provisions of subsection (1) shall apply to a
+contract or other obligation —
+(a) whether or not that contract or obligation is entered
+into in Sri Lanka; and
+(c) whether or not the law governing the contract or
+obligation is the law of Sri Lanka.
+(3) For the purpose of this section, a company may use a
+generally recognised abbreviation of any word in the name,
+unless it is misleading to do so.
+20. (1) Subject to its articles, a company may by an Attorneys.
+instrument in writing executed in accordance with the
+provisions of section 19, appoint a person as its attorney
+either generally or in relation to a specified matter.
+16 Companies Act, No. 07 of 2007
+(2) Any act of the attorney carried out in accordance with
+the instrument referred to in subsection (1), shall be binding
+on the company.
+(3) The provisions of the Powers of Attorney Ordinance
+(Chapter 122) and the law relating to powers of attorney
+executed by a natural person, shall with necessary
+modifications, apply in relation to a power of attorney
+executed by a company to the same extent as if the company
+was a natural person, and as if the commencement of the
+liquidation or if there is no liquidation, the removal of the
+company from the Register, was the death of a person.
+Authority of 21. (1) A company or a guarantor of an obligation of
+directors, the company or any person claiming under the company,
+officers and
+may not assert against a person dealing with that company or
+agents.
+with any person who has acquired rights from the company,
+that —
+(a) the articles of the company have not been complied
+with; or
+(b) the persons named in the most recent notice filed
+under section 223 or the annual return delivered
+under section 131of this Act, are not the directors or
+the secretary of the company, as the case may be; or
+(c) a person held out by a company as a director, officer
+or agent of the company—
+(i) has not been duly appointed; or
+(ii) does not have authority to exercise the powers
+and perform the duties that are customary in
+the business of the company or are normal for
+a director, officer or agent of a company
+carrying on business of the kind carried on by
+that company; or
+Companies Act, No. 07 of 2007 17
+(d) a document issued by any director, the secretary of
+the company or by any officer or agent, with actual
+or normal authority to issue the document, is not
+valid or genuine,
+unless that person has, or by virtue of that person’s position
+with or relationship to the company, ought to have
+knowledge to the contrary.
+(2) The provisions of subsection (1) shall apply even in a
+situation where a person referred to in paragraphs (b) to (d) of
+that subsection acts fraudulently or forges a document that
+appears to have been signed on behalf of the company, unless
+the person dealing with the company or who has acquired
+rights from the company, has actual knowledge of such fraud
+or forgery.
+22. Subject to the provisions of subsection (3) of section No constructive
+105, a person shall not be affected by or deemed to have notice.
+notice or knowledge of the contents of the articles of company
+or any other document relating to a company, by reason only
+of the fact that it has been delivered to the Registrar for filing
+or is available for inspection at any office of the company.
+PRE-INCORPORATION CONTRACTS
+23. (1) For the purpose of this section and sections 24 pre-
+incorporation
+and 25 of this Act, the expression “pre-incorporation
+contracts may be
+contract” means — ratified.
+(a) a contract purported to have been entered into by a
+company before its incorporation; or
+(b) a contract entered into by a person on behalf of a
+company before and in contemplation of its
+incorporation.
+18 Companies Act, No. 07 of 2007
+(2) Notwithstanding anything to the contrary in any law,
+a pre-incorporation contract may be ratified within such
+period as may be specified in the contract or if no such period
+is specified, within a reasonable time after the incorporation
+of such company, in the name of which or on behalf of which
+it has been entered into.
+(3) A pre-incorporation contract that is ratified under
+subsection (2), shall be as valid and enforceable as if the
+company had been a party to the contract at the time it was
+entered into.
+(4) A pre-incorporation contract may be ratified by a
+company in the same manner as a contract may be entered
+into on behalf of a company under section 19.
+Warranties 24. (1) Notwithstanding anything to the contrary in any
+implied in pre- law, in a pre-incorporation contract, unless a contrary intention
+incorporation
+is expressed in the contract, there shall be an implied warranty
+contracts.
+by the person who purports to enter into such contract in the
+name of or on behalf of the company—
+(a) that the company will be incorporated within such
+period as may be specified in the contract, or if no
+period is specified, within a reasonable time after
+the making of the contract; and
+(b) that the company will ratify the contract within such
+period as may be specified in the contract or if no
+period is specified, within a reasonable time after
+the incorporation of such company.
+(2) The amount of damages recoverable in an action for
+breach of an implied warranty referred to in subsection (1),
+shall be the same as the amount of damages that may be
+recoverable in an action against the company for damages
+for breach by the company of the unperformed obligations
+under the contract, if the contract had been ratified by the
+company.
+Companies Act, No. 07 of 2007 19
+(3) Where after its incorporation, a company enters into a
+contract in the same terms as or in substitution for, a pre-
+incorporation contract (not being a contract ratified by the
+company under section 23), the liability of a person under
+subsection (1) shall be discharged.
+25. Where a company has acquired property pursuant to Failure to
+a pre-incorporation contract that has not been ratified by the ratify.
+company after its incorporation, a court may on an application
+made in that behalf by the party from whom the property was
+acquired, make an order —
+(a) directing the company to return property acquired
+under the pre-incorporation contract, to that party;
+(b) validating the contract in whole or in part; or
+(c) granting any other relief in favour of that party
+relating to that property acquired.
+AUTHENTICATION OF DOCUMENTS BY COMPANY
+26. A document or record of proceedings requiring Authentication
+authentication by a company shall be signed by a director, of documents
+secretary, or other authorised officer of the company. by company.
+PART II
+PRIVATE COMPANIES
+27. The articles of a private company shall include Articles of a
+provisions which— private
+company.
+(a) prohibit the company from offering shares or other
+securities issued by the company to the public; and
+(b) limit the number of its shareholders to fifty, not
+including shareholders who are—
+(i) employees of the company; or
+20 Companies Act, No. 07 of 2007
+(ii) former employees of the company who
+became shareholders of the company while
+being employees of such company and who
+have continued to be shareholders after
+ceasing to be employees of the company.
+Company 28. (1) If a private company alters its articles in such a
+ceasing to be a way that the articles no longer comply with the requirments
+private of section 27—
+company.
+(a) the company shall cease to be a private company;
+(b) provisions of sections 30 and 31 shall cease to apply
+to that company; and
+(c) the company shall be deemed to have changed its
+name in accordance with section 11.
+(2) If a private company fails to comply with the
+requirements specified in section 27—
+(a) the company shall cease to be a private company;
+(b) provisions of sections 30 and 31 shall cease to apply
+to that company; and
+(c) the company shall be deemed to have changed its
+name in accordance with section 11.
+(3) The court may determine that provisions of subsection
+(2) shall not apply in respect of failure by a private company,
+where it is satisfied that—
+(a) the failure to comply was due to inadvertence;
+(b) the failure to comply has been rectified; or
+(c) in all the circumstances of the case it is just and
+equitable to reach such determination.
+Companies Act, No. 07 of 2007 21
+29. Where a limited company alters its articles so that Company may
+the articles comply with the requirement of section 27— become a private
+company.
+(a) the company shall become a private company; and
+(b) the company shall be deemed to have changed its
+name in accordance with the provisions of
+section11.
+30. (1) A private company may by unanimous
+Private
+resolution of its shareholders dispense with the keeping of companies need
+an interests register, and while such a resolution is in force, not keep interests
+register.
+no provision of this Act which requires any matter to be entered
+in the interests register of a company, shall apply to such
+private company.
+(2) A unanimous resolution under subsection (1) shall
+cease to have effect, if any shareholder gives notice in writing
+to the company, that he requires it to keep an interests register.
+31. (1) Where all the shareholders of a private company Unanimous
+agree in writing to any action which has been taken, or is to agreement of
+shareholders.
+be taken by the company—
+(a) the taking of that action is deemed to be validly
+authorised by the company, notwithstanding any
+provision in the articles of the company to the
+contrary; and
+(b) the provisions contained in the list of sections of
+this Act specified in the Second Schedule hereto,
+shall not apply to and in relation to that action.
+(2) Without limiting the matters which may be agreed to
+under subsection (1), the provisions of that subsection shall
+apply where all the shareholders of a private company agree
+to or concur in —
+(a) the issue of shares by the company;
+22 Companies Act, No. 07 of 2007
+(b) the making of a distribution by the company;
+(c) the repurchase or redemption of shares in the
+company;
+(d) the giving of financial assistance by a company for
+the purpose of or in connection with the purchase of
+shares in the company;
+(e) the payment of remuneration to a director, or the
+making of a loan to a director, or the conferment of
+any other benefit on a director; or
+(f) the entering into a contract between an interested
+director and the company.
+(3) Where a distribution is made by a company under
+subsection (2) and as a consequence of making that
+distribution the company fails to satisfy the solvency test,
+such distribution shall be deemed not to have been made
+validly.
+(4) A distribution to a shareholder which is deemed not
+to have been validly made under subsection (3) may be
+recovered by the company from such shareholder, unless —
+(a) the shareholder received the distribution in good
+faith and without knowledge of the company’s failure
+to satisfy the solvency test;
+(b) the shareholder has altered his position relying on
+the validity of such distribution; and
+(c) it would be unreasonable in view of the
+circumstances, to require repayment in full or at all.
+(5) Where reasonable grounds did not exist for believing
+that the company would be able to satisfy the solvency test
+Companies Act, No. 07 of 2007 23
+after the making of a distribution which is deemed not to
+have been validly made, each shareholder who agreed to the
+making of such distribution will be personally liable to the
+company, to repay to the company so much of the distribution
+which the company is not able to recover from the
+shareholders to whom the distribution was made.
+(6) Where an action for recovery is brought against a
+shareholder under subsection (4) or (5), and the court is
+satisfied that the company could by making a distribution of
+a lesser amount have satisfied the solvency test, the court
+may —
+(a) permit the shareholder to retain; or
+(b) relieve the shareholder from liability in respect of,
+an amount equal to the value of any distribution that the
+company could properly have made under the circumstances.
+PART III
+COMPANIES LIMITED BY GUARANTEE
+32. Any two or more persons may apply to form a
+Application for
+company limited by guarantee by making an application to incorporation of
+the Registrar for the same in the prescribed form signed by a company
+limited by
+each of the initial members, together with the following
+guarantee.
+documents :—
+(a) the articles of association of the company;
+(b) a consent under section 203 from each of the initial
+directors, to act as a director of the company; and
+(c) a consent under section 221 from the initial
+secretary, to act as secretary of the company.
+24 Companies Act, No. 07 of 2007
+Company 33. (1) A company limited by guarantee shall have
+limited by articles which sets out—
+guarantee
+must have
+(a) the objects of the company; and
+articles.
+(b) the amount which each member of the company
+undertakes to contribute to the assets of the company,
+in the event of such company being put into
+liquidation.
+(2) Nothing in subsection (1) shall prevent a company
+limited by guarantee from providing in its articles, that
+specified clauses of the articles of association set out in the
+First Schedule hereto, shall apply to that company and any
+such provision shall have effect accordingly.
+Power to 34. (1) Where the Registrar is satisfied that an
+dispose with association about to be formed as a company limited by
+“limited” in guarantee is to be formed for promoting commerce, art,
+the name of
+science, religion, charity, sport, or any other useful object,
+charitable
+and other and intends to apply its profits, if any, or other income in
+companies. promoting its objects, and to prohibit the payment of any
+dividend to its members —
+(a) the Registrar may by licence direct that the
+association be registered as a company limited by
+guarantee, without the addition of the word
+“Limited” to its name; and
+(b) the association may be registered accordingly and
+shall on registration enjoy all the privileges and
+subject to the provisions of this section, be subject
+to all the obligations of a limited company.
+(2) Where it is proved to the satisfaction of the Registrar—
+(a) that the objects of a company limited by guarantee
+are restricted to those specified in subsection (1)
+and to objects incidental or conducive to them; and
+Companies Act, No. 07 of 2007 25
+(b) that by its articles the company is required to apply
+its profits or other income in promoting its objects
+and is prohibited from paying any dividend to its
+members,
+the Registrar may by licence authorize the company to make
+by special resolution a change in its name including or
+consisting of the omission of the word “Limited”. The
+provisions of subsections (2), (3), (4) and (5) of section 8
+shall apply to a change of name under this subsection.
+(3) A licence granted under this section may be subject
+to such terms and conditions as the Registrar thinks necessary
+for the purpose of ensuring that the association conforms to
+the requirements of subsection (1). The terms and conditions
+shall be binding on the association and shall, if the Registrar
+so directs, be incorporated into the articles of such company.
+(4) No alteration may be made in the articles of a company
+to which a licence has been granted under this section, without
+the prior written approval of the Registrar.
+(5) The provisions of section 6 shall not apply in respect
+of a company to which a licence is granted under this section.
+(6) A licence granted under this section may at any time
+be revoked by the Registrar where the company to which the
+licence is granted fails to comply with the requirements of
+subsection (1) or subsection (3). Upon revocation of a licnece,
+the Registrar shall enter upon the register the word “Limited”
+at the end of the name of the company, and the company
+shall cease to enjoy the exemptions and privileges granted
+by the provisions of this section. The provision of subsections
+(3) and (4) of section 8 shall apply to a change of name under
+this subsection.
+(7) Before a licence is revoked under subsection (6), the
+Registrar shall give the company notice in writing of his
+26 Companies Act, No. 07 of 2007
+intention and shall afford the association or company an
+opportunity of being heard in opposition to the revocation.
+(8) Where an association in respect of which a licence
+under this section is in force alters the provisions of its
+constitution with respect to its objects, the Registrar may,
+unless he sees fit to revoke the licence, vary, add to or alter
+the terms and conditions subject to which the license was
+granted.
+Provisions 35. (1) The provisions contained in the list of sections
+which apply to of this Act specified in the Third Schedule hereto, shall not
+companies
+apply to and in respect of a company limited by guarantee.
+limited by
+guarantee.
+(2) The provisions of this Act other than the sections
+referred to in subsection (1), shall apply to a company limited
+by guarantee with all necessary modifications, as if—
+(a) the company were a limited company ;
+(b) references to shareholders were references to
+members of the company ;
+(c) each member held one share in the company ; and
+(d) references to the share register were references to
+the register of members.
+PART IV
+SHARES AND DEBENTURES
+PROSPECTUS
+Dating of 36. A prospectus issued by or on behalf of a company or
+prospectus. in relation to a company to be formed shall bear a date, and
+such date shall unless the contrary is proved, be taken as the
+date of publication of such prospectus.
+Companies Act, No. 07 of 2007 27
+37. (1) Every prospectus issued by or on behalf of a Specific
+company or by or on behalf of any person who is or has been requirements as
+to particulars in
+engaged or interested in the formation of the company, shall
+prospectus.
+contain the information specified in Part I of the Fourth
+Schedule hereto and set out the reports specified in Part II of
+that Schedule. The provisions of Parts I and II shall have
+effect, subject to the provisions contained in Part III of that
+Schedule.
+(2) A condition requiring or binding an applicant for
+shares in or debentures of a company, to waive compliance
+with any requirement of this section, or purporting to affect
+him with notice of any contract, document, or matter not
+specifically referred to in the prospectus, shall be void.
+(3) It shall not be lawful to issue any form for application
+for shares in or debentures of a company, unless the form is
+issued with a prospectus which complies with the requirements
+of this section :
+Provided that the provisions of this subsection shall not
+apply, where it is shown that the form for application was
+issued either—
+(a) in connection with a bona fide invitation to a person
+to enter into an under-writing agreement with respect
+to the shatres or debentures ;
+(b) in relation to shares or debentures which were not
+offered to the public ; or
+(c) in relation to issuance of commercial papers by a
+company listed on a stock exchange and offered to
+the public.
+(4) Subject to the provisions of subsections (1) and (2),
+any person who acts in contravention of the provisions of
+subsection (3) shall be guilty of an offence and be liable on
+conviction to a fine not exceeding two hundred thousand
+rupees.
+28 Companies Act, No. 07 of 2007
+(5) In the event of non-compliance with or contravention
+of any of the requirements of this section, a director or other
+person responsible for the issue of the prospectus shall not
+incur any liability by reason of such non-compliance or
+contravention, if—
+(a) as regards any matter not disclosed he proves that
+he was not cognizant thereof ;
+(b) he proves that the non-compliance or contravention
+arose from an honest mistake of fact on his part ; or
+(c) the non-compliance or contravention was in respect
+of any matter which in the opinion of the court was
+immaterial or was otherwise such as ought, having
+regard to all the circumstances of the case, reasonably
+to be excused :
+Provided that, in the event of failure to include in a
+prospectus a statement with respect to the matters specified
+in paragraph 17 of the Fourth Schedule hereto, no director or
+other person shall incur any liability in respect of the failure,
+unless it be proved that he had knowledge of the matters not
+disclosed.
+(6) The provision of this section shall not apply to the
+issue to existing shareholders or debenture holders of a
+company, of a prospectus or form of application relating to
+shares in or debentures of the company, whether an applicant
+for shares or debentures shall or shall not have the right to
+renounce in favour of other persons. Save as aforesaid, the
+provisions of this section shall apply to a prospectus or a
+form of application whether issued on or with reference to
+the formation of a company or subsequently.
+(7) Nothing in this section shall limit or diminish any
+liability which a person may incur under any written law or
+under this Act (other than this section).
+(8) Where a prospectus has been sent for registration in
+accordance with the provisions of section 40 and has been
+1-25T 7
+Companies Act, No. 07 of 2007 29
+registered by the Registrar, nothing in the preceding
+provisions of this section shall be deemed or construed to
+prohibit the issue or publication of any notice, circular or
+advertisement stating that the prospectus has been registered
+and issued and that copies thereof are available on
+application, if such notice, circular or advertisement does
+not contain any invitation to the public to subscribe for or
+purchase any shares in or debentures of a company.
+38. (1) A prospectus inviting persons to subscribe for Expert’s consent
+shares in or debentures of a company and including a to issue of
+prospectus
+statement purporting to be made by an expert, shall not be
+containing
+issued, unless—
+statement by
+him.
+(a) such expert has given and has not before delivery of
+a copy of the prospectus for registration, withdrawn
+his written consent to the issue thereof with the
+statement included in the form and context in which
+it is included ; and
+(b) a statement appears in the prospectus that such expert
+has given and has not withdrawn his consent as
+referred to in paragraph (a).
+(2) Where any prospectus is issued in contravention of
+the provision of this section, the company and every person
+who is knowingly a party to the issue thereof, shall be guilty
+of an offence and be liable on conviction to a fine not
+exceeding two hundred thousand rupees.
+(3) For the purpose of this section, the term “expert”
+includes an engineer, a valuer, an auditor, an accountant and
+any other person having similar professional qualifications.
+39. (1) No bank shall be named as a company’s banker Consent of bank
+in any prospectus inviting persons to subscribe for shares in or attorney-at-
+law or auditor
+or debentures of the company, unless such bank has given
+necessary for
+and has not before delivery of a copy of the prospectus for inclusion of
+registration, withdrawn its written consent to the inclusion name in
+prospectus.
+in such prospectus of its names as the company’s banker :
+30 Companies Act, No. 07 of 2007
+Provided that a bank shall not be deemed for the purposes
+of this Act to have authorised the issue of a prospectus, by
+reason only of it having given the consent to the inclusion in
+such prospectus of its name as the company’s bankers.
+(2) No attorney-at-law shall be named as a company’s
+lawyer in a prospectus inviting persons to subscribe for shares
+in or debentures of the company, unless such attorney-at-law
+has given and has not before delivery of a copy of the
+prospectus for registration, withdrawn his written consent to
+the inclusion in such prospectus of his name as the company’s
+lawyer :
+Provided that an attorney-at-law shall not be deemed for
+the purposes of this Act to have authorised the issue of a
+prospectus, by reason only of his having given the consent
+to the inclusion in such prospectus of his name as the
+company’s lawyer.
+(3) No auditor shall be named as a company’s auditor in a
+prospectus inviting persons to subscribe for shares in or
+debentures of the company, unless such auditor has given
+and has not before delivery of a copy of the prospectus for
+registration, withdrawn his written consent to the inclusion
+in such prospectus of his name as the company’s auditor :
+Provided that an auditor shall not be deemed for the
+purposes of this Act to have authorized the issue of a
+prospectus, by reason only of his having given the consent
+to the inclusion in such prospectus of his name as the
+company’s auditor.
+(4) Where the name of any bank, attorney-at-law or auditor
+is included in any prospectus of a company in contravention
+of the provisions of this section, the company and every
+person who is knowingly a party to the issue thereof, shall be
+guilty of an offence and be liable on conviction to a fine not
+exceeding two hundred thousand rupees.
+Companies Act, No. 07 of 2007 31
+40. (1) No prospectus shall be issued by or on behalf of Registration of
+a company or in relation to a company to be formed, unless prospectus.
+on or before the date of its publication, there has been
+delivered to the Registrar for registration a copy of such
+prospectus signed by every person who is named in such
+prospectus as a director or proposed director of the company,
+or by his agent authorised in writing, and having endorsed
+thereon or attached thereto—
+(a) written consent from an expert to the issue of the
+prospectus as required by section 38 ;
+(b) a declaration made and subscribed to by every
+person who is named in such prospectus as a director
+or a proposed director of the company, to the effect
+that he has read the provisions of this Act relating to
+the issue of a prospectus and that those provisions
+have been complied with ; and
+(c) in the case of prospectus issued generally, where the
+persons making any report required by Part II of the
+Fourth Schedule hereto have made or have without
+giving the reasons, indicated in such prospectus any
+such adjustments as are mentioned in paragraph 30
+of that Schedule, and a written statement signed by
+such person setting out the adjustments and giving
+the reasons therefor.
+(2) Every prospectus shall on the face of it—
+(a) state that a copy has been delivered for registration
+as required by this section ; and
+(b) set out or refer to statements included in the
+prospectus which specify any documents required
+by this section to be endorsed on or attached to the
+copy so delivered.
+32 Companies Act, No. 07 of 2007
+(3) The Registrar shall not register a prospectus—
+(a) unless the copy thereof is signed in the manner
+required by this section ;
+(b) unless it has endorsed thereon or attached thereto
+the dosuments (if any) specified as aforesaid ;
+(c) unless it bears the date of the delivery of the copy
+thereof to the Registrar under this section, or it bears
+a future date to be inserted in such prospectus under
+the provisions of section 36 ; and
+(d) where it bears a future date as hereinbefore provided,
+unless that date has been confirmed or altered by
+notice served on the Registrar.
+(4) Where a prsopectus is issued without a copy thereof
+being delivered under this section to the Registrar or without
+a copy so delivered having been endorsed thereon or attached
+thereto the required documents referred to in subsection (1),
+the company and every person who is knowingly a party to
+the issue of the prospectus, shall be guilty of an offence and
+be liable on conviction to a fine not exceeding two hundred
+thousand rupees.
+Civil liability for 41. (1) Subject to the provisions of this section, where
+untrue in a prospectus invites persons to subscribe for shares in or
+prospectus. debentures of a company, the following persons shall be liable
+to pay compensation to all persons who subscribe for any
+shares or debentures on the faith of the prospectus, for the
+loss or damage they may have sustained by reason of any
+untrue statement included in such prospectus, that is to say:—
+(a) every person who is a director of the company, at
+the time of the issue of the prospectus ;
+(b) every person who has authorised himself to be
+named and is named in the prospectus as a director
+or as having agreed to become a director, either
+immediately or after an interval of time ;
+Companies Act, No. 07 of 2007 33
+(c) every person being a promoter of the company ; and
+(d) every person who has authorised the issue of the
+prospectus :
+Provided that, where under the provisions of section 38,
+the consent of any person is required to the issue of a
+prospectus and such person has given such consent, such
+person shall not by reason of his having given such consent,
+be liable under the provisions of this subsection as a person
+who has authorised the issue of the prospectus, except in
+respect of an untrue statement purporting to be made by him
+as an expert.
+(2) No person shall be liable under the provisions of
+subsection (1), if he proves that—
+(a) having consented to become a director of the
+company he withdrew his consent before the issue
+of the prospectus and that it was issued without his
+authority or consent ;
+(b) the prospectus was issued without his knowledge or
+consent and that on becoming aware of its issue, he
+forthwith gave reasonable public notice that it was
+issued without his knowledge or consent ;
+(c) after the issue of the prospectus and before allotment
+thereunder, he on becoming aware of any untrue
+statement in such prospectus, withdrew his consent
+thereto and gave reasonable pubilc notice of the
+withdrawal and of the reasons therefor ; or
+(d) (i) as regards every untrue statement not
+purporting to be made on the authority of an
+expert or of a public official document or
+statement, he had reasonable ground to
+believe and did up to the time of the allotment
+of the shares or debentures, as the case may
+be, believed that the statement was true ;
+34 Companies Act, No. 07 of 2007
+(ii) as regards every untrue statement purporting
+to be a statement by an expert or contained
+in what purports to be a copy of or extract
+from a report or valuation of an expert, it fairly
+represented the statement or was a correct and
+fair copy of or extract from the report or
+valuation, as the case may be, and he had
+reasonable ground to believe and did up to
+the time of the issue of the prospectus
+believed, that the person making the
+statement was competent to make it and that
+person had given the consent required under
+section 38 to the issue of the prospectus and
+had not withdrawn that consent before
+delivery of a copy of the prospectus for
+registration or to his knowledge, before
+allotment thereunder; and
+(iii) as regards every untrue statement purporting
+to be a statement made by a person in his
+official capacity or contained in what purports
+to be a copy or extract from a public document
+issued officially, it was a correct and fair
+representation of the statement or copy or
+extract from the document :
+Provided that the provisions of this
+subsection shall not apply in the case of a
+person liable, by reason of his having given
+the consent required under section 38, as a
+person who has authorised the issue of the
+prospectus in respect of an untrue statement
+purporting to be made by him as an expert.
+(3) A person who apart from the provisions of this
+subsection, would under the provisions of subsection (1) be
+liable by reason of his having given the consent required
+under the provisions of section 38 as a person who has
+authorised the issue of a prospectus in respect of an untrue
+Companies Act, No. 07 of 2007 35
+statement purporting to be made by him as an expert, shall
+not be so liable, if he proves that —
+(a) having given his consent under the provisions of
+section 38 to the issue of the prospectus, he withdrew
+it in writing before delivery of a copy of the
+prospectus for registration ;
+(b) after delivery of a copy of the prospectus for
+registration and before allotment thereunder, he on
+becoming aware of the untrue statement withdrew
+his consent in writing and gave reasonable public
+notice of the withdrawal and of the reason
+therefor;or
+(c) he was competent to make the statement and that he
+had reasonable ground to believe and did up to the
+time of the allotment of the shares or debentures, as
+the case may be, believed that the statement was
+true.
+(4) Where—
+(a) the prospectus contains the name of a person as a
+director of the company or as having agreed to
+become a director of such company and he has not
+consented to become a director or has withdrawn
+his consent before the issue of the prospectus and
+has not authorised or consented to the issue of such
+prospectus ; or
+(b) the consent of a person is required under section 38
+to the issue of the prospectus and he either has not
+given that consent or has withdrawn it before the
+issue of the prospectus,
+the directors of the company, except any director without
+whose knowledge or consent the prospectus was issued, and
+any other person who authorised the issue of such prospectus,
+36 Companies Act, No. 07 of 2007
+shall be liable to indemnify the person named under paragraph
+(a), or whose consent was required under paragraph (b), as
+the case may be, against all damages, costs and expenses to
+which he may be made liable by reason of his name having
+been inserted in the prospectus or of the inclusion therein of
+a statement purporting to be made by him as an expert, as the
+case may be, or in defending himself against any action or
+legal proceeding brought against him in respect thereof :
+Provided that a person shall not be deemed for the purposes
+of this subsection to have authorised the issue of a prospectus,
+by reason only of his having given the consent required under
+section 38 to the inclusion in such prospectus of a statement
+purporting to be made by him as an expert.
+(5) Every person who, by reason of his being a director or
+being named as a director or as having agreed to become a
+director or of his having authorised the issue of the prospectus
+or of the inclusion in such prospectus of a statement
+purporting to be made by him as an expert, becomes liable to
+make any payment under this section, may recover
+contribution as in cases of contract, from any other person
+who, if sued separately, would have been liable to make the
+same payment, unless the person who has become so liable
+was and that other person was not, guilty of fraudulent
+misrepresentation.
+(6) For the purposes of this section—
+(a) “promoter” means a promoter who was a party to
+the preparation of the prospectus or of the portion
+thereof containing the untrue statement, but does
+not include any person by reason of his acting in a
+professional capacity for persons engaged in
+procuring the formation of the company ; and
+(b) “expert” has the same meaning as in section 38.
+Companies Act, No. 07 of 2007 37
+42. (1) Where a prospectus issued includes any untrue Criminal liability
+statement, any person who authorised the issue of the for untrue
+statements in a
+prospectus shall be guilty of an offence and be liable on
+prospectus.
+conviction to a fine not exceeding five hundred thousand
+rupees or to imprisonment for a term not exceeding two years
+or to both to such fine and imprisonment, unless he proves
+either that the statement was immaterial or that he had
+reasonable ground to believe and up to the time of the issue
+of the prospectus did believe, that the statement was true.
+(2) A person shall not be deemed for the purposes of this
+section to have authorised the issue of a prospectus by reason
+only of his having given the consent required by the
+provisions of section 38, to the inclusion in such prospectus
+of a statement purporting to be made by him as an expert.
+(3) No prosecution shall be instituted in respect of any
+offence under the provisions of subsection (1), except with
+the sanction of the Attorney-General.
+43. (1) Where a company allots or agrees to allot any Document
+shares in or debentures of the company with a view to offering containing offer
+of shares or
+all or any of those shares or debentures for sale to the public,
+debentures for
+any document by which the offer for sale to the public is sale to be
+made shall for all purposes be deemed to be a prospectus deemed a
+prospectus.
+issued by the company, and provisions of any written law
+which relates to the contents of prospectuses, liability in
+respect of statements in and omission from prospectuses or
+otherwise generally relating to matters dealing with or
+connected to prospectuses, shall apply and have effect
+accordingly, as if the shares or debentures has been offered to
+the public for subscription and as if persons accepting the
+offer in respect of any shares or debentures were subscribers
+for those shares or debentures, but without prejudice to the
+liability, if any, of the persons by whom the offer is made, in
+respect of untrue statements contained in the document or
+otherwise in respect thereof.
+38 Companies Act, No. 07 of 2007
+(2) For the purposes of this Act, it shall, unless the contrary
+is proved, be deemed that an allotment of or an agreement to
+allot shares or debentures was made with a view to the shares
+or debentures being offered for sale to the public, if it is
+shown—
+(a) that an offer of the shares or debentures for sale to
+the public was made within six months after the
+allotment or agreement to allot ; or
+(b) that at the date when the offer was made, the whole
+consideration to be received by the company in
+respect of the shares or debentures had not been so
+received.
+(3) The provisions of section 40 shall be applicable in
+relation to this section, as though the persons making the
+offer were persons named in a prospectus as directors of a
+company, and the provisions of section 37 shall be applicable
+in relation to this section, as if it required a prospectus to
+state, in addition to the matters required by that section to be
+stated in a prospectus—
+(a) the net amount of the consideration received by the
+company in respect of the shares or debentures to
+which the offer relates ; and
+(b) the place and time at which the contract under which
+the said shares or debentures have been or are to be
+allotted, may be inspected.
+(4) Where a person making an offer to which this section
+relates is a company or a firm, it shall be sufficient if the
+document aforesaid is signed on behalf of the company or
+firm by two directors of the company or not less than half of
+the partners, as the case may be, and any such director or
+partner may sign through his agent authorised in writing.
+Companies Act, No. 07 of 2007 39
+44. For purposes of the preceding provisions of this Part Interpretation of
+of this Act— provisions
+relating to
+prospectuses.
+(a) a statement included in a prospectus shall be deemed
+to be untrue, if it is misleading in the form and
+context in which it is included ; and
+(b) a statement shall be deemed to be included in a
+prospectus, if it is contained in or in any report or
+memorandum appearing on the face of, or by
+referrence incorporated in, or issued with, such
+prospectus.
+ALLOTMENT
+45. (1) No allotment shall be made of any share capital Prohibition of
+of a company offered to the public for subscription, unless allotment unless
+minimum
+the amount stated in the prospectus as the minimum amount
+subscription is
+which in the opinion of the directors must be raised by the
+received.
+issue of share capital in order to provide for the particulars
+specified in paragraph 5 of the Fourth Schedule hereto has
+been subscribed, and the sum payable on application for the
+amount so stated, has been paid to and received by the
+company.
+For the purposes of this subsection, a sum shall be deemed
+to have been paid to and received by the company, if a cheque
+for that sum has been received in good faith by the company
+and the directors of the company have no reason for suspecting
+that the cheque may not be paid.
+(2) Where the conditions set out in subsection (1) has not
+been complied with within the expiration of sixty days from
+the date of closing of the subscription lists, any money
+received from applicants for shares shall be forthwith repaid
+to them without interest, and if such money is not so repaid
+within seventy-five days from the date of closing of the
+subscription lists, the directors of the company shall be jointly
+40 Companies Act, No. 07 of 2007
+and severally liable to repay that money with interest at the
+legal rate, from the expiration of the seventy-fifth day :
+Provided that a director shall not be liable if he proves
+that the default in the repayment of the money was not due to
+any misconduct or negligence on his part.
+(3) Any condition requiring or binding any applicant for
+shares to waive compliance with any requirement of this
+section, shall be void.
+(4) The provisions of this section shall not apply to any
+allotment of shares subsequent to the first allotment of shares
+offered to the public for subscription.
+46. (1) An allotment made by a company to an applicant
+Effect of
+irregular in contravention of the provisions of section 45 shall be
+allotment. voidable at the instance of the applicant within one month
+from the date of the allotment, and shall be so voidable
+notwithstanding that the company is in the course of being
+wound up.
+(2) Where any director of a company knowingly
+contravenes or permits or authorizes the contravention of
+any of the provisions of section 45, he shall be liable to
+compensate the company and the allotee respectively for
+any loss, damages, or costs which the company or the allotee
+may have sustained or incurred thereby:
+Provided that no proceedings to recover any such loss,
+damages, or costs shall be commenced after the expiration of
+two years from the date of the allotment.
+Applications 47. (1) No allotment shall be made of any shares in or
+for and debentures of a company in pursuance of a prospectus issued
+allotment of generally and no proceedings shall be taken on applications
+shares and
+made in pursuance of a prospectus so issued, until the
+debentures.
+commencement of the third day after the date on which the
+prospectus is first issued or such later time (if any) as may be
+specified in the prospectus, (hereinafter in this Act referred to
+as “the time of the opening of the subscription lists”).
+Companies Act, No. 07 of 2007 41
+(2) The reference in subsection (1) to the day on which
+the prospectus is first issued generally shall be construed as
+referring to the date on which it is first issued as a newspaper
+advertisement :
+Provided that, if it is not issued as a newspaper
+advertisement before the third day after the date on which it
+is first issued in any other manner, the said reference shall be
+construed as referring to the date on which it is first so issued
+in such manner.
+(3) The validity of an allotment shall not be affected by
+any contravention of the preceding provisions of this section
+but, in the event of any such contravention—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding two
+hundred thousand rupees; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction to
+a fine not exceeding one hundred thousand rupees.
+(4) In the application of this section to a prospectus offering
+shares or debentures for sale, the preceding subsections shall
+have effect with the substitution for a reference to allotment
+of a reference to sale and for the reference to the company
+and every officer of the company who is in default, of a
+reference to any person by or through whom the offer is made
+and who knowingly and willfully authorises or permits the
+contravention.
+(5) An application for shares in or debentures of a company
+which is made in pursuance of a prospectus issued generally,
+shall not be revocable until after the expiration of the third
+day from the date of the opening of the subscription lists, or
+the giving before the expiration of the said third day, by
+some person responsible under the provisions of section 41
+for the prospectus, of a public notice having the effect under
+that section of excluding or limiting the responsibility of the
+person giving it.
+42 Companies Act, No. 07 of 2007
+(6) In determining for the purposes of this section the
+third day after any day, any intervening day which is a bank
+holiday or a public holiday shall be disregarded and where
+the third day as so determined is itself a bank or a public
+holiday, there shall for the said purposes be substituted the
+first day thereafter which is not a bank holiday or a public
+holiday.
+Construction 48. (1) Any reference in this Act to offering of any shares
+of reference or debentures to the public shall, subject to any provision to
+to offering
+the contrary contained therein, be construed as including a
+shares or
+reference to offering them to any section of the public,
+debentures to
+the public. whether selected as shareholders or debenture holders of the
+company concerned or as clients of the person issuing the
+prospectus or in any other manner, and references in this Act
+or in a company’s articles to invitations to the public to
+subscribe for shares or debentures shall, subject to the
+preceding provisions, be similarly construed.
+(2) The provisions of subsection (1) shall not be taken as
+requiring any offer or invitation to be treated as made to the
+public, if it can properly be regarded in all the circumstances
+as not being calculated to result directly or indirectly, in the
+shares or debentures becoming available for subscription or
+purchase by persons other than those receiving the offer or
+invitation, or otherwise as being a domestic concern of the
+persons making and receiving it, and in particular—
+(a) a provision in a company’s articles prohibiting
+invitation to the public to subscribe for shares or
+debentures shall not be taken as prohibiting the
+making to members or debenture holders of an
+invitation which can properly be regarded as
+aforesaid; and
+(b) the provisions of this Act relating to private
+companies shall be construed accordingly.
+Companies Act, No. 07 of 2007 43
+NATURE AND TYPES OF SHARES
+49. (1) A share in a company shall be movable property. Nature and types
+of shares.
+(2) Subject to the company’s articles, a share in a company
+shall confer on the holder —
+(a) the right to one vote on a poll at a meeting of the
+company on any resolution;
+(b) the right to an equal share in dividends paid by the
+company;
+(c) the right to an equal share in the distribution of the
+surplus assets of the company on liquidation.
+(3) A company may issue different classes of shares, and
+in particular may issue shares which —
+(a) are redeemable;
+(b) confer preferential rights to distributions; or
+(c) confer special, limited or conditional voting rights
+or confer no voting rights.
+(4) No share in a company shall have a nominal or par
+value
+(5) A share in a company is transferable in the manner
+provided for by its articles and such articles may limit or
+restrict the extent to which a share is transferable.
+ISSUE OF SHARES
+50. (1) Immediately following the incorporation of a Initial shares.
+company under section 5, the company shall issue to each
+shareholder named in the application for incorporation, the
+shares to which that person is entitled.
+44 Companies Act, No. 07 of 2007
+(2) Immediately following the issue of a certificate of
+amalgamation under section, 244, the amalgamated company
+shall issue to each person who is entitled to shares under the
+amalgamation proposal, the shares to which that person is
+entitled.
+Issue of shares. 51. (1) Subject to the provisions of sections 52 and 53
+and the company’s articles, the board of a company may
+issue such shares to such persons as it considers appropriate.
+(2) If the shares issued confer rights other than those set
+out in subsection (2) of section 49 or impose any obligation
+on the holder, the board shall approve terms of issue which
+will set out the rights and obligations attached to those shares.
+(3) Terms of issue approved by the board under
+subsection(2) —
+(a) shall be consistent with the articles of the company,
+and to the extent that they are not so consistent, are
+invalid and of no effect ;
+(b) are deemed to form part of the articles, and may be
+amended in accordance with section 15.
+(4) Within twenty working days of the issue of any shares
+under this section, the company shall —
+(a) give notice to the Registrar in the prescribed form of—
+(i) the number of shares issued;
+(ii) the amount of the consideration for which
+the shares have been issued or its value as
+determined by the board under subsection(2)
+of section 58; and
+(iii) the amount of the company’s stated capital
+following the issue of the shares;
+(b) deliver to the Registrar a copy of any terms of issue
+approved under subsection (2).
+Companies Act, No. 07 of 2007 45
+(5) Where a company fails to comply with requirements
+of subsection (4)—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding fifty thousand rupees.
+52. (1) Before issuing any shares, the board shall — Consideration
+for issue of
+shares.
+(a) decide the consideration for which the shares
+will be issued; and
+(b) resolve that in its opinion that consideration
+is fair and reasonable to the company and to
+all existing shareholders.
+(2) The consideration for which a share is issued may
+take any form, including cash, promissory notes, future
+services, property of any kind or other securities of the
+company.
+(3) Upon receipt of the consideration, the company shall
+within a period of twenty days, make an allotment of the shares.
+53. (1) Subject to the company’s articles, where a Pre-emptive
+company issues shares which rank equally with or above rights to new
+existing shares in relation to voting or distribution rights, issues.
+those shares shall be offered to the holders of existing shares
+in a manner which would, if the offer was accepted, maintain
+the relative voting and distribution rights of those
+shareholders.
+(2) An offer which a company is required to make under
+subsection (1), shall remain open for acceptance for a
+reasonable period of time.
+46 Companies Act, No. 07 of 2007
+Method of 54. (1) A share is deemed to be issued when the name of
+issuing shares. the holder is entered on the share register, and such entry
+shall be made prior to compliance with subsection (4) of
+section 51.
+(2) The issue by a company of a share which imposes a
+liability to the company on the holder shall be invalid and of
+no effect, until such time as the person to whom it is issued
+has consented in writing to become the holder of the share.
+CALLS ON SHARES
+Calls on shares. 55. (1) Where a call is made on a share or any other
+obligation attached to a share and is performed by the
+shareholder, the company shall within ten working days give
+notice to the Registrar in the prescribed form of—
+(a) the amount of the call or its value as determined by
+the board under subsection (3) of section 58; and
+(b) the amount of the stated capital of the company
+following the making of the call.
+(2) Where a company fails to comply with the requirement
+of subsection (1)—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding fifty thousand rupees.
+DISTRIBUTIONS TO SHAREHOLDERS
+Distributions. 56. (1) Before a distribution is made by a company to
+any shareholder, such distribution shall —
+(a) be authorised by the board under subsection (2);
+and
+Companies Act, No. 07 of 2007 47
+(b) unless the company’s articles provide otherwise, be
+approved by the shareholders by ordinary resolution.
+(2) The board of a company may authorise a distribution
+at such time and in such amount as it considers appropriate,
+where it is satisfied that the company will, immediately after
+the distribution is made satisfy the solvency test, provided
+that such board obtains a certificate of solvency from the
+auditors.
+(3) The directors who vote in favour of a distribution
+shall sign a certificate setting that in their opinion, the
+company will satisfy the solvency test immediately after the
+distribution is made.
+(4) In applying the solvency test for the purposes of this
+section, “debts” includes fixed preferential returns on shares
+ranking ahead of those in respect of which a distribution is
+made, except where the fixed preferential return is expressed
+to be subject to the power of the board to authorise
+distributions.
+(5) A director who fails to comply with the requirements
+of subsection (2) shall be guilty of an offence and be liable
+on conviction to a fine not exceeding two hundred thousand
+rupees.
+57. (1) A company shall be deemed to have satisfied Solvency test.
+the solvency test, if—
+(a) it is able to pay its debts as they become due in the
+normal course of business; and
+(b) the value of the company’s assets is greater than —
+(i) the value of its liabilities; and
+(ii) the company’s stated capital.
+48 Companies Act, No. 07 of 2007
+(2) In determining whether a company satisfies the
+solvency test, the board—
+(a) shall take into account the most recent financial
+statements of the company prepared in accordance
+with section 151 of the Act ;
+(b) shall take into account circumstances the directors
+know or ought to know which affect the value of the
+company’s assets and liabilities ;
+(c) may take into account a fair valuation or other
+method of assessing the value of assets and
+liabilities.
+Stated capital. 58. (1) Subject to section 59, stated capital in relation
+to a company means the total of all amounts received by the
+company or due and payable to the company —
+(a) in respect of the issue of shares; and
+(b) in respect of calls on shares.
+(2) Where a share is issued for consideration other than
+cash, the board shall determine the cash value of such
+consideration for the purposes of subsection (1).
+(3) Where a share has attached to it an obligation other
+than an obligation to pay calls, and that obligation is
+performed by the shareholder—
+(a) the board shall determine the cash value, if any, of
+that performance; and
+(b) the cash value of that performance shall be deemed
+to be a call which has been paid on the share for the
+purposes of subsection (1).
+Companies Act, No. 07 of 2007 49
+59. (1) Subject to the provisions of subsection (3), a Reduction of
+company may by special resolution reduce its stated capital stated capital.
+to such amount as it thinks appropriate, in accordance with
+the provisions of this Act.
+(2) Public notice of a proposed reduction of a company’s
+stated capital shall be given not less than sixty days before
+the resolution to reduce stated capital is passed.
+(3) A company may agree in writing with a creditor of the
+company, that it will not reduce its stated capital below a
+specified amount without the prior consent of the creditor or
+unless specified conditions are satisfied at the time of the
+reduction. A resolution to reduce sated capital passed in breach
+of any such agreement, shall be invalid and of no effect.
+(4) Where —
+(a) a share is redeemed at the option of the shareholder
+under section 68 or on a fixed date under section
+69; or
+(b) the company purchases a share under section 95,
+and the board is satisfied that as a consequence of the
+redemption or purchase, the company would but for this
+subsection, fail to satisfy the solvency test—
+(c) the board shall after obtaining the auditors
+certificate of solvency, resolve that the stated capital
+of the company shall be reduced by the amount by
+which the company would so fail to satisfy the
+solvency test; and
+(d) the resolution of the board shall have effect
+notwithstanding provisions contained in subsection
+(1) to subsection (3) of this section.
+(5) A company which has reduced its stated capital shall
+within ten working days of such reduction, give notice of the
+reduction to the Registrar, specifying the amount of the
+reduction and the reduced amount of its stated capital.
+50 Companies Act, No. 07 of 2007
+(6) Where company fails to comply with requirements of
+subsection (2) or subsection (5)—
+(a) the company shall be guilty of an offence and be
+liable on conviction to a fine not exceeding fifty
+thousand rupees; and
+(b) every officer of the company who is in default shall
+be guilty of an offence and be liable on conviction
+to a fine not exceeding fifty thousand rupees.
+Dividends. 60. (1) A dividend is a distribution out of profits of the
+company, other than an acquisition by the company of its
+own shares or a redemption of shares by the company.
+(2) The board of a company shall not authorise a dividend
+in respect of some shares in a class and not others of that class
+or of a greater amount in respect of some shares in a class than
+other shares in that class, except where—
+(a) the amount of the dividend is reduced in proportion
+to any liability attached to the shares under the
+company’s articles; or
+(b) a shareholder has agreed in writing to receive no
+dividend or a lesser dividend than would otherwise
+be payable.
+Recovery of 61. (1) A distribution made to a shareholder at a time
+distributions. when the company did not, immediately after the distribution,
+satisfy the solvency test, may be recovered by the company
+from the shareholder, unless—
+(a) the shareholder received the distribution in good
+faith and without knowledge of the company’s failure
+to satisfy the solvency test;
+(b) the shareholder has altered his position in relying
+on the validity of the distribution; and
+Companies Act, No. 07 of 2007 51
+(c) it would be unreasonable in view of the
+circumstances to require repayment in full at all.
+(2) Where in relation to a distribution to which subsection
+(1) applies, the procedure set out in section 56 has not been
+followed or reasonable grounds for believing that the
+company would satisfy the solvency test did not exist at the
+time the certificate was signed, every director who—
+(a) failed to take reasonable steps to ensure the
+procedure was followed; or
+(b) signed the certificate,
+as the case may be, shall be personally liable to the company
+to repay to the company, so much of the distribution as the
+company is not able to recover from the shareholders.
+(3) Where in an action brought against a director or a
+shareholder under this section, the court is satisfied that the
+company could by making a distribution of a lesser amount
+have satisfied the solvency test, the court may—
+(a) permit the shareholder to retain; or
+(b) relive the director from liability in respect of,
+an amount equal to the value of any distribution that could
+properly have been made.
+62. (1) Where a company— Reduction of
+shareholder
+liability to be a
+(a) alters its articles; or
+distribution.
+(b) acquires shares issued by it or redeems shares under
+section 67,
+in a manner which cancels or reduces the liability of a
+shareholder to the company in relation to a share held prior
+to that alteration, acquisition, or redemption, as the case may
+52 Companies Act, No. 07 of 2007
+be, the cancellation or reduction of liability shall be treated,
+for the purposes of subsection (1) and subsection (3) of section
+61, as if it were a distribution of the amount by which the
+liability was reduced.
+(2) Where the liability of a shareholder of an
+amalgamating company to that company in relation to a share
+held before the amalgamation, is—
+(a) greater than the liability of that shareholder to the
+amalgamated company in relation to a share or
+shares into which that share is converted; or
+(b) cancelled by the cancellation of that share in the
+amalgamation,
+the reduction of liability effected by the amalgamation shall
+be treated for the purposes of subsection (1) and subsection
+(3) of section 61, as a distribution by the amalgamated
+company to that shareholder of the amount by which that
+liability was reduced.
+RE-PURCHASE OF SHARES
+Company may 63. (1) A company may purchase or otherwise acquire
+acquire or any of its own shares —
+redeem its own
+shares.
+(a) under section 64 or section 67;
+(b) if the company is a private company, with the
+agreement or concurrence of all shareholders under
+section 31; or
+(c) in accordance with an order made by the court under
+this Act,
+but not otherwise.
+[TRUNCATED: processed first 80 of 488 pages]

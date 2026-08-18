@@ -1,0 +1,171 @@
+{
+  "processed_at": "2026-08-13T09:36:05+00:00",
+  "mode": "live",
+  "model": "gpt-4o-mini",
+  "chunks_in": 1280,
+  "pairs_out": 2534,
+  "pairs_rejected": 26,
+  "rejection_rate": 0.0102,
+  "rejections": [
+    {
+      "pair_id": "DOC-003-21st-amendment-act-C0005-qa-1-f1f7e59e33",
+      "chunk_id": "DOC-003-21st-amendment-act-C0005",
+      "pair_type": "qa",
+      "reason": "cites 81 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-003-21st-amendment-act-C0022-qa-1-b0dde31bd3",
+      "chunk_id": "DOC-003-21st-amendment-act-C0022",
+      "pair_type": "qa",
+      "reason": "cites 121 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0143-summary-2-105e6ce5f3",
+      "chunk_id": "DOC-017-penal-code-C0143",
+      "pair_type": "summary",
+      "reason": "cites 217,218 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0038-summary-2-04752c30fa",
+      "chunk_id": "DOC-017-penal-code-C0038",
+      "pair_type": "summary",
+      "reason": "cites 68 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0163-summary-2-1e36d5b1f4",
+      "chunk_id": "DOC-017-penal-code-C0163",
+      "pair_type": "summary",
+      "reason": "cites 246,247,249 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0117-summary-2-14611ee751",
+      "chunk_id": "DOC-017-penal-code-C0117",
+      "pair_type": "summary",
+      "reason": "cites 174,175,176 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0167-summary-2-f8b386991a",
+      "chunk_id": "DOC-017-penal-code-C0167",
+      "pair_type": "summary",
+      "reason": "cites 254,255,256 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0141-summary-2-4f4521a2ce",
+      "chunk_id": "DOC-017-penal-code-C0141",
+      "pair_type": "summary",
+      "reason": "cites 213,214 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0132-summary-2-5e3a0e86cf",
+      "chunk_id": "DOC-017-penal-code-C0132",
+      "pair_type": "summary",
+      "reason": "cites 197,198,199 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-011-intellectual-property-act-no-36-of-2003-C0078-qa-1-741e5ad937",
+      "chunk_id": "DOC-011-intellectual-property-act-no-36-of-2003-C0078",
+      "pair_type": "qa",
+      "reason": "cites 71 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0157-summary-2-8206071d6d",
+      "chunk_id": "DOC-017-penal-code-C0157",
+      "pair_type": "summary",
+      "reason": "cites 237,238,239 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0149-summary-2-368e51161e",
+      "chunk_id": "DOC-017-penal-code-C0149",
+      "pair_type": "summary",
+      "reason": "cites 226,228 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0037-summary-2-7d77b01f09",
+      "chunk_id": "DOC-017-penal-code-C0037",
+      "pair_type": "summary",
+      "reason": "cites 56 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0168-summary-2-9db2529a8c",
+      "chunk_id": "DOC-017-penal-code-C0168",
+      "pair_type": "summary",
+      "reason": "cites 257,258,259,260 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0080-summary-2-fd231e7a4c",
+      "chunk_id": "DOC-017-penal-code-C0080",
+      "pair_type": "summary",
+      "reason": "cites 126,127 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0091-summary-2-9ed5918292",
+      "chunk_id": "DOC-017-penal-code-C0091",
+      "pair_type": "summary",
+      "reason": "cites 143,144 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-001-19th-amendment-act-C0024-qa-1-114a9dfa21",
+      "chunk_id": "DOC-001-19th-amendment-act-C0024",
+      "pair_type": "qa",
+      "reason": "cites 103 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-001-19th-amendment-act-C0024-summary-2-6fc188b323",
+      "chunk_id": "DOC-001-19th-amendment-act-C0024",
+      "pair_type": "summary",
+      "reason": "cites 103 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-017-penal-code-C0052-summary-2-e9609cfa14",
+      "chunk_id": "DOC-017-penal-code-C0052",
+      "pair_type": "summary",
+      "reason": "cites 89 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-006-companies-act-no-7-C0056-qa-1-a091762aab",
+      "chunk_id": "DOC-006-companies-act-no-7-C0056",
+      "pair_type": "qa",
+      "reason": "cites 105 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-006-companies-act-no-7-C0056-summary-2-72463da209",
+      "chunk_id": "DOC-006-companies-act-no-7-C0056",
+      "pair_type": "summary",
+      "reason": "cites 105 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-005-code-of-criminal-procedure-C0049-summary-2-c6df5e6d38",
+      "chunk_id": "DOC-005-code-of-criminal-procedure-C0049",
+      "pair_type": "summary",
+      "reason": "cites 51 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-006-companies-act-no-7-C0061-qa-1-9cf59915b2",
+      "chunk_id": "DOC-006-companies-act-no-7-C0061",
+      "pair_type": "qa",
+      "reason": "cites 11 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-006-companies-act-no-7-C0061-summary-2-5fccfff11f",
+      "chunk_id": "DOC-006-companies-act-no-7-C0061",
+      "pair_type": "summary",
+      "reason": "cites 11 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-011-intellectual-property-act-no-36-of-2003-C0020-qa-1-aa3f377dad",
+      "chunk_id": "DOC-011-intellectual-property-act-no-36-of-2003-C0020",
+      "pair_type": "qa",
+      "reason": "cites 21 not in excerpt"
+    },
+    {
+      "pair_id": "DOC-009-consumer-affairs-authority-C0026-summary-2-ed54e662e2",
+      "chunk_id": "DOC-009-consumer-affairs-authority-C0026",
+      "pair_type": "summary",
+      "reason": "cites 34 not in excerpt"
+    }
+  ],
+  "validation_enabled": true,
+  "errors": [],
+  "limit": null,
+  "pairs_per_chunk": 2
+}

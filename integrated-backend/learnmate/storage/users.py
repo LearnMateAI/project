@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from typing import Dict, Optional, Union
 
 from bson import ObjectId
+from pymongo import ReturnDocument
 
 from .. import config
 from .ids import coerce_id
@@ -64,6 +65,29 @@ def get_by_id(user_id: Union[str, ObjectId]) -> Optional[Dict]:
 def get_by_keycloak_sub(sub: str) -> Optional[Dict]:
     """Look up an account by its linked Keycloak subject, if any."""
     return _collection().find_one({"keycloak_sub": sub})
+
+
+def link_keycloak_sub(user_id: Union[str, ObjectId], sub: str) -> Optional[Dict]:
+    """
+    Attach a Keycloak subject to an account that already exists, and return it.
+
+    The case this exists for: somebody registered with a password before Keycloak was
+    turned on, and now signs in through Keycloak with the same address. Their documents,
+    sessions and resources all hang off the existing _id, so a second account would look
+    to them like their work had vanished -- and could not be created anyway, because the
+    address is uniquely indexed.
+
+    password_hash is deliberately left as it is. An account that had one keeps it and can
+    still use /api/auth/login; this only adds a second way in.
+    """
+    oid = coerce_id(user_id)
+    if oid is None:
+        return None
+    return _collection().find_one_and_update(
+        {"_id": oid},
+        {"$set": {"keycloak_sub": sub, "keycloak_linked_at": datetime.now(timezone.utc)}},
+        return_document=ReturnDocument.AFTER,
+    )
 
 
 def create_keycloak_user(sub: str, name: str, email: str) -> Dict:

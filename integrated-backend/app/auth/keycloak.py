@@ -16,6 +16,7 @@ from typing import Dict
 
 import jwt
 from jwt import PyJWKClient
+from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
 
 from .. import config
 
@@ -36,7 +37,9 @@ def decode_keycloak_token(token: str) -> Dict:
     Verify a Keycloak-issued token and return its claims.
 
     Raises the same jwt exceptions as decode_access_token, so deps.py can catch both
-    kinds of token with one pair of except clauses.
+    kinds of token with one pair of except clauses. The one exception to that is a
+    PyJWKClientConnectionError, which means this server could not reach Keycloak to ask --
+    a different thing from a bad token, and handled separately in deps.py.
 
     Audience verification is switched off deliberately, not omitted by oversight: this
     realm's default token carries aud="account" (Keycloak's own built-in audience) rather
@@ -46,7 +49,24 @@ def decode_keycloak_token(token: str) -> Dict:
     matters more once several clients share one realm. Flagged here as a real
     simplification, not a silent gap.
     """
-    signing_key = _jwks_client().get_signing_key_from_jwt(token)
+    try:
+        signing_key = _jwks_client().get_signing_key_from_jwt(token)
+    except PyJWKClientConnectionError:
+        # Keycloak itself is unreachable. Deliberately allowed to propagate as its own
+        # kind: this says nothing about whether the token is good, and answering 401 to
+        # "I cannot currently check" would log every signed-in user out over an outage
+        # that has nothing to do with them. deps.py turns it into a 503.
+        raise
+    except PyJWKClientError as exc:
+        # No key in the set matches this token's kid -- a token from another realm, or
+        # one signed before a key rotation. PyJWKClientError descends from PyJWTError but
+        # *not* from InvalidTokenError, so without this it escapes both of deps.py's
+        # except clauses and surfaces as a 500 with a traceback, on input any anonymous
+        # caller can send. It is an untrustworthy token, which is exactly what
+        # InvalidTokenError means.
+        raise jwt.InvalidTokenError(
+            "Token was not signed by any key this realm currently publishes.") from exc
+
     return jwt.decode(
         token, signing_key.key, algorithms=["RS256"],
         issuer=config.KEYCLOAK_ISSUER,

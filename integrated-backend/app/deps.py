@@ -22,6 +22,8 @@ from typing import Dict
 
 import jwt
 from fastapi import Header, HTTPException
+from jwt.exceptions import PyJWKClientConnectionError
+from pymongo.errors import DuplicateKeyError
 
 from learnmate.storage import users as user_store
 
@@ -42,21 +44,52 @@ def _from_keycloak_payload(payload: dict) -> Dict[str, str]:
     """
     Turn a verified Keycloak identity into this app's kind of user.
 
-    Finds the local account already linked to this Keycloak subject, or provisions one
-    on first login, then hands back the exact same shape _from_local_payload does.
-    Everything downstream of this function cannot tell which login path was used.
+    Three cases, in order: an account already linked to this Keycloak subject; an account
+    with the same address that predates Keycloak, which gets linked; or nobody, which gets
+    a new account. All three hand back the exact same shape _from_local_payload does, so
+    nothing downstream can tell which login path was used.
+
+    The middle case is not a nicety. `email` is uniquely indexed, so without it anyone who
+    had registered with a password before Keycloak was enabled got a DuplicateKeyError and
+    a 500 the first time they signed in through Keycloak -- on a completely ordinary
+    migration path, with a token that was perfectly valid.
     """
     sub = payload.get("sub")
     if not sub:
         raise jwt.InvalidTokenError("Keycloak token has no subject.")
 
     user = user_store.get_by_keycloak_sub(sub)
-    if user is None:
-        user = user_store.create_keycloak_user(
-            sub,
-            name=payload.get("name", payload.get("preferred_username", "")),
-            email=payload.get("email", ""),
-        )
+    if user is not None:
+        return {"id": str(user["_id"]), "email": user.get("email", "")}
+
+    email = payload.get("email", "")
+    name = payload.get("name", payload.get("preferred_username", ""))
+    existing = user_store.get_by_email(email) if email else None
+
+    if existing is not None:
+        # Matching on address is an account takeover primitive if the address was never
+        # proved. Keycloak will happily issue a token for an unverified address, so the
+        # claim is checked rather than assumed: without it, registering "someone@else"
+        # in Keycloak would hand over that person's existing local account and everything
+        # in it. Refused loudly instead -- linking these two is an administrative act.
+        if not payload.get("email_verified", False):
+            raise HTTPException(
+                status_code=409,
+                detail=("An account with this email already exists. Verify the address in "
+                        "Keycloak before signing in with it."))
+        user = user_store.link_keycloak_sub(existing["_id"], sub)
+        return {"id": str(user["_id"]), "email": user.get("email", "")}
+
+    try:
+        user = user_store.create_keycloak_user(sub, name=name, email=email)
+    except DuplicateKeyError:
+        # Two first-logins for the same address at once: one insert wins, the other lands
+        # here. The winner's record is what both should end up using.
+        existing = user_store.get_by_email(email) if email else None
+        if existing is None:
+            raise
+        user = user_store.link_keycloak_sub(existing["_id"], sub)
+
     return {"id": str(user["_id"]), "email": user.get("email", "")}
 
 
@@ -80,6 +113,14 @@ def get_current_user(authorization: str = Header(None)) -> Dict[str, str]:
             return _from_keycloak_payload(decode_keycloak_token(token))
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Session expired. Please log in again.")
+        except PyJWKClientConnectionError:
+            # Keycloak is down, so this token cannot be checked either way. 503 rather
+            # than 401: the difference between "your session is invalid" and "we cannot
+            # tell right now" matters to the client, and only one of them should send a
+            # signed-in user back to the login page.
+            raise HTTPException(
+                status_code=503,
+                detail="Cannot reach the identity provider. Please try again shortly.")
         except jwt.InvalidTokenError:
             pass
 

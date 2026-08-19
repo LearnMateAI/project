@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LearnMateAI — Evaluation slides (Thevindu)</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121a2b;
+      --ink: #eef3ff;
+      --muted: #9aa8c7;
+      --line: #243049;
+      --accent: #7dd3fc;
+      --gold: #f5c36c;
+      --fail: #fb7185;
+      --pass: #4ade80;
+      --chip: #1b2740;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+      font-family: "Segoe UI", "Calibri", system-ui, sans-serif; }
+    .deck { height: 100%; display: flex; flex-direction: column; }
+    .stage { flex: 1; display: flex; align-items: stretch; justify-content: center; padding: 28px 36px 12px; }
+    .slide {
+      display: none; width: min(1180px, 100%); background: var(--card);
+      border: 1px solid var(--line); border-radius: 18px; padding: 42px 52px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+    }
+    .slide.on { display: flex; flex-direction: column; }
+    h1 { font-size: 42px; margin: 0 0 12px; letter-spacing: -.02em; }
+    h2 { font-size: 32px; margin: 0 0 22px; }
+    h3 { font-size: 18px; margin: 0 0 8px; color: var(--accent); font-weight: 650; }
+    p, li { font-size: 20px; line-height: 1.45; color: var(--ink); }
+    .muted, .kicker { color: var(--muted); font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
+    .lead { font-size: 22px; color: #d5def2; max-width: 52rem; }
+    ul { margin: 8px 0 0; padding-left: 1.2em; }
+    li { margin: 8px 0; }
+    .row { display: grid; gap: 18px; margin-top: 8px; }
+    .row.two { grid-template-columns: 1fr 1fr; }
+    .row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .box { background: #0e1626; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+    .chip { display: inline-block; background: var(--chip); border: 1px solid var(--line);
+      padding: 4px 10px; border-radius: 999px; font-size: 14px; color: var(--accent); margin: 0 6px 6px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 16px; margin-top: 10px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+    .fail { color: var(--fail); font-weight: 700; }
+    .ok { color: var(--pass); font-weight: 700; }
+    .gold { color: var(--gold); }
+    .bar { height: 8px; background: #1a2438; display: flex; }
+    .bar > i { height: 100%; background: var(--accent); }
+    .foot { display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 36px 16px; color: var(--muted); font-size: 13px; }
+    .nav button {
+      background: #1a2438; color: var(--ink); border: 1px solid var(--line);
+      border-radius: 8px; padding: 6px 12px; cursor: pointer; margin-left: 6px;
+    }
+    .notes { display: none; margin-top: auto; padding-top: 18px; border-top: 1px dashed var(--line);
+      color: var(--muted); font-size: 14px; }
+    .notes.show { display: block; }
+    .small { font-size: 15px; color: #c9d4ea; }
+    .center { margin-top: auto; }
+    code { font-family: Consolas, "Cascadia Mono", monospace; font-size: .92em; color: #c4e4ff; }
+    @media print {
+      .foot, .bar { display: none !important; }
+      .slide { display: flex !important; page-break-after: always; box-shadow: none; border: 0; }
+      .notes { display: block !important; }
+      body { background: #fff; color: #111; }
+      .slide { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+<div class="deck">
+  <div class="bar"><i id="progress"></i></div>
+  <div class="stage" id="stage"></div>
+  <div class="foot">
+    <span>LearnMateAI · Thevindu · domain model track · do not claim live promotion</span>
+    <span class="nav">
+      <button type="button" onclick="toggleNotes()">Notes</button>
+      <button type="button" onclick="go(-1)">Prev</button>
+      <span id="pos"></span>
+      <button type="button" onclick="go(1)">Next</button>
+    </span>
+  </div>
+</div>
+
+<template id="slides">
+
+<section>
+  <div class="kicker">University evaluation · 8–10 minutes core</div>
+  <h1>LearnMateAI</h1>
+  <p class="lead">A local, judged study assistant for Sri Lankan legal education — and an offline factory that <span class="gold">refused to promote</span> a domain LoRA that failed its gate.</p>
+  <p class="muted" style="margin-top:28px;letter-spacing:0">Thevindu · domain LLM / fine-tuning · <code>model-Thevindu/</code></p>
+  <p class="small">Live product: teammates · React + FastAPI · Qwen 2.5-3B writer, Llama 3.2-3B judge</p>
+  <div class="notes">Opening. Do not say the fine-tune is in production. Core talk: slides 1–4, 11–20, 24–26. Others are backup.</div>
+</section>
+
+<section>
+  <div class="kicker">Agenda</div>
+  <h2>What I will defend</h2>
+  <div class="row two">
+    <div class="box">
+      <h3>1. The live system (brief)</h3>
+      <p>Problem, users, stack, and how a request is served — so the panel can see where a model would plug in.</p>
+    </div>
+    <div class="box">
+      <h3>2. My track (depth)</h3>
+      <p>Corpus, GI-001, GI-002, QLoRA, eval contract, honest FAIL, and why that is the correct engineering outcome.</p>
+    </div>
+  </div>
+  <p class="small" style="margin-top:22px">I did <strong>not</strong> write the chat LangGraph or the React UI. I will describe them accurately and own the offline pipeline.</p>
+  <div class="notes">If time is 5 minutes: skip demo slide, keep two-systems + GI-001 + numbers + fail + future.</div>
+</section>
+
+<section>
+  <div class="kicker">Introduction</div>
+  <h2>Problem and users</h2>
+  <ul>
+    <li><strong>User:</strong> a Sri Lankan law student on a laptop.</li>
+    <li><strong>Job:</strong> upload a statute or lecture PDF; ask questions that should be <em>grounded in that file</em>; generate summary, key points, MCQ, practice questions.</li>
+    <li><strong>Risk:</strong> a general LLM invents section numbers. That is worse than a slow honest “not in this document.”</li>
+    <li><strong>Default setup:</strong> documents stay on the machine — local GGUFs, Mongo + Qdrant in Docker.</li>
+  </ul>
+  <div class="notes">Target users first. Then the hallucination risk — that is the bridge to your groundedness gate.</div>
+</section>
+
+<section>
+  <div class="kicker">The design that matters</div>
+  <h2>Two systems — do not confuse them</h2>
+  <div class="row two">
+    <div class="box">
+      <h3>Online — student request</h3>
+      <p class="small"><code>integrated-frontend</code> :5173<br/><code>integrated-backend</code> :8010</p>
+      <ul>
+        <li>JWT → 202 job → one worker</li>
+        <li>Qwen 2.5-<strong>3B</strong> Q4 writes</li>
+        <li>Llama 3.2-3B Q4 judges</li>
+        <li>MiniLM retrieve + rerank</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Offline — my factory</h3>
+      <p class="small"><code>model-Thevindu/</code> · Colab T4</p>
+      <ul>
+        <li>PDF → chunks → pairs → split</li>
+        <li>Qwen 2.5-<strong>1.5B</strong> QLoRA</li>
+        <li>Eval vs YAML gate</li>
+        <li><span class="fail">Not promoted</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="small" style="margin-top:16px">The app would learn a pointer only after a pass: <code>LEARNMATE_GENERATOR_BACKEND=http</code>. That switch is <strong>off</strong>.</p>
+  <div class="notes">Pause. This slide is the whole architecture argument. If they only remember one thing, this is it.</div>
+</section>
+
+<section>
+  <div class="kicker">Live product · backup if asked</div>
+  <h2>Tech stack</h2>
+  <div class="row three">
+    <div class="box"><h3>Frontend</h3><p class="small">React 19 · Vite 8 · Tailwind 4 · React Router 7 · Axios · <code>useJob</code> poll</p></div>
+    <div class="box"><h3>Backend</h3><p class="small">FastAPI · <code>app/</code> HTTP · <code>learnmate/</code> engine · LangGraph · llama.cpp</p></div>
+    <div class="box"><h3>Data</h3><p class="small">Mongo <strong>27018</strong> · Qdrant <strong>6335</strong> · SHA-256 documents · <code>user_documents</code> ownership</p></div>
+  </div>
+  <p style="margin-top:18px">Stale folders (do not demo): root <code>frontend/</code>, <code>backend/</code>, <code>components-Dinura/</code>.</p>
+  <div class="notes">Ports are non-default because this machine already runs other DBs. Say 8010 not 8000.</div>
+</section>
+
+<section>
+  <div class="kicker">Live product</div>
+  <h2>How a slow request is served</h2>
+  <p class="lead">Write job to Mongo <em>first</em> → return 202 <code>{job_id}</code> → one worker thread → UI polls.</p>
+  <ul>
+    <li><strong>One worker</strong> is correctness: llama.cpp has a single mutable context. A pool would interleave tokens.</li>
+    <li>Locks live next to the model: <code>_LLAMA_LOCK</code>, load locks for embeddings/rerank.</li>
+    <li>Engine never raises HTTPException. <code>app/errors.py</code> maps storage down → 503, bad PDF → 400.</li>
+  </ul>
+  <div class="notes">If they ask “why not async gather four chats?” — quietly wrong answers, not a crash.</div>
+</section>
+
+<section>
+  <div class="kicker">Live product</div>
+  <h2>Chat graph — one turn</h2>
+  <p><code>rewrite → retrieve → generate → evaluate → decide → persist</code></p>
+  <p class="small">Only one conditional edge. Retry at most once. If the judge is silent or the score is hopeless, persist anyway — a mid-conversation user needs an answer more than silence. <code>accepted</code> tells the truth.</p>
+  <ul>
+    <li>Retrieve: cosine wide, MiniLM rerank narrow. Mode is a <strong>score threshold</strong>, not a second LLM.</li>
+    <li><code>pdf</code> vs <code>general</code> chooses <code>CHAT_GROUNDED</code> vs <code>CHAT_GENERAL</code>.</li>
+    <li>Writer and judge are <strong>different families</strong> so the retry loop still fires.</li>
+  </ul>
+  <div class="notes">Credit teammates. File: learnmate/chat_agent/graph.py, retrieve.py, routing.py, evaluator/rubrics.py.</div>
+</section>
+
+<section>
+  <div class="kicker">Live product · demo</div>
+  <h2>Live walkthrough (stage directions)</h2>
+  <table>
+    <tr><th>Do</th><th>Say</th></tr>
+    <tr><td>Open <code>http://localhost:5173/</code></td><td>Public home. About and Tour without an account.</td></tr>
+    <tr><td>Register / login</td><td>JWT in localStorage. bcrypt passwords.</td></tr>
+    <tr><td>Documents → upload a small legal PDF</td><td>202 job. SHA-256: same bytes embedded once. Ownership is a separate collection.</td></tr>
+    <tr><td>Generate key points</td><td>Progress text is the Mongo job message. Structural checks, then Llama judge, one retry.</td></tr>
+    <tr><td>Open the resource</td><td>If scores are hidden: backend already returns them; UI gap, not missing eval.</td></tr>
+    <tr><td>Chat: in-doc question, then off-doc</td><td>Mode is on the API. The chat badge was removed — I will not pretend it is on screen.</td></tr>
+  </table>
+  <div class="notes">If backend is down, stay on Home. Never open root frontend or uvicorn :8000.</div>
+</section>
+
+<section>
+  <div class="kicker">My contribution</div>
+  <h2>Scope I own</h2>
+  <div class="row two">
+    <div class="box">
+      <h3>Built</h3>
+      <ul class="small">
+        <li>Stage 1–3 dataset pipeline</li>
+        <li>GI-001 citation gate</li>
+        <li>GI-002 chapter + strict split</li>
+        <li>QLoRA notebook + run records</li>
+        <li>Eval, YAML gate, registry</li>
+        <li>Fail-closed promotion checklist</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Not claimed</h3>
+      <ul class="small">
+        <li>React UI / JWT / Docker compose</li>
+        <li>Chat and resource LangGraphs</li>
+        <li>llama.cpp serving on CPU</li>
+        <li>A promoted live adapter</li>
+      </ul>
+    </div>
+  </div>
+  <div class="notes">This is the honesty slide. Panels reward it. Then go deep on the factory.</div>
+</section>
+
+<section>
+  <div class="kicker">Offline factory</div>
+  <h2>Pipeline architecture</h2>
+  <p class="lead">official PDF → Stage 1 chunks → Stage 2 pairs → Stage 3 splits → LoRA run → eval registry → <em>promote pointer or stop</em></p>
+  <table>
+    <tr><th>Stage</th><th>Code</th><th>v0.1 result</th></tr>
+    <tr><td>1 Parse / chunk</td><td><code>preprocess_dataset.py</code></td><td>21 files → 19 parsed → 1,280 chunks · 52 TOC dropped</td></tr>
+    <tr><td>2 Pairs</td><td><code>generate_training_pairs.py</code> + <code>validate_pairs.py</code></td><td>2,534 kept · 26 rejected (1.0%)</td></tr>
+    <tr><td>3 Split</td><td><code>split_dataset.py --group_by chapter --strict_holdout</code></td><td>1,590 / 339 / 325 + 280 strict</td></tr>
+    <tr><td>Train</td><td><code>finetune_qwen25_lora.ipynb</code></td><td>597 steps · 93.7 min · T4</td></tr>
+    <tr><td>Eval</td><td><code>evaluate_candidate.ipynb</code> · <code>rescore_eval.py</code></td><td><span class="fail">passed=False</span></td></tr>
+  </table>
+  <div class="notes">Dataset version lm-legal-v0.1. Smoke versions are synthetic — never quote them as legal performance.</div>
+</section>
+
+<section>
+  <div class="kicker">Stage 1</div>
+  <h2>Corpus decisions — <code>lm-legal-v0.1</code></h2>
+  <ul>
+    <li><strong>Manifest is authority</strong> for <code>subject_area</code> — not filename keywords (<code>verify_manifest.py</code>).</li>
+    <li><strong>Black’s Law 1891 excluded</strong> — US dictionary; 11 MB would have dominated chunks.</li>
+    <li><strong>No OCR</strong> on two scans. Text-layer replacements identified; not mixed into this version.</li>
+    <li>Inherit <code>section_id</code> onto continuation chunks; drop TOC/index fragments.</li>
+    <li>Some <code>documents.gov.lk</code> URLs 404 after a site rebuild — marked stale in the manifest, not hidden.</li>
+  </ul>
+  <div class="notes">Misnamed file story if asked: Mediation Boards Act no 27 — no such Act; likely 72 of 1988. Not in v0.1.</div>
+</section>
+
+<section>
+  <div class="kicker">GI-001</div>
+  <h2>Ungrounded citations in training data</h2>
+  <p class="lead">Spot check: <span class="fail">15 / 40 pairs (38%)</span> cited a section the excerpt never contained. Concentrated in summaries.</p>
+  <div class="row two">
+    <div class="box">
+      <h3>Causes</h3>
+      <p class="small">Continuation chunks with no restated number → model filled from memory (“Section 2” from a subsection “(2)”). TOC chunks → answer about a commission not in the excerpt at all.</p>
+    </div>
+    <div class="box">
+      <h3>Fixes</h3>
+      <p class="small">Drop TOC · inherit section_id · citation rule in the prompt · fail-closed <code>validate_pairs.py</code>. Full corpus: <strong>1.0% reject</strong>. Tests pin six cases so the regex cannot drift.</p>
+    </div>
+  </div>
+  <p class="small" style="margin-top:14px">Training on invented citations teaches the behaviour the promotion gate exists to kill.</p>
+  <div class="notes">This is your strongest “I found a real bug and measured the fix” story.</div>
+</section>
+
+<section>
+  <div class="kicker">GI-002</div>
+  <h2>Whole-document split was unusable</h2>
+  <ul>
+    <li>19 documents, wildly unequal size (Criminal Procedure 312 chunks vs 16).</li>
+    <li>Most subjects have <strong>one</strong> document → a subject must land entirely in one split.</li>
+    <li>Result: <code>family_law</code> and <code>property_land</code> with <strong>zero training pairs</strong>; val 80% one subject.</li>
+  </ul>
+  <p>Fix: group by <code>(doc_id, chapter)</code> — 189 units — every subject in train/val/test, <strong>plus</strong> <code>test_strict</code> (four whole unseen documents).</p>
+  <p class="gold">Those two accuracies are not the same number and must never be averaged.</p>
+  <div class="notes">family_law skipped for strict holdout: only two docs; holding one out recreates the bug.</div>
+</section>
+
+<section>
+  <div class="kicker">GI-002 continued</div>
+  <h2>Two metrics, on purpose</h2>
+  <table>
+    <tr><th>Name in registry</th><th>Split</th><th>Measures</th></tr>
+    <tr><td><code>in_corpus_accuracy (chapter-held-out)</code></td><td>test.jsonl · 325</td><td>Chapters of statutes partly seen in training</td></tr>
+    <tr><td><code>accuracy (document-held-out)</code></td><td>test_strict.jsonl · 280</td><td>A statute never seen at any granularity</td></tr>
+  </table>
+  <p class="small">The YAML 0.70 bar was written against the <strong>second</strong>. Clearing the first alone is not a promotion. Six subjects still have no true holdout — a corpus gap, not a splitter bug.</p>
+  <div class="notes">List if asked: administrative_public, company_commercial, criminal_law, evidence, intellectual_property, property_land.</div>
+</section>
+
+<section>
+  <div class="kicker">Fine-tuning decisions</div>
+  <h2>Why this training setup</h2>
+  <div class="row two">
+    <div class="box">
+      <h3>Choices</h3>
+      <ul class="small">
+        <li>Base: Qwen2.5-1.5B-Instruct — T4 budget</li>
+        <li>QLoRA 4-bit, LoRA r=16, 3 epochs</li>
+        <li>Not the live 3B — that is already the writer</li>
+        <li>Not full FT — adapter is disposable</li>
+        <li>Not in FastAPI — 94 min GPU job</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Engineering</h3>
+      <ul class="small">
+        <li>Precision guard (BFloat16 leak, GradScaler)</li>
+        <li>Schedule sized to 1,590 real pairs, not 69 smoke</li>
+        <li>Mandatory run-record JSON</li>
+        <li>Weights gitignored; one eval snapshot only on <code>thevindu-dev</code></li>
+      </ul>
+    </div>
+  </div>
+  <div class="notes">If asked why not 3B LoRA: VRAM + we would still need the gate. A failed 3B adapter is a larger waste.</div>
+</section>
+
+<section>
+  <div class="kicker">Training evidence</div>
+  <h2>Run <code>qwen25-lora-20260815-090709</code></h2>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Dataset</td><td><code>lm-legal-v0.1</code> · 1,590 train</td></tr>
+    <tr><td>Hardware</td><td>Colab T4 · peak 3.39 / 14.6 GB</td></tr>
+    <tr><td>Steps / time</td><td>597 · 93.7 min · free tier</td></tr>
+    <tr><td>Loss</td><td>train 1.038 · eval 1.247</td></tr>
+    <tr><td>Earlier runs</td><td>Smoke on 69 synthetic examples — <strong>not</strong> this candidate</td></tr>
+  </table>
+  <p class="small">Loss is not the promotion metric. The registry is.</p>
+  <div class="notes">Do not let them stop at “loss went down.” Pivot to judge accuracy.</div>
+</section>
+
+<section>
+  <div class="kicker">Eval contract</div>
+  <h2><code>acceptance_thresholds.yaml</code> v2 — fail-closed</h2>
+  <table>
+    <tr><th>Gate</th><th>Bar</th><th>Why</th></tr>
+    <tr><td>Accuracy</td><td>≥ 0.70 LLM-judge preferred</td><td>Matches live “unsupported claim fails”</td></tr>
+    <tr><td>Groundedness</td><td>≥ 0.85 via <code>validate_pairs</code></td><td>Not a raw “section 108” vs “108.” diff</td></tr>
+    <tr><td>Hallucination</td><td>≤ 0.15</td><td>1 − groundedness</td></tr>
+    <tr><td>Latency p95</td><td>≤ 8 s on <em>named</em> hardware</td><td>T4 sequential ≠ serving</td></tr>
+    <tr><td>Fallback</td><td>Must beat or near-match API</td><td>Else keep Gemini / 3B GGUF</td></tr>
+  </table>
+  <p class="small">Missing fallback comparison = fail. Four-eyes checklist. I cannot sign my own run live.</p>
+  <div class="notes">Edit this YAML only with team agreement. Do not “tweak until green.”</div>
+</section>
+
+<section>
+  <div class="kicker">Results</div>
+  <h2>What the candidate actually scored</h2>
+  <table>
+    <tr><th>Metric</th><th>Chapter test</th><th>Document-strict</th><th>Bar</th></tr>
+    <tr><td>Token-F1 (lexical)</td><td>0.717</td><td>0.836</td><td>looks like a pass</td></tr>
+    <tr><td>LLM-as-judge accuracy</td><td class="fail">0.557</td><td class="fail">0.621</td><td>0.70</td></tr>
+    <tr><td>Groundedness (validate_pairs)</td><td class="ok">0.877</td><td class="ok">0.921</td><td>0.85</td></tr>
+    <tr><td>Naive regex groundedness</td><td>0.498</td><td>0.586</td><td>wrong checker</td></tr>
+    <tr><td>p95 T4 sequential</td><td>16.4 s</td><td>14.9 s</td><td>8 s on eval HW</td></tr>
+    <tr><td>vs gpt-4o-mini F1</td><td>0.717 vs 0.871</td><td>0.836 vs 0.918</td><td>must not lose</td></tr>
+  </table>
+  <p class="fail" style="margin-top:14px">Registry: passed=False on every row. Not promoted. Not loaded into the app.</p>
+  <div class="notes">Tell the regex story: we made groundedness look worse, then fixed the meter, then accuracy still failed. We did not shop metrics.</div>
+</section>
+
+<section>
+  <div class="kicker">Why this is success</div>
+  <h2>Fail-closed is the design</h2>
+  <ul>
+    <li>A 1.5B adapter that loses the judge <strong>and</strong> the API would be a product regression vs the live 3B GGUF.</li>
+    <li>More epochs will not add a second Evidence Act. Six subjects have one source document.</li>
+    <li>HTTP swap is already coded in <code>learnmate/llm/http_api.py</code> — unused until a pass.</li>
+    <li>MLOps: retrain → evaluate → stage → promote → monitor → rollback. Process exists; automation into FastAPI does not, on purpose.</li>
+  </ul>
+  <div class="notes">If they push “just wire it in for the demo” — refuse. Serving 0.557 vs 0.871 is worse than the baseline.</div>
+</section>
+
+<section>
+  <div class="kicker">How a future pass would land</div>
+  <h2>Integration path (not taken)</h2>
+  <p class="small">Agents call <code>get_generator_llm()</code>. Three backends, same surface: <code>llamacpp</code> · <code>http</code> · <code>gemini</code>.</p>
+  <div class="box">
+    <p><code>LEARNMATE_GENERATOR_BACKEND=http</code><br/>
+    <code>LEARNMATE_GENERATOR_API_URL=http://localhost:8001/v1</code><br/>
+    <code>LEARNMATE_GENERATOR_MODEL=learnmate-finetuned</code></p>
+  </div>
+  <p>Or merge LoRA → GGUF via <code>scripts/build_finetuned_gguf.py</code> and point <code>LEARNMATE_GENERATOR_MODEL</code> at the file. Health check does not yet probe HTTP/Gemini — a known gap.</p>
+  <div class="notes">You designed the seam; you did not flip it. That sentence is enough.</div>
+</section>
+
+<section>
+  <div class="kicker">Challenges</div>
+  <h2>What was actually hard</h2>
+  <ol>
+    <li>Citation hallucination <em>in the training set</em> — GI-001.</li>
+    <li>A legally correct split that left subjects with zero train — GI-002.</li>
+    <li>A regex that lied about groundedness; token-F1 that lied about correctness.</li>
+    <li>Colab drift, dtypes, T4 VRAM — solved without claiming a pass.</li>
+    <li>Keeping this factory <strong>out of</strong> the student request path so the app stays CPU-deployable.</li>
+  </ol>
+  <div class="notes">One breath each. Then future work.</div>
+</section>
+
+<section>
+  <div class="kicker">Known gaps · say these before they find them</div>
+  <h2>Honest limitations</h2>
+  <div class="row two">
+    <div class="box">
+      <h3>Product</h3>
+      <ul class="small">
+        <li>Chat mode badge removed; API still has <code>turn.mode</code></li>
+        <li>ResourceView omits judge score</li>
+        <li>Smoke test default port 8000 (should be 8010)</li>
+        <li>No OCR in the live ingest path</li>
+        <li><code>model_card.md</code> still TEMPLATE</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Model</h3>
+      <ul class="small">
+        <li>Pilot corpus, 21 files</li>
+        <li>No true holdout for six subjects</li>
+        <li>Judge accuracy well below 0.70</li>
+        <li>Latency measured on T4 sequential generate</li>
+        <li>Live 3B is a different checkpoint than the LoRA base</li>
+      </ul>
+    </div>
+  </div>
+  <div class="notes">Naming gaps first reads as control of the repo, not as weakness.</div>
+</section>
+
+<section>
+  <div class="kicker">Future work</div>
+  <h2><code>lm-legal-v0.2</code> and after</h2>
+  <ul>
+    <li>≥2 <strong>text-layer</strong> documents per subject; add the identified Arbitration / Mediation replacements after a spot-read.</li>
+    <li>Diagnose the 0.557 judge fails on <strong>saved predictions</strong> before any second train.</li>
+    <li>Re-measure latency on the intended serving stack — do not promote on T4 p95.</li>
+    <li>Restore chat mode badge; show resource scores; fix smoke-test port.</li>
+    <li>Fill <code>model_card.md</code> with FAIL numbers if we still have no pass.</li>
+    <li>Only then: another LoRA, then checklist, then the two <code>.env</code> lines.</li>
+  </ul>
+  <div class="notes">Order matters: corpus and error analysis before more GPU.</div>
+</section>
+
+<section>
+  <div class="kicker">Where to edit</div>
+  <h2>If we change something after today</h2>
+  <p class="small">Full map: <code>04_docs/evaluation_pack/EDIT_POINTERS.md</code></p>
+  <ul>
+    <li>Gate numbers → <code>acceptance_thresholds.yaml</code> (team agreement only)</li>
+    <li>Corpus / subjects → manifest CSV + <code>subject_areas.yaml</code></li>
+    <li>Citation logic → <code>validate_pairs.py</code></li>
+    <li>Split → <code>split_dataset.py</code></li>
+    <li>Future live swap → <code>integrated-backend/.env</code> + <code>learnmate/llm/http_api.py</code></li>
+    <li>Demo UI → <code>integrated-frontend/</code> only</li>
+  </ul>
+  <div class="notes">Skip in a 8-minute talk unless they ask “where is the code?”</div>
+</section>
+
+<section>
+  <div class="kicker">Close</div>
+  <h2>What I am defending</h2>
+  <p class="lead">The live product is a local, judged, citation-aware study assistant. The domain factory exists, was run on a real Sri Lankan legal corpus, and <span class="gold">failed closed</span>.</p>
+  <p>That refusal is a design result: we will not put a losing 1.5B adapter in front of students who already have a 3B writer and a separate judge.</p>
+  <p style="margin-top:28px">Thank you — I welcome questions.</p>
+  <div class="notes">Stop. Do not add a new topic after “welcome questions.”</div>
+</section>
+
+<section>
+  <div class="kicker">Backup · Q&amp;A landing</div>
+  <h2>If they ask only one model question</h2>
+  <p><strong>Is the fine-tune in production?</strong> No. Live writer is Qwen 2.5-3B GGUF. Candidate <code>qwen25-lora-20260815-090709</code> failed LLM-judge 0.557 / 0.621 against a 0.70 gate.</p>
+  <p><strong>Why not ship token-F1 0.72?</strong> Overlap is not legal correctness. The product fails unsupported claims.</p>
+  <p><strong>What would change your mind?</strong> Document-held-out judge accuracy, groundedness, serving latency, and beating fallback — signed by someone who did not train the run.</p>
+  <div class="notes">Full answers: QA_PANEL.md in this folder.</div>
+</section>
+
+</template>
+
+<script>
+  const stage = document.getElementById("stage");
+  const src = document.getElementById("slides");
+  const slides = [...src.content.querySelectorAll("section")].map((s) => {
+    const el = document.createElement("article");
+    el.className = "slide";
+    el.innerHTML = s.innerHTML;
+    stage.appendChild(el);
+    return el;
+  });
+  let i = 0;
+  const notesOn = { value: false };
+  function render() {
+    slides.forEach((s, n) => s.classList.toggle("on", n === i));
+    document.getElementById("pos").textContent = (i + 1) + " / " + slides.length;
+    document.getElementById("progress").style.width = ((i + 1) / slides.length * 100) + "%";
+    slides[i].querySelectorAll(".notes").forEach((n) => n.classList.toggle("show", notesOn.value));
+    history.replaceState(null, "", "#s" + (i + 1));
+  }
+  function go(d) {
+    i = Math.max(0, Math.min(slides.length - 1, i + d));
+    render();
+  }
+  function toggleNotes() {
+    notesOn.value = !notesOn.value;
+    render();
+  }
+  document.addEventListener("keydown", (e) => {
+    if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); go(1); }
+    if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); go(-1); }
+    if (e.key === "n" || e.key === "N") toggleNotes();
+    if (e.key === "Home") { i = 0; render(); }
+    if (e.key === "End") { i = slides.length - 1; render(); }
+  });
+  const hash = location.hash.match(/s(\d+)/);
+  if (hash) i = Math.min(slides.length - 1, Math.max(0, parseInt(hash[1], 10) - 1));
+  render();
+</script>
+</body>
+</html>

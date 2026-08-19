@@ -7,3 +7,5 @@
 | `training_run_log.md` | Operational cost / duration / outcome per training attempt |
 | `dataset_lineage.md` | Source PDFs → dataset version → model version → live pointer |
 | `mentor_pilot_disclosure.md` | One mentor conversation: Tier B, chapter-split, single-doc subjects |
+| `INDIVIDUAL_CONTRIBUTION_THEVINDU.md` | One-pager for the evaluation panel |
+| `evaluation_pack/` | Slides, spoken script, panel Q&A, and edit pointers |

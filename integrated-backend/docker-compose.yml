@@ -1,13 +1,20 @@
-# Both of LearnMate's databases, each in its own container with its own named volume.
+# Everything LearnMate needs running alongside the API: both databases and the identity
+# provider, each in its own container with its own named volume.
 #
-#   docker compose up -d            start both
+#   docker compose up -d            start all three
 #   docker compose ps               check them
 #   docker compose down             stop them (the named volumes keep the data)
 #   docker compose down -v          stop them AND delete the data
 #
-# Qdrant's dashboard is at http://localhost:6335/dashboard once it is up.
+# Qdrant's dashboard is at http://localhost:6335/dashboard once it is up, and Keycloak's
+# admin console at http://localhost:8081 (admin/admin).
 #
-# Both services publish on non-default host ports. That is deliberate: this machine
+# Keycloak lived in its own keycloak/docker-compose.yml when it was first merged in. It
+# moved here on 2026-08-19 so that one `docker compose up -d` from this directory brings
+# up everything the server talks to -- a second compose project meant a second thing to
+# remember, and forgetting it produced a login page that redirected into nothing.
+#
+# All three publish on non-default host ports. That is deliberate: this machine
 # already runs other projects' Qdrant on 6333 and a MongoDB on 27017, and sharing a
 # server means sharing a failure. Another project's `docker compose down -v` would take
 # LearnMate's PDFs, sessions and generated resources with it.
@@ -78,6 +85,50 @@ services:
       retries: 5
       start_period: 20s
 
+  keycloak:
+    # The identity provider. Tokens it issues are verified by app/auth/keycloak.py against
+    # this realm's JWKS, so the issuer URL below and KEYCLOAK_ISSUER in .env must agree
+    # exactly -- a trailing slash or a 127.0.0.1/localhost mismatch fails verification with
+    # an unhelpful "Invalid issuer".
+    #
+    # start-dev, not start: it runs HTTP without a certificate and keeps the realm in the
+    # embedded database. That is the right trade for a development identity provider and
+    # the wrong one for anything reachable from outside this machine.
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: learnmate-keycloak
+    restart: unless-stopped
+    # --import-realm provisions the learnmate realm, its public client and a dev user from
+    # the mounted JSON the first time the volume is empty. It is a no-op once the realm
+    # exists, so this is safe to leave on: edits made in the admin console are not
+    # clobbered on the next restart. To pick up a change to the file, `down -v` first.
+    command: start-dev --import-realm
+    environment:
+      # Bootstrap credentials for the master realm's admin console, applied only when the
+      # volume is empty. Changing them later does nothing; you have to `down -v` first.
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      # 8081 on the host: 8080 is a common default and this machine already answers there
+      # with another project's frontend. The container port stays 8080, which is what
+      # Keycloak's own issuer URLs are built from.
+      - "8081:8080"
+    volumes:
+      # Holds the realm, its clients and its users. `docker compose down` keeps them;
+      # `down -v` deletes them and the realm has to be created again from scratch.
+      - keycloak_data:/opt/keycloak/data
+      # Read-only: this is repo source, and nothing in the container should rewrite it.
+      - ./keycloak:/opt/keycloak/data/import:ro
+    healthcheck:
+      # The image is distroless -- no curl, no wget -- but it ships a JDK, so Java's own
+      # HTTP client is the one thing guaranteed to be present. KC_HEALTH_ENABLED puts the
+      # probe on the management port 9000, which is deliberately not published.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
 volumes:
   # Both are named volumes managed by Docker, so the data survives `docker compose down`,
   # a container upgrade, and a host reboot. Docker prefixes them with the project
@@ -90,3 +141,4 @@ volumes:
   # `docker volume rm components-dinura_mongo_data components-dinura_qdrant_storage`.
   qdrant_storage:
   mongo_data:
+  keycloak_data:

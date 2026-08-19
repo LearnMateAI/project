@@ -11,6 +11,11 @@ __pycache__/
 
 models/
 
+# Scratch space for scripts/build_finetuned_gguf.py: the LoRA adapter merged into its base
+# as a ~3.1 GB fp16 model, plus the fetched llama.cpp converter. Entirely reproducible from
+# the adapter and the base weights, and deletable once the GGUF in models/ exists.
+integrated-backend/build/
+
 # Runtime evaluation log; regenerated on every run
 scores.jsonl
 
@@ -31,7 +36,7 @@ model-Thevindu/03_testing_and_versioning/New/
 model-Thevindu/01_dataset_pipeline/data/raw_pdfs/*
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/.gitkeep
 !model-Thevindu/01_dataset_pipeline/data/raw_pdfs/README.md
-model-Thevindu/02_finetuning/adapters/
+
 
 # Trained weights and training state, wherever they land. The previous rule only
 # covered adapters/*/, so a download unpacked anywhere else (e.g. Real_Weights/)
@@ -42,3 +47,7 @@ model-Thevindu/02_finetuning/adapters/
 *.pt
 *.pth
 model-Thevindu/02_finetuning/**/checkpoints/
+
+# macOS Finder metadata. Committed by accident on the Keycloak branch, once per folder
+# anyone opened in Finder; there is nothing in them any checkout needs.
+.DS_Store

@@ -76,6 +76,82 @@
   --shadow-primary: 0 6px 16px -6px rgba(35, 64, 224, 0.55);
 }
 
+/**
+ * Dark theme.
+ *
+ * Only token values change here. Not one component is theme-aware: `bg-surface` is still
+ * `bg-surface`, and it paints a different colour because the variable underneath it holds
+ * one. That is the entire mechanism, and it is why a new screen costs nothing to support
+ * as long as it composes the tokens instead of hand-rolling greys.
+ *
+ * Written as `html.dark` rather than `.dark` so it outranks the `:root` block Tailwind
+ * emits for `@theme` regardless of the order the two end up in the built stylesheet.
+ *
+ * The greys are navy-tinted rather than neutral. The light theme's identity is a blue
+ * lavender wash over near-white; a neutral-grey dark mode reads as a different product
+ * wearing the same logo.
+ */
+html.dark {
+  /* Tells the browser to paint form controls, scrollbars and caret dark as well. Without
+     it, native selects and date pickers stay light and punch holes in the page. */
+  color-scheme: dark;
+
+  /* Brand. #2340E0 is a mid-tone: correct on near-white, muddy against a dark surface. The
+     ramp shifts up in lightness while holding the hue, so it still reads as the same blue. */
+  --color-primary: #6182FF;
+  --color-primary-hover: #7C97FF;
+  /* Inverted on purpose. `primary-dark` is only ever used as *text on* `primary-light`
+     (see .badge-blue and .notice-info), so when that fill becomes a deep tint this has to
+     become the light half of the pair, not the dark one. */
+  --color-primary-dark: #A8BAFF;
+  --color-primary-light: #1D2551;
+  --color-primary-soft: #161C3A;
+  --color-primary-ring: rgba(97, 130, 255, 0.28);
+
+  --color-accent: #8B8DF7;
+  --color-accent-light: #211F4A;
+  --color-cyan: #22B8D9;
+  --color-cyan-light: #10303A;
+  --color-violet: #A78BFA;
+  --color-violet-light: #251B44;
+
+  /* Status. Same rule as the light theme: reserved, never decorative. The `-light` pairs
+     are deep tints that a light status colour sits on top of. */
+  --color-success: #4ADE80;
+  --color-success-light: #12301F;
+  --color-warning: #FBBF24;
+  --color-warning-light: #35270B;
+  --color-danger: #F87171;
+  --color-danger-light: #3A1A1A;
+
+  /* Surfaces. The light theme stacks near-white cards on a faintly tinted shell; this
+     inverts the stack so cards sit *above* the background rather than below it. */
+  --color-surface: #151B33;
+  --color-surface-alt: #1C2340;
+  --color-background: #0E1327;
+  --color-sidebar: #10152B;
+  --color-shell: #080C1B;
+
+  /* Ink. Deliberately not pure white at the top of the ramp: #FFFFFF on a dark surface
+     glares and makes long reading tiring. */
+  --color-heading: #EEF0FA;
+  --color-body: #C4CAE4;
+  --color-muted: #949CBE;
+  --color-subtle: #6E7699;
+
+  /* Lines */
+  --color-border: #272F52;
+  --color-border-light: #1E2543;
+  --color-border-strong: #3A4470;
+
+  /* Shadows do almost nothing on a dark ground -- there is no light for them to occlude.
+     They are deepened so the little they contribute is not simply invisible. */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.55);
+  --shadow-primary: 0 6px 16px -6px rgba(97, 130, 255, 0.45);
+}
+
 /* ─── Base ─── */
 *,
 *::before,
@@ -463,6 +539,13 @@ input[type="radio"] {
 .badge-red { background: var(--color-danger-light); color: var(--color-danger); border-color: #F6C9C9; }
 .badge-gray { background: var(--color-surface-alt); color: var(--color-muted); border-color: var(--color-border); }
 
+/* The four hairlines above are literal pastels rather than tokens, so the theme swap
+   cannot reach them and they would stay milky against a dark fill. */
+html.dark .badge-blue { border-color: #2E3A73; }
+html.dark .badge-green { border-color: #1E4A31; }
+html.dark .badge-amber { border-color: #4A3A12; }
+html.dark .badge-red { border-color: #5A2626; }
+
 /* A dot that carries the badge's meaning without relying on the fill colour alone. */
 .badge-dot {
   width: 0.375rem;
@@ -574,6 +657,14 @@ a.list-row:hover {
 .notice-success { background: var(--color-success-light); border-color: #BFE7CB; color: #14532D; }
 .notice-info { background: var(--color-primary-soft); border-color: #D8DEFC; color: var(--color-primary-dark); }
 .notice-warn { background: var(--color-warning-light); border-color: #F6DDAE; color: #7C2D12; }
+
+/* Same reason as the badges, plus the text: these three set a near-black ink that stays
+   near-black on the dark tint. notice-info is absent because its colour is
+   `primary-dark`, which the dark block already inverts. */
+html.dark .notice-error { border-color: #5A2626; color: #FCA5A5; }
+html.dark .notice-success { border-color: #1E4A31; color: #86EFAC; }
+html.dark .notice-info { border-color: #2E3A73; }
+html.dark .notice-warn { border-color: #4A3A12; color: #FCD34D; }
 
 /* ─── Hero panel ───
    The one place a whole surface is allowed to be blue: a welcome banner, where the colour

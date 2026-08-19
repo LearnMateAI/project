@@ -8,7 +8,11 @@ fastapi>=0.115,<1
 uvicorn[standard]>=0.30
 # Multipart form parsing. FastAPI needs it for UploadFile and will not start without it.
 python-multipart>=0.0.9
-PyJWT>=2.8,<3
+# The [crypto] extra pulls in `cryptography`, which PyJWT needs for RS256 -- the
+# algorithm Keycloak signs with. Without it PyJWKClient imports fine and only fails at
+# the first verification. It is an extra rather than a bare dependency because the
+# original HS256 login path does not need it; Keycloak verification does.
+PyJWT[crypto]>=2.8,<3
 bcrypt>=4.1
 # Pydantic's EmailStr, used on the register and login models.
 email-validator>=2.1
@@ -30,6 +34,25 @@ llama-cpp-python>=0.3,<0.4
 # Only imported when LEARNMATE_GENERATOR_BACKEND or LEARNMATE_JUDGE_BACKEND is "gemini".
 # Uninstall it if you are running fully offline; nothing else references it.
 google-genai>=1.0
+
+# --- Building the finetuned GGUF (optional, build-time only) ------------------------------
+# Needed only to run scripts/build_finetuned_gguf.py, which merges the model-Thevindu LoRA
+# adapter into its base and converts the result to GGUF. Deliberately left commented: the
+# server never imports either package, the build is a one-off, and its output is a plain
+# file in models/ that needs nothing installed to load. Install them when you build:
+#
+#     pip install "peft>=0.20" "gguf>=0.10" sentencepiece
+#
+# torch and transformers are already required above (sentence-transformers pulls them in),
+# so those three are the whole additional cost.
+#
+# sentencepiece is needed even though Qwen2.5 uses BPE, not sentencepiece: the converter's
+# Qwen class calls _set_vocab_sentencepiece() first and falls back to BPE when it finds no
+# tokenizer.model. That fallback catches FileNotFoundError, so without the package the
+# import raises ImportError and the conversion dies before it can fall back.
+# peft>=0.20
+# gguf>=0.10
+# sentencepiece
 
 # --- Embeddings ---------------------------------------------------------------------------
 sentence-transformers>=5.0,<6

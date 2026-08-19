@@ -17,10 +17,10 @@ This track is **separate from the live application**. The app should only ever r
 
 | Part | Artifact | Executed / tested in this repo? | Notes |
 |------|----------|----------------------------------|-------|
-| **1** Dataset pipeline | `01_dataset_pipeline/` | **YES — smoke test PASS** | Ran end-to-end on 6 synthetic PDFs with Stage 2 `--mock`. See `01_dataset_pipeline/experiments/EXP-001_smoke_test.md`. Real 25-doc corpus **not** downloaded yet. Live LLM pair generation **not** run. |
-| **2** Fine-tuning | `02_finetuning/` | **NO — template ready** | Colab LoRA/PEFT notebook + mandatory run-record cell are complete. No GPU training run has been executed here. |
-| **3** Testing & versioning | `03_testing_and_versioning/` | **PARTIAL** | Thresholds, checklist, notebook, and registry schema are ready. One **dry-run** failing registry row was written to prove CSV plumbing. No real adapter eval / Gemini comparison yet. |
-| **4** Docs | `04_docs/` | **YES — templates filled with current truth** | Model card / lineage / training log correctly state that no production model exists yet. |
+| **1** Dataset pipeline | `01_dataset_pipeline/` | **YES — real corpus built** | Smoke test on 6 synthetic PDFs passed first (`experiments/EXP-001_smoke_test.md`). `lm-legal-v0.1` then built from the real corpus with live `gpt-4o-mini` pair generation: 21 documents → 19 parsed → 1,280 chunks → 2,534 pairs → 1,590/339/325 + 280 strict. See `04_docs/dataset_lineage.md`. Splits are gitignored. |
+| **2** Fine-tuning | `02_finetuning/` | **YES — 3 runs completed** | Three QLoRA runs on a Colab T4 against `Qwen/Qwen2.5-1.5B-Instruct`, the last (`qwen25-lora-20260815-090709`) on the full `lm-legal-v0.1` — 597 optimizer steps, 93.7 min, train/eval loss 1.038/1.247. Adapter weights are gitignored by design; `run_records/` is the tracked evidence. See `04_docs/training_run_log.md`. |
+| **3** Testing & versioning | `03_testing_and_versioning/` | **YES — real eval run, candidate FAILED** | `qwen25-lora-20260815-090709` evaluated on both splits against a `gpt-4o-mini` fallback; predictions in `eval_predictions/`. `passed=False` on every row: LLM-judge accuracy 0.557/0.621 against a ≥0.70 gate, and it loses to the fallback on accuracy and groundedness. **Not promoted** — no signed `promotion_checklist.md`. |
+| **4** Docs | `04_docs/` | **PARTIAL** | `training_run_log.md` and `dataset_lineage.md` are current. `model_card.md` is still marked TEMPLATE and has not been filled in with the eval results that now exist. |
 | **5** MLOps | `05_mlops_workflow/` | **YES — process doc** | Lifecycle written; not automated into FastAPI. |
 
 If something is only a correct template, do **not** treat it as a completed training or promotion.

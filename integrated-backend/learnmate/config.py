@@ -11,7 +11,9 @@ The two settings that matter most:
                                   or "gemini" (the Google API)
     LEARNMATE_GENERATOR_MODEL     path to the GGUF, or the model name for http/gemini
 
-Swapping Qwen2.5 for the finetuned model is a change to those two lines and nothing else.
+Swapping the base Qwen2.5 for the domain finetune from model-Thevindu is a change to the
+second of those lines and nothing else -- see the generator block below, and
+scripts/build_finetuned_gguf.py for how the GGUF it names is produced.
 
 This is the *engine* half of the configuration. The web layer's own settings -- the JWT
 secret, the CORS origin, password rules -- live in app/config.py and read the same .env.
@@ -34,6 +36,25 @@ load_dotenv(ROOT_DIR / ".env")
 def _env(name: str, default: str) -> str:
     """Read an env var, treating an empty string as unset."""
     return (os.getenv(name) or "").strip() or default
+
+
+def _env_optional(name: str, default: str) -> str:
+    """
+    Read a setting whose *empty* value is a meaningful choice, not a request for the
+    default.
+
+    `_env` cannot express "no value": setting `FOO=` in .env gives back the default,
+    because an empty string is indistinguishable from an unset one there. That is the
+    right rule for a port or a URI, where empty means nothing useful.
+
+    It is the wrong rule for the download source of a locally-built model. Emptying
+    *_REPO / *_FILE is how someone says "this GGUF is built here and exists in no
+    repository" -- and under `_env` that instruction silently reverts to the *base
+    model's* repo, so a missing finetune downloads the stock model and answers in its
+    place. Absent still means the default; present-but-empty now means empty.
+    """
+    raw = os.getenv(name)
+    return default if raw is None else raw.strip()
 
 
 def _env_int(name: str, default: int) -> int:
@@ -65,14 +86,36 @@ MODELS_DIR = Path(_env("LEARNMATE_MODELS_DIR", str(ROOT_DIR / "models")))
 
 # --- Generator model -----------------------------------------------------------------
 # The model that writes chat replies and study resources.
+#
+# Two models can fill this role, and .env decides which:
+#
+#   models/qwen2.5-3b-instruct-q4_k_m.gguf          the stock base, the default here
+#   models/learnmate-legal-qwen2.5-1.5b-q8_0.gguf   the domain finetune from model-Thevindu
+#
+# The finetune is the ML track's `qwen25-lora-20260815-090709` LoRA merged into its
+# Qwen2.5-1.5B-Instruct base and converted to GGUF -- see scripts/build_finetuned_gguf.py,
+# which produces it, and the .json sidecar it writes beside the weights for provenance.
+#
+# The default below stays on the base model on purpose. It is the one a fresh checkout can
+# actually obtain: the finetune exists in no repository, is built locally from an adapter
+# that the ML track gitignores, and cannot be downloaded on demand. A default pointing at
+# a file that a new clone has no way to get is a broken first run.
+#
+# Note what changes with the finetune beyond the domain tuning: it is 1.5B where the base
+# is 3B, so it is a smaller general-purpose model, and it did NOT pass the acceptance gate
+# in model-Thevindu/03_testing_and_versioning/ (see version_registry.csv -- it loses to the
+# API fallback on both accuracy and groundedness). Running it is a deliberate choice; the
+# rollback is one line in .env.
 
 GENERATOR_BACKEND = _env("LEARNMATE_GENERATOR_BACKEND", "llamacpp").lower()
 GENERATOR_MODEL = _env("LEARNMATE_GENERATOR_MODEL",
                        str(MODELS_DIR / "qwen2.5-3b-instruct-q4_k_m.gguf"))
 
-# Used only when the file above is missing and the backend is llamacpp.
-GENERATOR_REPO = _env("LEARNMATE_GENERATOR_REPO", "Qwen/Qwen2.5-3B-Instruct-GGUF")
-GENERATOR_FILE = _env("LEARNMATE_GENERATOR_FILE", "qwen2.5-3b-instruct-q4_k_m.gguf")
+# Used only when the file above is missing and the backend is llamacpp. Leave both empty
+# for a locally-built model: ensure_gguf then reports the missing file and how to build it,
+# rather than downloading a *different* model and running that instead.
+GENERATOR_REPO = _env_optional("LEARNMATE_GENERATOR_REPO", "Qwen/Qwen2.5-3B-Instruct-GGUF")
+GENERATOR_FILE = _env_optional("LEARNMATE_GENERATOR_FILE", "qwen2.5-3b-instruct-q4_k_m.gguf")
 
 # A finetune with a non-standard prompt template needs its chat format named here
 # (e.g. "chatml", "llama-3"). Empty lets llama.cpp read it from the GGUF metadata,
@@ -93,8 +136,8 @@ GENERATOR_API_KEY = _env("LEARNMATE_GENERATOR_API_KEY", "")
 JUDGE_BACKEND = _env("LEARNMATE_JUDGE_BACKEND", "llamacpp").lower()
 JUDGE_MODEL = _env("LEARNMATE_JUDGE_MODEL",
                    str(MODELS_DIR / "Llama-3.2-3B-Instruct-Q4_K_M.gguf"))
-JUDGE_REPO = _env("LEARNMATE_JUDGE_REPO", "bartowski/Llama-3.2-3B-Instruct-GGUF")
-JUDGE_FILE = _env("LEARNMATE_JUDGE_FILE", "Llama-3.2-3B-Instruct-Q4_K_M.gguf")
+JUDGE_REPO = _env_optional("LEARNMATE_JUDGE_REPO", "bartowski/Llama-3.2-3B-Instruct-GGUF")
+JUDGE_FILE = _env_optional("LEARNMATE_JUDGE_FILE", "Llama-3.2-3B-Instruct-Q4_K_M.gguf")
 JUDGE_CHAT_FORMAT = _env("LEARNMATE_JUDGE_CHAT_FORMAT", "")
 
 # Judging is short-output / long-input: a resource plus its source text must fit.

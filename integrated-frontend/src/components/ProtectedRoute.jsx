@@ -9,8 +9,8 @@ function ProtectedRoute({ children }) {
   // refresh, so wait it out.
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-sm text-gray-500">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-shell">
+        <p className="text-sm text-muted">Loading...</p>
       </div>
     );
   }

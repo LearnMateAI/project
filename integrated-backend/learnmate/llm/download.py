@@ -24,6 +24,28 @@ def ensure_gguf(path: str, repo_id: str, filename: str) -> str:
     if target.exists():
         return str(target)
 
+    # A locally-built model -- the merged finetune from scripts/build_finetuned_gguf.py --
+    # exists in no Hugging Face repo, so there is nothing to fall back to and the honest
+    # answer is to say which file is missing and how it is made. Configured by leaving
+    # LEARNMATE_GENERATOR_REPO empty.
+    if not repo_id or not filename:
+        raise FileNotFoundError(
+            f"{target} does not exist, and no download source is configured for it. "
+            f"If this is the finetuned model, build it with:\n"
+            f"    python scripts/build_finetuned_gguf.py\n"
+            f"Otherwise set the matching *_REPO and *_FILE, or point the model setting at "
+            f"a GGUF that exists."
+        )
+
+    # The downloaded file keeps its name from the repo, so a filename that disagrees with
+    # the configured path silently yields a *different model than the one asked for* --
+    # the base model answering where a finetune was configured, which reads as the
+    # finetune being disappointing rather than as a misconfiguration.
+    if filename != target.name:
+        print(f"[!] {target.name} is missing and the configured download is {filename!r}, "
+              f"which is a different file. Loading {filename!r} instead -- if you meant to "
+              f"run {target.name}, this is NOT it.")
+
     from huggingface_hub import hf_hub_download  # lazy: not needed once models are local
 
     models_dir = target.parent if target.parent.name else config.MODELS_DIR

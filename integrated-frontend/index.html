@@ -5,6 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnMateAI</title>
+    <script>
+      // Runs before the first paint, which is the whole point of it being inline and here
+      // rather than in the bundle: React mounts a moment later, so deciding the theme in
+      // application code would flash one white frame at every dark-theme user on every
+      // load. Kept in sync with src/hooks/useTheme.js, which reads the class this sets.
+      (function () {
+        try {
+          var saved = localStorage.getItem("learnmate-theme");
+          var dark = saved
+            ? saved === "dark"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (e) {
+          // Storage blocked. The light theme is the default, so doing nothing is correct.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

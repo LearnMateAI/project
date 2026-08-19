@@ -164,12 +164,20 @@ def health():
     # --- Models: present, or downloaded on first use? ----------------------------------
     # Checked as files rather than by loading them: loading is ~2 GB and several seconds,
     # which is not something a health check should do.
-    def model_check(backend: str, model: str) -> dict:
+    def model_check(backend: str, model: str, repo: str = "", filename: str = "") -> dict:
         if backend == "llamacpp":
             path = Path(model)
-            return {"ok": path.exists(), "backend": backend, "model": model,
-                    "note": None if path.exists()
-                            else "Not downloaded yet; fetched on first use (~2 GB)."}
+            if path.exists():
+                note = None
+            elif repo and filename:
+                note = "Not downloaded yet; fetched on first use (~2 GB)."
+            else:
+                # No repo means a locally-built GGUF -- the merged finetune -- which will
+                # never appear on its own. Saying it downloads on first use would send
+                # somebody off to wait for a download that is not going to happen.
+                note = ("Missing, and no download source is configured. If this is the "
+                        "finetuned model, build it: python scripts/build_finetuned_gguf.py")
+            return {"ok": path.exists(), "backend": backend, "model": model, "note": note}
         if backend == "gemini":
             return {"ok": bool(engine_config.GEMINI_API_KEY), "backend": backend,
                     "model": model,
@@ -178,10 +186,15 @@ def health():
         return {"ok": True, "backend": backend, "model": model, "note": None}
 
     checks["generator"] = model_check(engine_config.GENERATOR_BACKEND,
-                                      engine_config.GENERATOR_MODEL)
-    checks["judge"] = model_check(engine_config.JUDGE_BACKEND, engine_config.JUDGE_MODEL)
+                                      engine_config.GENERATOR_MODEL,
+                                      engine_config.GENERATOR_REPO,
+                                      engine_config.GENERATOR_FILE)
+    checks["judge"] = model_check(engine_config.JUDGE_BACKEND, engine_config.JUDGE_MODEL,
+                                  engine_config.JUDGE_REPO, engine_config.JUDGE_FILE)
 
-    # A missing GGUF is not "degraded": it downloads on first use and everything works.
+    # A missing GGUF is not "degraded": it downloads on first use, or -- for a locally
+    # built one -- the note above says how to build it. Either way the fix is a file on
+    # disk, and the per-model check already reports it.
     # Only the two databases decide whether this server can do its job right now.
     healthy = checks["mongodb"]["ok"] and checks["vectors"]["ok"]
 

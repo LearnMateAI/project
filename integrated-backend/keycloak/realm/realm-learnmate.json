@@ -10,8 +10,12 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:5173/*"],
-      "webOrigins": ["http://localhost:5173"],
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
       }
@@ -26,8 +30,13 @@
       "lastName": "User",
       "email": "dev@learnmate.local",
       "credentials": [
-        { "type": "password", "value": "dev", "temporary": false }
+        {
+          "type": "password",
+          "value": "dev",
+          "temporary": false
+        }
       ]
     }
-  ]
+  ],
+  "loginTheme": "learnmate"
 }

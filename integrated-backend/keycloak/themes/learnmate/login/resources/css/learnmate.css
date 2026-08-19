@@ -1,0 +1,558 @@
+/*
+ * LearnMate's login theme.
+ *
+ * Loaded after PatternFly and after keycloak.v2's own styles.css, so plain selectors are
+ * enough to win on most of what matters. !important appears three times and each one is
+ * answering something specific: the body background and the ::after border PatternFly
+ * draws under every field are shorthands that have to be replaced rather than added to,
+ * and the header colour is itself !important in keycloak.v2's styles.css.
+ *
+ * A few selectors are qualified with .lm-pane purely for specificity. PatternFly styles
+ * these elements from single-class rules, and matching that and relying on source order
+ * proved too easy to lose.
+ *
+ * The token block below is copied by value from integrated-frontend/src/index.css rather
+ * than shared. Keycloak is a separate server rendering FreeMarker and there is no build
+ * step here that could import the app's stylesheet. The consequence is real and worth
+ * stating: a brand change has to be made in both places, and nothing will warn you.
+ *
+ * Dark mode needs no work here beyond the tokens. keycloak.v2's template already puts
+ * .pf-v5-theme-dark on <html> from prefers-color-scheme, so redefining the same variables
+ * under that class is the same mechanism the app uses with html.dark.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --lm-primary: #2340E0;
+  --lm-primary-hover: #1E39D0;
+  --lm-primary-light: #E5E9FE;
+  --lm-primary-ring: rgba(35, 64, 224, 0.14);
+
+  --lm-surface: #FFFFFF;
+  --lm-background: #FAFBFE;
+
+  --lm-heading: #101533;
+  --lm-body: #3B4166;
+  --lm-muted: #6C7191;
+
+  --lm-border: #E7E9F5;
+  --lm-border-strong: #D6D9EC;
+
+  --lm-danger: #DC2626;
+  --lm-danger-light: #FDECEC;
+  --lm-success: #15803D;
+
+  --lm-radius-md: 10px;
+  --lm-radius-lg: 14px;
+  --lm-radius-xl: 18px;
+
+  --lm-shadow-lg: 0 12px 32px -8px rgba(16, 21, 51, 0.12);
+
+  --lm-font: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+html.pf-v5-theme-dark {
+  color-scheme: dark;
+
+  /* #2340E0 is a mid-tone: correct on near-white, muddy against a dark surface. The ramp
+     shifts up in lightness while holding the hue, exactly as the app's dark theme does, so
+     it still reads as the same blue rather than a second one. */
+  --lm-primary: #6182FF;
+  --lm-primary-hover: #7C97FF;
+  --lm-primary-light: #1D2551;
+  --lm-primary-ring: rgba(97, 130, 255, 0.28);
+
+  --lm-surface: #151B33;
+  --lm-background: #0E1327;
+
+  --lm-heading: #EEF0FA;
+  --lm-body: #C4CAE4;
+  --lm-muted: #949CBE;
+
+  --lm-border: #272F52;
+  --lm-border-strong: #323B63;
+
+  --lm-danger: #F87171;
+  --lm-danger-light: #3A1A1A;
+  --lm-success: #4ADE80;
+
+  --lm-shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Page shell ------------------------------------------------------------------- */
+
+html,
+body#keycloak-bg {
+  height: 100%;
+}
+
+body#keycloak-bg {
+  background: var(--lm-background) !important;
+  font-family: var(--lm-font);
+  color: var(--lm-body);
+  margin: 0;
+  padding: 0;
+}
+
+.lm-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+
+/* 1024px, matching the `hidden lg:flex` on the app's AuthAside. Below it a full-height
+   decorative panel would push the form off the first screen, which is the one thing a
+   login page must not do. */
+@media (min-width: 1024px) {
+  .lm-split {
+    grid-template-columns: minmax(420px, 42%) 1fr;
+  }
+}
+
+.lm-pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* --- The blue panel --------------------------------------------------------------- */
+
+/* The gradient is written literally rather than from var(--lm-primary): this panel keeps
+   the same deep blue in dark mode. It is the one saturated surface in the product, and
+   dimming it would make the two themes look like two different brands. */
+.lm-aside {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem;
+  color: #fff;
+  background: linear-gradient(155deg, #2340E0 0%, #3B2FC9 55%, #1B2A9E 100%);
+}
+
+@media (min-width: 1024px) {
+  .lm-aside {
+    display: flex;
+  }
+}
+
+.lm-aside::after {
+  /* Two soft light sources, so the panel is not a flat rectangle of blue. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 55% at 85% 12%, rgba(255, 255, 255, 0.22), transparent 70%),
+    radial-gradient(50% 45% at 8% 92%, rgba(255, 255, 255, 0.14), transparent 70%);
+  pointer-events: none;
+}
+
+.lm-aside > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lm-aside__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lm-aside__mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--lm-radius-lg);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.lm-aside__mark svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.lm-aside__wordmark {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.lm-aside__body {
+  max-width: 28rem;
+}
+
+.lm-aside__heading {
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 0;
+}
+
+.lm-aside__blurb {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 1rem 0 2rem;
+}
+
+.lm-aside__points {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.lm-aside__points li {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lm-aside__tick {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lm-aside__tick svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.lm-aside__footer {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+/* --- The form side ---------------------------------------------------------------- */
+
+/* Descendant-qualified rather than bare, and deliberately so: PatternFly sizes this from
+   its own single-class rules, and matching that specificity only to come later in the
+   cascade turned out to be too fragile -- the card collapsed to its content width. The
+   extra .lm-pane in front settles it.
+
+   width:26rem with max-width:100%, rather than the other way round, so the card gives way
+   on a viewport narrower than itself instead of running off the edge. */
+.lm-pane > .pf-v5-c-login {
+  display: block;
+  padding: 0;
+  width: 26rem;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* PatternFly lays this out at xl as a two-column grid -- grid-template-areas
+   "main header" -- with roughly 95px of padding-inline on each side. Reverting it to a
+   plain block is not enough on its own: that padding survives, and the card then reads
+   width:100% of a containing block 190px narrower than it looks, which is exactly how it
+   ended up half the width of the panel opposite it. */
+.lm-pane .pf-v5-c-login__container {
+  display: block;
+  width: 100%;
+  max-width: none;
+  grid-template-columns: none;
+  padding-inline: 0;
+  padding-block: 0;
+}
+
+/* The realm name above the card. On wide screens the panel already carries the wordmark,
+   so this is only the small-screen stand-in for it. */
+#kc-header {
+  padding: 0 0 1.5rem;
+  text-align: left;
+}
+
+/* keycloak.v2 assumes a dark backdrop here and sets
+       color: var(--pf-v5-global--Color--light-100) !important
+   in its own styles.css. On this near-white background that renders the realm name white
+   on white -- measured as rgb(255,255,255) on rgb(250,251,254). !important is the only
+   thing that beats !important, and the added .lm-pane wins the specificity tie-break
+   between the two. */
+.lm-pane #kc-header-wrapper {
+  font-family: var(--lm-font);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--lm-heading) !important;
+  text-transform: none;
+  text-align: left;
+  padding: 0;
+}
+
+@media (min-width: 1024px) {
+  #kc-header {
+    display: none;
+  }
+}
+
+.lm-pane .pf-v5-c-login__main {
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-xl);
+  box-shadow: var(--lm-shadow-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: none;
+}
+
+.pf-v5-c-login__main-header,
+.pf-v5-c-login__main-body,
+.pf-v5-c-login__main-footer {
+  padding: 0;
+  background: transparent;
+}
+
+.pf-v5-c-login__main-header {
+  margin-bottom: 1.5rem;
+}
+
+#kc-page-title {
+  font-family: var(--lm-font);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--lm-heading);
+  margin: 0;
+}
+
+/* --- Fields ----------------------------------------------------------------------- */
+
+.pf-v5-c-form__group + .pf-v5-c-form__group {
+  margin-top: 1.125rem;
+}
+
+/* This realm has neither "remember me" nor "forgot password" enabled, but Keycloak still
+   emits the form group that would hold them, empty. :empty does not match it -- the
+   newline inside counts as content -- so this tests for the absence of element children
+   instead. Left in, it puts about 40px of unexplained space above the submit button. */
+.pf-v5-c-form__group:not(:has(*)) {
+  display: none;
+}
+
+.pf-v5-c-form__label,
+.pf-v5-c-form__label-text {
+  font-family: var(--lm-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lm-heading);
+}
+
+.pf-v5-c-form__label {
+  display: block;
+  margin-bottom: 0.375rem;
+  padding: 0;
+}
+
+/* The field is a <span class="pf-v5-c-form-control"> wrapping the real <input>, so the box
+   is drawn on the wrapper and the input inside has to be stripped back to nothing. Styling
+   only the wrapper leaves the input's own border showing as a second rectangle inside the
+   first. */
+.pf-v5-c-form-control {
+  display: flex;
+  align-items: center;
+  font-family: var(--lm-font);
+  font-size: 14px;
+  background: var(--lm-surface);
+  color: var(--lm-body);
+  border: 1px solid var(--lm-border-strong);
+  border-radius: var(--lm-radius-md);
+  padding: 0.625rem 0.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* PatternFly draws focus and validation as a ::after bottom border. Left alone it puts a
+   second, differently coloured line under a field this file has already given a full
+   border and a radius to. */
+.pf-v5-c-form-control::after,
+.pf-v5-c-form-control::before {
+  border: 0 !important;
+  display: none;
+}
+
+.pf-v5-c-form-control > input,
+.pf-v5-c-form-control > textarea,
+.pf-v5-c-form-control > select {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+.pf-v5-c-form-control:focus-within {
+  outline: none;
+  border-color: var(--lm-primary);
+  box-shadow: 0 0 0 3px var(--lm-primary-ring);
+}
+
+.pf-v5-c-form-control > input::placeholder {
+  color: var(--lm-muted);
+}
+
+/* The password field is a two-item input group: the field, and the show/hide toggle. Left
+   as PatternFly has it those are two separately bordered boxes sitting side by side. The
+   border moves to the group so the pair reads as the one control it behaves like. */
+.pf-v5-c-input-group {
+  display: flex;
+  align-items: stretch;
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border-strong);
+  border-radius: var(--lm-radius-md);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pf-v5-c-input-group:focus-within {
+  border-color: var(--lm-primary);
+  box-shadow: 0 0 0 3px var(--lm-primary-ring);
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control:focus-within {
+  box-shadow: none;
+}
+
+.pf-v5-c-input-group__item {
+  display: flex;
+  align-items: stretch;
+  background: transparent;
+}
+
+.pf-v5-c-input-group__item.pf-m-fill {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pf-v5-c-check__label,
+.pf-v5-c-form__helper-text,
+.pf-v5-c-login__main-footer-band {
+  font-family: var(--lm-font);
+  font-size: 13px;
+  color: var(--lm-muted);
+}
+
+.pf-v5-c-check__input {
+  accent-color: var(--lm-primary);
+}
+
+/* --- Buttons and links ------------------------------------------------------------ */
+
+.pf-v5-c-button {
+  font-family: var(--lm-font);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--lm-radius-md);
+}
+
+.pf-v5-c-button.pf-m-primary {
+  background: var(--lm-primary);
+  color: #fff;
+  border: 0;
+  padding: 0.625rem 1rem;
+  transition: background 0.15s;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:focus {
+  background: var(--lm-primary-hover);
+  color: #fff;
+}
+
+.pf-v5-c-button.pf-m-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--lm-primary-ring);
+}
+
+/* The show/hide password control sits inside the field, so it has to lose the button
+   chrome PatternFly gives it or it reads as a second, competing action. */
+.pf-v5-c-button.pf-m-control {
+  background: transparent;
+  border: 0;
+  color: var(--lm-muted);
+}
+
+.pf-v5-c-button.pf-m-control:hover {
+  color: var(--lm-heading);
+}
+
+a,
+.pf-v5-c-login__main-footer-band a {
+  color: var(--lm-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--lm-primary-hover);
+  text-decoration: underline;
+}
+
+/* --- Alerts ----------------------------------------------------------------------- */
+
+.pf-v5-c-alert {
+  font-family: var(--lm-font);
+  font-size: 13px;
+  border-radius: var(--lm-radius-md);
+  border: 1px solid transparent;
+  padding: 0.75rem;
+}
+
+.pf-v5-c-alert.pf-m-danger,
+.pf-v5-c-alert.pf-m-error {
+  background: var(--lm-danger-light);
+  border-color: var(--lm-danger);
+  color: var(--lm-danger);
+}
+
+.pf-v5-c-alert.pf-m-success {
+  background: var(--lm-primary-light);
+  border-color: var(--lm-success);
+  color: var(--lm-success);
+}
+
+.pf-v5-c-alert__title {
+  font-weight: 600;
+  color: inherit;
+}
+
+.kc-feedback-text,
+.pf-m-error {
+  color: var(--lm-danger);
+}

@@ -117,8 +117,11 @@ services:
       # Holds the realm, its clients and its users. `docker compose down` keeps them;
       # `down -v` deletes them and the realm has to be created again from scratch.
       - keycloak_data:/opt/keycloak/data
-      # Read-only: this is repo source, and nothing in the container should rewrite it.
-      - ./keycloak:/opt/keycloak/data/import:ro
+      # Both read-only: this is repo source, and nothing in the container should rewrite it.
+      - ./keycloak/realm:/opt/keycloak/data/import:ro
+      # The LearnMate login theme, selected by the realm's loginTheme. start-dev disables
+      # theme caching, so edits under here show up on a browser refresh with no restart.
+      - ./keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
       # The image is distroless -- no curl, no wget -- but it ships a JDK, so Java's own
       # HTTP client is the one thing guaranteed to be present. KC_HEALTH_ENABLED puts the

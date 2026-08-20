@@ -8,8 +8,9 @@
  *
  * Without that second one an expired token produces a confusing error on whichever page
  * happened to make the next call -- "Could not load documents", "Generation failed" --
- * when the real answer is "log in again". Tokens last 24 hours by default, so this is a
- * once-a-day event rather than an edge case.
+ * when the real answer is "log in again". AuthProvider refreshes the access token itself
+ * well before its 5-minute lifetime is up, so this fires only once the refresh token (and
+ * so the underlying Keycloak session) has actually expired.
  */
 
 import axios from "axios";

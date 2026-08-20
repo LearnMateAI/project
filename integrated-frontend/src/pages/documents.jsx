@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
 import DocumentsCard from "../components/DocumentsCard.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import ResourcesPanel from "../components/ResourcesPanel.jsx";
 
 const POLL_MS = 3000;
@@ -178,9 +179,10 @@ function Documents() {
               {loading ? (
                 <p className="px-5 py-6 text-[13px] text-muted">Loading documents...</p>
               ) : documents.length === 0 ? (
-                <p className="px-5 py-6 text-[13px] text-muted">
-                  No documents yet — upload a PDF above to get started.
-                </p>
+                <EmptyState
+                  body="No documents yet — upload a PDF above to get started."
+                  action={null}
+                />
               ) : (
                 <table className="data-table">
                   <thead>

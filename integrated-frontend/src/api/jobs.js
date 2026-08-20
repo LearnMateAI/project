@@ -69,6 +69,7 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
   let lastMessage;
   let lastPartial;
   let lastReplyReady;
+  let lastStatus;
   const startedAt = Date.now();
 
   for (;;) {
@@ -86,11 +87,15 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
     // Only fire on change: the same string arriving forty times is not progress, and
     // re-rendering on each poll makes the UI flicker.
     const changed =
-      message !== lastMessage || partial !== lastPartial || replyReady !== lastReplyReady;
-    if (onProgress && changed && (message || partial)) {
+      message !== lastMessage ||
+      partial !== lastPartial ||
+      replyReady !== lastReplyReady ||
+      job.status !== lastStatus;
+    if (onProgress && changed) {
       lastMessage = message;
       lastPartial = partial;
       lastReplyReady = replyReady;
+      lastStatus = job.status;
       onProgress(job.progress, job);
     }
 

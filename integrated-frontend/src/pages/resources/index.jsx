@@ -22,6 +22,7 @@ import { errorMessage } from "../../api/client.js";
 import { listDocuments } from "../../api/documents.js";
 import { listJobs } from "../../api/jobs.js";
 import { RESOURCE_TYPES, listResources, resourceLabel } from "../../api/resources.js";
+import EmptyState from "../../components/EmptyState.jsx";
 
 // A generation runs for minutes, and its own commentary changes about once a page. Only
 // polled while something is actually in flight -- see the effect below, which stops.
@@ -188,9 +189,15 @@ function Resources() {
             Loading...
           </p>
         ) : resources.length === 0 && pending.length === 0 ? (
-          <p className="px-5 py-8 text-[13px] text-muted text-center">
-            Nothing generated yet — open a document and use the panel beside it.
-          </p>
+          <EmptyState
+            title="No resources yet"
+            body="Generate one from a document — open Documents and use the panel beside the PDF."
+            action={
+              <Link to="/documents" className="btn-primary">
+                Open documents
+              </Link>
+            }
+          />
         ) : (
           <div>
             {/* In-flight generations, above the finished ones because they are newer than
@@ -241,6 +248,9 @@ function Resources() {
                       {resourceLabel(resource.resource_type)}
                       {Array.isArray(resource.content) ? (
                         <span className="font-normal text-muted"> · {resource.content.length} items</span>
+                      ) : null}
+                      {resource.params?.difficulty ? (
+                        <span className="badge badge-gray ml-2">{resource.params.difficulty}</span>
                       ) : null}
                     </span>
                     <span className="block text-[11.5px] text-subtle truncate">

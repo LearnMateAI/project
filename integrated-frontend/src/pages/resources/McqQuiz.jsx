@@ -74,12 +74,17 @@ function McqQuiz({ questions }) {
                   <span className="text-primary mr-1.5">{index + 1}.</span>
                   {question.question}
                 </p>
-                {submitted && (
+                <span className="flex items-center gap-2 shrink-0">
+                  {question.difficulty && (
+                    <span className="badge badge-gray">{question.difficulty}</span>
+                  )}
+                  {submitted && (
                   <span className={`badge shrink-0 ${gotItRight ? "badge-green" : "badge-red"}`}>
                     <span className="badge-dot" />
                     {gotItRight ? "Correct" : "Incorrect"}
                   </span>
-                )}
+                  )}
+                </span>
               </div>
 
               <div className="space-y-2">

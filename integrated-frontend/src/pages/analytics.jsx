@@ -144,6 +144,40 @@ function Analytics() {
         </div>
       </section>
 
+      {(Object.keys(stats.evaluation?.by_model || {}).length > 0 ||
+        Object.keys(stats.evaluation?.by_difficulty || {}).length > 0) && (
+        <section className="card mb-5">
+          <div className="card-head">
+            <div>
+              <h2>Quality breakdown</h2>
+              <p className="text-[12px] text-muted mt-0.5">
+                Judge pass rate by generator and by MCQ difficulty
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 px-5 pb-5">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">By model</p>
+              {Object.entries(stats.evaluation?.by_model || {}).map(([id, row]) => (
+                <p key={id} className="text-[13px] text-body m-0 py-1 border-b border-border-light last:border-0">
+                  <span className="font-medium">{id}</span>
+                  <span className="text-muted"> · {(row.pass_rate * 100).toFixed(0)}% pass · n={row.n}</span>
+                </p>
+              ))}
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">By MCQ difficulty</p>
+              {Object.entries(stats.evaluation?.by_difficulty || {}).map(([id, row]) => (
+                <p key={id} className="text-[13px] text-body m-0 py-1 border-b border-border-light last:border-0">
+                  <span className="font-medium">{id}</span>
+                  <span className="text-muted"> · {(row.pass_rate * 100).toFixed(0)}% pass · n={row.n}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
     </div>
   );
 }

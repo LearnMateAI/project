@@ -60,6 +60,15 @@ export function errorMessage(error, fallback = "Something went wrong. Please try
   if (error?.code === "ERR_NETWORK") {
     return "Cannot reach the server. Is the backend running?";
   }
+  if (error?.code === "ECONNABORTED") {
+    return "The request timed out. The job may still be running — check Resources or Chat.";
+  }
+  if (error?.response?.status === 403) {
+    return typeof detail === "string" ? detail : "You do not have access to this.";
+  }
+  if (error?.response?.status === 401) {
+    return "Your session has expired. Please log in again.";
+  }
   return fallback;
 }
 

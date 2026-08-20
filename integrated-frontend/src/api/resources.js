@@ -52,6 +52,9 @@ export function generateResource({
   perPage,
   evaluate = true,
   threshold,
+  summaryStyle,
+  difficulty,
+  modelId,
 }) {
   return api.post("/api/resources/generate", {
     document_id: documentId,
@@ -65,6 +68,9 @@ export function generateResource({
     per_page: perPage ?? null,
     evaluate,
     threshold: threshold ?? null,
+    summary_style: summaryStyle || null,
+    difficulty: difficulty || null,
+    model_id: modelId || null,
   });
 }
 
@@ -81,4 +87,23 @@ export function getResource(resourceId) {
 
 export function deleteResource(resourceId) {
   return api.delete(`/api/resources/${resourceId}`);
+}
+
+/** Download a stored resource as .docx or .pptx. Does not regenerate. */
+export async function exportResource(resourceId, format = "docx") {
+  const response = await api.get(`/api/resources/${resourceId}/export`, {
+    params: { format },
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], { type: response.headers["content-type"] });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const disposition = response.headers["content-disposition"] || "";
+  const match = disposition.match(/filename="?([^"]+)"?/i);
+  link.href = url;
+  link.download = match?.[1] || `resource.${format}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }

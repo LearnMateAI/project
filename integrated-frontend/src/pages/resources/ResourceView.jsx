@@ -15,12 +15,59 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
-import { deleteResource, getResource, resourceLabel } from "../../api/resources.js";
+import { deleteResource, exportResource, getResource, resourceLabel } from "../../api/resources.js";
 import McqQuiz from "./McqQuiz.jsx";
 import PracticeQuestions from "./PracticeQuestions.jsx";
 
+function MarkdownText({ text }) {
+  const parts = String(text || "").split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.startsWith("**") && part.endsWith("**") && part.length >= 4 ? (
+          <strong key={index}>{part.slice(2, -2)}</strong>
+        ) : (
+          <span key={index}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+function SummaryBody({ content, style }) {
+  const text = typeof content === "string" ? content : String(content || "");
+  if (style === "structured") {
+    const points = text
+      .split("\n")
+      .map((line) => line.replace(/^[-*]\s+/, "").trim())
+      .filter(Boolean);
+    if (points.length >= 2) {
+      return (
+        <ul className="card p-4 sm:p-7 space-y-3 list-none m-0">
+          {points.map((point, index) => (
+            <li key={index} className="flex gap-3 text-[14px] leading-relaxed text-body">
+              <span className="shrink-0 w-6 h-6 rounded-lg bg-primary-light text-primary text-[11px] font-bold flex items-center justify-center mt-0.5">
+                {index + 1}
+              </span>
+              <span>
+                <MarkdownText text={point} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+  }
+  return (
+    <div className="card p-4 sm:p-7 whitespace-pre-wrap leading-[1.8] text-[14.5px] text-body">
+      <MarkdownText text={text} />
+    </div>
+  );
+}
+
 function Body({ resource }) {
   const { resource_type: type, content } = resource;
+  const params = resource.params || {};
 
   if (content === null || content === undefined || (Array.isArray(content) && !content.length)) {
     return (
@@ -31,20 +78,14 @@ function Body({ resource }) {
   }
 
   if (type === "summary") {
-    return (
-      <div className="card p-6 sm:p-7 whitespace-pre-wrap leading-[1.8] text-[14.5px] text-body">
-        {content}
-      </div>
-    );
+    return <SummaryBody content={content} style={params.summary_style} />;
   }
 
   if (type === "keypoints") {
     return (
-      <ul className="card p-6 sm:p-7 space-y-3.5 list-none m-0">
+      <ul className="card p-4 sm:p-7 space-y-3.5 list-none m-0">
         {content.map((point, index) => (
           <li key={index} className="flex gap-3 text-[14px] leading-relaxed text-body">
-            {/* A numbered chip rather than a bullet: key points are a set you work
-                through, and the number is what you refer back to. */}
             <span className="shrink-0 w-6 h-6 rounded-lg bg-primary-light text-primary text-[11px] font-bold flex items-center justify-center mt-0.5">
               {index + 1}
             </span>
@@ -73,6 +114,7 @@ function ResourceView() {
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [exporting, setExporting] = useState("");
 
   const fetchResource = useCallback(async () => {
     setLoading(true);
@@ -93,6 +135,18 @@ function ResourceView() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResource();
   }, [fetchResource]);
+
+  async function handleExport(format) {
+    setExporting(format);
+    setError("");
+    try {
+      await exportResource(resourceId, format);
+    } catch (err) {
+      setError(errorMessage(err, "Could not export this resource."));
+    } finally {
+      setExporting("");
+    }
+  }
 
   async function handleDelete() {
     if (!window.confirm("Delete this resource?")) return;
@@ -127,7 +181,7 @@ function ResourceView() {
   const params = resource.params || {};
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl overflow-x-auto">
       <Link
         to="/resources"
         className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-muted no-underline hover:text-primary mb-4"
@@ -138,27 +192,49 @@ function ResourceView() {
         Back to Resources
       </Link>
 
-      <div className="flex items-start justify-between gap-4 mb-1.5">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-1.5">
         <h1 className="text-2xl font-bold tracking-tight m-0">
           {resourceLabel(resource.resource_type)}
         </h1>
-        <button
-          onClick={handleDelete}
-          className="btn-secondary shrink-0 hover:text-danger hover:border-danger-light"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-          </svg>
-          Delete
-        </button>
+        <div className="flex flex-wrap gap-2 shrink-0">
+          <button
+            onClick={() => handleExport("docx")}
+            disabled={Boolean(exporting)}
+            className="btn-secondary"
+          >
+            {exporting === "docx" ? "Exporting…" : "Word"}
+          </button>
+          <button
+            onClick={() => handleExport("pptx")}
+            disabled={Boolean(exporting)}
+            className="btn-secondary"
+          >
+            {exporting === "pptx" ? "Exporting…" : "PowerPoint"}
+          </button>
+          <button
+            onClick={handleDelete}
+            className="btn-secondary hover:text-danger hover:border-danger-light"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+            Delete
+          </button>
+        </div>
       </div>
 
       <p className="text-[12px] text-subtle mb-3">
         Generated {new Date(resource.created_at).toLocaleString()}
-        {/* whole_document runs record this; a passage run does not. */}
         {params.whole_document ? " from the whole document" : ""}
         {params.groups ? ` (${params.groups} group${params.groups === 1 ? "" : "s"})` : ""}
+        {params.summary_style ? ` · ${params.summary_style}` : ""}
+        {params.difficulty ? ` · ${params.difficulty}` : ""}
+        {params.model_id ? ` · ${params.model_id}` : ""}
+        {resource.score != null ? ` · judge ${resource.score}/100` : ""}
+        {resource.accepted === false ? " · flagged" : ""}
       </p>
+
+      {error && <p className="notice notice-error mb-4">{error}</p>}
 
       <Body resource={resource} />
     </div>

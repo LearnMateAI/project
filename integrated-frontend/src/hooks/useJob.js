@@ -71,8 +71,10 @@ export function useJob() {
 
       const jobResult = await waitForJob(jobId, {
         signal: controller.signal,
-        onProgress: (next) => {
-          if (mountedRef.current) setProgress(next);
+        onProgress: (next, job) => {
+          if (mountedRef.current) {
+            setProgress({ ...(next || {}), jobStatus: job?.status });
+          }
         },
       });
 

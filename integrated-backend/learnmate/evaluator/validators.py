@@ -12,7 +12,7 @@ The rules themselves live next door -- mcq_rules.py and text_rules.py -- so this
 only the map from a task name to its checker.
 """
 
-from typing import Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from .mcq_rules import validate_mcq, validate_mcq_set
 from .text_rules import validate_keypoints, validate_practice_qsn, validate_summary
@@ -36,7 +36,8 @@ __all__ = [
 ]
 
 
-def validate(task: str, content) -> Tuple[bool, List[str]]:
+def validate(task: str, content, extras: Optional[Dict[str, Any]] = None
+             ) -> Tuple[bool, List[str]]:
     """
     Run the structural checker for `task`.
 
@@ -44,8 +45,14 @@ def validate(task: str, content) -> Tuple[bool, List[str]]:
     the judge and be graded on its rubric, not be rejected for having no structural rules
     written for it yet. Note there is no "chat_msg" entry -- a chat reply is free prose
     with nothing mechanical to check, so it goes straight to gate 2.
+
+    `extras` carries additive fields (summary_style) without changing the four checkers'
+    original signatures for callers that still pass only content.
     """
+    extras = extras or {}
     checker = VALIDATORS.get(task)
     if checker is None:
         return True, []
+    if task == "summary":
+        return validate_summary(content, style=extras.get("summary_style") or "narrative")
     return checker(content)

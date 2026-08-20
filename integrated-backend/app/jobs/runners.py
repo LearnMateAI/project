@@ -197,6 +197,9 @@ def _run_resource(job: Dict) -> Dict:
         per_page=params.get("per_page"),
         evaluate=params.get("evaluate", True),
         threshold=params.get("threshold"),
+        summary_style=params.get("summary_style"),
+        difficulty=params.get("difficulty"),
+        model_id=params.get("model_id"),
         on_progress=_reporter(str(job["_id"])),
     )
 
@@ -220,6 +223,7 @@ def _run_chat(job: Dict) -> Dict:
             session_id=params["session_id"],
             message=params["message"],
             evaluate=params.get("evaluate", True),
+            model_id=params.get("model_id"),
             on_progress=_reporter(job_id),
             on_token=on_token,
             on_reply=_reply_reporter(job_id, on_token),

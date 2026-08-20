@@ -13,6 +13,7 @@ it as `response_format` and falls back to asking plainly, which is why the reply
 parsed defensively.
 """
 
+import inspect
 import time
 from typing import Dict
 
@@ -21,8 +22,20 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from ..llm import get_generator_llm, parse_json_reply
 from ..storage import content_store
 from .helpers import _log, revision_block
+from .mcq import resolve_difficulty
 from .state import ResourceState
 from .tasks import get_task
+
+
+def _prompt_for(task, state: ResourceState) -> str:
+    fn = task.build_prompt
+    kwargs = {}
+    params = inspect.signature(fn).parameters
+    if "style" in params:
+        kwargs["style"] = state.get("summary_style") or "narrative"
+    if "difficulty" in params:
+        kwargs["difficulty"] = state.get("difficulty") or "medium"
+    return fn(state["source"], state.get("count", 5), **kwargs)
 
 
 def generate_node(state: ResourceState) -> Dict:
@@ -32,7 +45,7 @@ def generate_node(state: ResourceState) -> Dict:
 
     _log(state, f"[*] Generating {task.name} (attempt {attempt}/{state['max_attempts']})...")
 
-    prompt = task.build_prompt(state["source"], state.get("count", 5))
+    prompt = _prompt_for(task, state)
     if state.get("critique"):
         prompt += revision_block(task, state["critique"], state.get("previous"))
 
@@ -43,8 +56,17 @@ def generate_node(state: ResourceState) -> Dict:
 
     started = time.time()
     try:
-        reply = get_generator_llm().invoke(messages, response_schema=task.schema)
+        reply = get_generator_llm(
+            model_id=state.get("model_id"),
+            on_progress=lambda message: _log(state, message),
+        ).invoke(
+            messages, response_schema=task.schema)
         content = task.unwrap(parse_json_reply(reply.content))
+        if task.name == "mcq" and isinstance(content, list):
+            tier = resolve_difficulty(state.get("difficulty"))
+            for item in content:
+                if isinstance(item, dict):
+                    item.setdefault("difficulty", tier)
         return {"attempt": attempt, "content": content, "started": started,
                 "stage": "generated"}
     except Exception as exc:

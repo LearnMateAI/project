@@ -33,6 +33,9 @@ class ResourceState(TypedDict, total=False):
     # Optional callable(message). Set when this run is driving a job record rather than a
     # terminal, so progress reaches a client that is polling instead of watching stdout.
     on_progress: Any
+    summary_style: Optional[str]
+    difficulty: Optional[str]
+    model_id: Optional[str]
 
     # --- Written by generate ----------------------------------------------------------
     attempt: int         # 1-based counter of generations so far

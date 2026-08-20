@@ -14,7 +14,9 @@ from typing import Dict
 
 from .. import config
 from .graph import get_resource_graph
+from .mcq import resolve_difficulty
 from .state import ResourceState
+from .summary import resolve_summary_style
 from .tasks import get_task
 
 
@@ -22,7 +24,8 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
                       threshold: int = None, max_attempts: int = None,
                       evaluate: bool = True, persist: bool = True,
                       verbose: bool = True, user_id: str = None,
-                      on_progress=None) -> Dict:
+                      on_progress=None, summary_style: str = None,
+                      difficulty: str = None, model_id: str = None) -> Dict:
     """
     Generate one study resource end to end.
 
@@ -59,6 +62,10 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
         "verbose": verbose,
         "attempt": 0,
         "attempts": [],
+        "summary_style": resolve_summary_style(source, summary_style) if task == "summary"
+                         else None,
+        "difficulty": resolve_difficulty(difficulty) if task == "mcq" else None,
+        "model_id": model_id,
     }
 
     # The graph loops, so LangGraph's default recursion budget has to cover

@@ -108,7 +108,8 @@ def serialize_detail(resource: Dict) -> Dict:
 def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passage",
              topic: str = None, pages: Optional[List[int]] = None, count: int = None,
              per_page: int = None, evaluate: bool = True, threshold: int = None,
-             on_progress=None) -> Dict:
+             on_progress=None, summary_style: str = None, difficulty: str = None,
+             model_id: str = None) -> Dict:
     """
     Generate one resource, start to finish. Slow: seconds to minutes.
 
@@ -129,6 +130,9 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
         # Nobody is watching stdout on the worker; progress goes to the job record.
         "verbose": False,
         "on_progress": on_progress,
+        "summary_style": summary_style,
+        "difficulty": difficulty,
+        "model_id": model_id,
     }
 
     if scope == "document":

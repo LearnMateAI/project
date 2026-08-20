@@ -36,7 +36,10 @@ def persist_node(state: ResourceState) -> Dict:
         verdict=state.get("verdict"),
         source_preview=state.get("source", ""),
         params={"count": state.get("count"), "threshold": state["threshold"],
-                "evaluated": state.get("evaluate", True)},
+                "evaluated": state.get("evaluate", True),
+                "summary_style": state.get("summary_style"),
+                "difficulty": state.get("difficulty"),
+                "model_id": state.get("model_id")},
     )
     _log(state, f"[+] Stored resource {resource_id}")
 

@@ -98,17 +98,29 @@ function HomePage() {
   return (
     <div className="animate-fade-in">
       {/* Hero */}
-      <div className="hero-panel p-8 lg:p-10 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div className="hero-panel p-8 lg:p-12 mb-6">
+        {!isAuthenticated && (
+          <span className="inline-flex items-center gap-2 bg-white/12 border border-white/20 text-white/90 text-[11.5px] font-bold tracking-[0.05em] rounded-full pl-2.5 pr-3.5 py-1.5 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            NOW READING-AWARE
+          </span>
+        )}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
           <div>
-            <h1 className="text-[30px] lg:text-[34px] leading-tight font-bold text-white tracking-tight m-0">
-              {isAuthenticated
-                ? `Welcome to LearnMateAI${user?.name ? `, ${user.name.split(" ")[0]}` : ""}`
-                : "Turn any PDF into study material"}
+            <h1 className="font-serif text-[32px] lg:text-[42px] leading-[1.08] font-semibold text-white tracking-tight m-0">
+              {isAuthenticated ? (
+                <>Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}.</>
+              ) : (
+                <>
+                  Turn any PDF into<br />study material{" "}
+                  <em className="italic font-medium text-white/80">you can trust.</em>
+                </>
+              )}
             </h1>
-            <p className="text-white/75 text-[15px] leading-relaxed max-w-xl mt-3 mb-0">
-              Your AI-powered study companion. Upload documents, generate tailored study materials,
-              and chat with your content — all backed by intelligent quality assurance.
+            <p className="text-white/75 text-[15px] leading-relaxed max-w-xl mt-4 mb-0">
+              Upload a textbook, a lecture set, or a case file. LearnMateAI reads it, answers
+              questions with page citations, and drafts study material — every one checked by a
+              second model before it reaches you.
             </p>
           </div>
           <Link
@@ -145,17 +157,28 @@ function HomePage() {
         </div>
       )}
 
-      {/* Features */}
-      <div className="grid gap-4 md:grid-cols-3 mb-6">
-        {features.map((f) => (
-          <Link key={f.title} to={go(f.link)} className="card card-hover p-6 block no-underline">
-            <div className={`w-10 h-10 rounded-lg ${f.color} flex items-center justify-center mb-4`}>
-              {f.icon}
-            </div>
-            <h3 className="text-[15px] font-semibold text-heading mb-1.5">{f.title}</h3>
-            <p className="text-[13px] text-muted leading-relaxed">{f.desc}</p>
-          </Link>
-        ))}
+      {/* Features, as one ordered index rather than three identical cards */}
+      <div className="card overflow-hidden mb-6">
+        <div className="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border-light">
+          {features.map((f, i) => (
+            <Link
+              key={f.title}
+              to={go(f.link)}
+              className="p-6 block no-underline hover:bg-surface-alt/60 transition-colors"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-serif text-[13px] font-semibold text-subtle">
+                  0{i + 1}
+                </span>
+                <div className={`w-9 h-9 rounded-lg ${f.color} flex items-center justify-center`}>
+                  {f.icon}
+                </div>
+              </div>
+              <h3 className="font-serif text-[16px] font-semibold text-heading mb-1.5">{f.title}</h3>
+              <p className="text-[13px] text-muted leading-relaxed">{f.desc}</p>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Quick actions + recent resources. Both describe a workspace, so signed out they

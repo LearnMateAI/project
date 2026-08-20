@@ -15,17 +15,28 @@ const points = [
 function AuthAside({ heading, blurb }) {
   return (
     <aside className="auth-aside hidden lg:flex flex-col justify-between p-12">
-      <div className="relative z-10 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-          </svg>
-        </div>
-        <span className="text-[17px] font-extrabold tracking-tight">LearnMateAI</span>
+      <div className="relative z-10 flex items-baseline gap-0.5 font-serif text-[19px] font-semibold text-white">
+        LearnMate<em className="italic text-white/70">AI</em>
       </div>
 
+      {/* A stacked-notebook illustration built from shapes, echoing the document stack on
+          the marketing hero rather than a literal photo or a generic lock/shield icon. */}
       <div className="relative z-10 max-w-md">
-        <h2 className="text-[34px] leading-[1.15] font-bold text-white tracking-tight m-0">
+        <div className="relative h-[190px] mb-9">
+          <div className="absolute left-3 top-6 w-[150px] h-[170px] bg-white/10 border border-white/20 rounded-xl rotate-[-6deg]" />
+          <div className="absolute left-16 top-0 w-[150px] h-[170px] bg-white rounded-xl shadow-2xl rotate-[4deg] p-5">
+            <div className="w-3/5 h-2 bg-primary-light rounded-full mb-3" />
+            <div className="w-[85%] h-1.5 bg-border-light rounded-full mb-1.5" />
+            <div className="w-[75%] h-1.5 bg-border-light rounded-full mb-1.5" />
+            <div className="w-[80%] h-1.5 bg-border-light rounded-full mb-4" />
+            <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center">
+              <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <h2 className="font-serif italic text-[28px] leading-[1.3] font-medium text-white m-0">
           {heading}
         </h2>
         <p className="text-[14.5px] leading-relaxed text-white/75 mt-4 mb-8">{blurb}</p>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap');
 @import "tailwindcss";
 
 /**
@@ -53,6 +53,11 @@
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-family-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* The one editorial voice in the interface: page titles, section headings and the
+     handful of "big number" figures. Everything that reads as a control -- buttons, nav,
+     labels, table text -- stays on Inter, so the serif never competes with usability. */
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-family-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.8125rem;
@@ -209,28 +214,6 @@ input:focus, select:focus, textarea:focus {
 button:focus-visible, a:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-}
-
-/* ─── The application shell ───
-   The whole app sits on a tinted page inside a rounded, inset window -- the framing device
-   the reference design uses to make a dense dashboard read as one object rather than as a
-   browser full of panels. */
-.app-shell {
-  height: 100vh;
-  display: flex;
-  background: var(--color-surface);
-  overflow: hidden;
-}
-
-/* The content column scrolls inside the frame rather than the page scrolling under it, so
-   the rail and the topbar stay put no matter how long the page is. */
-@media (min-width: 1024px) {
-  .app-shell {
-    height: calc(100vh - 2rem);
-    margin: 1rem;
-    border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-lg);
-  }
 }
 
 /* ─── Cards ─── */
@@ -502,23 +485,181 @@ input[type="radio"] {
   margin-bottom: 1.5rem;
 }
 .page-header h1 {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
+  font-family: var(--font-family-serif);
+  font-size: 1.75rem;
+  font-weight: 600;
   color: var(--color-heading);
-  letter-spacing: -0.022em;
-  margin: 0 0 0.25rem;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.3rem;
 }
 .page-header p {
   font-size: var(--font-size-sm);
   color: var(--color-muted);
   margin: 0;
 }
+.page-eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0 0 0.5rem;
+}
 
 .section-title {
-  font-size: var(--font-size-xl);
+  font-family: var(--font-family-serif);
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-heading);
+  letter-spacing: -0.01em;
   margin: 0 0 0.875rem;
+}
+
+/* ─── Masthead ───
+   The top-of-app navigation: logo, primary nav as tabs, account. Replaces the icon rail --
+   the whole app is one flat page under this bar rather than a framed window beside a
+   sidebar, which is the main structural break from the generic admin-template shape. */
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4.25rem;
+  padding: 0 1.25rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.masthead-logo {
+  font-family: var(--font-family-serif);
+  font-weight: 600;
+  font-size: 1.1875rem;
+  color: var(--color-heading);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.masthead-logo em {
+  font-style: italic;
+  color: var(--color-primary);
+}
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  padding: 0.5625rem 1rem;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+.nav-tab:hover {
+  color: var(--color-heading);
+}
+.nav-tab.is-active {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* ─── Index rows ───
+   A numbered list row -- the quick-start actions and the feature index use this instead of
+   an icon-tile grid of identical cards, so the eye reads it as one ordered sequence. */
+.index-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.125rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.index-row:last-child {
+  border-bottom: none;
+}
+.index-row .index-num {
+  font-family: var(--font-family-serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--color-border-strong);
+  width: 1.75rem;
+  flex-shrink: 0;
+}
+
+/* ─── Book tiles ───
+   The document library as a shelf rather than a table: each PDF gets a coloured cover with
+   its subject on it. `book-cover` takes the gradient inline (per-subject), this carries the
+   shared shape. */
+.book-tile {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+.book-tile.is-selected {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-md);
+}
+.book-cover {
+  height: 8.25rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+}
+.book-tile-body {
+  padding: 1rem;
+}
+
+/* ─── Footnote citations ───
+   A chat answer's source pages as numbered chips instead of a plain "From pages ..." line,
+   echoing the numbered superscripts in the reply text above them. */
+.footnote-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-light);
+  padding: 0.25rem 0.5625rem 0.25rem 0.3125rem;
+  border-radius: 999px;
+}
+.footnote-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.59375rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.footnote-ref {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.7em;
+}
+
+/* ─── Editorial KPI band ───
+   Analytics' headline figures as a magazine infographic -- big serif numerals separated by
+   hairlines -- rather than four identical boxed stat-cards. */
+.kpi-editorial {
+  padding: 1.75rem;
+  border-right: 1px solid var(--color-border-light);
+}
+.kpi-editorial:last-child {
+  border-right: none;
+}
+.kpi-editorial .kpi-figure {
+  font-family: var(--font-family-serif);
+  font-size: 2.75rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 /* ─── Badges ─── */

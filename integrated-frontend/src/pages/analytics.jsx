@@ -15,6 +15,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAnalytics } from "../api/analytics.js";
 import { errorMessage } from "../api/client.js";
+import { listDocuments } from "../api/documents.js";
 import { listResources } from "../api/resources.js";
 import { LineChart } from "../components/charts.jsx";
 
@@ -29,16 +30,16 @@ const KPI_ICONS = {
 
 function Kpi({ label, value, icon }) {
   return (
-    <div className="stat-card flex items-start justify-between gap-3">
-      <div>
-        <p className="stat-label">{label}</p>
-        <p className="stat-value">{value}</p>
+    <div className="kpi-editorial">
+      <div className="flex items-center gap-2 mb-3.5">
+        <span className="icon-circle w-7 h-7 shrink-0">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+          </svg>
+        </span>
+        <p className="text-[12px] font-semibold text-muted m-0">{label}</p>
       </div>
-      <span className="icon-circle w-10 h-10">
-        <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
-          <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-        </svg>
-      </span>
+      <p className="kpi-figure m-0">{value}</p>
     </div>
   );
 }
@@ -48,6 +49,7 @@ function Analytics() {
   // Named for what it is rather than `resources`, which further down is the *summary* block
   // out of /api/analytics. Two different shapes, and one of them is a list.
   const [generated, setGenerated] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -65,6 +67,15 @@ function Analytics() {
     listResources()
       .then((res) => setGenerated(res.data))
       .catch(() => setGenerated([]));
+  }, []);
+
+  // Documents carry the subject a resource was generated from; resources only carry a
+  // document id. Fetched here, same as the chart, so "most active subject" is a real tally
+  // rather than a number invented to fill the panel.
+  useEffect(() => {
+    listDocuments()
+      .then((res) => setDocuments(res.data))
+      .catch(() => setDocuments([]));
   }, []);
 
   // Seven days ending today, so the rightmost point is always "now" and an empty day is a
@@ -93,6 +104,27 @@ function Analytics() {
 
   const weekTotal = daily.reduce((sum, day) => sum + day.value, 0);
 
+  // The day and subject the pull-quote calls out. Both computed from data already on the
+  // page rather than fetched specially -- if there is nothing to report, the quote panel
+  // says so instead of showing a stale or fabricated figure.
+  const busiestDay = useMemo(() => {
+    if (weekTotal === 0) return null;
+    return daily.reduce((best, day) => (day.value > best.value ? day : best), daily[0]);
+  }, [daily, weekTotal]);
+
+  const topSubject = useMemo(() => {
+    if (documents.length === 0 || generated.length === 0) return null;
+    const subjectByDoc = new Map(documents.map((doc) => [doc.id, doc.subject]));
+    const counts = new Map();
+    for (const resource of generated) {
+      const subject = subjectByDoc.get(resource.document_id);
+      if (!subject) continue;
+      counts.set(subject, (counts.get(subject) || 0) + 1);
+    }
+    if (counts.size === 0) return null;
+    return [...counts.entries()].reduce((best, entry) => (entry[1] > best[1] ? entry : best))[0];
+  }, [documents, generated]);
+
   if (loading) {
     return (
       <p className="flex items-center gap-2.5 text-[13px] text-muted">
@@ -116,34 +148,56 @@ function Analytics() {
         
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 border-y border-border mb-6">
         <Kpi label="Documents" value={stats.documents ?? 0} icon={KPI_ICONS.documents} />
         <Kpi label="Resources generated" value={resources.total ?? 0} icon={KPI_ICONS.resources} />
         <Kpi label="Conversations" value={stats.sessions ?? 0} icon={KPI_ICONS.sessions} />
         <Kpi label="Questions asked" value={stats.questions_asked ?? 0} icon={KPI_ICONS.questions} />
       </div>
 
-      <section className="card mb-5">
-        <div className="card-head">
-          <div>
-            <h2>Study activity</h2>
-            <p className="text-[12px] text-muted mt-0.5">Resources you generated, last 7 days</p>
+      <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+        <section className="card">
+          <div className="card-head">
+            <div>
+              <h2>Study activity</h2>
+              <p className="text-[12px] text-muted mt-0.5">Resources you generated, last 7 days</p>
+            </div>
+            <span className="badge badge-blue">
+              <span className="badge-dot" />
+              {weekTotal} this week
+            </span>
           </div>
-          <span className="badge badge-blue">
-            <span className="badge-dot" />
-            {weekTotal} this week
-          </span>
-        </div>
-        <div className="px-3 pb-3 pt-4">
-          <LineChart
-            data={daily}
-            height={244}
-            formatValue={(n) => `${n} resource${n === 1 ? "" : "s"}`}
-            emptyMessage="Nothing generated in the last 7 days."
-          />
-        </div>
-      </section>
+          <div className="px-3 pb-3 pt-4">
+            <LineChart
+              data={daily}
+              height={244}
+              formatValue={(n) => `${n} resource${n === 1 ? "" : "s"}`}
+              emptyMessage="Nothing generated in the last 7 days."
+            />
+          </div>
+        </section>
 
+        {/* A weekly highlight, built only from data already fetched for the panels beside
+            it -- no figure appears here that was not actually tallied. */}
+        <div className="hero-panel p-7 flex flex-col justify-between">
+          <div>
+            <svg className="w-6 h-5 mb-4 text-white/45" viewBox="0 0 26 20" fill="currentColor">
+              <path d="M0 20V11.4C0 4.8 4.2 0.6 10.8 0L11.6 3C7.4 3.8 5.2 6.4 5 10H10.8V20H0ZM15.2 20V11.4C15.2 4.8 19.4 0.6 26 0L26.8 3C22.6 3.8 20.4 6.4 20.2 10H26V20H15.2Z" />
+            </svg>
+            <p className="font-serif italic text-[19px] leading-snug text-white m-0">
+              {busiestDay
+                ? `${busiestDay.label} was your busiest day this week — ${busiestDay.value} resource${busiestDay.value === 1 ? "" : "s"} generated.`
+                : "Nothing generated yet this week — your busiest day will show up here once you do."}
+            </p>
+          </div>
+          {topSubject && (
+            <div className="mt-7 pt-5 border-t border-white/20">
+              <p className="text-[12px] text-white/65 mb-1">Most active subject</p>
+              <p className="text-[15px] font-bold text-white m-0">{topSubject}</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

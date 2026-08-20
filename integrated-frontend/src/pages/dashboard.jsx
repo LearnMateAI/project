@@ -11,7 +11,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { listDocuments } from "../api/documents.js";
 import { listResources, resourceLabel } from "../api/resources.js";
+import { useAuth } from "../context/useAuth.js";
 import DocumentsCard from "../components/DocumentsCard.jsx";
+
+const GREETINGS = [
+  [5, "Good night"],
+  [12, "Good morning"],
+  [17, "Good afternoon"],
+  [22, "Good evening"],
+];
+
+function greetingFor(hour) {
+  return (GREETINGS.find(([until]) => hour < until) || GREETINGS[0])[1];
+}
 
 const quickStart = [
   {
@@ -35,6 +47,7 @@ const quickStart = [
 ];
 
 function Dashboard() {
+  const { user } = useAuth();
   const [resources, setResources] = useState([]);
   const [documents, setDocuments] = useState([]);
 
@@ -74,8 +87,19 @@ function Dashboard() {
 
   const recent = resources.slice(0, 5);
 
+  const hour = new Date().getHours();
+
   return (
     <div>
+      <div className="mb-7">
+        <p className="page-eyebrow">
+          {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
+        </p>
+        <h1 className="font-serif text-[30px] font-semibold text-heading tracking-tight m-0">
+          {greetingFor(hour)}{user?.name ? `, ${user.name.split(" ")[0]}` : ""}.
+        </h1>
+      </div>
+
       {/* Quick start ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-4 mb-3">
         <h2 className="section-title mb-0">Quick start</h2>
@@ -84,9 +108,10 @@ function Dashboard() {
         </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-6">
-        {quickStart.map((action) => (
-          <Link key={action.to} to={action.to} className="card card-hover p-4 flex items-center gap-4 no-underline">
+      <div className="card overflow-hidden mb-6">
+        {quickStart.map((action, i) => (
+          <Link key={action.to} to={action.to} className="index-row hover:bg-surface-alt/60 transition-colors no-underline">
+            <span className="index-num">0{i + 1}</span>
             <span className="icon-tile">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={action.icon} />

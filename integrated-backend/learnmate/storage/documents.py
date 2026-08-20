@@ -155,6 +155,7 @@ def delete_document(doc_id: Union[str, ObjectId]) -> bool:
     database = get_db()
     database[config.COLL_CHUNKS].delete_many({"doc_id": document["_id"]})
     database[config.COLL_PAGES].delete_many({"doc_id": document["_id"]})
+    database[config.COLL_BM25].delete_many({"doc_id": document["_id"]})
     pdf_files.drop(document.get("gridfs_id"))
     database[config.COLL_DOCUMENTS].delete_one({"_id": document["_id"]})
     return True

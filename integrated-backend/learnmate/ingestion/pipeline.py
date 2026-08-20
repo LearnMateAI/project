@@ -132,6 +132,8 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
             # happens when a filter is tightened and pages start being dropped.
             store.delete(doc_id=doc_id)
             pdf_store.delete_pages(doc_id)
+            from ..storage import bm25_store
+            bm25_store.delete_for(doc_id)
 
         # --- Store the readable text --------------------------------------------------
         # Chunks are shaped for retrieval; resource generation wants the page as it reads.
@@ -143,6 +145,8 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
         # --- Embed --------------------------------------------------------------------
         log(f"[*] Embedding {len(documents)} chunks into {store.describe_backend()}...")
         store.add_documents(documents)
+        from ..storage import bm25_store
+        bm25_store.index_documents(doc_id, documents)
         # Also flips the status to Ready.
         pdf_store.mark_ingested(doc_id, len(pages), len(documents))
     except Exception as exc:

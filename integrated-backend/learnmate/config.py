@@ -393,3 +393,21 @@ MAX_HISTORY_TURNS = _env_int("LEARNMATE_MAX_HISTORY_TURNS", 6)
 MAX_SOURCE_CHARS = _env_int("LEARNMATE_MAX_SOURCE_CHARS", 6000)
 
 HF_TOKEN = _env("HF_TOKEN", "") or None
+
+# --- Feature adders (additive; env-off restores prior behaviour) ----------------------
+
+# Hybrid retrieve: ANN (as today) plus BM25, merged before the existing reranker.
+# Default on for this branch. Set LEARNMATE_HYBRID_BM25=0 to restore ANN-only.
+HYBRID_BM25 = _env_bool("LEARNMATE_HYBRID_BM25", True)
+BM25_ANN_KEEP = _env_int("LEARNMATE_BM25_ANN_KEEP", 15)
+BM25_TOP_K = _env_int("LEARNMATE_BM25_TOP_K", 10)
+
+# Per-document BM25 corpus (chunk text), stored in Mongo alongside pages/chunks.
+COLL_BM25 = "bm25_chunks"
+
+# Selectable generators. LEARNMATE_GENERATOR_MODEL remains the fallback when model_id
+# is omitted. A failed-gate LoRA may be listed as experimental; it must not be default.
+MODELS_REGISTRY_PATH = Path(_env(
+    "LEARNMATE_MODELS_REGISTRY",
+    str(PACKAGE_DIR / "models_registry.yaml"),
+))

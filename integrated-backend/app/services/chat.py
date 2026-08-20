@@ -59,6 +59,8 @@ def _serialize_turn(turn: Dict) -> Dict:
         "accepted": meta.get("accepted"),
         "attempts": meta.get("attempts"),
         "pages": meta.get("pages", []),
+        "model_id": meta.get("model_id"),
+        "retrieval_mix": meta.get("retrieval_mix"),
         "created_at": created_at.isoformat() if created_at else None,
     }
 
@@ -103,7 +105,8 @@ def get_messages(user_id: str, session_id: str) -> List[Dict]:
 
 
 def send_message(user_id: str, session_id: str, message: str, evaluate: bool = True,
-                 on_progress=None, on_token=None, on_reply=None) -> Dict:
+                 on_progress=None, on_token=None, on_reply=None,
+                 model_id: str = None) -> Dict:
     """
     Handle one turn end to end. Slow: 30-60 seconds on the local backend.
 
@@ -135,6 +138,7 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         on_progress=on_progress,
         on_token=on_token,
         on_reply=on_reply,
+        model_id=model_id,
     )
 
     result = agent.ask(message)
@@ -155,6 +159,8 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         "score": (result.get("verdict") or {}).get("score"),
         "reasoning": (result.get("verdict") or {}).get("reasoning"),
         "attempts": len(result.get("attempts", [])),
+        "model_id": model_id,
+        "retrieval_mix": result.get("retrieval_mix"),
         "contexts": [
             {
                 "page_number": document.metadata.get("page_number"),

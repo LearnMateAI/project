@@ -16,6 +16,6 @@ place it is supposed to live.
 Every endpoint except register and login depends on `get_current_user`.
 """
 
-from . import analytics, auth, chat, documents, jobs, resources
+from . import analytics, auth, chat, documents, jobs, models, resources
 
-__all__ = ["analytics", "auth", "chat", "documents", "jobs", "resources"]
+__all__ = ["analytics", "auth", "chat", "documents", "jobs", "models", "resources"]

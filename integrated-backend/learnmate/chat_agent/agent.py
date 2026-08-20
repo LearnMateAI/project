@@ -25,7 +25,8 @@ class ChatAgent:
 
     def __init__(self, session_id: str = None, doc_id=None, threshold: int = None,
                  max_attempts: int = None, evaluate: bool = True, verbose: bool = True,
-                 user_id: str = None, on_progress=None, on_token=None, on_reply=None):
+                 user_id: str = None, on_progress=None, on_token=None, on_reply=None,
+                 model_id: str = None):
         # A generated id gives an anonymous CLI session somewhere to store history,
         # without the caller having to invent one.
         self.session_id = session_id or f"cli-{uuid.uuid4().hex[:12]}"
@@ -49,6 +50,7 @@ class ChatAgent:
         # seen it. What it buys a caller is the difference between a reader waiting for the
         # turn to end and a reader who already has the answer. See helpers._emit_reply.
         self.on_reply = on_reply
+        self.model_id = model_id
 
     def ask(self, query: str) -> Dict:
         """
@@ -77,6 +79,7 @@ class ChatAgent:
             "on_progress": self.on_progress,
             "on_token": self.on_token,
             "on_reply": self.on_reply,
+            "model_id": self.model_id,
             "persist": True,
             "attempt": 0,
             "attempts": [],
@@ -101,6 +104,8 @@ class ChatAgent:
             "verdict": final.get("verdict"),
             "accepted": bool(final.get("passed")),
             "attempts": final.get("attempts", []),
+            "retrieval_mix": final.get("retrieval_mix"),
+            "model_id": self.model_id,
         }
 
     def history(self) -> List[Dict[str, str]]:

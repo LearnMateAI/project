@@ -17,18 +17,26 @@ The two models are deliberately different families. A judge sharing the generato
 weights rates its own output style highly, and the retry loop stops firing.
 """
 
-from typing import Optional
+from pathlib import Path
+import time
+from typing import Callable, Optional
 
 from .. import config
+from . import catalog
 from .download import ensure_gguf
 from .gemini import GeminiChatModel
 from .http_api import HttpChatModel
 from .llamacpp import LlamaCppChatModel
+from .runtime import unload_llama
 
 # Wrappers, not weights -- see runtime.py for the layer below this one. Keyed by role and
 # sampling settings, so asking for the generator at two temperatures makes two cheap
 # wrapper objects that share a single loaded model.
 _LLM_CACHE = {}
+
+# Which generator GGUF is currently resident. llama.cpp holds one mutable context per
+# file; switching model_id unloads this before loading the next.
+_LOADED_GENERATOR_PATH: Optional[str] = None
 
 
 def _build(role: str, backend: str, model: str, repo: str, filename: str,
@@ -84,22 +92,128 @@ def _build(role: str, backend: str, model: str, repo: str, filename: str,
     )
 
 
-def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 1024):
+def _norm_path(path: str) -> str:
+    try:
+        resolved = Path(path)
+        return str(resolved.resolve()) if resolved.exists() else str(resolved)
+    except Exception:
+        return str(path)
+
+
+def _drop_generator_wrappers() -> None:
+    for key in list(_LLM_CACHE):
+        if key[0] == "generator":
+            _LLM_CACHE.pop(key, None)
+
+
+def resolve_generator_settings(model_id: Optional[str] = None):
+    """
+    Backend settings for one generator request.
+
+    Omitted `model_id` uses LEARNMATE_GENERATOR_MODEL exactly as before. A named id must
+    exist in models_registry.yaml; experimental entries are allowed only when their GGUF
+    is actually on disk, and they never become the implicit default.
+    """
+    if not model_id:
+        return {
+            "id": None,
+            "backend": config.GENERATOR_BACKEND,
+            "model": config.GENERATOR_MODEL,
+            "repo": config.GENERATOR_REPO,
+            "filename": config.GENERATOR_FILE,
+            "chat_format": config.GENERATOR_CHAT_FORMAT,
+            "n_ctx": config.GENERATOR_N_CTX,
+            "api_url": config.GENERATOR_API_URL,
+            "api_key": config.GENERATOR_API_KEY,
+        }
+
+    entry = catalog.get_entry(model_id)
+    if entry is None:
+        raise ValueError(
+            f"Unknown model_id {model_id!r}. GET /api/models lists the ones this server "
+            "can load."
+        )
+    if not entry.get("available"):
+        raise ValueError(
+            f"Model {model_id!r} ({entry.get('display_name')}) is listed but its GGUF is "
+            f"not on disk at {entry.get('resolved_path')}. Build or copy the file first."
+        )
+    return {
+        "id": entry["id"],
+        "backend": "llamacpp",
+        "model": entry["resolved_path"],
+        "repo": "",
+        "filename": "",
+        "chat_format": entry.get("chat_format") or "",
+        "n_ctx": int(entry.get("context_length") or config.GENERATOR_N_CTX),
+        "api_url": config.GENERATOR_API_URL,
+        "api_key": config.GENERATOR_API_KEY,
+        "experimental": bool(entry.get("experimental")),
+        "display_name": entry.get("display_name"),
+    }
+
+
+def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 1024,
+                      model_id: Optional[str] = None,
+                      on_progress: Optional[Callable[[str], None]] = None):
     """
     The model that writes chat replies and study resources.
 
     Warmer than the judge on purpose: at temperature 0 a regeneration returns almost
     exactly the attempt that was just rejected, which defeats the retry loop.
+
+    `model_id` selects a registry entry. Switching GGUFs unloads the previous generator
+    (the judge stays loaded) and reports the reload delay via `on_progress`.
     """
+    global _LOADED_GENERATOR_PATH
+
     temp = 0.7 if temperature is None else temperature
-    key = ("generator", temp, max_tokens)
+    settings = resolve_generator_settings(model_id)
+    model_path = _norm_path(settings["model"])
+    loaded = _norm_path(_LOADED_GENERATOR_PATH) if _LOADED_GENERATOR_PATH else None
+    key = ("generator", model_path, temp, max_tokens)
+
+    if (settings["backend"] == "llamacpp"
+            and loaded
+            and loaded != model_path):
+        label = settings.get("display_name") or model_id or model_path
+        message = f"Loading generator ({label}) — this can take several seconds..."
+        if on_progress:
+            try:
+                on_progress(message)
+            except Exception:
+                pass
+        print(f"[*] {message}")
+        started = time.time()
+        _drop_generator_wrappers()
+        unload_llama(_LOADED_GENERATOR_PATH)
+        _LOADED_GENERATOR_PATH = None
+        elapsed = round(time.time() - started, 1)
+        follow = f"Unloaded previous generator in {elapsed}s; loading the requested model."
+        if on_progress:
+            try:
+                on_progress(follow)
+            except Exception:
+                pass
+
     if key not in _LLM_CACHE:
+        started = time.time()
         _LLM_CACHE[key] = _build(
-            "generator", config.GENERATOR_BACKEND, config.GENERATOR_MODEL,
-            config.GENERATOR_REPO, config.GENERATOR_FILE, config.GENERATOR_CHAT_FORMAT,
-            config.GENERATOR_N_CTX, config.GENERATOR_API_URL, config.GENERATOR_API_KEY,
+            "generator", settings["backend"], model_path,
+            settings["repo"], settings["filename"], settings["chat_format"],
+            settings["n_ctx"], settings["api_url"], settings["api_key"],
             temp, max_tokens,
         )
+        if settings["backend"] == "llamacpp":
+            _LOADED_GENERATOR_PATH = model_path
+            elapsed = round(time.time() - started, 1)
+            if elapsed >= 1 and on_progress:
+                try:
+                    on_progress(f"Generator ready ({elapsed}s to load).")
+                except Exception:
+                    pass
+    elif settings["backend"] == "llamacpp":
+        _LOADED_GENERATOR_PATH = model_path
     return _LLM_CACHE[key]
 
 

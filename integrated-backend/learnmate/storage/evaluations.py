@@ -116,3 +116,38 @@ def stage_counts(user_id: str = None) -> Dict[str, int]:
         pipeline.append({"$match": {"user_id": str(user_id)}})
     pipeline.append({"$group": {"_id": "$stage", "n": {"$sum": 1}}})
     return {row["_id"]: row["n"] for row in _collection().aggregate(pipeline)}
+
+
+def evaluation_breakdown(user_id: str = None, group_by: str = "model_id") -> Dict:
+    """
+    Pass rates grouped by a field written onto the evaluation log (model_id, difficulty).
+
+    Missing values become "default" so older rows still count rather than disappearing.
+    """
+    if group_by not in ("model_id", "difficulty"):
+        group_by = "model_id"
+    match: Dict = {"stage": "judge", "score": {"$type": "number"}}
+    if user_id is not None:
+        match["user_id"] = str(user_id)
+    if group_by == "difficulty":
+        match["task"] = "mcq"
+
+    pipeline = [
+        {"$match": match},
+        {"$group": {
+            "_id": {"$ifNull": [f"${group_by}", "default"]},
+            "n": {"$sum": 1},
+            "passes": {"$sum": {"$cond": ["$passed", 1, 0]}},
+            "avg": {"$avg": "$score"},
+        }},
+        {"$sort": {"_id": 1}},
+    ]
+    out = {}
+    for row in _collection().aggregate(pipeline):
+        n = row["n"] or 1
+        out[str(row["_id"])] = {
+            "n": row["n"],
+            "pass_rate": round(row["passes"] / n, 3),
+            "mean": round(row["avg"], 1) if row.get("avg") is not None else None,
+        }
+    return out

@@ -71,7 +71,10 @@ def generate_node(state: ChatState) -> Dict:
         # Low but non-zero temperature: enough variation that a regeneration can differ
         # from the reply the judge just rejected, not so much that it drifts.
         pieces = []
-        for chunk in get_generator_llm().stream(messages, temperature=0.3, max_tokens=320, stop=["\n\nQuestion:", "\n\nUser:"]):
+        for chunk in get_generator_llm(
+            model_id=state.get("model_id"),
+            on_progress=lambda message: _log(state, message),
+        ).stream(messages, temperature=0.3, max_tokens=320, stop=["\n\nQuestion:", "\n\nUser:"]):
             text = chunk.content or ""
             if not text:
                 continue

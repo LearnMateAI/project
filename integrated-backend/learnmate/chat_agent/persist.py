@@ -104,6 +104,8 @@ def persist_node(state: ChatState) -> Dict:
             # of the turn, and it stays honest when an earlier attempt won.
             "attempts": len(state.get("attempts", [])),
             "pages": [doc.metadata.get("page_number") for doc in state.get("contexts") or []],
+            "model_id": state.get("model_id"),
+            "retrieval_mix": state.get("retrieval_mix"),
         })
 
     return selection

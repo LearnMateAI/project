@@ -36,8 +36,15 @@ function McqQuiz({ questions }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  const barStyle = questions.some((question) => question.difficulty === "hard");
+
   return (
     <div>
+      {barStyle && (
+        <p className="notice notice-info mb-4">
+          Bar-style (MBE) set — hard stems with near-miss distractors, still only from this source.
+        </p>
+      )}
       {submitted && (
         <div className="card p-5 mb-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">

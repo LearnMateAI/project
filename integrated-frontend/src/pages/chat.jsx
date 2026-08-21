@@ -143,7 +143,8 @@ function Chat() {
         query: result.query,
         standalone_query: result.standalone_query,
         contexts: result.contexts,
-        pages: (result.contexts || []).map((context) => context.page_number),
+                pages: (result.contexts || []).map((context) => context.page_number),
+                citations: result.citations,
       },
     ]);
     refreshSessions();
@@ -167,8 +168,8 @@ function Chat() {
   return (
     <div>
       <div className="page-header">
-        <h1>Chat</h1>
-        <p>Ask questions about a document and get answers that cite their pages</p>
+        <h1>Ask the record</h1>
+        <p>Answers cite the page and paragraph they were retrieved from</p>
       </div>
 
       {error && <p className="notice notice-error mb-4">{error}</p>}
@@ -185,7 +186,7 @@ function Chat() {
             </label>
             {documents.length === 0 ? (
               <p className="text-[12.5px] text-muted leading-relaxed">
-                No documents are ready yet. Upload one and wait for it to finish processing.
+                No sources are ready yet. File a PDF in the library and wait for it to finish processing.
               </p>
             ) : (
               <select
@@ -195,7 +196,7 @@ function Chat() {
                 disabled={starting}
                 className="select"
               >
-                <option value="">Choose a document...</option>
+                <option value="">Choose a source...</option>
                 {documents.map((doc) => (
                   <option key={doc.id} value={doc.id}>
                     {doc.filename}
@@ -278,7 +279,7 @@ function Chat() {
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Ask a question about this document..."
+                  placeholder="Ask a question — answers cite page and paragraph…"
                   disabled={job.isRunning}
                   className="input flex-1 rounded-full"
                 />

@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
 import { deleteResource, exportResource, getResource, resourceLabel } from "../../api/resources.js";
+import Flashcards from "../../components/Flashcards.jsx";
 import McqQuiz from "./McqQuiz.jsx";
 import PracticeQuestions from "./PracticeQuestions.jsx";
 
@@ -43,7 +44,7 @@ function SummaryBody({ content, style }) {
       .filter(Boolean);
     if (points.length >= 2) {
       return (
-        <ul className="card p-4 sm:p-7 space-y-3 list-none m-0">
+        <ul className="card p-4 sm:p-7 space-y-3 list-none m-0 paper">
           {points.map((point, index) => (
             <li key={index} className="flex gap-3 text-[14px] leading-relaxed text-body">
               <span className="shrink-0 w-6 h-6 rounded-lg bg-primary-light text-primary text-[11px] font-bold flex items-center justify-center mt-0.5">
@@ -59,7 +60,7 @@ function SummaryBody({ content, style }) {
     }
   }
   return (
-    <div className="card p-4 sm:p-7 whitespace-pre-wrap leading-[1.8] text-[14.5px] text-body">
+    <div className="card p-4 sm:p-7 whitespace-pre-wrap paper">
       <MarkdownText text={text} />
     </div>
   );
@@ -82,18 +83,7 @@ function Body({ resource }) {
   }
 
   if (type === "keypoints") {
-    return (
-      <ul className="card p-4 sm:p-7 space-y-3.5 list-none m-0">
-        {content.map((point, index) => (
-          <li key={index} className="flex gap-3 text-[14px] leading-relaxed text-body">
-            <span className="shrink-0 w-6 h-6 rounded-lg bg-primary-light text-primary text-[11px] font-bold flex items-center justify-center mt-0.5">
-              {index + 1}
-            </span>
-            {point}
-          </li>
-        ))}
-      </ul>
-    );
+    return <Flashcards points={content} />;
   }
 
   if (type === "mcq") return <McqQuiz questions={content} />;
@@ -172,7 +162,7 @@ function ResourceView() {
       <div className="max-w-lg">
         <p className="notice notice-error mb-4">{error || "Resource not found."}</p>
         <Link to="/resources" className="btn-secondary">
-          ← Back to Resources
+          ← Back to study materials
         </Link>
       </div>
     );
@@ -189,12 +179,12 @@ function ResourceView() {
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
-        Back to Resources
+        Back to study materials
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-1.5">
         <h1 className="text-2xl font-bold tracking-tight m-0">
-          {resourceLabel(resource.resource_type)}
+          {resourceLabel(resource.resource_type, params)}
         </h1>
         <div className="flex flex-wrap gap-2 shrink-0">
           <button

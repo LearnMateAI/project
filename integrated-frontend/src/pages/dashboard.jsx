@@ -16,21 +16,21 @@ import DocumentsCard from "../components/DocumentsCard.jsx";
 const quickStart = [
   {
     to: "/documents",
-    title: "Upload a document",
-    caption: "PDF · up to 10 MB",
+    title: "File a source",
+    caption: "Cases, statutes, outlines, briefs",
     icon: "M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5",
   },
   {
-    to: "/chat",
-    title: "Ask your documents",
-    caption: "Answers cite their pages",
-    icon: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155",
+    to: "/documents",
+    title: "Split-screen workspace",
+    caption: "PDF beside chat and MCQs",
+    icon: "M3.75 3.75v16.5h16.5V3.75H3.75zM12 3.75v16.5",
   },
   {
-    to: "/resources",
-    title: "Generate study material",
-    caption: "Summaries, key points, MCQs",
-    icon: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z",
+    to: "/chat",
+    title: "Ask the record",
+    caption: "Answers cite page and paragraph",
+    icon: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155",
   },
 ];
 
@@ -119,8 +119,7 @@ function Dashboard() {
 
             {recent.length === 0 ? (
               <p className="px-5 py-6 text-[13px] text-muted leading-relaxed">
-                Once a document is ready, open it from Documents and generate summaries, key
-                points, MCQs or practice questions.
+                Once a source is ready, open it from the library and generate an IRAC brief, flashcards, or bar-style MCQs beside the PDF.
               </p>
             ) : (
               <div>
@@ -128,7 +127,7 @@ function Dashboard() {
                   <Link key={resource.id} to={`/resources/${resource.id}`} className="list-row">
                     <span className="min-w-0">
                       <span className="block text-[13.5px] font-semibold text-heading truncate">
-                        {resourceLabel(resource.resource_type)}
+                        {resourceLabel(resource.resource_type, resource.params)}
                       </span>
                       {/* Which PDF it came from. Omitted rather than shown as a blank line
                           when the document has since been deleted and the id resolves to

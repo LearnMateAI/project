@@ -54,7 +54,7 @@ function Layout({ children }) {
         <main className="flex-1 overflow-y-auto bg-background px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
           {/* Keyed on the route so each navigation replays the entrance, rather than the
               first page fading in and every later one appearing instantly. */}
-          <div key={location.pathname} className="animate-fade-in max-w-[1400px] mx-auto">
+          <div key={location.pathname} className={`animate-fade-in mx-auto ${/^\/(documents|chat)/.test(location.pathname) ? "max-w-[1760px]" : "max-w-[1400px]"}`}>
             {children}
           </div>
         </main>

@@ -12,9 +12,9 @@ import { useTheme } from "../hooks/useTheme.js";
 
 const TITLES = [
   { match: /^\/dashboard/, title: "Dashboard" },
-  { match: /^\/documents/, title: "Documents" },
-  { match: /^\/resources/, title: "Resources" },
-  { match: /^\/chat/, title: "Chat" },
+  { match: /^\/documents/, title: "Library" },
+  { match: /^\/resources/, title: "Study materials" },
+  { match: /^\/chat/, title: "Ask the record" },
   { match: /^\/analytics/, title: "Analytics" },
   { match: /^\/home/, title: "Home" },
   { match: /^\/about/, title: "About" },

@@ -1,24 +1,20 @@
 /**
- * The document library: upload and list on the left, viewer and generation panel on the
- * right.
+ * The case library and split-screen workspace.
  *
- * Upload is the same DocumentsCard the dashboard uses rather than a second implementation
- * of it. It polls its own count and reports its own job progress, so the only wiring here
- * is refreshing the table once a file has finished processing.
- *
- * The one behaviour worth knowing: while any row is still `Processing`, the list re-polls
- * every few seconds and stops as soon as none are. Ingestion runs on the job queue, so a
- * row that says Processing becomes Ready on its own -- without this the user would be
- * pressing Refresh to find out, which is exactly the thing a status column is supposed to
- * save them from.
+ * Upload and the filing list stay on this route (`/documents` in the SRS). Selecting a
+ * source opens a workspace: the PDF (or cleaned text) on one side, generate / ask on the
+ * other, so a student does not tab away from a dense judgment to use the model.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
+import DocumentReader from "../components/DocumentReader.jsx";
 import DocumentsCard from "../components/DocumentsCard.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import ResourcesPanel from "../components/ResourcesPanel.jsx";
+import WorkspaceChat from "../components/WorkspaceChat.jsx";
+import { MATTER_TYPES, getMatterType, matterLabel, setMatterType } from "../lib/matterTypes.js";
 
 const POLL_MS = 3000;
 
@@ -42,6 +38,9 @@ function Documents() {
   const [selectedId, setSelectedId] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [viewerLoading, setViewerLoading] = useState(false);
+  const [matterFilter, setMatterFilter] = useState("");
+  const [workspaceTab, setWorkspaceTab] = useState("generate");
+  const [matterVersion, setMatterVersion] = useState(0);
   const pdfUrlRef = useRef(null);
 
   const fetchDocuments = useCallback(async ({ quiet = false } = {}) => {
@@ -51,7 +50,7 @@ function Documents() {
       setDocuments(res.data);
       setError("");
     } catch (err) {
-      setError(errorMessage(err, "Could not load documents."));
+      setError(errorMessage(err, "Could not load your library."));
     } finally {
       if (!quiet) setLoading(false);
     }
@@ -64,7 +63,6 @@ function Documents() {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  // Re-poll only while something is actually in flight, and stop the moment it is not.
   const anyProcessing = documents.some(
     (doc) => doc.processing_status === "Processing" || doc.processing_status === "Uploaded",
   );
@@ -75,9 +73,6 @@ function Documents() {
     return () => clearInterval(timer);
   }, [anyProcessing, fetchDocuments]);
 
-  // One object URL alive at a time, revoked when it is replaced and on unmount. Blob URLs
-  // hold the whole PDF in memory until revoked, and clicking through ten documents would
-  // otherwise keep all ten.
   useEffect(
     () => () => {
       if (pdfUrlRef.current) URL.revokeObjectURL(pdfUrlRef.current);
@@ -86,10 +81,14 @@ function Documents() {
   );
 
   const selected = documents.find((doc) => doc.id === selectedId) || null;
+  const visible = matterFilter
+    ? documents.filter((doc) => getMatterType(doc.id) === matterFilter)
+    : documents;
 
   async function handleSelect(doc) {
     setSelectedId(doc.id);
     setNotice("");
+    setWorkspaceTab("generate");
 
     if (pdfUrlRef.current) {
       URL.revokeObjectURL(pdfUrlRef.current);
@@ -111,16 +110,14 @@ function Documents() {
   }
 
   async function handleDelete(doc) {
-    if (!window.confirm(`Remove "${doc.filename}" from your documents?`)) return;
+    if (!window.confirm(`Remove "${doc.filename}" from your library?`)) return;
     try {
       const res = await deleteDocument(doc.id);
-      // `purged: false` means somebody else uploaded the same file. Worth saying, because
-      // "deleted" and "removed from your list" are different things and the second one is
-      // what actually happened.
+      setMatterType(doc.id, "");
       setNotice(
         res.data.purged
           ? `"${doc.filename}" was deleted.`
-          : `"${doc.filename}" was removed from your documents. The file itself is kept because another account also has it.`,
+          : `"${doc.filename}" was removed from your library. The file itself is kept because another account also has it.`,
       );
       if (selectedId === doc.id) {
         setSelectedId(null);
@@ -132,17 +129,22 @@ function Documents() {
     }
   }
 
+  function handleMatterChange(docId, kind) {
+    setMatterType(docId, kind);
+    setMatterVersion((value) => value + 1);
+  }
+
   const readyCount = documents.filter((doc) => doc.processing_status === "Ready").length;
 
   return (
     <div>
       <div className="flex flex-wrap justify-between items-end gap-3 mb-5">
         <div className="page-header mb-0">
-          <h1>Your Documents</h1>
+          <h1>Library</h1>
           <p>
             {documents.length === 0
-              ? "Upload a PDF to build your study library"
-              : `${documents.length} uploaded · ${readyCount} ready to use`}
+              ? "File a PDF — cases, statutes, outlines, or briefs"
+              : `${documents.length} filed · ${readyCount} ready`}
           </p>
         </div>
         <button onClick={() => fetchDocuments()} className="btn-secondary">
@@ -156,17 +158,99 @@ function Documents() {
       {error && <p className="notice notice-error mb-4">{error}</p>}
       {notice && <p className="notice notice-info mb-4">{notice}</p>}
 
-      <div className="grid gap-5 xl:grid-cols-2 items-start">
-        {/* Left column: the documents you have, and the way to add another. Upload sits
-            above the table it feeds, so a new row appears directly under the control that
-            created it. The right column is for working with whichever one is selected, and
-            keeping the two apart stops an upload card shifting the preview down the page. */}
-        <div className="space-y-5">
-          <DocumentsCard onUploaded={() => fetchDocuments({ quiet: true })} />
+      {selected ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="btn-secondary" onClick={() => setSelectedId(null)}>
+              ← Library
+            </button>
+            <select
+              className="select w-auto min-w-[14rem]"
+              value={selected.id}
+              onChange={(e) => {
+                const next = documents.find((doc) => doc.id === e.target.value);
+                if (next) handleSelect(next);
+              }}
+              aria-label="Switch source"
+            >
+              {documents.map((doc) => (
+                <option key={doc.id} value={doc.id}>
+                  {doc.filename}
+                </option>
+              ))}
+            </select>
+            <select
+              className="select w-auto"
+              value={getMatterType(selected.id)}
+              onChange={(e) => handleMatterChange(selected.id, e.target.value)}
+              aria-label="Matter type"
+            >
+              <option value="">Unfiled</option>
+              {MATTER_TYPES.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.singular}
+                </option>
+              ))}
+            </select>
+            <span className="badge badge-gray">
+              {selected.page_count ? `${selected.page_count} pages` : "PDF"}
+            </span>
+          </div>
+
+          <div className="workspace-split">
+            <DocumentReader
+              documentId={selected.id}
+              filename={selected.filename}
+              pdfUrl={pdfUrl}
+              loading={viewerLoading}
+            />
+
+            <div className="workspace-pane">
+              <div className="tab-bar">
+                <button
+                  type="button"
+                  className={`tab-btn ${workspaceTab === "generate" ? "is-active" : ""}`}
+                  onClick={() => setWorkspaceTab("generate")}
+                >
+                  Study material
+                </button>
+                <button
+                  type="button"
+                  className={`tab-btn ${workspaceTab === "ask" ? "is-active" : ""}`}
+                  onClick={() => setWorkspaceTab("ask")}
+                >
+                  Ask the record
+                </button>
+              </div>
+              <div className="workspace-pane-body">
+                <div hidden={workspaceTab !== "generate"} className={workspaceTab === "generate" ? "" : "hidden"}>
+                  <div className="p-3">
+                    <ResourcesPanel
+                      documentId={selected.id}
+                      documentStatus={selected.processing_status}
+                      pageCount={selected.page_count}
+                    />
+                  </div>
+                </div>
+                <div hidden={workspaceTab !== "ask"} className={workspaceTab === "ask" ? "h-full" : "hidden"}>
+                  <WorkspaceChat
+                    documentId={selected.id}
+                    ready={selected.processing_status === "Ready"}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-5 xl:grid-cols-2 items-start">
+          <div className="space-y-5">
+            <DocumentsCard onUploaded={() => fetchDocuments({ quiet: true })} />
+          </div>
 
           <section className="card overflow-hidden">
             <div className="card-head">
-              <h2>Library</h2>
+              <h2>Filed sources</h2>
               {anyProcessing && (
                 <span className="badge badge-blue">
                   <span className="spinner w-3 h-3" />
@@ -175,12 +259,36 @@ function Documents() {
               )}
             </div>
 
+            <div className="px-4 pt-3 chip-row">
+              <button
+                type="button"
+                className={`cite ${!matterFilter ? "cite-page" : ""}`}
+                onClick={() => setMatterFilter("")}
+              >
+                All
+              </button>
+              {MATTER_TYPES.map((entry) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  className={`cite ${matterFilter === entry.id ? "cite-page" : ""}`}
+                  onClick={() => setMatterFilter(entry.id)}
+                >
+                  {entry.label}
+                </button>
+              ))}
+            </div>
+
             <div className="overflow-x-auto">
               {loading ? (
-                <p className="px-5 py-6 text-[13px] text-muted">Loading documents...</p>
-              ) : documents.length === 0 ? (
+                <p className="px-5 py-6 text-[13px] text-muted">Loading library...</p>
+              ) : visible.length === 0 ? (
                 <EmptyState
-                  body="No documents yet — upload a PDF above to get started."
+                  body={
+                    documents.length === 0
+                      ? "No sources yet — file a PDF to the left to get started."
+                      : "Nothing filed under this type yet."
+                  }
                   action={null}
                 />
               ) : (
@@ -188,6 +296,7 @@ function Documents() {
                   <thead>
                     <tr>
                       <th>Filename</th>
+                      <th>Type</th>
                       <th>Subject</th>
                       <th className="num">Pages</th>
                       <th className="num">Size</th>
@@ -196,7 +305,7 @@ function Documents() {
                     </tr>
                   </thead>
                   <tbody>
-                    {documents.map((doc) => (
+                    {visible.map((doc) => (
                       <tr
                         key={doc.id}
                         onClick={() => handleSelect(doc)}
@@ -204,6 +313,9 @@ function Documents() {
                       >
                         <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
                           {doc.filename}
+                        </td>
+                        <td className="text-muted whitespace-nowrap">
+                          {matterLabel(getMatterType(doc.id))}
                         </td>
                         <td className="text-muted whitespace-nowrap">{doc.subject}</td>
                         <td className="num">{doc.page_count ?? "—"}</td>
@@ -235,8 +347,6 @@ function Documents() {
               )}
             </div>
 
-            {/* A failed ingest has a reason, and it is usually actionable -- a scanned PDF
-                needs OCR, an encrypted one needs an unprotected copy. Surface it. */}
             {documents
               .filter((doc) => doc.processing_status === "Failed Processing" && doc.processing_error)
               .map((doc) => (
@@ -246,49 +356,9 @@ function Documents() {
               ))}
           </section>
         </div>
-
-        <div className="space-y-5">
-          <section className="card overflow-hidden">
-            <div className="card-head">
-              <h2 className="truncate">{selected ? selected.filename : "Preview"}</h2>
-              {selected && (
-                <span className="badge badge-gray shrink-0">
-                  {selected.page_count ? `${selected.page_count} pages` : "PDF"}
-                </span>
-              )}
-            </div>
-            <div className="p-4">
-              {!selected ? (
-                <div className="h-[420px] rounded-xl border border-dashed border-border flex flex-col items-center justify-center gap-2 text-center px-6">
-                  <svg className="w-8 h-8 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.4}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                  </svg>
-                  <p className="text-[13px] text-muted m-0">Select a document to read it here.</p>
-                </div>
-              ) : viewerLoading ? (
-                <div className="h-[420px] flex items-center justify-center gap-2.5 text-[13px] text-muted">
-                  <span className="spinner" />
-                  Loading preview...
-                </div>
-              ) : pdfUrl ? (
-                <iframe
-                  src={pdfUrl}
-                  title={selected.filename}
-                  className="w-full h-[520px] rounded-xl border border-border"
-                />
-              ) : null}
-            </div>
-          </section>
-
-          {selected && (
-            <ResourcesPanel
-              documentId={selected.id}
-              documentStatus={selected.processing_status}
-              pageCount={selected.page_count}
-            />
-          )}
-        </div>
-      </div>
+      )}
+      {/* matterVersion forces the type column to refresh after a localStorage write. */}
+      <span className="sr-only" aria-hidden="true">{matterVersion}</span>
     </div>
   );
 }

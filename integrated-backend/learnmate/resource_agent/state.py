@@ -36,6 +36,8 @@ class ResourceState(TypedDict, total=False):
     summary_style: Optional[str]
     difficulty: Optional[str]
     model_id: Optional[str]
+    topic: Optional[str]
+    timings: Optional[Dict]
 
     # --- Written by generate ----------------------------------------------------------
     attempt: int         # 1-based counter of generations so far

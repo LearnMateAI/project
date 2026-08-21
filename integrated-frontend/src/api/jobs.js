@@ -61,9 +61,9 @@ const sleep = (ms, signal) =>
  * AbortError when `signal` fires, so a component that unmounts mid-generation stops
  * polling instead of setting state on a dead tree.
  *
- * There is no timeout here on purpose: a whole-document run legitimately takes many
- * minutes, and a client-side cutoff would report a failure for something that is still
- * working perfectly well. The caller can pass a signal if it wants to give up.
+ * There is no client timeout here on purpose: a whole-document run legitimately takes
+ * many minutes. The server may still fail the job with error_code=timeout when
+ * LEARNMATE_JOB_TIMEOUT_S is set. The caller can pass a signal if it wants to give up.
  */
 export async function waitForJob(jobId, { onProgress, signal } = {}) {
   let lastMessage;
@@ -101,7 +101,9 @@ export async function waitForJob(jobId, { onProgress, signal } = {}) {
 
     if (job.status === "done") return job.result;
     if (job.status === "failed") {
-      throw new Error(job.error || "The job failed.");
+      const err = new Error(job.error || "The job failed.");
+      err.errorCode = job.error_code || "unknown";
+      throw err;
     }
 
     // A job that is streaming an answer is polled at the fast rate for as long as it

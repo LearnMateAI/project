@@ -72,7 +72,8 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
                        persist: bool = True, verbose: bool = True,
                        max_chars: int = None, user_id: str = None,
                        on_progress=None, summary_style: str = None,
-                       model_id: str = None, difficulty: str = None) -> Dict:
+                       model_id: str = None, difficulty: str = None,
+                       topic: str = None) -> Dict:
     """
     Summarise every page of a document and combine them into one comprehensive summary.
 
@@ -152,7 +153,7 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
         "summary", "\n\n".join(notes)[:budget], count=sentences, doc_id=doc_id,
         threshold=threshold, max_attempts=max_attempts, evaluate=evaluate,
         persist=persist, verbose=verbose, user_id=user_id, on_progress=on_progress,
-        summary_style=summary_style, model_id=model_id)
+        summary_style=summary_style, model_id=model_id, topic=topic)
 
     result["pages"] = pages
     return result

@@ -52,6 +52,7 @@ class ChatState(TypedDict, total=False):
                                     #   the point at which there is something worth reading
     model_id: Optional[str]         # optional registry id; omitted uses .env default
     retrieval_mix: Optional[Dict]   # ANN / BM25 / both counts from hybrid retrieve
+    timings: Optional[Dict]         # rewrite_ms / retrieve_ms / generate_ms / judge_ms / model_load_ms
 
     # --- Written by rewrite ----------------------------------------------------------
     standalone_query: str           # the query with pronouns resolved; what we embed

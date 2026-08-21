@@ -16,6 +16,11 @@ from .ids import as_object_id
 from .mongo import get_db
 
 
+# In-process Okapi index, keyed by str(doc_id). Rebuilding from chunk text on every
+# retrieve was wasted work; ingest (index_documents / delete_for) drops the entry.
+_OKAPI_CACHE = {}
+
+
 def _collection():
     return get_db()[config.COLL_BM25]
 
@@ -28,6 +33,7 @@ def delete_for(doc_id) -> None:
     oid = as_object_id(doc_id)
     if oid is None:
         return
+    invalidate_cache(oid)
     _collection().delete_many({"doc_id": oid})
 
 
@@ -100,3 +106,34 @@ def ensure_index(doc_id) -> List[Document]:
         index_documents(doc_id, borrowed)
         return load_documents(doc_id)
     return []
+
+
+def invalidate_cache(doc_id) -> None:
+    """Drop the in-memory Okapi index so the next retrieve rebuilds from Mongo."""
+    if doc_id is None:
+        return
+    _OKAPI_CACHE.pop(str(as_object_id(doc_id) or doc_id), None)
+    _OKAPI_CACHE.pop(str(doc_id), None)
+
+
+def get_okapi(doc_id):
+    """
+    Cached (BM25Okapi, documents) for this PDF, or (None, []).
+
+    Documents are word-tokenised once. Passing raw strings into BM25Okapi treated each
+    character as a term, so lexical hits almost never matched the query tokens.
+    """
+    oid = as_object_id(doc_id)
+    key = str(oid or doc_id)
+    hit = _OKAPI_CACHE.get(key)
+    if hit is not None:
+        return hit
+    docs = ensure_index(doc_id)
+    if not docs:
+        return None, []
+    from ..retrieval.bm25 import BM25Okapi, tokenize
+
+    index = BM25Okapi([tokenize(doc.page_content) for doc in docs])
+    pair = (index, docs)
+    _OKAPI_CACHE[key] = pair
+    return pair

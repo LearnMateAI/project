@@ -20,6 +20,8 @@ from typing import Dict
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_generator_llm, parse_json_reply
+from ..llm.registry import consume_generator_load_ms
+from ..runtime_limits import JobTimeout, add_timing
 from ..storage import content_store
 from .helpers import _log, revision_block
 from .mcq import resolve_difficulty
@@ -46,6 +48,14 @@ def generate_node(state: ResourceState) -> Dict:
     _log(state, f"[*] Generating {task.name} (attempt {attempt}/{state['max_attempts']})...")
 
     prompt = _prompt_for(task, state)
+    topic = (state.get("topic") or "").lower()
+    if task.name == "summary" and "irac" in topic:
+        prompt += (
+            "\n\nOrganise the points as an IRAC case brief, using these leads in order "
+            "when the passage supports them: **Issue**, **Rule**, **Application**, "
+            "**Conclusion**. Only include a heading the passage actually supports. "
+            "Do not invent facts."
+        )
     if state.get("critique"):
         prompt += revision_block(task, state["critique"], state.get("previous"))
 
@@ -55,6 +65,7 @@ def generate_node(state: ResourceState) -> Dict:
     ]
 
     started = time.time()
+    clock = time.perf_counter()
     try:
         reply = get_generator_llm(
             model_id=state.get("model_id"),
@@ -67,8 +78,14 @@ def generate_node(state: ResourceState) -> Dict:
             for item in content:
                 if isinstance(item, dict):
                     item.setdefault("difficulty", tier)
+        timings = add_timing(state, "generate_ms", clock)
+        load_ms = consume_generator_load_ms()
+        if load_ms:
+            timings["model_load_ms"] = timings.get("model_load_ms", 0) + load_ms
         return {"attempt": attempt, "content": content, "started": started,
-                "stage": "generated"}
+                "stage": "generated", "timings": timings}
+    except JobTimeout:
+        raise
     except Exception as exc:
         # Unparseable or failed output is a failed attempt, not a crash: record it and
         # let `decide` retry with the parse failure as the critique. Logged with
@@ -90,4 +107,5 @@ def generate_node(state: ResourceState) -> Dict:
             "previous": None,
             "attempts": [{"attempt": attempt, "stage": "parse", "passed": False,
                           "score": None, "reasons": [str(exc)[:300]], "content": None}],
+            "timings": add_timing(state, "generate_ms", clock),
         }

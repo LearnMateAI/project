@@ -38,6 +38,18 @@ _LLM_CACHE = {}
 # file; switching model_id unloads this before loading the next.
 _LOADED_GENERATOR_PATH: Optional[str] = None
 
+# Milliseconds spent on the most recent generator unload and/or cold load. generate_node
+# consumes this once so a cache hit is not counted as load time on the next attempt.
+_LAST_GENERATOR_LOAD_MS = 0
+
+
+def consume_generator_load_ms() -> int:
+    """Return and clear the last generator unload+load cost, in milliseconds."""
+    global _LAST_GENERATOR_LOAD_MS
+    ms = _LAST_GENERATOR_LOAD_MS
+    _LAST_GENERATOR_LOAD_MS = 0
+    return ms
+
 
 def _build(role: str, backend: str, model: str, repo: str, filename: str,
            chat_format: str, n_ctx: int, api_url: str, api_key: str,
@@ -165,9 +177,10 @@ def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 102
     `model_id` selects a registry entry. Switching GGUFs unloads the previous generator
     (the judge stays loaded) and reports the reload delay via `on_progress`.
     """
-    global _LOADED_GENERATOR_PATH
+    global _LOADED_GENERATOR_PATH, _LAST_GENERATOR_LOAD_MS
 
     temp = 0.7 if temperature is None else temperature
+    load_started = None
     settings = resolve_generator_settings(model_id)
     model_path = _norm_path(settings["model"])
     loaded = _norm_path(_LOADED_GENERATOR_PATH) if _LOADED_GENERATOR_PATH else None
@@ -184,6 +197,7 @@ def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 102
             except Exception:
                 pass
         print(f"[*] {message}")
+        load_started = time.perf_counter()
         started = time.time()
         _drop_generator_wrappers()
         unload_llama(_LOADED_GENERATOR_PATH)
@@ -197,6 +211,8 @@ def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 102
                 pass
 
     if key not in _LLM_CACHE:
+        if load_started is None:
+            load_started = time.perf_counter()
         started = time.time()
         _LLM_CACHE[key] = _build(
             "generator", settings["backend"], model_path,
@@ -212,8 +228,11 @@ def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 102
                     on_progress(f"Generator ready ({elapsed}s to load).")
                 except Exception:
                     pass
+        _LAST_GENERATOR_LOAD_MS = int((time.perf_counter() - load_started) * 1000)
     elif settings["backend"] == "llamacpp":
         _LOADED_GENERATOR_PATH = model_path
+        if load_started is not None:
+            _LAST_GENERATOR_LOAD_MS = int((time.perf_counter() - load_started) * 1000)
     return _LLM_CACHE[key]
 
 

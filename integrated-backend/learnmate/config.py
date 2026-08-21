@@ -385,6 +385,11 @@ JUDGE_GATE_MODES = frozenset(
 # judge tends to oscillate rather than converge over more rounds.
 MAX_ATTEMPTS = _env_int("LEARNMATE_MAX_ATTEMPTS", 2)
 
+# Cooperative job ceiling, in seconds. 0 leaves jobs unbounded -- whole-document
+# generation is allowed to take minutes. When set, the worker raises JobTimeout between
+# graph nodes (not mid-token) and records error_code=timeout.
+JOB_TIMEOUT_S = _env_int("LEARNMATE_JOB_TIMEOUT_S", 0)
+
 # Rolling chat history depth, in user+assistant pairs.
 MAX_HISTORY_TURNS = _env_int("LEARNMATE_MAX_HISTORY_TURNS", 6)
 

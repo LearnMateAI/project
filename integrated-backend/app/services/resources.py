@@ -133,6 +133,7 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
         "summary_style": summary_style,
         "difficulty": difficulty,
         "model_id": model_id,
+        "topic": topic,
     }
 
     if scope == "document":
@@ -172,7 +173,7 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
     detail = serialize_detail(stored)
     # Reported by the whole-document paths: how many were asked for versus produced,
     # which is the difference between "the document is short" and "something went wrong".
-    for key in ("requested", "generated", "groups", "per_page"):
+    for key in ("requested", "generated", "groups", "per_page", "timings"):
         if key in result:
             detail[key] = result[key]
     return detail

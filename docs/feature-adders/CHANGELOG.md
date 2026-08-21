@@ -15,6 +15,18 @@ Tier 3 items have a before/after eval note.
 | BM25 hybrid retrieve | Additive: ANN top 20, BM25 top 10, merge, **existing** reranker. Logged as `ann` / `bm25` / `both` | ingest sidecar + `retrieve.py` |
 | Multi-model | Registry + optional `model_id`; one llama.cpp generator at a time; unload/reload; experimental LoRA labelled, not default | `models_registry.yaml`, `GET /api/models` |
 
+## Latency, quality, failures (this pass)
+
+Full analysis: [LATENCY_QUALITY_FAILURES.md](LATENCY_QUALITY_FAILURES.md). Phase 2 code, still on this branch, no default-model change:
+
+| Item | Why |
+|------|-----|
+| Stage timings on chat / passage-resource jobs | `rewrite_ms`, `retrieve_ms`, `generate_ms`, `judge_ms`, `model_load_ms` on the result (and `progress.timings`); INFO log per turn |
+| Cached BM25Okapi per `doc_id` | Stop rebuilding on every retrieve; word-tokenise chunks; invalidate on ingest |
+| `error_code` on failed jobs | `storage` / `model` / `parse` / `timeout` / `interrupted` / `unknown`; frontend `errorMessage` branches |
+| `LEARNMATE_JOB_TIMEOUT_S` | Default 0 (off). When set, fail between graph nodes — does not abort llama.cpp mid-token |
+| Resource persist of best-scoring attempt | Same policy as chat; full attempt trail kept |
+
 ## Not a backdoor
 
 `legal-1.5b` is `experimental: true` and `selectable_default: false`. Default remains
@@ -23,9 +35,11 @@ Tier 3 items have a before/after eval note.
 ## Flags
 
 - `LEARNMATE_HYBRID_BM25=0` restores ANN-only retrieve.
+- `LEARNMATE_JOB_TIMEOUT_S=0` leaves jobs unbounded (whole-document runs).
 - Omit `model_id` / `summary_style` / `difficulty` → previous behaviour.
 
 ## Before merging to main
 
 1. BM25: inspect `retrieval_mix.rerank_kept` on chat turns — if BM25-only chunks are never kept, report that rather than assuming hybrid helped.
 2. Any newly selectable default: run `acceptance_thresholds.yaml` the same way as the ML track.
+

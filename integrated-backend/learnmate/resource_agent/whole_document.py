@@ -163,7 +163,7 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
                             verbose: bool = True, max_chars: int = None,
                             user_id: str = None, on_progress=None,
                             difficulty: str = None, model_id: str = None,
-                            summary_style: str = None) -> Dict:
+                            summary_style: str = None, topic: str = None) -> Dict:
     """
     Generate a list-shaped resource from across a whole document.
 
@@ -261,6 +261,7 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
             params={"count": requested, "per_page": per_page, "generated": len(items),
                     "groups": len(groups), "evaluated": evaluate, "whole_document": True,
                     "difficulty": difficulty, "model_id": model_id,
+                    "topic": topic,
                     "threshold": threshold if threshold is not None
                     else config.EVALUATOR_THRESHOLD})
         _log(progress, f"[+] Stored resource {resource_id}")

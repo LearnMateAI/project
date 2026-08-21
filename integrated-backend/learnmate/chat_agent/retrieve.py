@@ -23,13 +23,14 @@ and it costs nothing.
     standalone_query  -->  contexts, scores, mode, top_score
 """
 
+import time
 from typing import Dict, List, Tuple
 
 from langchain_core.documents import Document
 
 from .. import config
 from ..llm import rerank as reranker
-from ..retrieval.bm25 import BM25Okapi
+from ..runtime_limits import add_timing
 from ..storage import bm25_store
 from ..storage.vectors import get_vector_store
 from .helpers import _log
@@ -43,14 +44,13 @@ def _chunk_key(doc: Document) -> str:
 
 
 def _merge_hybrid(ann_hits: List[Tuple[Document, float]],
-                  bm25_docs: List[Document], query: str
+                  bm25_docs: List[Document], query: str, index
                   ) -> Tuple[List[Document], dict]:
     """
     Top 15 ANN + top 10 BM25, deduped by chunk_id. A chunk in both lists is kept once
     and tagged `both` — that is the signal later eval uses to see whether BM25 helped.
     """
     ann_keep = ann_hits[: config.BM25_ANN_KEEP]
-    index = BM25Okapi([doc.page_content for doc in bm25_docs])
     bm25_ranked = index.ranked(query, config.BM25_TOP_K)
 
     by_key = {}
@@ -107,9 +107,9 @@ def _search(query: str, doc_id) -> Tuple[List, List[float], float, str, dict]:
     )
     mix = None
     if config.HYBRID_BM25 and doc_id is not None:
-        bm25_docs = bm25_store.ensure_index(doc_id)
-        if bm25_docs:
-            hits, mix = _merge_hybrid(hits or [], bm25_docs, query)
+        index, bm25_docs = bm25_store.get_okapi(doc_id)
+        if index is not None and bm25_docs:
+            hits, mix = _merge_hybrid(hits or [], bm25_docs, query, index)
         # No sidecar and nothing to backfill: keep ANN-only rather than failing the turn.
 
     if not hits:
@@ -145,6 +145,7 @@ def _search(query: str, doc_id) -> Tuple[List, List[float], float, str, dict]:
 
 def retrieve_node(state: ChatState) -> Dict:
     """Retrieve context, rerank it, and decide the mode from the best score."""
+    started = time.perf_counter()
     # Fall back to the raw query if rewrite produced nothing -- see rewrite.py, which
     # returns the original query on failure.
     query = state.get("standalone_query") or state["query"]
@@ -155,16 +156,19 @@ def retrieve_node(state: ChatState) -> Dict:
                  else config.RELEVANCE_THRESHOLD)
     grounded = bool(contexts) and top_score >= threshold
 
+    extra = {"retrieval_mix": mix}
+
     if mix:
         kept = {}
         for doc in contexts:
             src = (doc.metadata or {}).get("retrieval_source") or "ann"
             kept[src] = kept.get(src, 0) + 1
         mix = {**mix, "rerank_kept": kept}
+        extra["retrieval_mix"] = mix
         _log(state, f"[*] Retrieval mix ANN={mix['ann']} BM25={mix['bm25']} "
                     f"both={mix['both']}; reranker kept {kept}")
 
-    extra = {"retrieval_mix": mix}
+    extra["timings"] = add_timing(state, "retrieve_ms", started)
 
     if grounded:
         _log(state, f"[*] PDF mode ({basis} score {top_score:.4f} "

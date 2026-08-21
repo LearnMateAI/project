@@ -6,6 +6,7 @@ loads history, runs one pass of the graph per message, and flattens the final st
 a plain dict.
 """
 
+import logging
 import uuid
 from typing import Dict, List
 
@@ -13,6 +14,8 @@ from .. import config
 from ..storage import content_store
 from .graph import get_chat_graph
 from .state import ChatState
+
+logger = logging.getLogger("learnmate.chat")
 
 
 class ChatAgent:
@@ -90,6 +93,17 @@ class ChatAgent:
         # linear nodes -- a safety net in case `decide` ever fails to terminate.
         limit = 2 * self.max_attempts + 6
         final = get_chat_graph().invoke(initial, {"recursion_limit": limit})
+        timings = final.get("timings") or {}
+        logger.info(
+            "chat timings session=%s rewrite_ms=%s retrieve_ms=%s generate_ms=%s "
+            "judge_ms=%s model_load_ms=%s",
+            self.session_id,
+            timings.get("rewrite_ms"),
+            timings.get("retrieve_ms"),
+            timings.get("generate_ms"),
+            timings.get("judge_ms"),
+            timings.get("model_load_ms"),
+        )
 
         # Flatten the state into a stable return shape. Callers depend on these keys, so
         # they are listed explicitly rather than handing back the raw state dict.
@@ -106,6 +120,7 @@ class ChatAgent:
             "attempts": final.get("attempts", []),
             "retrieval_mix": final.get("retrieval_mix"),
             "model_id": self.model_id,
+            "timings": timings,
         }
 
     def history(self) -> List[Dict[str, str]]:

@@ -55,6 +55,8 @@ _DIFFICULTY_RULES = {
         "- Difficulty: HARD. Distractors are near-misses: a real fact from elsewhere in "
         "THIS passage, a subtly wrong number/date/section, or a commonly-confused related "
         "provision. A question may require combining two statements.\n"
+        "- Write in the style of a bar-exam (MBE) stem when the passage supports it: a "
+        "short fact pattern or statutory snippet, then a question of law.\n"
         "- A hard distractor must still be factually FALSE per the source — never make "
         "the question ambiguous or arguable."
     ),

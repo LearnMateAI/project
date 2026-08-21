@@ -7,10 +7,11 @@ The public entry point: generate one study resource end to end.
     generate_resource("mcq", source, count=5)
               |
               v
-    {task, content, accepted, verdict, attempts, resource_id}
+    {task, content, accepted, verdict, attempts, resource_id, timings}
 """
 
 from typing import Dict
+import logging
 
 from .. import config
 from .graph import get_resource_graph
@@ -19,13 +20,16 @@ from .state import ResourceState
 from .summary import resolve_summary_style
 from .tasks import get_task
 
+logger = logging.getLogger("learnmate.resource")
+
 
 def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
                       threshold: int = None, max_attempts: int = None,
                       evaluate: bool = True, persist: bool = True,
                       verbose: bool = True, user_id: str = None,
                       on_progress=None, summary_style: str = None,
-                      difficulty: str = None, model_id: str = None) -> Dict:
+                      difficulty: str = None, model_id: str = None,
+                      topic: str = None) -> Dict:
     """
     Generate one study resource end to end.
 
@@ -37,10 +41,10 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
     on_progress -- optional callable(message) called as each attempt starts, so a caller
                running this on a job queue can report what it is doing
 
-    Returns {task, content, accepted, verdict, attempts, resource_id}, where `content` is
-    the last attempt and `attempts` holds the whole trail in order. `accepted` is False
-    when the run ended on a rejection, and the content is returned anyway so the caller
-    can show it with a warning rather than nothing at all.
+    Returns {task, content, accepted, verdict, attempts, resource_id, timings}, where
+    `content` is the best-scoring attempt and `attempts` holds the whole trail in order.
+    `accepted` is False when the run ended on a rejection, and the content is returned
+    anyway so the caller can show it with a warning rather than nothing at all.
     """
     get_task(task)  # fail fast on an unknown task, before loading any model
 
@@ -66,12 +70,21 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
                          else None,
         "difficulty": resolve_difficulty(difficulty) if task == "mcq" else None,
         "model_id": model_id,
+        "topic": topic,
     }
 
     # The graph loops, so LangGraph's default recursion budget has to cover
     # attempts x (generate + check) plus persist.
     limit = 2 * initial["max_attempts"] + 4
     final = get_resource_graph().invoke(initial, {"recursion_limit": limit})
+    timings = final.get("timings") or {}
+    logger.info(
+        "resource timings task=%s generate_ms=%s judge_ms=%s model_load_ms=%s",
+        task,
+        timings.get("generate_ms"),
+        timings.get("judge_ms"),
+        timings.get("model_load_ms"),
+    )
 
     return {
         "task": task,
@@ -80,4 +93,5 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
         "verdict": final.get("verdict"),
         "attempts": final.get("attempts", []),
         "resource_id": final.get("resource_id"),
+        "timings": timings,
     }

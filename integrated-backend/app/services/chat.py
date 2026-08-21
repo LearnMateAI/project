@@ -50,6 +50,13 @@ def _serialize_turn(turn: Dict) -> Dict:
     """
     created_at = turn.get("created_at")
     meta = turn.get("meta") or {}
+    citations = meta.get("citations")
+    if not citations:
+        citations = [
+            {"page": page, "paragraph": None}
+            for page in (meta.get("pages") or [])
+            if page is not None
+        ]
     return {
         "id": str(turn["_id"]),
         "role": turn.get("role"),
@@ -59,8 +66,10 @@ def _serialize_turn(turn: Dict) -> Dict:
         "accepted": meta.get("accepted"),
         "attempts": meta.get("attempts"),
         "pages": meta.get("pages", []),
+        "citations": citations,
         "model_id": meta.get("model_id"),
         "retrieval_mix": meta.get("retrieval_mix"),
+        "timings": meta.get("timings"),
         "created_at": created_at.isoformat() if created_at else None,
     }
 
@@ -161,14 +170,31 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         "attempts": len(result.get("attempts", [])),
         "model_id": model_id,
         "retrieval_mix": result.get("retrieval_mix"),
+        "timings": result.get("timings") or {},
         "contexts": [
             {
                 "page_number": document.metadata.get("page_number"),
+                "paragraph": (
+                    document.metadata.get("chunk_index") + 1
+                    if isinstance(document.metadata.get("chunk_index"), int)
+                    else None
+                ),
                 "text": document.page_content,
                 "score": score,
             }
             for document, score in zip(result.get("contexts", []),
                                        result.get("scores", []))
+        ],
+        "citations": [
+            {
+                "page": document.metadata.get("page_number"),
+                "paragraph": (
+                    document.metadata.get("chunk_index") + 1
+                    if isinstance(document.metadata.get("chunk_index"), int)
+                    else None
+                ),
+            }
+            for document in result.get("contexts", [])
         ],
     }
 

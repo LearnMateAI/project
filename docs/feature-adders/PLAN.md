@@ -3,6 +3,8 @@
 **Branch:** `thevindu-feature` (copied from `main`). Do not merge to `main` until each item’s gate below is signed.  
 **Pattern:** slot into existing seams (task prompts, Gate 1/2, `GenerateRequest`, retrieve node, `.env`). No new architecture.
 
+Bottlenecks, quality–latency levers, and why “just update the model / add retries” fails: [LATENCY_QUALITY_FAILURES.md](LATENCY_QUALITY_FAILURES.md).
+
 ---
 
 ## Decision already taken (do not reverse silently)
@@ -53,6 +55,7 @@ Tier 1 can merge internally as soon as spot-checked. Tier 3 stays on this branch
 |------|---------|---------|
 | `LEARNMATE_HYBRID_BM25` | `1` on this branch | Hybrid retrieve; set `0` to restore ANN-only |
 | `LEARNMATE_GENERATOR_MODEL` | unchanged | Fallback when `model_id` omitted |
+| `LEARNMATE_JOB_TIMEOUT_S` | `0` (off) | Cooperative job ceiling; `timeout` error_code when set |
 | Registry file | `learnmate/models_registry.yaml` | Selectable generators |
 
 ---

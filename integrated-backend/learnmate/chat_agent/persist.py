@@ -104,8 +104,22 @@ def persist_node(state: ChatState) -> Dict:
             # of the turn, and it stays honest when an earlier attempt won.
             "attempts": len(state.get("attempts", [])),
             "pages": [doc.metadata.get("page_number") for doc in state.get("contexts") or []],
+            # Paragraph is the 1-based chunk index on that page — the pin-cite the UI
+            # shows. `pages` stays for anything that only needs the page list.
+            "citations": [
+                {
+                    "page": doc.metadata.get("page_number"),
+                    "paragraph": (
+                        doc.metadata.get("chunk_index") + 1
+                        if isinstance(doc.metadata.get("chunk_index"), int)
+                        else None
+                    ),
+                }
+                for doc in state.get("contexts") or []
+            ],
             "model_id": state.get("model_id"),
             "retrieval_mix": state.get("retrieval_mix"),
+            "timings": state.get("timings"),
         })
 
     return selection

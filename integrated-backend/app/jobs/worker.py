@@ -42,6 +42,9 @@ import time
 from typing import Dict, Optional
 
 from learnmate.storage import jobs as job_store
+from learnmate.runtime_limits import JobTimeout, clear_deadline, set_deadline_seconds
+from learnmate.storage.mongo import StorageUnavailable
+from learnmate.storage.qdrant_vectors import QdrantUnavailable
 
 from .. import config
 
@@ -67,12 +70,33 @@ def enqueue(user_id: str, kind: str, params: Dict, message: str = "Queued.") -> 
     return job
 
 
+def _error_code(exc: Exception) -> str:
+    """Map an exception onto the codes the frontend branches on."""
+    if isinstance(exc, JobTimeout):
+        return "timeout"
+    if isinstance(exc, (StorageUnavailable, QdrantUnavailable)):
+        return "storage"
+    name = type(exc).__name__.lower()
+    message = str(exc).lower()
+    if "timeout" in name:
+        return "timeout"
+    if any(word in message for word in ("gguf", "llama", "registry", "model_id",
+                                        "unknown model", "could not load")):
+        return "model"
+    if "parse" in name or "json" in name:
+        return "parse"
+    if isinstance(exc, ValueError) and "model" in message:
+        return "model"
+    return "unknown"
+
+
 def _run_one(job_id: str) -> None:
     """Run one job, recording the outcome whatever happens."""
     # Imported here rather than at module scope: runners imports the services, which
     # import the engine, and the engine imports torch. Deferring it keeps `import app`
     # cheap for anything that only wants to enqueue.
     from . import runners
+    from learnmate import config as engine_config
 
     job = job_store.get(job_id)
     if not job:
@@ -81,13 +105,16 @@ def _run_one(job_id: str) -> None:
 
     job_store.start(job_id)
     try:
+        set_deadline_seconds(engine_config.JOB_TIMEOUT_S)
         result = runners.run(job)
         job_store.finish(job_id, result)
     except Exception as exc:
         # Every failure ends up on the record. A job that raised and left no trace is a
         # client polling forever, which is the one outcome worth ruling out.
         logger.exception("Job %s (%s) failed", job_id, job.get("kind"))
-        job_store.fail(job_id, f"{type(exc).__name__}: {exc}")
+        job_store.fail(job_id, f"{type(exc).__name__}: {exc}", _error_code(exc))
+    finally:
+        clear_deadline()
 
 
 def _loop() -> None:

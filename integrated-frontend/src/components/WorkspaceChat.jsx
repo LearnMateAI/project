@@ -53,6 +53,10 @@ function WorkspaceChat({ documentId, ready }) {
   }, [documentId, ready]);
 
   useEffect(() => {
+    // Fetch-on-mount (and again if the selected document changes). The rule guards
+    // against cascading renders from derived state; this is a request to an external
+    // system, which is what an effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     openSession();
     job.reset();
     // job.reset is stable; including it would clear a running turn on every render.

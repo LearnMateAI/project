@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from io import BytesIO
 import re
-from typing import Tuple
+from typing import Dict, Tuple
 
 from learnmate.storage import content_store, pdf_store
 

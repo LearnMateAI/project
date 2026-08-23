@@ -20,6 +20,10 @@ function DocumentReader({ documentId, filename, pdfUrl, loading }) {
   useEffect(() => {
     if (mode !== "text" || !documentId) return undefined;
     let cancelled = false;
+    // Fetch triggered by a mode switch, not a render. The rule guards against cascading
+    // renders from derived state; this is a request to an external system, which is what
+    // an effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTextLoading(true);
     setTextError("");
     getDocumentPages(documentId)

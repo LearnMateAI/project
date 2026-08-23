@@ -13,20 +13,22 @@ import { listDocuments } from "../api/documents.js";
 import { listResources, resourceLabel } from "../api/resources.js";
 import DocumentsCard from "../components/DocumentsCard.jsx";
 
-const quickStart = [
+const QUICK_START_BASE = [
   {
+    key: "file",
     to: "/documents",
     title: "File a source",
     caption: "Cases, statutes, outlines, briefs",
     icon: "M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5",
   },
   {
-    to: "/documents",
+    key: "workspace",
     title: "Split-screen workspace",
     caption: "PDF beside chat and MCQs",
     icon: "M3.75 3.75v16.5h16.5V3.75H3.75zM12 3.75v16.5",
   },
   {
+    key: "ask",
     to: "/chat",
     title: "Ask the record",
     caption: "Answers cite page and paragraph",
@@ -74,6 +76,20 @@ function Dashboard() {
 
   const recent = resources.slice(0, 5);
 
+  // The "Split-screen workspace" card jumps straight into the PDF+chat split view for a
+  // document instead of just landing on the library like "File a source" does -- the two
+  // used to point at the same place. Prefer a Ready document (documents is newest-first);
+  // fall back to the newest one otherwise, or to the library itself when there is nothing
+  // filed yet.
+  const quickStart = useMemo(() => {
+    const workspaceDoc = documents.find((doc) => doc.processing_status === "Ready") || documents[0];
+    return QUICK_START_BASE.map((action) =>
+      action.key === "workspace"
+        ? { ...action, to: workspaceDoc ? `/documents?open=${workspaceDoc.id}` : "/documents" }
+        : action,
+    );
+  }, [documents]);
+
   return (
     <div>
       {/* Quick start ─────────────────────────────────────────────── */}
@@ -86,7 +102,7 @@ function Dashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-6">
         {quickStart.map((action) => (
-          <Link key={action.to} to={action.to} className="card card-hover p-4 flex items-center gap-4 no-underline">
+          <Link key={action.key} to={action.to} className="card card-hover p-4 flex items-center gap-4 no-underline">
             <span className="icon-tile">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={action.icon} />

@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
 import DocumentReader from "../components/DocumentReader.jsx";
@@ -42,6 +43,8 @@ function Documents() {
   const [workspaceTab, setWorkspaceTab] = useState("generate");
   const [matterVersion, setMatterVersion] = useState(0);
   const pdfUrlRef = useRef(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const openedFromLinkRef = useRef(false);
 
   const fetchDocuments = useCallback(async ({ quiet = false } = {}) => {
     if (!quiet) setLoading(true);
@@ -79,6 +82,25 @@ function Documents() {
     },
     [],
   );
+
+  // Deep link from the dashboard's "Split-screen workspace" card (?open=<id>): jump
+  // straight into that document's workspace instead of the library list. Runs once the
+  // matching row has loaded, and only once -- the ref stops it firing again after the
+  // student navigates back to the library while the param is still in the URL.
+  useEffect(() => {
+    if (openedFromLinkRef.current) return;
+    const openId = searchParams.get("open");
+    if (!openId) return;
+    const doc = documents.find((entry) => entry.id === openId);
+    if (!doc) return;
+    openedFromLinkRef.current = true;
+    handleSelect(doc);
+    setSearchParams((params) => {
+      params.delete("open");
+      return params;
+    }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents, searchParams]);
 
   const selected = documents.find((doc) => doc.id === selectedId) || null;
   const visible = matterFilter

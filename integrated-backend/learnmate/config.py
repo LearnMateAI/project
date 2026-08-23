@@ -32,6 +32,18 @@ ROOT_DIR = PACKAGE_DIR.parent
 # reads an environment variable, which is what makes import order stop mattering.
 load_dotenv(ROOT_DIR / ".env")
 
+# huggingface_hub defaults its cache to ~/.cache/huggingface. On a machine where that
+# directory is locked down (no write access for the running user -- seen on shared/lab
+# Windows installs) every sentence-transformers load fails with a PermissionError before
+# it ever reaches the network. Redirect it into the project instead, unless the
+# environment already pins one. Must happen here, before anything imports
+# sentence_transformers/huggingface_hub anywhere in the process, since those packages
+# read HF_HOME once at import time.
+if not os.getenv("HF_HOME"):
+    _hf_cache_dir = ROOT_DIR / "data" / "hf_cache"
+    _hf_cache_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["HF_HOME"] = str(_hf_cache_dir)
+
 
 def _env(name: str, default: str) -> str:
     """Read an env var, treating an empty string as unset."""
@@ -290,7 +302,13 @@ VECTOR_BACKEND = _env("LEARNMATE_VECTOR_BACKEND", "qdrant").lower()
 # 6335 rather than Qdrant's conventional 6333, because this machine already runs a
 # separate Qdrant on 6333 for another project. docker-compose.yml publishes the matching
 # port; override this if you move it.
-QDRANT_URL = _env("LEARNMATE_QDRANT_URL", "http://localhost:6335")
+#
+# 127.0.0.1, not "localhost": qdrant-client's httpx transport does not fall back from a
+# failed connection attempt the way curl or a browser does, and on Windows "localhost"
+# often resolves to ::1 first. Docker Desktop's port-forward answers IPv4 only, so the
+# IPv6 attempt is reset by the OS and every call fails with WinError 10053/10054 -- even
+# though the same container is reachable and healthy on IPv4 the whole time.
+QDRANT_URL = _env("LEARNMATE_QDRANT_URL", "http://127.0.0.1:6335")
 QDRANT_API_KEY = _env("LEARNMATE_QDRANT_API_KEY", "")
 QDRANT_COLLECTION = _env("LEARNMATE_QDRANT_COLLECTION", "learnmate_chunks")
 QDRANT_TIMEOUT = _env_int("LEARNMATE_QDRANT_TIMEOUT", 30)

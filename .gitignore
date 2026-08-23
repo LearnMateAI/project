@@ -11,6 +11,10 @@ __pycache__/
 
 models/
 
+# Redirected huggingface_hub cache (learnmate/config.py); avoids ~/.cache/huggingface on
+# machines where that directory isn't writable. Downloaded models, not source.
+integrated-backend/data/hf_cache/
+
 # Scratch space for scripts/build_finetuned_gguf.py: the LoRA adapter merged into its base
 # as a ~3.1 GB fp16 model, plus the fetched llama.cpp converter. Entirely reproducible from
 # the adapter and the base weights, and deletable once the GGUF in models/ exists.

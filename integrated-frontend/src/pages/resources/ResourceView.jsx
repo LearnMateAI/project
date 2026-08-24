@@ -15,6 +15,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
+import { listModels } from "../../api/models.js";
 import { deleteResource, exportResource, getResource, resourceLabel } from "../../api/resources.js";
 import Flashcards from "../../components/Flashcards.jsx";
 import McqQuiz from "./McqQuiz.jsx";
@@ -105,6 +106,7 @@ function ResourceView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState("");
+  const [modelNames, setModelNames] = useState({});
 
   const fetchResource = useCallback(async () => {
     setLoading(true);
@@ -125,6 +127,21 @@ function ResourceView() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResource();
   }, [fetchResource]);
+
+  useEffect(() => {
+    // id -> display_name, so the metadata line can say "Sri Lankan legal domain 1.5B"
+    // instead of the raw registry id a student has no reason to recognise. Best-effort:
+    // an older resource's model may since have left the registry, and the raw id is
+    // still a legible fallback for that case.
+    listModels()
+      .then((res) => {
+        const byId = Object.fromEntries(
+          (res.data || []).map((model) => [model.id, model.display_name]),
+        );
+        setModelNames(byId);
+      })
+      .catch(() => setModelNames({}));
+  }, []);
 
   async function handleExport(format) {
     setExporting(format);
@@ -219,7 +236,7 @@ function ResourceView() {
         {params.groups ? ` (${params.groups} group${params.groups === 1 ? "" : "s"})` : ""}
         {params.summary_style ? ` · ${params.summary_style}` : ""}
         {params.difficulty ? ` · ${params.difficulty}` : ""}
-        {params.model_id ? ` · ${params.model_id}` : ""}
+        {params.model_id ? ` · ${modelNames[params.model_id] || params.model_id}` : ""}
         {resource.score != null ? ` · judge ${resource.score}/100` : ""}
         {resource.accepted === false ? " · flagged" : ""}
       </p>

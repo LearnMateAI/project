@@ -59,13 +59,13 @@ services:
       - ./integrated-backend/keycloak/realm:/opt/keycloak/data/import:ro
       - ./integrated-backend/keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/health/ready"]
       interval: 15s
       timeout: 10s
       retries: 10
       start_period: 30s
 
-  backend:
+  backend:  
     build:
       context: ./integrated-backend
       dockerfile: Dockerfile

@@ -1,0 +1,82 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - dinura-deployment
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Backend syntax check
+        run: |
+          python -m compileall integrated-backend
+
+      - name: Frontend build
+        run: |
+          npm ci --prefix integrated-frontend
+          npm run build --prefix integrated-frontend
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: SSH and deploy latest app
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          set -e
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${EC2_USERNAME}@${EC2_HOST} <<'EOF'
+            set -e
+            cd ~/app
+            git fetch origin
+            git checkout dinura-deployment
+            git reset --hard origin/dinura-deployment
+
+            if [ ! -f .env ]; then
+              cp .env.example .env
+            fi
+
+            chmod 600 .env
+            if docker info >/dev/null 2>&1; then
+              DOCKER_CMD="docker"
+            elif sudo -n docker info >/dev/null 2>&1; then
+              DOCKER_CMD="sudo docker"
+            else
+              echo "Docker daemon is not accessible for deployment user"
+              exit 1
+            fi
+
+            $DOCKER_CMD compose build
+            $DOCKER_CMD compose up -d
+            $DOCKER_CMD compose ps
+
+            if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then
+              echo "Backend health check passed"
+            else
+              echo "Backend health check failed"
+              $DOCKER_CMD compose logs --tail 200 backend
+              exit 1
+            fi
+          EOF

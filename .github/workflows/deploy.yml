@@ -6,6 +6,9 @@ on:
       - dinura-deployment
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     runs-on: ubuntu-latest

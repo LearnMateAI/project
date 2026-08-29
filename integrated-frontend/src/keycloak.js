@@ -15,9 +15,9 @@
 import Keycloak from "keycloak-js";
 
 const keycloak = new Keycloak({
-  url: import.meta.env.VITE_KEYCLOAK_URL,
-  realm: import.meta.env.VITE_KEYCLOAK_REALM,
-  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+  url: import.meta.env.VITE_KEYCLOAK_URL || "/auth",
+  realm: import.meta.env.VITE_KEYCLOAK_REALM || "learnmate",
+  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "learnmate-frontend",
 });
 
 let initPromise = null;

@@ -1,0 +1,147 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:8
+    container_name: learnmate-mongo
+    restart: unless-stopped
+    networks:
+      - learnmate-net
+    expose:
+      - "27017"
+    volumes:
+      - mongo_data:/data/db
+    command: ["--wiredTigerCacheSizeGB", "1"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  qdrant:
+    image: qdrant/qdrant:v1.18.1
+    container_name: learnmate-qdrant
+    restart: unless-stopped
+    networks:
+      - learnmate-net
+    expose:
+      - "6333"
+      - "6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__LOG_LEVEL: INFO
+    healthcheck:
+      test: ["CMD", "/qdrant/qdrant", "--version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: learnmate-keycloak
+    restart: unless-stopped
+    command: ["start-dev", "--import-realm", "--proxy=passthrough", "--hostname-strict=false", "--http-relative-path=/auth"]
+    environment:
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: forwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    networks:
+      - learnmate-net
+    expose:
+      - "8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./integrated-backend/keycloak/realm:/opt/keycloak/data/import:ro
+      - ./integrated-backend/keycloak/themes:/opt/keycloak/themes:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./integrated-backend
+      dockerfile: Dockerfile
+    container_name: learnmate-backend
+    restart: unless-stopped
+    env_file:
+      - ./integrated-backend/.env
+    environment:
+      LEARNMATE_MONGODB_URI: mongodb://mongo:27017
+      LEARNMATE_MONGODB_DB: learnmate
+      LEARNMATE_QDRANT_URL: http://qdrant:6333
+      FRONTEND_ORIGIN: http://localhost
+      KEYCLOAK_ENABLED: "true"
+      KEYCLOAK_ISSUER: http://keycloak:8080/auth/realms/learnmate
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/auth/realms/learnmate/protocol/openid-connect/certs
+    depends_on:
+      mongo:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - learnmate-net
+    expose:
+      - "8000"
+    volumes:
+      - ./integrated-backend/models:/app/models:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5).read()\" >/dev/null 2>&1 || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./integrated-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_KEYCLOAK_URL: /auth
+        VITE_KEYCLOAK_REALM: learnmate
+        VITE_KEYCLOAK_CLIENT_ID: learnmate-frontend
+    container_name: learnmate-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - learnmate-net
+    expose:
+      - "80"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: learnmate-nginx
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+      - keycloak
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - learnmate-net
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+
+networks:
+  learnmate-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  qdrant_data:
+  keycloak_data:

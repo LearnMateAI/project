@@ -59,11 +59,12 @@ services:
       - ./integrated-backend/keycloak/realm:/opt/keycloak/data/import:ro
       - ./integrated-backend/keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:9000/health/ready"]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 10
       start_period: 30s
+    
 
   backend:  
     build:

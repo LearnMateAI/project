@@ -2,7 +2,7 @@
 
 AI-powered study platform for Sri Lankan legal education. Upload a PDF, ask grounded
 questions, and generate study resources. A second model grades what the first wrote.
-
+===
 This file is an index. The project docs were split on `main`; the offline fine-tuning
 track lives in `model-Thevindu/`.
 

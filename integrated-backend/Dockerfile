@@ -5,6 +5,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# ADD THIS BLOCK: Install C++ compilers and build tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt

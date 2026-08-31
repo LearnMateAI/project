@@ -53,7 +53,7 @@ export function generateResource({
   evaluate = true,
   threshold,
 }) {
-  return api.post("/api/resources/generate", {
+  return api.post("/resources/generate", {
     document_id: documentId,
     resource_type: resourceType,
     scope,
@@ -69,16 +69,16 @@ export function generateResource({
 }
 
 export function listResources({ documentId, resourceType } = {}) {
-  return api.get("/api/resources", {
+  return api.get("/resources", {
     params: { document_id: documentId, resource_type: resourceType },
   });
 }
 
 /** One resource with its whole attempt trail. */
 export function getResource(resourceId) {
-  return api.get(`/api/resources/${resourceId}`);
+  return api.get(`/resources/${resourceId}`);
 }
 
 export function deleteResource(resourceId) {
-  return api.delete(`/api/resources/${resourceId}`);
+  return api.delete(`/resources/${resourceId}`);
 }

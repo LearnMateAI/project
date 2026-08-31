@@ -9,13 +9,13 @@
 import api from "./client.js";
 
 export function registerUser({ name, email, password }) {
-  return api.post("/api/auth/register", { name, email, password });
+  return api.post("/auth/register", { name, email, password });
 }
 
 export function loginUser({ email, password }) {
-  return api.post("/api/auth/login", { email, password });
+  return api.post("/auth/login", { email, password });
 }
 
 export function getMe() {
-  return api.get("/api/auth/me");
+  return api.get("/auth/me");
 }

@@ -21,7 +21,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getMe } from "../api/auth.js";
-import keycloak, { initKeycloak } from "../keycloak.js";
+import keycloak, { initKeycloak, resetKeycloakInit } from "../keycloak.js";
 import { AuthContext } from "./AuthContext.js";
 
 // Refresh with this much life left, comfortably inside the 5-minute access token
@@ -62,6 +62,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginWithKeycloak = useCallback(() => {
+    resetKeycloakInit();
     keycloak.login({ redirectUri: window.location.origin + "/dashboard" });
   }, []);
 
@@ -69,6 +70,14 @@ export function AuthProvider({ children }) {
     let cancelled = false;
 
     async function resolveSession() {
+      const hasAuthCallback =
+        new URLSearchParams(window.location.search).has("code") ||
+        new URLSearchParams(window.location.hash.slice(1)).has("code");
+
+      if (hasAuthCallback) {
+        resetKeycloakInit();
+      }
+
       const storedToken = localStorage.getItem("token");
       const storedProvider = localStorage.getItem("authProvider");
 
@@ -89,7 +98,7 @@ export function AuthProvider({ children }) {
         const authenticated = await initKeycloak({
           onLoad: "check-sso",
           silentCheckSsoRedirectUri: window.location.origin + "/silent-check-sso.html",
-          pkceMethod: "S256",
+          pkceMethod: false,
         });
 
         if (authenticated && !cancelled) {

@@ -22,6 +22,10 @@ const keycloak = new Keycloak({
 
 let initPromise = null;
 
+export function resetKeycloakInit() {
+  initPromise = null;
+}
+
 export function initKeycloak(options) {
   if (!initPromise) {
     initPromise = keycloak.init(options);

@@ -14,7 +14,6 @@ This folder is the merge of the two backends that grew separately:
 Neither original folder is modified, and neither is imported from. `integrated-backend/`
 runs on its own.
 
----
 
 ## Quickstart
 

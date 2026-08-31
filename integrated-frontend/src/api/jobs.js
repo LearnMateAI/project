@@ -33,11 +33,11 @@ const SLOW_POLL_MS = 1500;
 const FAST_POLL_FOR_MS = 5000;
 
 export function getJob(jobId) {
-  return api.get(`/api/jobs/${jobId}`);
+  return api.get(`/jobs/${jobId}`);
 }
 
 export function listJobs(params = {}) {
-  return api.get("/api/jobs", { params });
+  return api.get("/jobs", { params });
 }
 
 const sleep = (ms, signal) =>

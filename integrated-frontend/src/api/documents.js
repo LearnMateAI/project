@@ -16,22 +16,22 @@ export function uploadDocument({ file, subject, onUploadProgress }) {
   formData.append("file", file);
   formData.append("subject", subject);
 
-  return api.post("/api/documents/upload", formData, {
+  return api.post("/documents/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" },
     onUploadProgress,
   });
 }
 
 export function listDocuments() {
-  return api.get("/api/documents");
+  return api.get("/documents");
 }
 
 export function getDocument(documentId) {
-  return api.get(`/api/documents/${documentId}`);
+  return api.get(`/documents/${documentId}`);
 }
 
 export function getDocumentFile(documentId) {
-  return api.get(`/api/documents/${documentId}/file`, { responseType: "blob" });
+  return api.get(`/documents/${documentId}/file`, { responseType: "blob" });
 }
 
 /**
@@ -40,7 +40,7 @@ export function getDocumentFile(documentId) {
  * answer to "what did it see on page 41?".
  */
 export function getDocumentPages(documentId, { first, last } = {}) {
-  return api.get(`/api/documents/${documentId}/pages`, { params: { first, last } });
+  return api.get(`/documents/${documentId}/pages`, { params: { first, last } });
 }
 
 /**
@@ -50,5 +50,5 @@ export function getDocumentPages(documentId, { first, last } = {}) {
  * so the bytes and vectors stay -- one PDF is stored once however many people have it.
  */
 export function deleteDocument(documentId) {
-  return api.delete(`/api/documents/${documentId}`);
+  return api.delete(`/documents/${documentId}`);
 }

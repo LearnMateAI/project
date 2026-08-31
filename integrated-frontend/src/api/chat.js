@@ -14,11 +14,11 @@
 import api from "./client.js";
 
 export function createSession({ documentId, title }) {
-  return api.post("/api/chat/sessions", { document_id: documentId, title });
+  return api.post("/chat/sessions", { document_id: documentId, title });
 }
 
 export function listSessions() {
-  return api.get("/api/chat/sessions");
+  return api.get("/chat/sessions");
 }
 
 /**
@@ -28,13 +28,13 @@ export function listSessions() {
  * conversation resumed tomorrow looks identical to one that never stopped.
  */
 export function getMessages(sessionId) {
-  return api.get(`/api/chat/sessions/${sessionId}/messages`);
+  return api.get(`/chat/sessions/${sessionId}/messages`);
 }
 
 export function sendMessage({ sessionId, message, evaluate = true }) {
-  return api.post(`/api/chat/sessions/${sessionId}/messages`, { message, evaluate });
+  return api.post(`/chat/sessions/${sessionId}/messages`, { message, evaluate });
 }
 
 export function deleteSession(sessionId) {
-  return api.delete(`/api/chat/sessions/${sessionId}`);
+  return api.delete(`/chat/sessions/${sessionId}`);
 }

@@ -94,7 +94,7 @@ services:
     expose:
       - "8000"
     volumes:
-      - ./integrated-backend/models:/app/models:ro
+      - ./integrated-backend/models:/app/models
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5).read()\" >/dev/null 2>&1 || exit 1"]
       interval: 20s

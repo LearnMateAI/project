@@ -73,6 +73,8 @@ one machine, and no uploaded document ever leaves it.
 | **all-MiniLM-L6-v2** | ~90 MB | Turns document chunks and questions into vectors for searching. |
 | **ms-marco-MiniLM-L-6-v2** | ~90 MB | Re-reads the top search results *together with* the question and reorders them properly. |
 
+Laptop-sized substitutes for each row (Gemma 2 2B / Phi-3.5 Mini generators, Gemma or Granite judges, BGE-small or E5-small embedders, MiniLM-L-12 or BGE reranker, plus ANN vs hybrid retrieve) are researched and scored on branch `thevindu-models`. They are **not** live defaults. Runbooks live in `model-gemma2-2b/`, `model-phi35-mini/`, `model-granite-2b/`, `model-bge-small/`, `model-e5-small/`, `model-rag/`; numbers in `docs/thevindu-models/RESULTS.md`.
+
 Two deliberate choices worth explaining to a reader:
 
 - **The judge is a different model family from the generator.** A model grading its own writing rates its own style highly, and the quality check stops catching anything. Different weights means a genuine second opinion.

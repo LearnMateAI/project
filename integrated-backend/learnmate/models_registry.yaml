@@ -25,3 +25,26 @@ models:
     role_hint: Sri Lankan legal domain 1.5B, experimental
     selectable_default: false
     experimental: true
+  # Comparison generators on branch thevindu-models. experimental: never the silent
+  # default. available flips true only when the GGUF is on disk (see model-gemma2-2b /
+  # model-phi35-mini). hf_* keys are for docs/thevindu-models/scripts/fetch_comparison_models.py.
+  - id: gemma2-2b
+    display_name: Gemma 2 2B Instruct
+    gguf_path: gemma-2-2b-it-Q4_K_M.gguf
+    context_length: 4096
+    chat_format: ""
+    role_hint: comparison candidate, not the silent default
+    selectable_default: false
+    experimental: true
+    hf_repo: bartowski/gemma-2-2b-it-GGUF
+    hf_file: gemma-2-2b-it-Q4_K_M.gguf
+  - id: phi35-mini
+    display_name: Phi-3.5 Mini Instruct
+    gguf_path: Phi-3.5-mini-instruct-Q4_K_M.gguf
+    context_length: 4096
+    chat_format: ""
+    role_hint: comparison candidate, not the silent default
+    selectable_default: false
+    experimental: true
+    hf_repo: bartowski/Phi-3.5-mini-instruct-GGUF
+    hf_file: Phi-3.5-mini-instruct-Q4_K_M.gguf

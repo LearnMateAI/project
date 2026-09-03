@@ -13,10 +13,12 @@ def test_error_message_uses_backend_detail_and_network_hint(frontend_root: Path)
 
 
 def test_auth_api_paths(frontend_root: Path):
-    src = (frontend_root / "src" / "api" / "auth.js").read_text(encoding="utf-8")
-    assert "/api/auth/register" in src
-    assert "/api/auth/login" in src
-    assert "/api/auth/me" in src
+    auth_src = (frontend_root / "src" / "api" / "auth.js").read_text(encoding="utf-8")
+    client_src = (frontend_root / "src" / "api" / "client.js").read_text(encoding="utf-8")
+    assert 'baseURL: import.meta.env.VITE_API_BASE_URL || "/api"' in client_src
+    assert 'api.post("/auth/register"' in auth_src
+    assert 'api.post("/auth/login"' in auth_src
+    assert 'api.get("/auth/me"' in auth_src
 
 
 def test_jobs_poll_and_terminal_states(frontend_root: Path):

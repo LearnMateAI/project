@@ -1,13 +1,18 @@
-name: Deploy Application
+name: LearnMate CI/CD
 
 on:
   push:
-    branches:
-      - dinura-deployment
+    branches: [main, master, dinura-deployment]
+  pull_request:
+    branches: [main, master, dinura-deployment]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   ci:
+    name: CI - 15-case quality gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,58 +21,100 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: integrated-frontend/package-lock.json
 
-      - name: Backend syntax check
+      - name: Install test dependencies
+        run: python -m pip install -r testing/requirements.txt
+
+      - name: Run 15 comprehensive CI test cases
         run: |
-          python -m compileall integrated-backend
+          python -m pytest \
+            testing/unit/test_auth_security.py::test_access_token_round_trip \
+            testing/unit/test_auth_security.py::test_tampered_token_is_rejected \
+            testing/unit/test_password_rules.py::test_strong_enough_password_passes \
+            testing/unit/test_password_rules.py::test_password_over_72_bytes_rejected \
+            testing/unit/test_pdf_validate.py::test_valid_pdf_returns_page_count \
+            testing/unit/test_pdf_validate.py::test_garbage_bytes_are_corrupt \
+            testing/unit/test_error_handlers.py::test_unhandled_is_500_without_traceback_in_body \
+            testing/unit/test_evaluator_mcq.py::test_valid_question_passes \
+            testing/unit/test_chunking.py::test_prose_chunks_carry_page_and_index \
+            testing/integration/test_auth_api.py::test_register_201_returns_token_and_user \
+            testing/integration/test_auth_api.py::test_login_401_does_not_reveal_which_half_failed \
+            testing/integration/test_documents_api.py::test_upload_202_returns_document_and_job_id \
+            testing/integration/test_jobs_api.py::test_get_job_200_serializes_status_and_progress \
+            testing/integration/test_cors_and_root.py::test_root_points_at_health_and_docs \
+            testing/unit/test_frontend_contracts.py::test_auth_api_paths
 
-      - name: Frontend build
+      - name: Frontend lint
         run: |
           npm ci --prefix integrated-frontend
-          npm run build --prefix integrated-frontend
+          npm run lint --prefix integrated-frontend
 
-  deploy:
+      - name: Frontend production build
+        run: npm run build --prefix integrated-frontend
+
+      - name: Validate Compose configuration
+        run: docker compose --env-file .env.example config --quiet
+
+  cd:
+    name: CD - deploy full stack to AWS EC2
     needs: ci
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EC2 via SSH
+      - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: SSH and deploy latest app
+      - name: Deploy over SSH
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+          EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
+          APP_ENV_FILE_B64: ${{ secrets.APP_ENV_FILE_B64 }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
         run: |
-          set -e
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${EC2_USERNAME}@${EC2_HOST} <<'EOF'
-            set -e
-            cd ~/app
-            git fetch origin
-            git checkout dinura-deployment
-            git reset --hard origin/dinura-deployment
+          set -euo pipefail
+          test -n "$EC2_HOST"
+          test -n "$EC2_USERNAME"
+          test -n "$APP_ENV_FILE_B64"
+          EC2_APP_DIR="${EC2_APP_DIR:-/home/$EC2_USERNAME/learnmate}"
 
-            if [ ! -f .env ]; then
-              cp .env.example .env
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "$EC2_USERNAME@$EC2_HOST" "mkdir -p $EC2_APP_DIR"
+          printf '%s' "$APP_ENV_FILE_B64" | base64 --decode | \
+            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "$EC2_USERNAME@$EC2_HOST" "umask 077; cat > $EC2_APP_DIR/.env"
+
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "$EC2_USERNAME@$EC2_HOST" "APP_DIR='$EC2_APP_DIR' DEPLOY_BRANCH='$DEPLOY_BRANCH' bash -s" <<'EOF'
+          set -euo pipefail
+          cd "$APP_DIR"
+          if [[ ! -d .git ]]; then
+            echo "The EC2 host must contain a clone of this repository at $APP_DIR."
+            exit 1
+          fi
+          git fetch --prune origin "$DEPLOY_BRANCH"
+          git checkout -B "$DEPLOY_BRANCH" "origin/$DEPLOY_BRANCH"
+          chmod 600 .env
+          docker compose --env-file .env config --quiet
+          docker compose --env-file .env build
+          docker compose --env-file .env up -d --remove-orphans
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1/api/health >/dev/null; then
+              echo "LearnMate is healthy."
+              exit 0
             fi
-
-            chmod 600 .env
-            docker compose build
-            docker compose up -d
-            docker compose ps
-
-            if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then
-              echo "Backend health check passed"
-            else
-              echo "Backend health check failed"
-              docker compose logs --tail 200 backend
-              exit 1
-            fi
+            sleep 10
+          done
+          docker compose logs --tail 200 backend keycloak nginx
+          exit 1
           EOF

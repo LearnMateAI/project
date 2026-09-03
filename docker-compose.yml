@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mongo:
     image: mongo:8
@@ -73,15 +71,16 @@ services:
     container_name: learnmate-backend
     restart: unless-stopped
     env_file:
-      - ./integrated-backend/.env
+      - path: ./.env
+        required: false
     environment:
-      LEARNMATE_MONGODB_URI: mongodb://mongo:27017
-      LEARNMATE_MONGODB_DB: learnmate
-      LEARNMATE_QDRANT_URL: http://qdrant:6333
-      FRONTEND_ORIGIN: http://localhost
-      KEYCLOAK_ENABLED: "true"
-      KEYCLOAK_ISSUER: http://keycloak:8080/auth/realms/learnmate
-      KEYCLOAK_JWKS_URL: http://keycloak:8080/auth/realms/learnmate/protocol/openid-connect/certs
+      LEARNMATE_MONGODB_URI: ${LEARNMATE_MONGODB_URI:-mongodb://mongo:27017}
+      LEARNMATE_MONGODB_DB: ${LEARNMATE_MONGODB_DB:-learnmate}
+      LEARNMATE_QDRANT_URL: ${LEARNMATE_QDRANT_URL:-http://qdrant:6333}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost}
+      KEYCLOAK_ENABLED: ${KEYCLOAK_ENABLED:-true}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/learnmate}
+      KEYCLOAK_JWKS_URL: ${KEYCLOAK_JWKS_URL:-http://keycloak:8080/auth/realms/learnmate/protocol/openid-connect/certs}
     depends_on:
       mongo:
         condition: service_healthy

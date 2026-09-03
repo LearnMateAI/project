@@ -2,9 +2,9 @@ name: LearnMate CI/CD
 
 on:
   push:
-    branches: [main, master, dinura-deployment]
+    branches: [main, master, dinura-deployment, dinura-feedback-deploy]
   pull_request:
-    branches: [main, master, dinura-deployment]
+    branches: [main, master, dinura-deployment, dinura-feedback-deploy]
   workflow_dispatch:
 
 permissions:

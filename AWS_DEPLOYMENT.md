@@ -47,6 +47,6 @@ with the EC2 public URL before deployment, or use a domain name and HTTPS revers
 production. The frontend continues to use `/api` and `/auth`, so no frontend rebuild-time
 host changes are needed.
 
-Every push to `main`, `master`, or `dinura-deployment` runs the 15-case CI gate, frontend
+Every push to `main`, `master`, `dinura-deployment`, or `dinura-feedback-deploy` runs the 15-case CI gate, frontend
 lint/build, and Compose validation. A successful push then deploys the full stack and polls
 `/api/health` before succeeding.

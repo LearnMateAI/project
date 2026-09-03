@@ -75,6 +75,10 @@ qdrant-client>=1.15,<2
 # through PyMuPDF.
 pymupdf>=1.26
 
+# --- Office export (resources already generated; never re-runs the model) -----------------
+python-docx>=1.1
+python-pptx>=1.0
+
 # --- Support -------------------------------------------------------------------------------
 numpy>=2.0
 python-dotenv>=1.0

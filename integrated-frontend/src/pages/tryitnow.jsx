@@ -21,7 +21,7 @@ function TryItNow() {
     <div className="animate-fade-in max-w-3xl">
       <div className="page-header mb-6">
         <h1>Try It Now</h1>
-        <p>Upload a document and generate study material in minutes</p>
+        <p>File a PDF and generate an IRAC brief, flashcards, or bar-style MCQs</p>
       </div>
 
       {/* Step indicator */}
@@ -103,7 +103,7 @@ function TryItNow() {
             <div className="grid gap-3 sm:grid-cols-2">
               {[
                 { type: "Summary", desc: "A concise overview of the content", icon: "📝" },
-                { type: "Key Points", desc: "Important concepts and ideas", icon: "💡" },
+                { type: "Flashcards", desc: "Key points you can flip through", icon: "💡" },
                 { type: "MCQs", desc: "Multiple choice test questions", icon: "✅" },
                 { type: "Practice Questions", desc: "Open-ended study questions", icon: "📖" },
               ].map((item) => (

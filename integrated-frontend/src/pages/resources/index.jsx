@@ -22,6 +22,7 @@ import { errorMessage } from "../../api/client.js";
 import { listDocuments } from "../../api/documents.js";
 import { listJobs } from "../../api/jobs.js";
 import { RESOURCE_TYPES, listResources, resourceLabel } from "../../api/resources.js";
+import EmptyState from "../../components/EmptyState.jsx";
 
 // A generation runs for minutes, and its own commentary changes about once a page. Only
 // polled while something is actually in flight -- see the effect below, which stops.
@@ -132,8 +133,8 @@ function Resources() {
   return (
     <div>
       <div className="page-header">
-        <h1>Your Resources</h1>
-        <p>Everything you have generated, newest first — open one to see how it was reviewed</p>
+        <h1>Study materials</h1>
+        <p>IRAC briefs, flashcards, MCQs and practice questions — newest first</p>
       </div>
 
       {/* Filters in one row above the list, which is where a filter belongs. */}
@@ -141,10 +142,10 @@ function Resources() {
         <select
           value={documentId}
           onChange={(e) => setDocumentId(e.target.value)}
-          aria-label="Filter by document"
+          aria-label="Filter by source"
           className="select w-auto min-w-[12rem]"
         >
-          <option value="">All documents</option>
+          <option value="">All sources</option>
           {documents.map((doc) => (
             <option key={doc.id} value={doc.id}>
               {doc.filename}
@@ -188,9 +189,15 @@ function Resources() {
             Loading...
           </p>
         ) : resources.length === 0 && pending.length === 0 ? (
-          <p className="px-5 py-8 text-[13px] text-muted text-center">
-            Nothing generated yet — open a document and use the panel beside it.
-          </p>
+          <EmptyState
+            title="No materials yet"
+            body="Generate from a source — open the library and use the panel beside the PDF."
+            action={
+              <Link to="/documents" className="btn-primary">
+                Open library
+              </Link>
+            }
+          />
         ) : (
           <div>
             {/* In-flight generations, above the finished ones because they are newer than
@@ -204,7 +211,7 @@ function Resources() {
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[13.5px] font-semibold text-heading">
-                      {resourceLabel(job.params?.resource_type)}
+                      {resourceLabel(job.params?.resource_type, job.params)}
                     </span>
                     <span className="block text-[11.5px] text-muted truncate">
                       {filenames[job.params?.document_id] || "Unknown document"} ·{" "}
@@ -238,9 +245,12 @@ function Resources() {
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[13.5px] font-semibold text-heading">
-                      {resourceLabel(resource.resource_type)}
+                      {resourceLabel(resource.resource_type, resource.params)}
                       {Array.isArray(resource.content) ? (
                         <span className="font-normal text-muted"> · {resource.content.length} items</span>
+                      ) : null}
+                      {resource.params?.difficulty ? (
+                        <span className="badge badge-gray ml-2">{resource.params.difficulty}</span>
                       ) : null}
                     </span>
                     <span className="block text-[11.5px] text-subtle truncate">

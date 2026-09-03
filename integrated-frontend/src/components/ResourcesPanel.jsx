@@ -19,8 +19,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { RESOURCE_TYPES, generateResource, listResources, resourceLabel } from "../api/resources.js";
+import { RESOURCE_TYPES, STUDY_PRESETS, generateResource, listResources, resourceLabel } from "../api/resources.js";
+import { listModels } from "../api/models.js";
 import { useJob } from "../hooks/useJob.js";
+import EmptyState from "./EmptyState.jsx";
 import JobProgress from "./JobProgress.jsx";
 
 function ResourcesPanel({ documentId, documentStatus, pageCount }) {
@@ -34,6 +36,10 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
   const [count, setCount] = useState(8);
   const [perPage, setPerPage] = useState(2);
   const [evaluate, setEvaluate] = useState(true);
+  const [summaryStyle, setSummaryStyle] = useState("auto");
+  const [difficulty, setDifficulty] = useState("medium");
+  const [modelId, setModelId] = useState("");
+  const [models, setModels] = useState([]);
 
   const job = useJob();
 
@@ -56,6 +62,12 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
   }, [documentId]);
 
   useEffect(() => {
+    listModels()
+      .then((res) => setModels((res.data || []).filter((m) => m.available)))
+      .catch(() => setModels([]));
+  }, []);
+
+  useEffect(() => {
     // Fetch-on-mount, and again whenever the selected document changes. The rule below
     // guards against cascading renders from derived state; this is a request to an
     // external system, which is what effects are for.
@@ -66,6 +78,18 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchResources]);
 
+  function applyPreset(preset) {
+    setResourceType(preset.resourceType);
+    if (preset.scope) setScope(preset.scope);
+    setSummaryStyle(preset.summaryStyle || "auto");
+    setDifficulty(preset.difficulty || "medium");
+    setTopic(preset.topic || "");
+    if (preset.count != null) {
+      setAmountMode("total");
+      setCount(preset.count);
+    }
+  }
+
   async function handleGenerate(e) {
     e.preventDefault();
 
@@ -74,11 +98,14 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
         documentId,
         resourceType,
         scope,
-        topic: scope === "passage" ? topic : null,
+        topic: topic || null,
         // Exactly one of the two, never both -- the backend rejects both together.
         count: usingPerPage ? null : Number(count),
         perPage: usingPerPage ? Number(perPage) : null,
         evaluate,
+        summaryStyle: resourceType === "summary" ? summaryStyle : null,
+        difficulty: resourceType === "mcq" ? difficulty : null,
+        modelId: modelId || null,
       }),
     );
 
@@ -117,6 +144,27 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
               : "This document is still being processed — generation becomes available once it is Ready."}
           </p>
         )}
+
+        <div className="grid gap-2 sm:grid-cols-3 mb-4">
+          {STUDY_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              disabled={notReady || job.isRunning}
+              onClick={() => applyPreset(preset)}
+              className={`rounded-xl border p-3 text-left transition-colors ${
+                resourceType === preset.resourceType &&
+                (preset.difficulty ? difficulty === preset.difficulty : true) &&
+                (preset.summaryStyle ? summaryStyle === preset.summaryStyle : true)
+                  ? "border-primary bg-primary-soft"
+                  : "border-border hover:border-border-strong"
+              }`}
+            >
+              <span className="block text-[13px] font-semibold text-heading">{preset.title}</span>
+              <span className="block text-[11.5px] text-muted mt-1 leading-relaxed">{preset.hint}</span>
+            </button>
+          ))}
+        </div>
 
         <form onSubmit={handleGenerate} className="space-y-4">
           <div>
@@ -225,6 +273,73 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
             </div>
           </div>
 
+          {resourceType === "summary" && (
+            <div>
+              <label className="field-label" htmlFor="summary-style">
+                Summary style <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <select
+                id="summary-style"
+                value={summaryStyle}
+                onChange={(e) => setSummaryStyle(e.target.value)}
+                disabled={notReady || job.isRunning}
+                className="select"
+              >
+                <option value="auto">Auto — structured if the passage is list-like</option>
+                <option value="narrative">Narrative — connected prose</option>
+                <option value="structured">Structured — bold points when it helps</option>
+              </select>
+              <p className="field-hint">
+                Narrative is the default design. Structured is a second mode, not a replacement.
+              </p>
+            </div>
+          )}
+
+          {resourceType === "mcq" && (
+            <div>
+              <label className="field-label" htmlFor="mcq-difficulty">
+                Difficulty <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <select
+                id="mcq-difficulty"
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                disabled={notReady || job.isRunning}
+                className="select"
+              >
+                <option value="easy">Easy — one explicit fact, obvious wrong options</option>
+                <option value="medium">Medium — current default</option>
+                <option value="hard">Hard — near-miss distractors, still unambiguously false</option>
+              </select>
+            </div>
+          )}
+
+          {models.length > 1 && (
+            <div>
+              <label className="field-label" htmlFor="generator-model">
+                Generator <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <select
+                id="generator-model"
+                value={modelId}
+                onChange={(e) => setModelId(e.target.value)}
+                disabled={notReady || job.isRunning}
+                className="select"
+              >
+                <option value="">Default model</option>
+                {models.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.display_name}
+                    {model.experimental ? " (experimental)" : ""}
+                  </option>
+                ))}
+              </select>
+              <p className="field-hint">
+                Switching models unloads the previous GGUF and can take several seconds.
+              </p>
+            </div>
+          )}
+
           <label className="flex items-start gap-2.5 rounded-xl border border-border p-3 cursor-pointer hover:border-border-strong">
             <input
               type="checkbox"
@@ -259,7 +374,7 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
         {job.isDone && job.result && (
           <div className="notice notice-success mt-3 flex-col items-start">
             <Link to={`/resources/${job.result.id}`} className="font-semibold no-underline hover:underline">
-              View the {resourceLabel(job.result.resource_type)} →
+              View the {resourceLabel(job.result.resource_type, job.result.params)} →
             </Link>
             {/* Whole-document runs report what was asked for against what came back. The
                 backend never pads a short set, so an unexplained gap would look like a bug. */}
@@ -278,14 +393,23 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
         {loading ? (
           <p className="text-[13px] text-muted py-2">Loading...</p>
         ) : resources.length === 0 ? (
-          <p className="text-[13px] text-muted py-2">Nothing yet for this document.</p>
+          <EmptyState
+            className="py-4"
+            body="No resources yet — generate one from this document."
+          />
         ) : (
           <ul className="m-0 p-0 list-none">
             {resources.map((resource) => (
               <li key={resource.id} className="flex justify-between items-center gap-3 py-2.5 border-b border-border-light last:border-0">
                 <span className="min-w-0">
                   <span className="block text-[13px] font-medium text-heading">
-                    {resourceLabel(resource.resource_type)}
+                    {resourceLabel(resource.resource_type, resource.params)}
+                    {resource.params?.difficulty && (
+                      <span className="badge badge-gray ml-2">{resource.params.difficulty}</span>
+                    )}
+                    {resource.params?.summary_style === "structured" && (
+                      <span className="badge badge-gray ml-2">structured</span>
+                    )}
                     {resource.accepted === false && resource.score !== null && (
                       <span className="badge badge-amber ml-2">flagged</span>
                     )}

@@ -33,7 +33,7 @@ from app import config
 from app.errors import register_error_handlers
 from app.jobs import shutdown as stop_worker
 from app.jobs import start_worker, warm_up
-from app.routers import analytics, auth, chat, documents, jobs, resources
+from app.routers import analytics, auth, chat, documents, jobs, models, resources
 from learnmate import config as engine_config
 from learnmate.storage import ensure_indexes
 from learnmate.storage.mongo import StorageUnavailable
@@ -117,6 +117,7 @@ app.include_router(resources.router)
 app.include_router(chat.router)
 app.include_router(jobs.router)
 app.include_router(analytics.router)
+app.include_router(models.router)
 
 
 @app.get("/")

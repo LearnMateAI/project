@@ -17,7 +17,9 @@ import time
 from typing import Dict
 
 from ..evaluator import validators
+from ..evaluator import rubrics
 from ..evaluator.judge import get_judge
+from ..runtime_limits import add_timing
 from ..storage import content_store
 from .helpers import _log
 from .state import ResourceState
@@ -36,14 +38,20 @@ def check_node(state: ResourceState) -> Dict:
     content = state.get("content")
     started = state.get("started", time.time())
 
+    extras = {
+        "summary_style": state.get("summary_style") or "narrative",
+        "difficulty": state.get("difficulty") or "medium",
+        "model_id": state.get("model_id"),
+    }
+
     # --- Gate 1: structural ----------------------------------------------------------
-    ok, reasons = validators.validate(task.name, content)
+    ok, reasons = validators.validate(task.name, content, extras=extras)
     if not ok:
         _log(state, f"[*] Structural check FAILED: {'; '.join(reasons)}")
         content_store.log_evaluation(
             task.name, attempt, None, False, state["threshold"], stage="validator",
             elapsed=time.time() - started, doc_id=state.get("doc_id"),
-            user_id=state.get("user_id"), extra={"reasons": reasons})
+            user_id=state.get("user_id"), extra={"reasons": reasons, **extras})
         return {
             "stage": "validator",
             "passed": False,
@@ -55,6 +63,7 @@ def check_node(state: ResourceState) -> Dict:
             "previous": content,
             "attempts": [{"attempt": attempt, "stage": "validator", "passed": False,
                           "score": None, "reasons": reasons, "content": content}],
+            "timings": add_timing(state, "judge_ms", time.perf_counter()),
         }
 
     # --- Evaluation switched off ------------------------------------------------------
@@ -65,18 +74,26 @@ def check_node(state: ResourceState) -> Dict:
             "stage": "skipped", "passed": True, "verdict": None, "critique": None,
             "attempts": [{"attempt": attempt, "stage": "skipped", "passed": True,
                           "score": None, "reasons": [], "content": content}],
+            "timings": add_timing(state, "judge_ms", time.perf_counter()),
         }
 
     # --- Gate 2: the judge ------------------------------------------------------------
     _log(state, "[*] Structural check passed. Judging...")
+    clock = time.perf_counter()
+    criteria = rubrics.for_task(task.name, extras=extras)
     verdict = get_judge().judge(
         task.name, task.render(content), source=state["source"],
-        threshold=state["threshold"])
+        threshold=state["threshold"], criteria=criteria)
+
+    extra_log = dict(extras)
+    reasoning = (verdict.get("reasoning") or "").lower()
+    if task.name == "mcq" and "mismatch" in reasoning and "difficult" in reasoning:
+        extra_log["difficulty_mismatch"] = True
 
     content_store.log_evaluation(
         task.name, attempt, verdict["score"], verdict["passed"], state["threshold"],
         stage="judge", elapsed=time.time() - started, doc_id=state.get("doc_id"),
-        user_id=state.get("user_id"))
+        user_id=state.get("user_id"), extra=extra_log)
     _log(state, f"[*] Score {verdict['score']}/100 -> "
                 f"{'PASS' if verdict['passed'] else 'REGENERATE'}")
 
@@ -89,4 +106,5 @@ def check_node(state: ResourceState) -> Dict:
         "attempts": [{"attempt": attempt, "stage": "judge", "passed": verdict["passed"],
                       "score": verdict["score"], "reasons": [], "content": content,
                       "verdict": verdict}],
+            "timings": add_timing(state, "judge_ms", clock),
     }

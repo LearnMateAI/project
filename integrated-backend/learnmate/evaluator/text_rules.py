@@ -57,20 +57,39 @@ def validate_keypoints(items, min_points: int = 2) -> Tuple[bool, List[str]]:
     return (not reasons), reasons
 
 
-def validate_summary(text, min_chars: int = 80) -> Tuple[bool, List[str]]:
+def validate_summary(text, min_chars: int = 80, style: str = "narrative") -> Tuple[bool, List[str]]:
     """
     Check a summary.
 
-    Only length: a summary shorter than a sentence or two cannot have covered a page of
-    source, whatever it says. Whether it is *faithful* is a judgement, and belongs to the
-    rubric rather than here.
+    Narrative (default): only length — a summary shorter than a sentence or two cannot
+    have covered a page of source. Faithfulness is gate 2.
+
+    Structured: at least two points, none empty, none over ~40 words (paragraph stuffed
+    into a bullet).
     """
     text = str(text or "").strip()
     reasons = []
 
     if not text:
         reasons.append("the summary is empty")
-    elif len(text) < min_chars:
+        return False, reasons
+
+    if (style or "narrative") == "structured":
+        from learnmate.resource_agent.summary import STRUCTURED_MAX_WORDS, structured_points
+
+        points = structured_points(text)
+        if len(points) < 2:
+            reasons.append("a structured summary must contain at least two points")
+        for point in points:
+            words = len(point.split())
+            if words > STRUCTURED_MAX_WORDS:
+                reasons.append(
+                    f"a structured point is {words} words, over {STRUCTURED_MAX_WORDS} "
+                    "(it reads as a paragraph in bullet clothing)"
+                )
+        return (not reasons), reasons
+
+    if len(text) < min_chars:
         reasons.append(f"the summary is only {len(text)} characters, too short to cover "
                        "the source")
     return (not reasons), reasons

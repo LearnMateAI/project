@@ -15,6 +15,8 @@
  * conversation looks identical to one still in progress.
  */
 
+import CitationChips from "./CitationChips.jsx";
+
 function ChatMessage({ turn }) {
   const isUser = turn.role === "user";
 
@@ -28,8 +30,6 @@ function ChatMessage({ turn }) {
     );
   }
 
-  const pages = (turn.pages || []).filter((page) => page !== null && page !== undefined);
-  const uniquePages = [...new Set(pages)].sort((a, b) => a - b);
   const flagged = turn.accepted === false && turn.score !== null && turn.score !== undefined;
 
   return (
@@ -52,7 +52,7 @@ function ChatMessage({ turn }) {
           </p>
         )}
 
-        <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-body">{turn.content}</div>
+        <div className="whitespace-pre-wrap text-[14px] leading-[1.7] text-body font-serif">{turn.content}</div>
 
         {flagged && (
           <p className="text-[12px] text-warning mt-2.5">
@@ -60,14 +60,7 @@ function ChatMessage({ turn }) {
           </p>
         )}
 
-        {uniquePages.length > 0 && (
-          <p className="text-[11.5px] text-muted mt-2.5 flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-            From page{uniquePages.length === 1 ? "" : "s"} {uniquePages.join(", ")}
-          </p>
-        )}
+        <CitationChips turn={turn} />
 
         {/* Live replies carry the retrieved chunks; replayed history carries page numbers
             only, so this appears on the turn you just asked for. */}
@@ -79,10 +72,12 @@ function ChatMessage({ turn }) {
             <div className="mt-2 space-y-2">
               {turn.contexts.map((context, index) => (
                 <div key={index} className="bg-surface-alt border border-border-light rounded-lg p-2.5">
-                  <p className="text-subtle mb-1 font-medium">
-                    Page {context.page_number} · match {Number(context.score ?? 0).toFixed(2)}
+                  <p className="text-subtle mb-1 font-medium font-sans">
+                    {context.page_number != null ? `Page ${context.page_number}` : "Source"}
+                    {context.paragraph != null ? ` · ¶${context.paragraph}` : ""}
+                    {context.score != null ? ` · match ${Number(context.score).toFixed(2)}` : ""}
                   </p>
-                  <p className="text-body leading-relaxed">{context.text}</p>
+                  <p className="text-body leading-relaxed font-serif">{context.text}</p>
                 </div>
               ))}
             </div>

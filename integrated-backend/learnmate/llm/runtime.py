@@ -18,6 +18,7 @@ weights, because only the wrapper layer has temperature in its key.
 
 import atexit
 import threading
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from .. import config
@@ -90,6 +91,37 @@ def _load_llama(gguf_path: str, n_ctx: int, n_threads: Optional[int],
             kwargs["chat_format"] = chat_format
         _LLAMA_CACHE[key] = Llama(**kwargs)
     return _LLAMA_CACHE[key]
+
+
+def unload_llama(gguf_path: str) -> int:
+    """
+    Drop every cached llama.cpp context for one GGUF file.
+
+    Used when the generator switches model_id. The judge is a different path and is left
+    loaded. Only one generator lives in memory at a time — loading two would reintroduce
+    the mutable-context race the single worker was built to avoid.
+    """
+    path = str(gguf_path)
+    try:
+        wanted = str(Path(path).resolve()) if Path(path).exists() else path
+    except Exception:
+        wanted = path
+    removed = 0
+    with _LOAD_LOCK:
+        for key in list(_LLAMA_CACHE):
+            stored = str(key[0])
+            try:
+                stored_n = str(Path(stored).resolve()) if Path(stored).exists() else stored
+            except Exception:
+                stored_n = stored
+            if stored == path or stored_n == wanted:
+                model = _LLAMA_CACHE.pop(key)
+                try:
+                    model.close()
+                except Exception:
+                    pass
+                removed += 1
+    return removed
 
 
 @atexit.register

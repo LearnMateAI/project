@@ -36,8 +36,15 @@ function McqQuiz({ questions }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  const barStyle = questions.some((question) => question.difficulty === "hard");
+
   return (
     <div>
+      {barStyle && (
+        <p className="notice notice-info mb-4">
+          Bar-style (MBE) set — hard stems with near-miss distractors, still only from this source.
+        </p>
+      )}
       {submitted && (
         <div className="card p-5 mb-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -74,12 +81,17 @@ function McqQuiz({ questions }) {
                   <span className="text-primary mr-1.5">{index + 1}.</span>
                   {question.question}
                 </p>
-                {submitted && (
+                <span className="flex items-center gap-2 shrink-0">
+                  {question.difficulty && (
+                    <span className="badge badge-gray">{question.difficulty}</span>
+                  )}
+                  {submitted && (
                   <span className={`badge shrink-0 ${gotItRight ? "badge-green" : "badge-red"}`}>
                     <span className="badge-dot" />
                     {gotItRight ? "Correct" : "Incorrect"}
                   </span>
-                )}
+                  )}
+                </span>
               </div>
 
               <div className="space-y-2">

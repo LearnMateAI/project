@@ -13,11 +13,13 @@ other way round means the retrieval has already failed by the time we fix the qu
 """
 
 import re
+import time
 from typing import Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_judge_llm
+from ..runtime_limits import JobTimeout, add_timing
 from .helpers import _log
 from .prompts import REWRITE_SYSTEM
 from .state import ChatState
@@ -39,11 +41,13 @@ def _needs_rewrite(query: str, history: list) -> bool:
 
 def rewrite_node(state: ChatState) -> Dict:
     """Resolve follow-up references so retrieval sees a self-contained question."""
+    started = time.perf_counter()
     query = state["query"]
     history = state.get("history") or []
 
     if not _needs_rewrite(query, history):
-        return {"standalone_query": query}
+        return {"standalone_query": query,
+                "timings": add_timing(state, "rewrite_ms", started)}
 
     history_text = "\n".join(f"{turn['role']}: {turn['content']}" for turn in history)
     messages = [
@@ -64,8 +68,13 @@ def rewrite_node(state: ChatState) -> Dict:
         if rewritten and rewritten != query:
             _log(state, f"[*] Rewritten: {rewritten}")
 
-        return {"standalone_query": rewritten or query}
+        return {"standalone_query": rewritten or query,
+                "timings": add_timing(state, "rewrite_ms", started)}
+    except JobTimeout:
+        raise
     except Exception:
         # Rewriting is an optimisation; the raw query still retrieves something.
         # A failure here must never cost the user their answer.
-        return {"standalone_query": query}
+        return {"standalone_query": query,
+                "timings": add_timing(state, "rewrite_ms", started)}
+

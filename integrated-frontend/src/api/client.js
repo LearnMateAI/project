@@ -51,6 +51,23 @@ api.interceptors.response.use(
  * verbatim wherever it exists rather than replaced with something vaguer.
  */
 export function errorMessage(error, fallback = "Something went wrong. Please try again.") {
+  const code = error?.errorCode;
+  if (code === "timeout") {
+    return "This took too long and was stopped. Try a smaller scope, or raise LEARNMATE_JOB_TIMEOUT_S.";
+  }
+  if (code === "storage") {
+    return "Cannot reach the database. Is MongoDB or Qdrant running?";
+  }
+  if (code === "model") {
+    return error?.message || "The model could not be loaded. Pick another model, or check the GGUF path.";
+  }
+  if (code === "interrupted") {
+    return "The server restarted. Please try again.";
+  }
+  if (code === "parse") {
+    return error?.message || "The model returned something that could not be read. Please try again.";
+  }
+
   const detail = error?.response?.data?.detail;
   if (typeof detail === "string") return detail;
   // FastAPI's 422 body is an array of per-field objects; show the first one's message.
@@ -59,6 +76,15 @@ export function errorMessage(error, fallback = "Something went wrong. Please try
   }
   if (error?.code === "ERR_NETWORK") {
     return "Cannot reach the server. Is the backend running?";
+  }
+  if (error?.code === "ECONNABORTED") {
+    return "The request timed out. The job may still be running — check Resources or Chat.";
+  }
+  if (error?.response?.status === 403) {
+    return typeof detail === "string" ? detail : "You do not have access to this.";
+  }
+  if (error?.response?.status === 401) {
+    return "Your session has expired. Please log in again.";
   }
   return fallback;
 }

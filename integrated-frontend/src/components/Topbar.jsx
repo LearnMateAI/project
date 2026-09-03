@@ -6,15 +6,16 @@
  * notifications and the signed-in user's own name with an avatar.
  */
 
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth.js";
 import { useTheme } from "../hooks/useTheme.js";
 
 const TITLES = [
   { match: /^\/dashboard/, title: "Dashboard" },
-  { match: /^\/documents/, title: "Documents" },
-  { match: /^\/resources/, title: "Resources" },
-  { match: /^\/chat/, title: "Chat" },
+  { match: /^\/documents/, title: "Library" },
+  { match: /^\/resources/, title: "Study materials" },
+  { match: /^\/chat/, title: "Ask the record" },
   { match: /^\/analytics/, title: "Analytics" },
   { match: /^\/home/, title: "Home" },
   { match: /^\/about/, title: "About" },
@@ -29,8 +30,28 @@ function Topbar({ onOpenNav, navHidden = false }) {
   const { isDark, toggle } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
 
   const title = TITLES.find((entry) => entry.match.test(location.pathname))?.title || "LearnMateAI";
+
+  // There is nothing behind this yet -- no backend event feed. A bell that opens and
+  // says so honestly is better than one that looks live and does nothing when clicked.
+  useEffect(() => {
+    if (!notifOpen) return undefined;
+    function onPointerDown(e) {
+      if (!notifRef.current?.contains(e.target)) setNotifOpen(false);
+    }
+    function onKeyDown(e) {
+      if (e.key === "Escape") setNotifOpen(false);
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [notifOpen]);
 
   const initials = (user?.name || "U")
     .split(" ")
@@ -89,11 +110,29 @@ function Topbar({ onOpenNav, navHidden = false }) {
           )}
         </button>
 
-        <button type="button" className="btn-icon rounded-full relative" aria-label="Notifications">
-          <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-          </svg>
-        </button>
+        <div className="relative" ref={notifRef}>
+          <button
+            type="button"
+            onClick={() => setNotifOpen((open) => !open)}
+            className="btn-icon rounded-full relative"
+            aria-label="Notifications"
+            aria-haspopup="true"
+            aria-expanded={notifOpen}
+          >
+            <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+          </button>
+
+          {notifOpen && (
+            <div className="card absolute right-0 top-[calc(100%+0.5rem)] w-64 p-4 z-50 animate-fade-in">
+              <p className="text-[13px] font-semibold text-heading m-0">Notifications</p>
+              <p className="text-[12.5px] text-muted mt-1.5 mb-0 leading-relaxed">
+                You&rsquo;re all caught up — nothing to show yet.
+              </p>
+            </div>
+          )}
+        </div>
 
         <button
           type="button"

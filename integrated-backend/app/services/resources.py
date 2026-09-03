@@ -108,7 +108,8 @@ def serialize_detail(resource: Dict) -> Dict:
 def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passage",
              topic: str = None, pages: Optional[List[int]] = None, count: int = None,
              per_page: int = None, evaluate: bool = True, threshold: int = None,
-             on_progress=None) -> Dict:
+             on_progress=None, summary_style: str = None, difficulty: str = None,
+             model_id: str = None) -> Dict:
     """
     Generate one resource, start to finish. Slow: seconds to minutes.
 
@@ -129,6 +130,10 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
         # Nobody is watching stdout on the worker; progress goes to the job record.
         "verbose": False,
         "on_progress": on_progress,
+        "summary_style": summary_style,
+        "difficulty": difficulty,
+        "model_id": model_id,
+        "topic": topic,
     }
 
     if scope == "document":
@@ -168,7 +173,7 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
     detail = serialize_detail(stored)
     # Reported by the whole-document paths: how many were asked for versus produced,
     # which is the difference between "the document is short" and "something went wrong".
-    for key in ("requested", "generated", "groups", "per_page"):
+    for key in ("requested", "generated", "groups", "per_page", "timings"):
         if key in result:
             detail[key] = result[key]
     return detail

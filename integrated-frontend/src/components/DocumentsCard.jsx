@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { listDocuments, uploadDocument } from "../api/documents.js";
 import { useJob } from "../hooks/useJob.js";
+import { MATTER_TYPES, setMatterType } from "../lib/matterTypes.js";
 import JobProgress from "./JobProgress.jsx";
 
 const SUBJECTS = [
@@ -37,6 +38,7 @@ const MAX_MB = 10;
 function DocumentsCard({ onUploaded }) {
   const [documentCount, setDocumentCount] = useState(null);
   const [subject, setSubject] = useState("General");
+  const [matterKind, setMatterKind] = useState("case");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [progress, setProgress] = useState(0);
@@ -96,13 +98,15 @@ function DocumentsCard({ onUploaded }) {
     );
 
     if (result) {
+      const documentId = result.document_id || result.id;
+      if (documentId) setMatterType(documentId, matterKind);
       setSuccess(
         result.skipped
           ? `"${file.name}" was already indexed — ready straight away.`
-          : `"${file.name}" is ready: ${result.pages} pages, ${result.chunks} chunks.`,
+          : `"${file.name}" is ready: ${result.pages} pages, ${result.chunks} passages.`,
       );
       await refreshCount();
-      onUploaded?.();
+      onUploaded?.({ id: documentId, ...result });
     }
 
     setSending(false);
@@ -125,13 +129,13 @@ function DocumentsCard({ onUploaded }) {
     <section className="card">
       <div className="card-head">
         <div>
-          <h2>Upload</h2>
+          <h2>File a source</h2>
           <p className="text-[12px] text-muted mt-0.5">
             {documentCount === null
               ? "Checking your library..."
               : documentCount === 0
-                ? "No documents yet"
-                : `${documentCount} document${documentCount === 1 ? "" : "s"} in your library`}
+                ? "No sources yet"
+                : `${documentCount} source${documentCount === 1 ? "" : "s"} in your library`}
           </p>
         </div>
         <span className="icon-tile icon-tile-soft w-10 h-10">
@@ -142,6 +146,23 @@ function DocumentsCard({ onUploaded }) {
       </div>
 
       <div className="card-body">
+        <label className="field-label" htmlFor="matter-kind">
+          File as
+        </label>
+        <select
+          id="matter-kind"
+          value={matterKind}
+          onChange={(e) => setMatterKind(e.target.value)}
+          disabled={busy}
+          className="select mb-4"
+        >
+          {MATTER_TYPES.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.singular}
+            </option>
+          ))}
+        </select>
+
         <label className="field-label" htmlFor="subject">
           Subject
         </label>
@@ -191,6 +212,11 @@ function DocumentsCard({ onUploaded }) {
             {busy ? "Working on it..." : "Drop a PDF here, or click to choose"}
           </p>
           <p className="text-[11.5px] text-subtle mt-0.5">PDF only · up to {MAX_MB} MB</p>
+          <p className="text-[11.5px] text-muted mt-2 leading-relaxed max-w-sm mx-auto">
+            Text is extracted from the file — including older court PDFs that already have a
+            text layer (many scans from courts do). Image-only pages with no selectable text
+            cannot be indexed until they have a text layer.
+          </p>
         </label>
 
         {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the

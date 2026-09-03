@@ -52,6 +52,7 @@ def create(user_id: str, kind: str, params: Optional[Dict] = None,
         "progress": {"message": message, "current": 0, "total": None},
         "result": None,
         "error": None,
+        "error_code": None,
         "created_at": datetime.now(timezone.utc),
         "started_at": None,
         "finished_at": None,
@@ -133,25 +134,31 @@ def set_reply_ready(job_id, text: str) -> None:
 
 def finish(job_id, result: Any = None, message: str = "Done.") -> None:
     """Mark a job done, with whatever the caller should be handed back."""
+    update: Dict[str, Any] = {
+        "status": DONE, "result": result, "error": None, "error_code": None,
+        "finished_at": datetime.now(timezone.utc),
+        "progress.message": message,
+        # Cleared, not kept. The streamed text was the newest *attempt*; the
+        # result holds the attempt that actually won, which is not always the
+        # same one (see chat_agent/persist.best_attempt). Leaving both on the
+        # record invites a client to render the wrong one.
+        "progress.partial": None,
+        "progress.reply_ready": False,
+    }
+    if isinstance(result, dict) and result.get("timings"):
+        update["progress.timings"] = result["timings"]
     _collection().update_one(
         {"_id": coerce_id(job_id)},
-        {"$set": {"status": DONE, "result": result, "error": None,
-                  "finished_at": datetime.now(timezone.utc),
-                  "progress.message": message,
-                  # Cleared, not kept. The streamed text was the newest *attempt*; the
-                  # result holds the attempt that actually won, which is not always the
-                  # same one (see chat_agent/persist.best_attempt). Leaving both on the
-                  # record invites a client to render the wrong one.
-                  "progress.partial": None,
-                  "progress.reply_ready": False}},
+        {"$set": update},
     )
 
 
-def fail(job_id, error: str) -> None:
+def fail(job_id, error: str, error_code: str = "unknown") -> None:
     """Mark a job failed, keeping the message for the user to read."""
     _collection().update_one(
         {"_id": coerce_id(job_id)},
         {"$set": {"status": FAILED, "error": str(error)[:2000],
+                  "error_code": error_code,
                   "finished_at": datetime.now(timezone.utc),
                   "progress.message": "Failed."}},
     )
@@ -166,7 +173,7 @@ def fail_running(reason: str) -> int:
     """
     result = _collection().update_many(
         {"status": {"$in": [QUEUED, RUNNING]}},
-        {"$set": {"status": FAILED, "error": reason,
+        {"$set": {"status": FAILED, "error": reason, "error_code": "interrupted",
                   "finished_at": datetime.now(timezone.utc),
                   "progress.message": "Failed."}},
     )

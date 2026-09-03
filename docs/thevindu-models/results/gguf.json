@@ -1,0 +1,43 @@
+{
+  "generators": [
+    {
+      "id": "qwen25-3b",
+      "skipped": true,
+      "reason": "gguf_missing",
+      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\qwen2.5-3b-instruct-q4_k_m.gguf"
+    },
+    {
+      "id": "gemma2-2b",
+      "skipped": true,
+      "reason": "gguf_missing",
+      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\gemma-2-2b-it-Q4_K_M.gguf"
+    },
+    {
+      "id": "phi35-mini",
+      "skipped": true,
+      "reason": "gguf_missing",
+      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\Phi-3.5-mini-instruct-Q4_K_M.gguf"
+    }
+  ],
+  "judges": [
+    {
+      "id": "llama32-3b",
+      "skipped": true,
+      "reason": "gguf_missing",
+      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+    },
+    {
+      "id": "gemma2-2b-judge",
+      "skipped": true,
+      "reason": "gguf_missing",
+      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\gemma-2-2b-it-Q4_K_M.gguf"
+    },
+    {
+      "id": "granite-2b",
+      "skipped": true,
+      "reason": "gguf_missing",
+      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\ibm-granite_granite-3.2-2b-instruct-Q4_K_M.gguf"
+    }
+  ],
+  "pairing_rule": "Never score a judge that shares a family with the generator under test. Gemma-as-judge is only valid next to Qwen or Phi. Granite-as-judge is valid next to Qwen, Phi, or Gemma."
+}

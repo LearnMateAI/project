@@ -26,6 +26,10 @@ Weights are **not** in git. Each `model-<name>/` folder is a rerun recipe, same 
 4. Record numbers in [RESULTS.md](RESULTS.md). Promotion is a RESULTS decision, not a
    registry default change.
 
+**This run (2026-09-03):** E5-small won embeddings on NDCG; MiniLM-L-12 won the reranker;
+retrieve agents tied; no GGUFs were on disk so generators/judges were skipped. Live
+defaults were **not** changed. Full tables: [RESULTS.md](RESULTS.md).
+
 ## One-shot retrieval eval (no GGUF)
 
 From the repo root, using the backend venv:

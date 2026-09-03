@@ -12,17 +12,23 @@ heavy; model generation may be slow and storage or data-transfer charges can sti
 
 Install Docker and clone this repository on the instance at `/home/ubuntu/learnmate` (or set
 the `EC2_APP_DIR` GitHub secret). Open inbound TCP port 80 in the security group. Do not
-expose 27017, 6333, 8080, or 8000 publicly.
+expose 22, 27017, 6333, 8080, or 8000 publicly. CD uses AWS Systems Manager, not SSH.
 
 ## GitHub secrets
 
 Add these repository secrets:
 
-- `EC2_HOST`: public IPv4 address or DNS name
-- `EC2_USERNAME`: usually `ubuntu` for Ubuntu AMIs
-- `EC2_SSH_KEY`: private key for the instance
+- `AWS_ACCESS_KEY_ID`: IAM access key for a deployment user
+- `AWS_SECRET_ACCESS_KEY`: IAM secret for that user
+- `AWS_REGION`: for example `us-west-1`
+- `EC2_INSTANCE_ID`: for example `i-0123456789abcdef0`
 - `APP_ENV_FILE_B64`: base64-encoded production `.env` file
 - `EC2_APP_DIR`: optional absolute path; defaults to `/home/<EC2_USERNAME>/learnmate`
+
+Attach the AWS-managed `AmazonSSMManagedEC2InstanceCore` policy to the EC2 instance role.
+The instance must have the SSM Agent running and outbound HTTPS access to AWS SSM endpoints.
+Create a least-privilege deployment IAM user that can call `ssm:SendCommand`,
+`ssm:GetCommandInvocation`, and `ssm:ListCommandInvocations` for this instance.
 
 Create the environment secret locally without committing it:
 

@@ -2,42 +2,307 @@
   "generators": [
     {
       "id": "qwen25-3b",
-      "skipped": true,
-      "reason": "gguf_missing",
-      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\qwen2.5-3b-instruct-q4_k_m.gguf"
+      "skipped": false,
+      "display_name": "Qwen 2.5 3B Instruct",
+      "grounded_hit_rate": 1.0,
+      "json_valid_rate": 1.0,
+      "mean_ms": 15082.2,
+      "approx_chars_per_s": 8.2,
+      "items": [
+        {
+          "id": "g01",
+          "kind": "qa",
+          "ms": 16078,
+          "must_contain_hits": 2,
+          "must_contain_n": 2,
+          "preview": "Consideration is the price of the promise: something of value given in exchange."
+        },
+        {
+          "id": "g02",
+          "kind": "qa",
+          "ms": 6348,
+          "must_contain_hits": 1,
+          "must_contain_n": 1,
+          "preview": "Audi alteram partem requires that the person affected must be given a fair chance to be heard before an adverse decision."
+        },
+        {
+          "id": "g03",
+          "kind": "mcq_json",
+          "ms": 32032,
+          "json_valid": true,
+          "parse_error": "",
+          "preview": "{ \"question\": \"Which of the following statements is true according to the passage? \", \"options\": [\"A company is a separate legal person from its shareholders.\", \"Limited liability means a member is personally liable for the company's debts "
+        },
+        {
+          "id": "g04",
+          "kind": "qa",
+          "ms": 5871,
+          "must_contain_hits": 1,
+          "must_contain_n": 1,
+          "preview": "No, judicial review is not an appeal on the merits."
+        }
+      ]
     },
     {
       "id": "gemma2-2b",
-      "skipped": true,
-      "reason": "gguf_missing",
-      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\gemma-2-2b-it-Q4_K_M.gguf"
+      "skipped": false,
+      "display_name": "Gemma 2 2B Instruct",
+      "grounded_hit_rate": 0.6667,
+      "json_valid_rate": 0.0,
+      "mean_ms": 14856.5,
+      "approx_chars_per_s": 7.5,
+      "items": [
+        {
+          "id": "g01",
+          "kind": "qa",
+          "ms": 16002,
+          "must_contain_hits": 2,
+          "must_contain_n": 2,
+          "preview": "Consideration is the price of the promise: something of value given in exchange. \n"
+        },
+        {
+          "id": "g02",
+          "kind": "qa",
+          "ms": 4990,
+          "must_contain_hits": 1,
+          "must_contain_n": 1,
+          "preview": "Audi alteram partem requires the person affected to be given a fair chance to be heard before an adverse decision. \n"
+        },
+        {
+          "id": "g03",
+          "kind": "mcq_json",
+          "ms": 34921,
+          "json_valid": false,
+          "parse_error": "",
+          "preview": "{ \"question\": \"Which of the following statements about company liability is TRUE?\", \"options\": [ \"A. Shareholders are personally liable for the company's debts.\", \"B. Limited liability means members are personally liable for the company's d"
+        },
+        {
+          "id": "g04",
+          "kind": "qa",
+          "ms": 3513,
+          "must_contain_hits": 0,
+          "must_contain_n": 1,
+          "preview": "No. \n"
+        }
+      ]
     },
     {
       "id": "phi35-mini",
-      "skipped": true,
-      "reason": "gguf_missing",
-      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\Phi-3.5-mini-instruct-Q4_K_M.gguf"
+      "skipped": false,
+      "display_name": "Phi-3.5 Mini Instruct",
+      "grounded_hit_rate": 0.0,
+      "json_valid_rate": 0.0,
+      "mean_ms": 17822.2,
+      "approx_chars_per_s": 2.9,
+      "items": [
+        {
+          "id": "g01",
+          "kind": "qa",
+          "ms": 20609,
+          "must_contain_hits": 0,
+          "must_contain_n": 2,
+          "preview": "\u0003!\t\u0005\u000e\u0013\u0007\u0014\u0007\u0010\u0015\u0018\t\u001c\t\u0004\u0019\u0006\u000f$\u0015\u0018\u001d\u001f\n\u001d#\u0013\u0011\u001c"
+        },
+        {
+          "id": "g02",
+          "kind": "qa",
+          "ms": 17078,
+          "must_contain_hits": 0,
+          "must_contain_n": 1,
+          "preview": " \"\u0001\u0007\u0017\"\u0001\u0003\u001a\u000b\u0010\f\u0005\u0014#\u001a\u000f\u001e\u001d\u000f\u0018\f\u0016\r\u0010\u0003\u0019\u001d\u0004\r\f\u0003\u000f\f\u0010\r\t\u0006\u0013$\u0007\u000e \u001f\u0006\u0016\u000f\t!\"\u001e\u0002\u001f\u0010\b\u0003\b\"\u0016\u0002\"\u0019\u001f"
+        },
+        {
+          "id": "g03",
+          "kind": "mcq_json",
+          "ms": 26319,
+          "json_valid": false,
+          "parse_error": "ValueError: Could not parse model output as JSON: { \"question\":\"\u0013\u000f\u0005\u0003\u001c%\u001e\u0019\u001c\u0017\u0013%#\u0016!\u001f\u0011\u0001\u0006\u0010\u0010\u0002\" ,\"options\": [] , \"answer\":\"\u0011\u0007\u0004\u000e\u001f\u001f\u0002\u0005\u0012\u0004#\u0001\u0018\u000b \u0011\u0015\u001d\u000b\u0016\u0007\u000b\t\u0007\u001f\u0013\u0012\u0012$\u0018\u0013\t\u001c \u0014\u000f\" }",
+          "preview": "{ \"question\":\"\u0013\u000f\u0005\u0003\u001c%\u001e\u0019\u001c\u0017\u0013%#\u0016!\u001f\u0011\u0001\u0006\u0010\u0010\u0002\" ,\"options\": [] , \"answer\":\"\u0011\u0007\u0004\u000e\u001f\u001f\u0002\u0005\u0012\u0004#\u0001\u0018\u000b \u0011\u0015\u001d\u000b\u0016\u0007\u000b\t\u0007\u001f\u0013\u0012\u0012$\u0018\u0013\t\u001c \u0014\u000f\" }"
+        },
+        {
+          "id": "g04",
+          "kind": "qa",
+          "ms": 7283,
+          "must_contain_hits": 0,
+          "must_contain_n": 1,
+          "preview": "\t\u000e\u001c\u0011\u000f\u0012\u0012"
+        }
+      ]
     }
   ],
   "judges": [
     {
       "id": "llama32-3b",
-      "skipped": true,
-      "reason": "gguf_missing",
-      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+      "skipped": false,
+      "display_name": "Llama 3.2 3B Instruct",
+      "accuracy": 1.0,
+      "mean_ms": 32966.6,
+      "system_role_supported": true,
+      "items": [
+        {
+          "id": "j01",
+          "ms": 30420,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{\"score\": 0, \"reasoning\": \"The passage does not mention Article 126 or any other specific source or rule. The claim is not supported by the passage.\", \"regeneration_instruction\": \"Please provide a new passage or claim to evaluate.\"}"
+        },
+        {
+          "id": "j02",
+          "ms": 32882,
+          "gold_pass": true,
+          "predicted_pass": true,
+          "score": 80,
+          "correct": true,
+          "preview": "{\"score\": 80, \"reasoning\": \"The claim is partially supported by the passage. The passage states that a person affected must be given a fair chance to be heard before an adverse decision, but it does not explicitly state that the person must"
+        },
+        {
+          "id": "j03",
+          "ms": 37872,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{\"score\": 0, \"reasoning\": \"The claim states that shareholders are jointly liable for all company debts, as with a partnership, per the Prescription Ordinance section 10. However, the passage does not mention anything about joint liability f"
+        },
+        {
+          "id": "j04",
+          "ms": 39068,
+          "gold_pass": true,
+          "predicted_pass": true,
+          "score": 90,
+          "correct": true,
+          "preview": "{\"score\": 90, \"reasoning\": \"The claim is supported by the passage as it states that judicial review is not an appeal on the merits, but rather a check on the lawfulness of the public decision. The claim also accurately paraphrases the passa"
+        },
+        {
+          "id": "j05",
+          "ms": 24591,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{\"score\": 0, \"reasoning\": \"The passage defines hearsay as an out-of-court statement offered to prove the truth of what it asserts, but it does not explicitly state that every affidavit is hearsay. In fact, the passage does not mention affid"
+        }
+      ]
     },
     {
       "id": "gemma2-2b-judge",
-      "skipped": true,
-      "reason": "gguf_missing",
-      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\gemma-2-2b-it-Q4_K_M.gguf"
+      "skipped": false,
+      "display_name": "Gemma 2 2B Instruct (judge role)",
+      "accuracy": 1.0,
+      "mean_ms": 38322.8,
+      "system_role_supported": false,
+      "items": [
+        {
+          "id": "j01",
+          "ms": 43788,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{ \"score\": 0, \"reasoning\": \"The claim cites Article 126, which is not mentioned in the passage. The passage discusses consideration as a price for a promise, but does not mention any specific legal articles or rights.\", \"regeneration_instru"
+        },
+        {
+          "id": "j02",
+          "ms": 31088,
+          "gold_pass": true,
+          "predicted_pass": true,
+          "score": 100,
+          "correct": true,
+          "preview": "{ \"score\": 100, \"reasoning\": \"The claim is directly supported by the passage. The passage explicitly states 'Audi alteram partem means the person affected must be given a fair chance to be heard before an adverse decision.' This directly al"
+        },
+        {
+          "id": "j03",
+          "ms": 44142,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 50,
+          "correct": true,
+          "preview": "{ \"score\": 50, \"reasoning\": \"The passage states that shareholders are not personally liable for company debts beyond what they agreed to contribute. The claim contradicts this by stating that shareholders are jointly liable for all company "
+        },
+        {
+          "id": "j04",
+          "ms": 36449,
+          "gold_pass": true,
+          "predicted_pass": true,
+          "score": 85,
+          "correct": true,
+          "preview": "{ \"score\": 85, \"reasoning\": \"The passage explicitly states that judicial review is not an appeal on the merits, but a check on the legality of the public decision. This aligns with the claim that judicial review is a legality check, not a r"
+        },
+        {
+          "id": "j05",
+          "ms": 36147,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 10,
+          "correct": true,
+          "preview": "{ \"score\": 10, \"reasoning\": \"The passage defines hearsay but does not mention affidavits or their admissibility. The claim is not supported by the passage.\", \"regeneration_instruction\": \"The claim needs to be revised to reflect the informat"
+        }
+      ]
     },
     {
       "id": "granite-2b",
-      "skipped": true,
-      "reason": "gguf_missing",
-      "expected": "D:\\Semester 5\\DSEP\\project\\integrated-backend\\models\\ibm-granite_granite-3.2-2b-instruct-Q4_K_M.gguf"
+      "skipped": false,
+      "display_name": "Granite 3.2 2B Instruct",
+      "accuracy": 1.0,
+      "mean_ms": 36878.6,
+      "items": [
+        {
+          "id": "j01",
+          "ms": 59361,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{ \"score\": 0, \"reasoning\": \"The passage does not discuss Article 126 or the enforceability of gift promises in the Supreme Court. It only defines consideration as the price of the promise, implying it must be of value. The claim cites a sou"
+        },
+        {
+          "id": "j02",
+          "ms": 22430,
+          "gold_pass": true,
+          "predicted_pass": true,
+          "score": 100,
+          "correct": true,
+          "preview": "{ \"score\": 100, \"reasoning\": \"The passage explicitly states 'Audi alteram partem means the person affected must be given a fair chance to be heard before an adverse decision.' This directly supports the claim that a person should be heard b"
+        },
+        {
+          "id": "j03",
+          "ms": 33286,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{ \"score\": 0, \"reasoning\": \"The passage explicitly states that shareholders in a company are not personally liable for the company's debts beyond their agreed contribution, which contradicts the claim that shareholders are jointly liable fo"
+        },
+        {
+          "id": "j04",
+          "ms": 36101,
+          "gold_pass": true,
+          "predicted_pass": true,
+          "score": 100,
+          "correct": true,
+          "preview": "{ \"score\": 100, \"reasoning\": \"The passage explicitly states that judicial review is not an appeal on the merits, but rather a check on whether the public decision was lawful. This directly supports the claim that judicial review is a legali"
+        },
+        {
+          "id": "j05",
+          "ms": 33215,
+          "gold_pass": false,
+          "predicted_pass": false,
+          "score": 0,
+          "correct": true,
+          "preview": "{ \"score\": 0, \"reasoning\": \"The passage defines hearsay as an out-of-court statement offered to prove the truth of what it asserts. It does not explicitly state that every affidavit is hearsay or inadmissible at every stage of every case. T"
+        }
+      ]
     }
   ],
-  "pairing_rule": "Never score a judge that shares a family with the generator under test. Gemma-as-judge is only valid next to Qwen or Phi. Granite-as-judge is valid next to Qwen, Phi, or Gemma."
+  "pairing_rule": "Never score a judge that shares a family with the generator under test. Gemma-as-judge is only valid next to Qwen or Phi. Granite-as-judge is valid next to Qwen, Phi, or Gemma.",
+  "machine": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+    "python": "3.13.7",
+    "note": "Laptop CPU GGUF eval; not Colab T4, not a production GPU box."
+  },
+  "generator_under_test": "qwen25-3b"
 }

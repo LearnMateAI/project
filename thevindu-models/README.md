@@ -43,15 +43,15 @@ where it is. These folders only compare **live laptop drop-ins**.
 3. Run `scripts/` from `integrated-backend` (embedders are constructed without the process singleton).
 4. Record numbers in [RESULTS.md](RESULTS.md). Promotion is a RESULTS decision, not a registry default.
 
-**This run (2026-09-03):** E5-small won embeddings on NDCG; MiniLM-L-12 won the reranker;
-retrieve agents tied; no GGUFs were on disk so generators/judges were skipped. Live
-defaults were **not** changed.
+**This run (2026-09-04):** Qwen generator 1.00/1.00 JSON; Gemma and Phi rejected. Llama and Granite judges 5/5; Granite is a candidate only. Real company-law PDF reversed the toy-fixture E5 and L-12 wins. Live defaults were **not** changed.
 
 ## One-shot retrieval eval (no GGUF)
 
 ```powershell
 cd "integrated-backend"
 .\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_retrieval.py
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_real_pdf.py
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_gguf.py --generators gemma2-2b
 ```
 
 GGUF generate/judge eval (skips any file that is not on disk):

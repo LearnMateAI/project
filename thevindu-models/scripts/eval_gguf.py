@@ -132,6 +132,8 @@ def eval_generator(entry: Dict, prompts: List[Dict]) -> Dict:
     unload_llama(str(path))
     qa = [r for r in rows if r["kind"] == "qa"]
     mcq = [r for r in rows if r["kind"] == "mcq_json"]
+    total_chars = sum(len(r.get("preview") or "") for r in rows)
+    total_s = (sum(r["ms"] for r in rows) / 1000) if rows else 0
     return {
         "id": entry["id"],
         "skipped": False,
@@ -141,6 +143,7 @@ def eval_generator(entry: Dict, prompts: List[Dict]) -> Dict:
         ) if qa else None,
         "json_valid_rate": round(sum(1 for r in mcq if r["json_valid"]) / len(mcq), 4) if mcq else None,
         "mean_ms": round(sum(r["ms"] for r in rows) / len(rows), 1) if rows else None,
+        "approx_chars_per_s": round(total_chars / total_s, 1) if total_s else None,
         "items": rows,
     }
 
@@ -152,23 +155,33 @@ def eval_judge(entry: Dict, cases: List[Dict]) -> Dict:
                 "expected": str(models_dir() / entry["gguf_path"])}
 
     rows = []
+    system_ok = True
+    system_text = (
+        "You grade whether a claim is supported by the passage. "
+        "score 1-100. passed means score >= 70. If the claim cites a source "
+        "or rule that is not in the passage, fail it."
+    )
     for item in cases:
         started = time.perf_counter()
-        text = _chat(
-            path, int(entry.get("context_length") or 8192),
-            [
-                SystemMessage(content=(
-                    "You grade whether a claim is supported by the passage. "
-                    "score 1-100. passed means score >= 70. If the claim cites a source "
-                    "or rule that is not in the passage, fail it."
-                )),
-                HumanMessage(content=(
-                    f"Passage:\n{item['passage']}\n\nClaim:\n{item['claim']}\n\n"
-                    "Reply JSON with score, reasoning, regeneration_instruction."
-                )),
-            ],
-            max_tokens=220, temperature=0.0, schema=VERDICT_SCHEMA,
+        user_text = (
+            f"Passage:\n{item['passage']}\n\nClaim:\n{item['claim']}\n\n"
+            "Reply JSON with score, reasoning, regeneration_instruction."
         )
+        try:
+            text = _chat(
+                path, int(entry.get("context_length") or 8192),
+                [SystemMessage(content=system_text), HumanMessage(content=user_text)],
+                max_tokens=220, temperature=0.0, schema=VERDICT_SCHEMA,
+            )
+        except ValueError as exc:
+            if "system" not in str(exc).lower():
+                raise
+            system_ok = False
+            text = _chat(
+                path, int(entry.get("context_length") or 8192),
+                [HumanMessage(content=system_text + "\n\n" + user_text)],
+                max_tokens=220, temperature=0.0, schema=VERDICT_SCHEMA,
+            )
         elapsed = time.perf_counter() - started
         parsed = None
         try:
@@ -197,8 +210,59 @@ def eval_judge(entry: Dict, cases: List[Dict]) -> Dict:
         "display_name": entry.get("display_name"),
         "accuracy": round(sum(1 for r in rows if r["correct"]) / n, 4),
         "mean_ms": round(sum(r["ms"] for r in rows) / len(rows), 1),
+        "system_role_supported": system_ok,
         "items": rows,
     }
+
+
+def _family(entry: Dict) -> str:
+    raw = (entry.get("incompatible_generator_families") or "").strip().lower()
+    if raw:
+        return raw.split(",")[0].strip()
+    token = (entry.get("id") or "").lower()
+    for name in ("qwen", "gemma", "phi", "llama", "granite"):
+        if name in token:
+            return name
+    return token
+
+
+def _assert_pairing(judges: List[Dict], generator_under_test: Optional[str],
+                    registry: Dict) -> None:
+    """Refuse Gemma-judge + Gemma-generator (and any same-family pair)."""
+    if not generator_under_test or not judges:
+        return
+    gen = next((g for g in registry["generators"] if g["id"] == generator_under_test), None)
+    gen_family = _family(gen) if gen else _family({"id": generator_under_test})
+    blocked = [j for j in judges if _family(j) == gen_family]
+    if blocked:
+        names = ", ".join(j["id"] for j in blocked)
+        raise SystemExit(
+            f"Refusing same-family pairing: generator {generator_under_test!r} "
+            f"(family {gen_family}) with judge(s) {names}. "
+            "That is the failure mode Llama-3.2 exists to prevent."
+        )
+
+
+def _merge_reports(path, payload: Dict) -> Dict:
+    """Keep earlier generator/judge rows when this process only scored one role."""
+    if not path.is_file():
+        return payload
+    try:
+        previous = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return payload
+    merged = dict(previous)
+    for role in ("generators", "judges"):
+        by_id = {row.get("id"): row for row in previous.get(role) or [] if row.get("id")}
+        for row in payload.get(role) or []:
+            by_id[row["id"]] = row
+        merged[role] = list(by_id.values())
+    merged["pairing_rule"] = payload.get("pairing_rule") or previous.get("pairing_rule")
+    merged["machine"] = payload.get("machine") or previous.get("machine")
+    merged["generator_under_test"] = payload.get("generator_under_test") or previous.get(
+        "generator_under_test"
+    )
+    return merged
 
 
 def main():
@@ -207,15 +271,36 @@ def main():
                         help="Download missing GGUFs named on the command line")
     parser.add_argument("--generators", nargs="*", default=None)
     parser.add_argument("--judges", nargs="*", default=None)
+    parser.add_argument(
+        "--generator-under-test",
+        default=None,
+        help="Family check: refuse a judge that shares this generator's family.",
+    )
     args = parser.parse_args()
 
     registry = load_comparison_registry()
     gens = registry["generators"]
     judges = registry["judges"]
-    if args.generators:
+    run_gens = args.generators is not None or args.judges is None
+    run_judges = args.judges is not None or args.generators is None
+    if args.generators is not None:
         gens = [g for g in gens if g["id"] in set(args.generators)]
-    if args.judges:
+    else:
+        gens = gens if run_gens else []
+    if args.judges is not None:
         judges = [j for j in judges if j["id"] in set(args.judges)]
+    else:
+        judges = judges if run_judges else []
+
+    _assert_pairing(judges, args.generator_under_test, registry)
+    # Same-process guard even when --generator-under-test is omitted.
+    gen_families = {_family(g) for g in gens}
+    same = [j for j in judges if _family(j) in gen_families]
+    if same:
+        names = ", ".join(j["id"] for j in same)
+        raise SystemExit(
+            f"Refusing to load the same family as generator and judge in one process: {names}."
+        )
 
     if args.fetch:
         from learnmate.llm.download import ensure_gguf
@@ -227,19 +312,58 @@ def main():
     prompts = load_jsonl(FIXTURES_DIR / "generator_prompts.jsonl")
     cases = load_jsonl(FIXTURES_DIR / "judge_gold.jsonl")
 
+    import platform
+    machine = {
+        "system": platform.system(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "python": platform.python_version(),
+        "note": "Laptop CPU GGUF eval; not Colab T4, not a production GPU box.",
+    }
+
     gen_reports = []
     for entry in gens:
         print(f"[*] Generator {entry['id']}")
-        gen_reports.append(eval_generator(entry, prompts))
+        try:
+            gen_reports.append(eval_generator(entry, prompts))
+        except Exception as exc:
+            print(f"[!] Generator {entry['id']} failed: {type(exc).__name__}: {exc}")
+            try:
+                path = _gguf_path(entry)
+                if path:
+                    unload_llama(str(path))
+            except Exception:
+                pass
+            gen_reports.append({
+                "id": entry["id"], "skipped": True,
+                "reason": "eval_failed",
+                "error": f"{type(exc).__name__}: {exc}"[:500],
+            })
 
     judge_reports = []
     for entry in judges:
         print(f"[*] Judge {entry['id']}")
-        judge_reports.append(eval_judge(entry, cases))
+        try:
+            judge_reports.append(eval_judge(entry, cases))
+        except Exception as exc:
+            print(f"[!] Judge {entry['id']} failed: {type(exc).__name__}: {exc}")
+            try:
+                path = _gguf_path(entry)
+                if path:
+                    unload_llama(str(path))
+            except Exception:
+                pass
+            judge_reports.append({
+                "id": entry["id"], "skipped": True,
+                "reason": "eval_failed",
+                "error": f"{type(exc).__name__}: {exc}"[:500],
+            })
 
     payload = {
         "generators": gen_reports,
         "judges": judge_reports,
+        "generator_under_test": args.generator_under_test,
+        "machine": machine,
         "pairing_rule": (
             "Never score a judge that shares a family with the generator under test. "
             "Gemma-as-judge is only valid next to Qwen or Phi. Granite-as-judge is valid "
@@ -247,16 +371,21 @@ def main():
         ),
     }
     out = RESULTS_DIR / "gguf.json"
+    payload = _merge_reports(out, payload)
     write_json(out, payload)
     print(f"[*] Wrote {out}")
     print(json.dumps({
+        "machine": machine,
         "generators": [
-            {k: r.get(k) for k in ("id", "skipped", "grounded_hit_rate", "json_valid_rate")}
-            for r in gen_reports
+            {k: r.get(k) for k in (
+                "id", "skipped", "reason", "grounded_hit_rate", "json_valid_rate",
+                "mean_ms", "error")}
+            for r in payload.get("generators") or []
         ],
         "judges": [
-            {k: r.get(k) for k in ("id", "skipped", "accuracy")}
-            for r in judge_reports
+            {k: r.get(k) for k in (
+                "id", "skipped", "reason", "accuracy", "mean_ms", "error")}
+            for r in payload.get("judges") or []
         ],
     }, indent=2))
 

@@ -40,6 +40,6 @@ Full analysis: [LATENCY_QUALITY_FAILURES.md](LATENCY_QUALITY_FAILURES.md). Phase
 
 ## Before merging to main
 
-1. BM25: inspect `retrieval_mix.rerank_kept` on chat turns — if BM25-only chunks are never kept, report that rather than assuming hybrid helped.
-2. Any newly selectable default: run `acceptance_thresholds.yaml` the same way as the ML track.
+1. BM25: inspect `retrieval_mix.rerank_kept` on chat turns — if BM25-only chunks are never kept, report that rather than assuming hybrid helped. **2026-09-04 (`thevindu-models`):** on `Company-law-part1-notes.pdf` (10 questions, in-process hybrid retrieve) BM25-only **was** kept in top-3 once (L-6: ann 3 / bm25 1 / both 26). Leave `LEARNMATE_HYBRID_BM25=1`.
+2. Any newly selectable default: run `acceptance_thresholds.yaml` the same way as the ML track. **2026-09-04:** no `selectable_default` was flipped. Qwen generator 1.00/1.00; Phi and Gemma rejected; Llama and Granite judges 5/5 (Granite candidate only). E5 and L-12 lost their toy-fixture “next trial” status on the real PDF. Four-eyes review of `thevindu-models/RESULTS.md` has not happened.
 

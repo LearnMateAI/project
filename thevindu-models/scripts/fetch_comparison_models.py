@@ -9,6 +9,11 @@ from common import ensure_backend_on_path, load_comparison_registry, models_dir
 
 ensure_backend_on_path()
 
+# Xet/hf_transfer has stalled mid-file on this Windows laptop. Plain HTTPS is enough.
+import os
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "0")
+
 from learnmate import config
 from learnmate.llm.download import ensure_gguf
 

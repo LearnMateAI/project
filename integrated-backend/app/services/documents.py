@@ -22,7 +22,8 @@ otherwise leak every embedding of every deleted document.
 
 from typing import Dict, List, Optional
 
-from learnmate.ingestion import validate_pdf
+from learnmate.ingestion import validate_upload
+from learnmate.ingestion.formats import kind_from_record, media_type_for, unit_label_for
 from learnmate.storage import ownership, pdf_store
 from learnmate.storage.vectors import get_vector_store
 
@@ -42,6 +43,7 @@ def serialize(document: Dict, link: Optional[Dict] = None) -> Dict:
     """
     link = link or {}
     uploaded_at = document.get("uploaded_at")
+    kind = kind_from_record(document)
 
     return {
         "id": str(document["_id"]),
@@ -54,6 +56,8 @@ def serialize(document: Dict, link: Optional[Dict] = None) -> Dict:
         "processing_status": document.get("processing_status", pdf_store.UPLOADED),
         "processing_error": document.get("processing_error"),
         "chunk_count": document.get("n_chunks") or 0,
+        "source_kind": kind,
+        "unit_label": unit_label_for(kind),
     }
 
 
@@ -69,7 +73,7 @@ def upload(user_id: str, file_bytes: bytes, filename: str, content_type: str = N
     """
     # Before anything is written. read_source checks the size again on the way in, but a
     # user should learn their 40 MB scan is too big without waiting for it to be stored.
-    validate_pdf(file_bytes, filename, content_type)
+    validate_upload(file_bytes, filename, content_type)
 
     document = pdf_store.store_pdf(file_bytes, filename=filename)
 
@@ -105,8 +109,14 @@ def get_document(user_id: str, doc_id: str) -> Dict:
     return serialize(document, ownership.get_link(user_id, document["_id"]))
 
 
+def get_file_media_type(user_id: str, doc_id: str) -> str:
+    """MIME type of the stored original, for Content-Type on download."""
+    document = access.require_document(user_id, doc_id)
+    return media_type_for(kind_from_record(document))
+
+
 def get_pdf_bytes(user_id: str, doc_id: str) -> bytes:
-    """The stored PDF itself, for the viewer."""
+    """The stored original file, for the viewer or a download."""
     document = access.require_document(user_id, doc_id)
     data = pdf_store.get_pdf_bytes(document["_id"])
     if data is None:

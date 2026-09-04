@@ -14,6 +14,7 @@ Tier 3 items have a before/after eval note.
 | Export docx/pptx | Format stored judged content; no regenerate | `GET /api/resources/{id}/export` |
 | BM25 hybrid retrieve | Additive: ANN top 20, BM25 top 10, merge, **existing** reranker. Logged as `ann` / `bm25` / `both` | ingest sidecar + `retrieve.py` |
 | Multi-model | Registry + optional `model_id`; one llama.cpp generator at a time; unload/reload; experimental LoRA labelled, not default | `models_registry.yaml`, `GET /api/models` |
+| Upload docx / pptx / tex | Same extract → clean → chunk → embed path as PDF, so MCQ/summary/chat work on lecture slides and LaTeX notes. `.doc`/`.ppt` rejected with a save-as hint. | `extract_office.py`, `validate_upload`, DocumentsCard |
 
 ## Latency, quality, failures (this pass)
 

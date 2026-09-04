@@ -119,6 +119,12 @@ function Documents() {
     setPdfUrl(null);
     setViewerLoading(true);
 
+    const kind = doc.source_kind || "pdf";
+    if (kind !== "pdf") {
+      setViewerLoading(false);
+      return;
+    }
+
     try {
       const res = await getDocumentFile(doc.id);
       const blobUrl = URL.createObjectURL(res.data);
@@ -165,7 +171,7 @@ function Documents() {
           <h1>Library</h1>
           <p>
             {documents.length === 0
-              ? "File a PDF — cases, statutes, outlines, or briefs"
+              ? "File a PDF, Word, PowerPoint, or LaTeX source"
               : `${documents.length} filed · ${readyCount} ready`}
           </p>
         </div>
@@ -215,7 +221,9 @@ function Documents() {
               ))}
             </select>
             <span className="badge badge-gray">
-              {selected.page_count ? `${selected.page_count} pages` : "PDF"}
+              {selected.page_count
+                ? `${selected.page_count} ${selected.unit_label || "pages"}`
+                : (selected.source_kind || "pdf").toUpperCase()}
             </span>
           </div>
 
@@ -225,6 +233,8 @@ function Documents() {
               filename={selected.filename}
               pdfUrl={pdfUrl}
               loading={viewerLoading}
+              sourceKind={selected.source_kind || "pdf"}
+              unitLabel={selected.unit_label || "pages"}
             />
 
             <div className="workspace-pane">
@@ -308,7 +318,7 @@ function Documents() {
                 <EmptyState
                   body={
                     documents.length === 0
-                      ? "No sources yet — file a PDF to the left to get started."
+                      ? "No sources yet — file a PDF, Word, PowerPoint, or LaTeX file to get started."
                       : "Nothing filed under this type yet."
                   }
                   action={null}
@@ -320,7 +330,7 @@ function Documents() {
                       <th>Filename</th>
                       <th>Type</th>
                       <th>Subject</th>
-                      <th className="num">Pages</th>
+                      <th className="num">Units</th>
                       <th className="num">Size</th>
                       <th>Status</th>
                       <th />

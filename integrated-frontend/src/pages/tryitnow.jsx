@@ -71,7 +71,7 @@ function TryItNow() {
               <div>
                 <h2 className="text-[15px] font-semibold text-heading">Step 1: Upload a Document</h2>
                 <p className="text-[13px] text-muted mt-1">
-                  Choose a subject and upload a PDF. The system will extract, chunk, and index the content automatically.
+                  Choose a subject and upload a PDF, Word, PowerPoint, or LaTeX file. The system will extract, chunk, and index the content automatically.
                 </p>
               </div>
             </div>

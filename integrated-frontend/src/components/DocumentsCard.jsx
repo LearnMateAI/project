@@ -1,5 +1,5 @@
 /**
- * Upload a PDF.
+ * Upload a source file (PDF, Word, PowerPoint, or LaTeX).
  *
  * The shape of this follows the backend: the POST returns `202 {document, job_id}`, so
  * uploading is two phases with very different durations.
@@ -34,6 +34,13 @@ const SUBJECTS = [
 // a browser limit looser than the server's just means the upload finishes and is then
 // rejected, after the user has waited for it.
 const MAX_MB = 10;
+const SOURCE_EXTENSIONS = [".pdf", ".docx", ".pptx", ".tex"];
+
+function fileExtension(name) {
+  const lower = (name || "").toLowerCase();
+  const dot = lower.lastIndexOf(".");
+  return dot >= 0 ? lower.slice(dot) : "";
+}
 
 function DocumentsCard({ onUploaded }) {
   const [documentCount, setDocumentCount] = useState(null);
@@ -72,8 +79,9 @@ function DocumentsCard({ onUploaded }) {
     job.reset();
 
     // Checked here as well as on the server so an obviously wrong file costs nothing.
-    if (file.type !== "application/pdf") {
-      setError("Only PDF files are accepted.");
+    // Extension, not MIME: Windows often sends an empty type or octet-stream for .docx / .tex.
+    if (!SOURCE_EXTENSIONS.includes(fileExtension(file.name))) {
+      setError("Upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file.");
       return;
     }
     if (file.size > MAX_MB * 1024 * 1024) {
@@ -103,7 +111,7 @@ function DocumentsCard({ onUploaded }) {
       setSuccess(
         result.skipped
           ? `"${file.name}" was already indexed — ready straight away.`
-          : `"${file.name}" is ready: ${result.pages} pages, ${result.chunks} passages.`,
+          : `"${file.name}" is ready: ${result.pages} extractable units, ${result.chunks} passages.`,
       );
       await refreshCount();
       onUploaded?.({ id: documentId, ...result });
@@ -197,7 +205,7 @@ function DocumentsCard({ onUploaded }) {
         >
           <input
             type="file"
-            accept="application/pdf"
+            accept=".pdf,.docx,.pptx,.tex,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/x-tex,text/plain"
             onChange={handleFileChange}
             disabled={busy}
             className="sr-only"
@@ -209,13 +217,16 @@ function DocumentsCard({ onUploaded }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
           </svg>
           <p className="text-[13px] font-semibold text-heading">
-            {busy ? "Working on it..." : "Drop a PDF here, or click to choose"}
+            {busy ? "Working on it..." : "Drop a file here, or click to choose"}
           </p>
-          <p className="text-[11.5px] text-subtle mt-0.5">PDF only · up to {MAX_MB} MB</p>
+          <p className="text-[11.5px] text-subtle mt-0.5">
+            PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) · up to {MAX_MB} MB
+          </p>
           <p className="text-[11.5px] text-muted mt-2 leading-relaxed max-w-sm mx-auto">
-            Text is extracted from the file — including older court PDFs that already have a
-            text layer (many scans from courts do). Image-only pages with no selectable text
-            cannot be indexed until they have a text layer.
+            Text is extracted the same way as a PDF: pages, slides, or sections are cleaned,
+            chunked, and indexed so you can generate summaries and quizzes. Image-only
+            scans or slides with no selectable text cannot be indexed. Older .doc / .ppt
+            files need to be saved as .docx / .pptx first.
           </p>
         </label>
 

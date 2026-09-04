@@ -11,11 +11,30 @@
 import { useEffect, useState } from "react";
 import { getDocumentPages } from "../api/documents.js";
 
-function DocumentReader({ documentId, filename, pdfUrl, loading }) {
-  const [mode, setMode] = useState("pdf");
+function unitSingular(label) {
+  if (label === "slides") return "Slide";
+  if (label === "sections") return "Section";
+  return "Page";
+}
+
+function DocumentReader({
+  documentId,
+  filename,
+  pdfUrl,
+  loading,
+  sourceKind = "pdf",
+  unitLabel = "pages",
+}) {
+  const isPdf = sourceKind === "pdf";
+  const [mode, setMode] = useState(isPdf ? "pdf" : "text");
   const [pages, setPages] = useState([]);
   const [textError, setTextError] = useState("");
   const [textLoading, setTextLoading] = useState(false);
+
+  useEffect(() => {
+    setMode(isPdf ? "pdf" : "text");
+    setPages([]);
+  }, [documentId, isPdf]);
 
   useEffect(() => {
     if (mode !== "text" || !documentId) return undefined;
@@ -46,14 +65,16 @@ function DocumentReader({ documentId, filename, pdfUrl, loading }) {
       <div className="card-head">
         <h2 className="truncate">{filename || "Source"}</h2>
         <div className="flex gap-1 shrink-0">
-          <button
-            type="button"
-            className={`btn-ghost ${mode === "pdf" ? "text-heading" : ""}`}
-            onClick={() => setMode("pdf")}
-            aria-pressed={mode === "pdf"}
-          >
-            PDF
-          </button>
+          {isPdf && (
+            <button
+              type="button"
+              className={`btn-ghost ${mode === "pdf" ? "text-heading" : ""}`}
+              onClick={() => setMode("pdf")}
+              aria-pressed={mode === "pdf"}
+            >
+              PDF
+            </button>
+          )}
           <button
             type="button"
             className={`btn-ghost ${mode === "text" ? "text-heading" : ""}`}
@@ -87,7 +108,7 @@ function DocumentReader({ documentId, filename, pdfUrl, loading }) {
               pages.map((page) => (
                 <section key={page.page_number} className="mb-8">
                   <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted m-0 mb-2">
-                    Page {page.page_number}
+                    {unitSingular(unitLabel)} {page.page_number}
                   </p>
                   <p className="whitespace-pre-wrap m-0">{page.text}</p>
                 </section>

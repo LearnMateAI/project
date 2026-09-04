@@ -43,7 +43,8 @@ from .sessions import (
     require_kind,
 )
 from .source_text import build_source_text
-from .validate import validate_pdf
+from .formats import detect_kind, kind_from_record
+from .validate import validate_pdf, validate_upload
 
 __all__ = [
     "SESSION_KINDS",
@@ -59,5 +60,8 @@ __all__ = [
     "pages_to_documents",
     "preprocess",
     "require_kind",
+    "detect_kind",
+    "kind_from_record",
     "validate_pdf",
+    "validate_upload",
 ]

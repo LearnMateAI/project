@@ -1,4 +1,4 @@
-# E5-small-v2 — `model-e5-small`
+# E5-small-v2 — `03_embeddings/e5-small`
 
 **Role:** embedding candidate B (vs live `all-MiniLM-L6-v2` and vs BGE-small).
 
@@ -20,16 +20,16 @@ Risks: empty prefixes put queries and passages in the wrong space. Re-ingest req
 
 ```powershell
 cd integrated-backend
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\fetch_comparison_models.py --embeddings
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\fetch_comparison_models.py --embeddings
 ```
 
 ## 2. Score
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_retrieval.py
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_retrieval.py
 ```
 
-Same fixture and metrics as `model-bge-small`. The script scores MiniLM, BGE, and E5 in one run.
+Same fixture and metrics as `03_embeddings/bge-small`. The script scores MiniLM, BGE, and E5 in one run.
 
 ## 3. Wire into the live app (only after RESULTS.md)
 

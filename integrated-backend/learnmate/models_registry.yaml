@@ -26,8 +26,9 @@ models:
     selectable_default: false
     experimental: true
   # Comparison generators on branch thevindu-models. experimental: never the silent
-  # default. available flips true only when the GGUF is on disk (see model-gemma2-2b /
-  # model-phi35-mini). hf_* keys are for docs/thevindu-models/scripts/fetch_comparison_models.py.
+  # default. available flips true only when the GGUF is on disk (see
+  # thevindu-models/01_generators/). hf_* keys are for
+  # thevindu-models/scripts/fetch_comparison_models.py.
   - id: gemma2-2b
     display_name: Gemma 2 2B Instruct
     gguf_path: gemma-2-2b-it-Q4_K_M.gguf

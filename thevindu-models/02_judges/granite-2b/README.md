@@ -1,4 +1,4 @@
-# Granite 3.2 2B Instruct — `model-granite-2b`
+# Granite 3.2 2B Instruct — `02_judges/granite-2b`
 
 **Role:** judge candidate B (vs live Llama-3.2-3B-Instruct Q4).  
 Not registered as a generator. The judge must stay a different family from the live generator.
@@ -23,13 +23,13 @@ Do not use Granite as generator and judge together.
 
 ```powershell
 cd integrated-backend
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\fetch_comparison_models.py --gguf granite-2b
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\fetch_comparison_models.py --gguf granite-2b
 ```
 
 ## 2. Score against Llama 3.2 (and Gemma-judge if that GGUF exists)
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_gguf.py --judges llama32-3b granite-2b
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_gguf.py --judges llama32-3b granite-2b
 ```
 
 Accuracy is agreement with gold pass/fail on planted unsupported citations. Latency is secondary.

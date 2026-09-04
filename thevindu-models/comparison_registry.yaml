@@ -22,7 +22,7 @@ generators:
     hf_file: gemma-2-2b-it-Q4_K_M.gguf
     chat_format: ""
     context_length: 4096
-    runbook: model-gemma2-2b
+    runbook: 01_generators/gemma2-2b
   - id: phi35-mini
     display_name: Phi-3.5 Mini Instruct
     baseline: false
@@ -32,7 +32,7 @@ generators:
     hf_file: Phi-3.5-mini-instruct-Q4_K_M.gguf
     chat_format: ""
     context_length: 4096
-    runbook: model-phi35-mini
+    runbook: 01_generators/phi35-mini
 
 judges:
   - id: llama32-3b
@@ -55,7 +55,7 @@ judges:
     chat_format: ""
     context_length: 8192
     incompatible_generator_families: "gemma"
-    runbook: model-gemma2-2b
+    runbook: 02_judges/gemma2-2b
     notes: "Never load as generator and judge in one process."
   - id: granite-2b
     display_name: Granite 3.2 2B Instruct
@@ -67,7 +67,7 @@ judges:
     chat_format: ""
     context_length: 8192
     incompatible_generator_families: "granite"
-    runbook: model-granite-2b
+    runbook: 02_judges/granite-2b
 
 embeddings:
   - id: minilm-l6
@@ -85,7 +85,7 @@ embeddings:
     query_prefix: "Represent this sentence for searching relevant passages:"
     doc_prefix: ""
     dim: 384
-    runbook: model-bge-small
+    runbook: 03_embeddings/bge-small
   - id: e5-small
     display_name: E5-small-v2
     baseline: false
@@ -93,7 +93,7 @@ embeddings:
     query_prefix: "query:"
     doc_prefix: "passage:"
     dim: 384
-    runbook: model-e5-small
+    runbook: 03_embeddings/e5-small
 
 rerankers:
   - id: minilm-l6
@@ -105,21 +105,21 @@ rerankers:
     display_name: ms-marco MiniLM-L-12-v2
     baseline: false
     hf_id: cross-encoder/ms-marco-MiniLM-L-12-v2
-    runbook: model-rag
+    runbook: 04_rag/rerank-and-agents
   - id: bge-reranker-base
     display_name: BGE reranker base
     baseline: false
     hf_id: BAAI/bge-reranker-base
-    runbook: model-rag
+    runbook: 04_rag/rerank-and-agents
 
 agents:
   - id: ann-rerank
     display_name: Dense top-N then rerank
     baseline: true
     hybrid_bm25: false
-    runbook: model-rag
+    runbook: 04_rag/rerank-and-agents
   - id: hybrid-rerank
     display_name: ANN union BM25 then rerank
     baseline: false
     hybrid_bm25: true
-    runbook: model-rag
+    runbook: 04_rag/rerank-and-agents

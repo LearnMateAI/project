@@ -1,4 +1,4 @@
-# Gemma 2 2B Instruct — `model-gemma2-2b`
+# Gemma 2 2B Instruct — `01_generators/gemma2-2b`
 
 **Role:** generator candidate A (vs live Qwen2.5-3B-Instruct Q4).  
 **Same GGUF may also be used as a judge**, but never as generator **and** judge in one process.
@@ -20,7 +20,7 @@ Risks: some templates reject a system turn (put instructions in the user message
 ## Files (weights are gitignored)
 
 ```
-model-gemma2-2b/
+thevindu-models/01_generators/gemma2-2b/
   README.md          this file
 ```
 
@@ -31,7 +31,7 @@ The GGUF lands at `integrated-backend/models/gemma-2-2b-it-Q4_K_M.gguf` after fe
 From `integrated-backend`, backend venv:
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\fetch_comparison_models.py --gguf gemma2-2b
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\fetch_comparison_models.py --gguf gemma2-2b
 ```
 
 Needs disk for ~1.71 GB plus HF cache. Optional `HF_TOKEN` in `.env` if rate-limited.
@@ -39,15 +39,15 @@ Needs disk for ~1.71 GB plus HF cache. Optional `HF_TOKEN` in `.env` if rate-lim
 ## 2. Smoke / score against Qwen
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_gguf.py --generators qwen25-3b gemma2-2b
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_gguf.py --generators qwen25-3b gemma2-2b
 ```
 
-Metrics: grounded substring hits on `docs/thevindu-models/fixtures/generator_prompts.jsonl`, JSON validity on the MCQ item, mean latency. Qwen is skipped too if its GGUF is missing.
+Metrics: grounded substring hits on `thevindu-models/fixtures/generator_prompts.jsonl`, JSON validity on the MCQ item, mean latency. Qwen is skipped too if its GGUF is missing.
 
 As **judge only** (generator must be Qwen or Phi in that pairing):
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_gguf.py --judges llama32-3b gemma2-2b-judge
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_gguf.py --judges llama32-3b gemma2-2b-judge
 ```
 
 ## 3. Wire into the live app (explicit `model_id`, not silent default)
@@ -75,4 +75,4 @@ LEARNMATE_JUDGE_FILE=gemma-2-2b-it-Q4_K_M.gguf
 
 ## 4. What “better” means
 
-Beat Qwen on grounded hit rate **and** JSON validity on the fixture, without a large latency regression on this laptop. A win on train loss or a public IFEval screenshot is not enough. See `docs/thevindu-models/RESEARCH.md`.
+Beat Qwen on grounded hit rate **and** JSON validity on the fixture, without a large latency regression on this laptop. A win on train loss or a public IFEval screenshot is not enough. See `thevindu-models/RESEARCH.md`.

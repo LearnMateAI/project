@@ -1,4 +1,4 @@
-# Phi-3.5 Mini Instruct — `model-phi35-mini`
+# Phi-3.5 Mini Instruct — `01_generators/phi35-mini`
 
 **Role:** generator candidate B (vs live Qwen2.5-3B-Instruct Q4).
 
@@ -20,7 +20,7 @@ Risks: slightly heavier RAM than Qwen 3B Q4. Chat tokens (`<|user|>`) must come 
 
 ```powershell
 cd integrated-backend
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\fetch_comparison_models.py --gguf phi35-mini
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\fetch_comparison_models.py --gguf phi35-mini
 ```
 
 File: `integrated-backend/models/Phi-3.5-mini-instruct-Q4_K_M.gguf`.
@@ -28,7 +28,7 @@ File: `integrated-backend/models/Phi-3.5-mini-instruct-Q4_K_M.gguf`.
 ## 2. Score against Qwen (and Gemma if both are present)
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_gguf.py --generators qwen25-3b phi35-mini
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_gguf.py --generators qwen25-3b phi35-mini
 ```
 
 ## 3. Wire into the live app

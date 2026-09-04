@@ -15,7 +15,7 @@ The four live roles:
 
 Each role gets **two alternatives**, not a second copy of the same family. Q4 GGUFs stay in the ~1.5–2.4 GB band so a laptop can still load generator + judge.
 
-Weights are **not** in git. Each `model-<name>/` folder is a runbook + eval recipe, same idea as `model-Thevindu/` (evidence in git, binaries gitignored).
+Weights are **not** in git. Each numbered folder under this hub is a runbook + eval recipe, same idea as `model-Thevindu/` (evidence in git, binaries gitignored).
 
 ---
 
@@ -23,7 +23,7 @@ Weights are **not** in git. Each `model-<name>/` folder is a runbook + eval reci
 
 Qwen 2.5 3B stays the baseline: ChatML, grammar-constrained JSON, already wired. We do **not** pick another Qwen size as “the other two” — that would not test a different pretrain.
 
-### Candidate A — Gemma 2 2B Instruct (`model-gemma2-2b`)
+### Candidate A — Gemma 2 2B Instruct (`01_generators/gemma2-2b`)
 
 | | |
 |--|--|
@@ -33,7 +33,7 @@ Qwen 2.5 3B stays the baseline: ChatML, grammar-constrained JSON, already wired.
 | Why shortlisted | Same job (instruct, local, Q4). Sliding-window Gemma 2 is strong on IFEval-class instruction following at 2B, which is the skill that makes 3B JSON study-material work. Different tokenizer/template than Qwen so a win is a real architecture win, not a cousin of the failed LoRA. Smaller than 3B → cheaper prefill on CPU. |
 | Risks | Gemma licence (gated acknowledge on some HF repos). Chat template forbids a system turn in some converters — our prompts put instructions in the user/task text. 2B may be weaker on long IRAC than 3B. |
 
-### Candidate B — Phi-3.5 Mini Instruct (`model-phi35-mini`)
+### Candidate B — Phi-3.5 Mini Instruct (`01_generators/phi35-mini`)
 
 | | |
 |--|--|
@@ -51,13 +51,13 @@ Qwen 2.5 3B stays the baseline: ChatML, grammar-constrained JSON, already wired.
 
 The judge must stay a **different family from whichever generator is live**. If the generator becomes Gemma, Llama or Granite or Phi can judge. If the generator stays Qwen, Gemma or Granite or Phi can judge. Llama-3.2 remains the baseline.
 
-### Candidate A — Gemma 2 2B Instruct as judge (`model-gemma2-2b`, role=judge)
+### Candidate A — Gemma 2 2B Instruct as judge (`01_generators/gemma2-2b`, role=judge)
 
 Same GGUF as generator candidate A. **Never load it as generator and judge at once** (one process, two roles, same weights = the bug the Llama judge exists to prevent). Eval pairs Gemma-judge **only** with Qwen or Phi as generator.
 
 Why: 2B is enough for short JSON verdicts (`score`, `reasoning`). Faster than 3B on CPU. Different family from Qwen.
 
-### Candidate B — Granite 3.2 2B Instruct (`model-granite-2b`)
+### Candidate B — Granite 3.2 2B Instruct (`02_judges/granite-2b`)
 
 | | |
 |--|--|
@@ -75,7 +75,7 @@ Why: 2B is enough for short JSON verdicts (`score`, `reasoning`). Faster than 3B
 
 MiniLM-L6 is 22M, 384-d, no instruction prefix, fast ingest. Config already documents BGE/E5 prefixes in `learnmate/config.py`.
 
-### Candidate A — BGE-small-en-v1.5 (`model-bge-small`)
+### Candidate A — BGE-small-en-v1.5 (`03_embeddings/bge-small`)
 
 | | |
 |--|--|
@@ -85,7 +85,7 @@ MiniLM-L6 is 22M, 384-d, no instruction prefix, fast ingest. Config already docu
 | Why | Same width as MiniLM so Qdrant dim stays 384 after a **re-ingest**. Stronger than MiniLM on BEIR-style retrieval in public numbers. Already named in our config comments. |
 | Risks | Forgetting the query prefix quietly tanks recall. Old MiniLM vectors are **not** comparable — must re-embed. |
 
-### Candidate B — E5-small-v2 (`model-e5-small`)
+### Candidate B — E5-small-v2 (`03_embeddings/e5-small`)
 
 | | |
 |--|--|
@@ -103,14 +103,14 @@ MiniLM-L6 is 22M, 384-d, no instruction prefix, fast ingest. Config already docu
 
 The cross-encoder only sees ~20 pairs; size can grow a little.
 
-### Candidate A — ms-marco-MiniLM-L-12-v2 (`model-rag` rerank slot)
+### Candidate A — ms-marco-MiniLM-L-12-v2 (`04_rag/rerank-and-agents` rerank slot)
 
 | | |
 |--|--|
 | HF | `cross-encoder/ms-marco-MiniLM-L-12-v2` |
 | Why | Same MS MARCO training as L-6, twice the depth. Ablation of “is L-6 the bottleneck?” without changing the data recipe. Still CPU-cheap. |
 
-### Candidate B — BGE reranker base (`model-rag` rerank slot)
+### Candidate B — BGE reranker base (`04_rag/rerank-and-agents` rerank slot)
 
 | | |
 |--|--|

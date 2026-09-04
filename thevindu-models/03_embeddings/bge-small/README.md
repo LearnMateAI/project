@@ -1,4 +1,4 @@
-# BGE-small-en-v1.5 — `model-bge-small`
+# BGE-small-en-v1.5 — `03_embeddings/bge-small`
 
 **Role:** embedding candidate A (vs live `all-MiniLM-L6-v2`).
 
@@ -20,7 +20,7 @@ Risks: forgetting the query prefix quietly tanks recall. Must re-ingest every PD
 
 ```powershell
 cd integrated-backend
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\fetch_comparison_models.py --embeddings
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\fetch_comparison_models.py --embeddings
 ```
 
 Or just run the retrieval eval; it constructs `LearnMateEmbeddings(model_name=..., query_prefix=...)` and downloads on first encode.
@@ -28,10 +28,10 @@ Or just run the retrieval eval; it constructs `LearnMateEmbeddings(model_name=..
 ## 2. Score against MiniLM and E5 (in-memory, no Qdrant)
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_retrieval.py
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_retrieval.py
 ```
 
-Primary metrics: Recall@5, MRR, NDCG@5 on `docs/thevindu-models/fixtures/legal_retrieval.jsonl`. Secondary: encode ms.
+Primary metrics: Recall@5, MRR, NDCG@5 on `thevindu-models/fixtures/legal_retrieval.jsonl`. Secondary: encode ms.
 
 ## 3. Wire into the live app (only after RESULTS.md)
 

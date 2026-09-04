@@ -7,8 +7,8 @@
 
 ```powershell
 cd integrated-backend
-.\venv\Scripts\python.exe -u ..\docs\thevindu-models\scripts\eval_retrieval.py
-.\venv\Scripts\python.exe -u ..\docs\thevindu-models\scripts\eval_gguf.py
+.\venv\Scripts\python.exe -u ..\thevindu-models\scripts\eval_retrieval.py
+.\venv\Scripts\python.exe -u ..\thevindu-models\scripts\eval_gguf.py
 ```
 
 Raw numbers: `results/retrieval.json`, `results/gguf.json`.  
@@ -65,7 +65,7 @@ Where they differed (gold rank):
 - Mean query encode 197 ms vs 38 ms. On a laptop that cost is paid every chat retrieve, not once.
 - 14 queries is enough to rank three small models, not enough to declare an IR championship. Re-run on a real ingested PDF before changing `.env`.
 
-**How to trial E5** (after a planned re-ingest): see `model-e5-small/README.md`. Prefixes must be set or the win disappears.
+**How to trial E5** (after a planned re-ingest): see `03_embeddings/e5-small/README.md`. Prefixes must be set or the win disappears.
 
 ---
 
@@ -87,9 +87,9 @@ Fixed MiniLM top-20 candidate pool, so the cross-encoder is the only variable. S
 
 ### Why BGE reranker-base was rejected
 
-Quality tied the live L-6 model and cost ~11× the time. Out-of-domain hope did not show up on this fixture. Keep it in `model-rag/` as a rerun recipe, not as the next default.
+Quality tied the live L-6 model and cost ~11× the time. Out-of-domain hope did not show up on this fixture. Keep it in `04_rag/rerank-and-agents/` as a rerun recipe, not as the next default.
 
-**How to trial L-12:** `LEARNMATE_RERANK_MODEL=cross-encoder/ms-marco-MiniLM-L-12-v2` then restart. See `model-rag/README.md`.
+**How to trial L-12:** `LEARNMATE_RERANK_MODEL=cross-encoder/ms-marco-MiniLM-L-12-v2` then restart. See `04_rag/rerank-and-agents/README.md`.
 
 ---
 
@@ -118,7 +118,7 @@ Dense already had every gold in the top 20. BM25 did not add a unique gold that 
 | gemma2-2b | Gemma 2 | `gemma-2-2b-it-Q4_K_M.gguf` (~1.71 GB) | missing |
 | phi35-mini | Phi-3.5 | `Phi-3.5-mini-instruct-Q4_K_M.gguf` (~2.39 GB) | missing |
 
-**Why Gemma and Phi were shortlisted (not scored):** see `docs/thevindu-models/RESEARCH.md` and the runbooks. Short version:
+**Why Gemma and Phi were shortlisted (not scored):** see `thevindu-models/RESEARCH.md` and the runbooks. Short version:
 
 - **Gemma 2 2B** — different pretrain from the failed Qwen LoRA; IFEval-class instruction following at 2B; smaller prefill than 3B.
 - **Phi-3.5 Mini** — ~3.8B dense, MIT, schema-following reputation, still in the Q4 laptop band.
@@ -126,8 +126,8 @@ Dense already had every gold in the top 20. BM25 did not add a unique gold that 
 **Why we keep Qwen 3B until those files are fetched and `eval_gguf.py` is re-run:** the live generator already writes grammar-constrained JSON in production. Switching on a blog benchmark after the 1.5B LoRA failed the legal gate would repeat that mistake.
 
 ```powershell
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\fetch_comparison_models.py --gguf gemma2-2b
-.\venv\Scripts\python.exe ..\docs\thevindu-models\scripts\eval_gguf.py --generators qwen25-3b gemma2-2b
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\fetch_comparison_models.py --gguf gemma2-2b
+.\venv\Scripts\python.exe ..\thevindu-models\scripts\eval_gguf.py --generators qwen25-3b gemma2-2b
 ```
 
 Repeat for `phi35-mini`. Metrics: grounded substring hits, MCQ JSON validity, mean ms. **Do not load Gemma as generator and judge together.**

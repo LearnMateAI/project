@@ -12,12 +12,12 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
-DOCS_DIR = Path(__file__).resolve().parent.parent
-REPO_ROOT = DOCS_DIR.parent.parent
+HUB_DIR = Path(__file__).resolve().parent.parent
+REPO_ROOT = HUB_DIR.parent
 BACKEND_DIR = REPO_ROOT / "integrated-backend"
-FIXTURES_DIR = DOCS_DIR / "fixtures"
-RESULTS_DIR = DOCS_DIR / "results"
-REGISTRY_PATH = DOCS_DIR / "comparison_registry.yaml"
+FIXTURES_DIR = HUB_DIR / "fixtures"
+RESULTS_DIR = HUB_DIR / "results"
+REGISTRY_PATH = HUB_DIR / "comparison_registry.yaml"
 
 
 def ensure_backend_on_path() -> None:

@@ -32,7 +32,7 @@ class ModelsRegistryTests(unittest.TestCase):
             self.assertFalse(by_id[model_id].get("selectable_default"), model_id)
 
     def test_comparison_yaml_keeps_colon_in_bge_prefix(self):
-        path = REPO_ROOT / "docs" / "thevindu-models" / "scripts" / "common.py"
+        path = REPO_ROOT / "thevindu-models" / "scripts" / "common.py"
         spec = importlib.util.spec_from_file_location("thevindu_models_common", path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

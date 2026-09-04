@@ -99,33 +99,43 @@ jobs:
           chmod 600 .env
           git fetch --prune origin "$DEPLOY_BRANCH"
           git checkout -B "$DEPLOY_BRANCH" "origin/$DEPLOY_BRANCH"
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq certbot
+          docker compose --env-file .env stop nginx || true
+          sudo certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring -d learnmateai.dinurag.dev
+          mkdir -p nginx/certs
+          sudo cp /etc/letsencrypt/live/learnmateai.dinurag.dev/fullchain.pem nginx/certs/fullchain.pem
+          sudo cp /etc/letsencrypt/live/learnmateai.dinurag.dev/privkey.pem nginx/certs/privkey.pem
+          sudo chown "$(id -u):$(id -g)" nginx/certs/*.pem
+          COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env"
           df -h
           free -h || true
           docker system df
           docker builder prune -af || true
-          docker compose --env-file .env config --quiet
-          if ! docker compose --env-file .env build > /tmp/learnmate-deploy.log 2>&1; then
+          $COMPOSE config --quiet
+          if ! $COMPOSE build > /tmp/learnmate-deploy.log 2>&1; then
             tail -200 /tmp/learnmate-deploy.log
             exit 1
           fi
-          if ! docker compose --env-file .env pull >> /tmp/learnmate-deploy.log 2>&1; then
+          if ! $COMPOSE pull >> /tmp/learnmate-deploy.log 2>&1; then
             tail -200 /tmp/learnmate-deploy.log
             exit 1
           fi
-          if ! docker compose --env-file .env up -d --remove-orphans >> /tmp/learnmate-deploy.log 2>&1; then
+          if ! $COMPOSE up -d --remove-orphans >> /tmp/learnmate-deploy.log 2>&1; then
             tail -200 /tmp/learnmate-deploy.log
             exit 1
           fi
           attempt=1
           while [ "$attempt" -le 30 ]; do
-            if curl --fail --silent http://127.0.0.1/api/health >/dev/null; then
+            if curl --fail --silent --resolve learnmateai.dinurag.dev:443:127.0.0.1 \
+              https://learnmateai.dinurag.dev/api/health >/dev/null; then
               exit 0
             fi
             attempt=$((attempt + 1))
             sleep 10
           done
           tail -200 /tmp/learnmate-deploy.log
-          docker compose logs --tail 200 backend keycloak nginx
+          $COMPOSE logs --tail 200 backend keycloak nginx
           exit 1
           REMOTE_SCRIPT
           )

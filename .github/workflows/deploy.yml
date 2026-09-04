@@ -133,11 +133,12 @@ jobs:
           REMOTE_SCRIPT=${REMOTE_SCRIPT//__DEPLOY_BRANCH__/$DEPLOY_BRANCH}
           REMOTE_SCRIPT=${REMOTE_SCRIPT//__ENV_B64__/$APP_ENV_FILE_B64}
           SCRIPT_B64=$(printf '%s' "$REMOTE_SCRIPT" | base64 -w 0)
+          PARAMETERS=$(jq -nc --arg command "echo '$SCRIPT_B64' | base64 --decode | sh" '{commands:[$command]}')
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "LearnMate deployment $GITHUB_SHA" \
-            --parameters commands="echo '$SCRIPT_B64' | base64 --decode | sh" \
+            --parameters "$PARAMETERS" \
             --query 'Command.CommandId' \
             --output text)
           for attempt in $(seq 1 180); do

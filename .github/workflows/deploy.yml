@@ -86,11 +86,58 @@ jobs:
           set -euo pipefail
           test -n "$EC2_INSTANCE_ID"
           test -n "$APP_ENV_FILE_B64"
+          REMOTE_SCRIPT=$(cat <<'REMOTE_SCRIPT'
+          set -u
+          export HOME=/tmp
+          APP_DIR='__APP_DIR__'
+          DEPLOY_BRANCH='__DEPLOY_BRANCH__'
+          ENV_B64='__ENV_B64__'
+          cd "$APP_DIR"
+          test -d .git
+          git config --global --add safe.directory "$APP_DIR"
+          printf '%s' "$ENV_B64" | base64 --decode > .env
+          chmod 600 .env
+          git fetch --prune origin "$DEPLOY_BRANCH"
+          git checkout -B "$DEPLOY_BRANCH" "origin/$DEPLOY_BRANCH"
+          df -h
+          free -h || true
+          docker system df
+          docker builder prune -af || true
+          docker compose --env-file .env config --quiet
+          if ! docker compose --env-file .env build > /tmp/learnmate-deploy.log 2>&1; then
+            tail -200 /tmp/learnmate-deploy.log
+            exit 1
+          fi
+          if ! docker compose --env-file .env pull >> /tmp/learnmate-deploy.log 2>&1; then
+            tail -200 /tmp/learnmate-deploy.log
+            exit 1
+          fi
+          if ! docker compose --env-file .env up -d --remove-orphans >> /tmp/learnmate-deploy.log 2>&1; then
+            tail -200 /tmp/learnmate-deploy.log
+            exit 1
+          fi
+          attempt=1
+          while [ "$attempt" -le 30 ]; do
+            if curl --fail --silent http://127.0.0.1/api/health >/dev/null; then
+              exit 0
+            fi
+            attempt=$((attempt + 1))
+            sleep 10
+          done
+          tail -200 /tmp/learnmate-deploy.log
+          docker compose logs --tail 200 backend keycloak nginx
+          exit 1
+          REMOTE_SCRIPT
+          )
+          REMOTE_SCRIPT=${REMOTE_SCRIPT//__APP_DIR__/$EC2_APP_DIR}
+          REMOTE_SCRIPT=${REMOTE_SCRIPT//__DEPLOY_BRANCH__/$DEPLOY_BRANCH}
+          REMOTE_SCRIPT=${REMOTE_SCRIPT//__ENV_B64__/$APP_ENV_FILE_B64}
+          SCRIPT_B64=$(printf '%s' "$REMOTE_SCRIPT" | base64 -w 0)
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "LearnMate deployment $GITHUB_SHA" \
-              --parameters "commands=[\"set -u\",\"export HOME=/tmp\",\"cd '$EC2_APP_DIR'\",\"test -d .git\",\"git config --global --add safe.directory '$EC2_APP_DIR'\",\"printf '%s' '$APP_ENV_FILE_B64' | base64 --decode > .env\",\"chmod 600 .env\",\"git fetch --prune origin '$DEPLOY_BRANCH'\",\"git checkout -B '$DEPLOY_BRANCH' 'origin/$DEPLOY_BRANCH'\",\"df -h\",\"free -h || true\",\"docker system df\",\"docker builder prune -af || true\",\"docker compose --env-file .env config --quiet\",\"if ! docker compose --env-file .env build > /tmp/learnmate-deploy.log 2>&1; then tail -200 /tmp/learnmate-deploy.log; exit 1; fi\",\"if ! docker compose --env-file .env pull >> /tmp/learnmate-deploy.log 2>&1; then tail -200 /tmp/learnmate-deploy.log; exit 1; fi\",\"if ! docker compose --env-file .env up -d --remove-orphans >> /tmp/learnmate-deploy.log 2>&1; then tail -200 /tmp/learnmate-deploy.log; exit 1; fi\",\"for attempt in \\\$(seq 1 30); do curl --fail --silent http://127.0.0.1/api/health >/dev/null && exit 0; sleep 10; done\",\"tail -200 /tmp/learnmate-deploy.log\",\"docker compose logs --tail 200 backend keycloak nginx\",\"exit 1\"]" \
+            --parameters commands="echo '$SCRIPT_B64' | base64 --decode | sh" \
             --query 'Command.CommandId' \
             --output text)
           for attempt in $(seq 1 180); do

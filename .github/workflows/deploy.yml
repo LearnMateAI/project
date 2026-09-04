@@ -90,7 +90,7 @@ jobs:
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "LearnMate deployment $GITHUB_SHA" \
-              --parameters "commands=[\"set -eu\",\"cd '$EC2_APP_DIR'\",\"test -d .git\",\"git config --global --add safe.directory '$EC2_APP_DIR'\",\"printf '%s' '$APP_ENV_FILE_B64' | base64 --decode > .env\",\"chmod 600 .env\",\"git fetch --prune origin '$DEPLOY_BRANCH'\",\"git checkout -B '$DEPLOY_BRANCH' 'origin/$DEPLOY_BRANCH'\",\"docker compose --env-file .env config --quiet\",\"docker compose --env-file .env build\",\"docker compose --env-file .env up -d --remove-orphans\",\"for attempt in \\\$(seq 1 30); do curl --fail --silent http://127.0.0.1/api/health >/dev/null && exit 0; sleep 10; done\",\"docker compose logs --tail 200 backend keycloak nginx\",\"exit 1\"]" \
+              --parameters "commands=[\"set -eu\",\"export HOME=/tmp\",\"cd '$EC2_APP_DIR'\",\"test -d .git\",\"git config --global --add safe.directory '$EC2_APP_DIR'\",\"printf '%s' '$APP_ENV_FILE_B64' | base64 --decode > .env\",\"chmod 600 .env\",\"git fetch --prune origin '$DEPLOY_BRANCH'\",\"git checkout -B '$DEPLOY_BRANCH' 'origin/$DEPLOY_BRANCH'\",\"docker compose --env-file .env config --quiet\",\"docker compose --env-file .env build\",\"docker compose --env-file .env up -d --remove-orphans\",\"for attempt in \\\$(seq 1 30); do curl --fail --silent http://127.0.0.1/api/health >/dev/null && exit 0; sleep 10; done\",\"docker compose logs --tail 200 backend keycloak nginx\",\"exit 1\"]" \
             --query 'Command.CommandId' \
             --output text)
           set +e

@@ -1,0 +1,2 @@
+candidate_id,role,passed,grounded,json,mean_ms,verdict
+phi35-mini,generator,reject,0.00,0.00,17822,reject

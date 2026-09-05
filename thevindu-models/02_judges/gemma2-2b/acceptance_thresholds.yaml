@@ -1,0 +1,7 @@
+candidate_id: gemma2-2b-judge
+role: judge
+baseline: false
+agreement_must_match_or_beat_baseline: true
+system_role_required: true
+pair_generator: qwen25-3b
+large_latency_regression: 0.25

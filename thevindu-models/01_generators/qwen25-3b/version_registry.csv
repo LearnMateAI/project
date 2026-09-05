@@ -1,0 +1,2 @@
+candidate_id,role,passed,grounded,json,mean_ms,verdict
+qwen25-3b,generator,baseline — keep live,1.00,1.00,15082,baseline — keep live

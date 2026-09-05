@@ -1,0 +1,6 @@
+# Per-model copy of testing/acceptance_thresholds.yaml (qwen25-3b)
+candidate_id: qwen25-3b
+role: generator
+baseline: true
+both_required: true
+pair_judge: llama32-3b

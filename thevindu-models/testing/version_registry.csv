@@ -1,0 +1,13 @@
+candidate_id,role,passed,machine,measured,grounded_or_agreement,json_or_ndcg,mean_ms,verdict,notes
+qwen25-3b,generator,baseline,Windows AMD64 Intel Family 6 Model 186,gguf+components-pending,1.00,1.00,15082,keep live,GGUF fixture 2026-09-04
+gemma2-2b,generator,False,Windows AMD64 Intel Family 6 Model 186,gguf+components-pending,0.67,0.00,14857,reject,JSON validity 0
+phi35-mini,generator,False,Windows AMD64 Intel Family 6 Model 186,gguf+components-pending,0.00,0.00,17822,reject,garbage tokens under empty chat_format
+llama32-3b,judge,baseline,Windows AMD64 Intel Family 6 Model 186,gguf+components-pending,1.00,,32967,keep live,5/5 gold
+granite-2b,judge,False,Windows AMD64 Intel Family 6 Model 186,gguf+components-pending,1.00,,36879,candidate not flipped,~12% slower; four-eyes open
+gemma2-2b-judge,judge,False,Windows AMD64 Intel Family 6 Model 186,gguf+components-pending,1.00,,38323,reject,system_role_supported false
+minilm-l6,embeddings,baseline,Windows AMD64 Intel Family 6 Model 186,real_pdf,1.00,0.9500,33.7,keep live,real PDF NDCG beat E5
+bge-small,embeddings,False,Windows AMD64 Intel Family 6 Model 186,real_pdf,1.00,0.9377,63.4,reject,lost MiniLM on real PDF
+e5-small,embeddings,False,Windows AMD64 Intel Family 6 Model 186,real_pdf,0.90,0.9133,61.4,reject,toy win reversed on real PDF
+minilm-l12,reranker,False,Windows AMD64 Intel Family 6 Model 186,real_pdf,1.00,0.992,2128,reject,tie vs L-6 at 2x latency
+bge-reranker-base,reranker,False,Windows AMD64 Intel Family 6 Model 186,toy_fixture,1.00,0.9473,7047,reject,~11x slower; skipped on real PDF
+hybrid-rerank,agent,True,Windows AMD64 Intel Family 6 Model 186,real_pdf,,, ,keep live,BM25-only kept in top-3 once

@@ -1,0 +1,55 @@
+# Drop-in comparison contract for thevindu-models.
+# Separate from model-Thevindu LoRA gates (those use Colab + API fallback).
+# Edit only with team agreement.
+
+version: 1
+track: thevindu-models
+machine_required: "Windows laptop CPU named in RESULTS.md — not Colab T4, not uvicorn p95 unless labeled"
+
+notes: >
+  Fail-closed. A candidate that is missing a GGUF, skipped, or that produces
+  garbage tokens is a fail, not a "not yet scored". Live .env and
+  selectable_default must stay unchanged regardless of these numbers.
+
+generator:
+  description: >
+    Beat the live Qwen 2.5 3B baseline on BOTH grounded hit rate AND JSON
+    validity (live resource_agent MCQ shape: 4 options, correct_answer in options).
+    Measured through integrated-backend chat_agent.generate_node + MCQ task,
+    not a public IFEval screenshot.
+  grounded_hit_rate_must_beat_baseline: true
+  json_valid_rate_must_beat_baseline: true
+  both_required: true
+
+judge:
+  description: >
+    Match or beat Llama 3.2 3B gold-label agreement on fixtures/judge_gold.jsonl
+    (pass = score >= 70) without a large latency regression, using the live
+    evaluator.Judge prompt/rubric/verdict. A judge that rejects SystemMessage
+    is not a drop-in (the live evaluate_node always sends one).
+  agreement_must_match_or_beat_baseline: true
+  large_latency_regression: 0.25
+  system_role_required: true
+
+embeddings:
+  description: >
+    Verdict is based on the real company-law PDF, not the 36-chunk toy fixture.
+    Same 384-d width. Re-ingest required to promote. Mixing families in Qdrant
+    is undefined.
+  primary_fixture: real_pdf
+  promote_if_toy_wins_and_real_loses: false
+
+reranker:
+  description: >
+    Real-PDF NDCG / gold-in-top-3 must beat MiniLM-L-6, or it is a reject even
+    if the toy fixture liked L-12. Latency named on this laptop.
+  primary_fixture: real_pdf
+
+promotion_gates:
+  - raw_results_json_present
+  - machine_labeled
+  - real_pdf_drives_retrieve_verdict
+  - stated_decision_rules_applied
+  - no_selectable_default_or_env_change
+  - four_eyes_review
+  - reversible_pointer_only

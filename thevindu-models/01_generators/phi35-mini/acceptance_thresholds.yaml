@@ -1,0 +1,6 @@
+# Per-model copy of testing/acceptance_thresholds.yaml (phi35-mini)
+candidate_id: phi35-mini
+role: generator
+baseline: false
+both_required: true
+pair_judge: llama32-3b

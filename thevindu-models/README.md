@@ -19,9 +19,11 @@ thevindu-models/
 ├── 02_judges/                ← Granite 3.2 2B; Gemma-as-judge pointer
 ├── 03_embeddings/            ← BGE-small, E5-small
 ├── 04_rag/                   ← L-12 + BGE reranker; ANN vs hybrid agents
+├── components/               ← live chat_agent + evaluator re-exports (Dinura contract)
+├── testing/                  ← acceptance thresholds, checklist, version registry
 ├── fixtures/                 ← legal retrieval / generator / judge gold
 ├── scripts/                  ← fetch + eval (run from integrated-backend)
-└── results/                  ← retrieval.json, gguf.json
+└── results/                  ← retrieval.json, gguf.json, components.json, real_pdf.json
 ```
 
 This track is **separate from** `model-Thevindu/` (dataset → LoRA → gate). That work stays
@@ -43,7 +45,7 @@ where it is. These folders only compare **live laptop drop-ins**.
 3. Run `scripts/` from `integrated-backend` (embedders are constructed without the process singleton).
 4. Record numbers in [RESULTS.md](RESULTS.md). Promotion is a RESULTS decision, not a registry default.
 
-**This run (2026-09-04):** Qwen generator 1.00/1.00 JSON; Gemma and Phi rejected. Llama and Granite judges 5/5; Granite is a candidate only. Real company-law PDF reversed the toy-fixture E5 and L-12 wins. Live defaults were **not** changed.
+**This run (2026-09-04 / 2026-09-05):** Qwen generator 1.00/1.00 JSON; Gemma and Phi rejected. Llama and Granite judges 5/5; Granite is a candidate only. Real company-law PDF reversed the toy-fixture E5 and L-12 wins. Each candidate now has Dinura-style `chat_agent/` + `evaluator/` files and Thevindu-style test docs. Live defaults were **not** changed.
 
 ## One-shot retrieval eval (no GGUF)
 

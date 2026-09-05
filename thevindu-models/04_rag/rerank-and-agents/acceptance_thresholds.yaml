@@ -1,0 +1,3 @@
+role: reranker_and_agents
+primary_fixture: real_pdf
+candidates: [minilm-l12, bge-reranker-base, ann-rerank, hybrid-rerank]

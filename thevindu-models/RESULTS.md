@@ -264,10 +264,25 @@ A second person should confirm, in writing, on the PR or below:
 
 ---
 
-## 12. Next actions (in order)
+## 12. Component packages (Dinura + Thevindu layout)
+
+Each comparison model now has the same **filenames** as `components-Dinura/learnmate` (`chat_agent/generate.py`, `chat_agent/evaluate.py`, `evaluator/judge.py`, …) and the same **testing docs** as `model-Thevindu/03_testing_and_versioning` (thresholds, checklist, model card, version registry).
+
+Those Python files **re-export** `integrated-backend/learnmate` and bind only the candidate id. That is the replacement: swap the previous GGUF in, keep the live component. They do not fork prompts.
+
+Shared contract: `thevindu-models/components/` and `thevindu-models/testing/`.  
+Per-model scores: each folder’s `RESULTS.md`.  
+Live-component runner: `scripts/eval_components.py` → `results/components.json`.
+
+`.env` and `selectable_default` stay unchanged.
+
+---
+
+## 13. Next actions (in order)
 
 1. Four-eyes review of this file (PR, do not merge) before any registry flag flips.
 2. Leave `.env` and `selectable_default` alone. Granite is a candidate only.
 3. Leave hybrid BM25 on.
 4. Optional later: one pdf-mode chat turn against the company-law PDF once the stack is up, recorded as its own labeled p95 row.
-5. Do not merge this branch to `main` as a silent model change.
+5. Re-run `eval_components.py` (live `generate_node` / `Judge`) if you want numbers through the exact app prompts rather than `eval_gguf.py`.
+6. Do not merge this branch to `main` as a silent model change.

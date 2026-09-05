@@ -15,6 +15,8 @@ import re
 import unicodedata
 from typing import Dict, List, Union
 
+KIND_PDF_FALLBACK = "pdf"
+
 # Typographic characters that should not become their own embedding tokens.
 _REPLACEMENTS = {
     "“": '"', "”": '"',      # curly double quotes
@@ -27,17 +29,35 @@ _REPLACEMENTS = {
 }
 
 
-def extract_pages(pdf_bytes: bytes) -> List[Dict]:
+def extract_pages(file_bytes: bytes, filename: str = None) -> List[Dict]:
     """
-    Pull text out of a PDF, one entry per page.
+    Pull text out of a source file, one entry per page / slide / section.
 
     Takes bytes rather than a path so it can read straight from GridFS without staging
-    the file back onto disk.
+    the file back onto disk. Kind comes from the filename; PDF is the default when the
+    name is missing so older call sites stay valid.
     """
+    from .formats import KIND_DOCX, KIND_PPTX, KIND_TEX, detect_kind
+    from .extract_office import extract_docx, extract_pptx, extract_tex
+
+    kind = KIND_PDF_FALLBACK
+    if filename:
+        try:
+            kind = detect_kind(filename)
+        except ValueError:
+            kind = KIND_PDF_FALLBACK
+
+    if kind == KIND_DOCX:
+        return extract_docx(file_bytes)
+    if kind == KIND_PPTX:
+        return extract_pptx(file_bytes)
+    if kind == KIND_TEX:
+        return extract_tex(file_bytes)
+
     import fitz  # PyMuPDF
 
     pages = []
-    document = fitz.open(stream=pdf_bytes, filetype="pdf")
+    document = fitz.open(stream=file_bytes, filetype="pdf")
     try:
         for index in range(len(document)):
             pages.append({
@@ -105,13 +125,13 @@ def drop_repeated_lines(pages: List[Dict], min_ratio: float = 0.5) -> List[Dict]
     return pages
 
 
-def preprocess(pdf_bytes: bytes) -> List[Dict]:
+def preprocess(file_bytes: bytes, filename: str = None) -> List[Dict]:
     """
     Full page pipeline: extract, strip furniture, clean.
 
     Returns [{page_index, page_number, page_content}, ...] with empty pages dropped.
     """
-    pages = drop_repeated_lines(extract_pages(pdf_bytes))
+    pages = drop_repeated_lines(extract_pages(file_bytes, filename))
 
     cleaned = []
     for page in pages:

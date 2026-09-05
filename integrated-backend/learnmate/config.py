@@ -32,6 +32,18 @@ ROOT_DIR = PACKAGE_DIR.parent
 # reads an environment variable, which is what makes import order stop mattering.
 load_dotenv(ROOT_DIR / ".env")
 
+# huggingface_hub defaults its cache to ~/.cache/huggingface. On a machine where that
+# directory is locked down (no write access for the running user -- seen on shared/lab
+# Windows installs) every sentence-transformers load fails with a PermissionError before
+# it ever reaches the network. Redirect it into the project instead, unless the
+# environment already pins one. Must happen here, before anything imports
+# sentence_transformers/huggingface_hub anywhere in the process, since those packages
+# read HF_HOME once at import time.
+if not os.getenv("HF_HOME"):
+    _hf_cache_dir = ROOT_DIR / "data" / "hf_cache"
+    _hf_cache_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["HF_HOME"] = str(_hf_cache_dir)
+
 
 def _env(name: str, default: str) -> str:
     """Read an env var, treating an empty string as unset."""
@@ -290,7 +302,13 @@ VECTOR_BACKEND = _env("LEARNMATE_VECTOR_BACKEND", "qdrant").lower()
 # 6335 rather than Qdrant's conventional 6333, because this machine already runs a
 # separate Qdrant on 6333 for another project. docker-compose.yml publishes the matching
 # port; override this if you move it.
-QDRANT_URL = _env("LEARNMATE_QDRANT_URL", "http://localhost:6335")
+#
+# 127.0.0.1, not "localhost": qdrant-client's httpx transport does not fall back from a
+# failed connection attempt the way curl or a browser does, and on Windows "localhost"
+# often resolves to ::1 first. Docker Desktop's port-forward answers IPv4 only, so the
+# IPv6 attempt is reset by the OS and every call fails with WinError 10053/10054 -- even
+# though the same container is reachable and healthy on IPv4 the whole time.
+QDRANT_URL = _env("LEARNMATE_QDRANT_URL", "http://127.0.0.1:6335")
 QDRANT_API_KEY = _env("LEARNMATE_QDRANT_API_KEY", "")
 QDRANT_COLLECTION = _env("LEARNMATE_QDRANT_COLLECTION", "learnmate_chunks")
 QDRANT_TIMEOUT = _env_int("LEARNMATE_QDRANT_TIMEOUT", 30)
@@ -385,6 +403,11 @@ JUDGE_GATE_MODES = frozenset(
 # judge tends to oscillate rather than converge over more rounds.
 MAX_ATTEMPTS = _env_int("LEARNMATE_MAX_ATTEMPTS", 2)
 
+# Cooperative job ceiling, in seconds. 0 leaves jobs unbounded -- whole-document
+# generation is allowed to take minutes. When set, the worker raises JobTimeout between
+# graph nodes (not mid-token) and records error_code=timeout.
+JOB_TIMEOUT_S = _env_int("LEARNMATE_JOB_TIMEOUT_S", 0)
+
 # Rolling chat history depth, in user+assistant pairs.
 MAX_HISTORY_TURNS = _env_int("LEARNMATE_MAX_HISTORY_TURNS", 6)
 
@@ -393,3 +416,21 @@ MAX_HISTORY_TURNS = _env_int("LEARNMATE_MAX_HISTORY_TURNS", 6)
 MAX_SOURCE_CHARS = _env_int("LEARNMATE_MAX_SOURCE_CHARS", 6000)
 
 HF_TOKEN = _env("HF_TOKEN", "") or None
+
+# --- Feature adders (additive; env-off restores prior behaviour) ----------------------
+
+# Hybrid retrieve: ANN (as today) plus BM25, merged before the existing reranker.
+# Default on for this branch. Set LEARNMATE_HYBRID_BM25=0 to restore ANN-only.
+HYBRID_BM25 = _env_bool("LEARNMATE_HYBRID_BM25", True)
+BM25_ANN_KEEP = _env_int("LEARNMATE_BM25_ANN_KEEP", 15)
+BM25_TOP_K = _env_int("LEARNMATE_BM25_TOP_K", 10)
+
+# Per-document BM25 corpus (chunk text), stored in Mongo alongside pages/chunks.
+COLL_BM25 = "bm25_chunks"
+
+# Selectable generators. LEARNMATE_GENERATOR_MODEL remains the fallback when model_id
+# is omitted. A failed-gate LoRA may be listed as experimental; it must not be default.
+MODELS_REGISTRY_PATH = Path(_env(
+    "LEARNMATE_MODELS_REGISTRY",
+    str(PACKAGE_DIR / "models_registry.yaml"),
+))

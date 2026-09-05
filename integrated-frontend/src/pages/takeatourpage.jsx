@@ -6,7 +6,7 @@ const tourSteps = [
   {
     num: 1,
     title: "Upload a Document",
-    desc: "Head to the Dashboard and upload any PDF document. The system accepts lecture notes, textbooks, case law, or any study material up to 10 MB. Choose a subject category and the platform will take care of the rest.",
+    desc: "Head to the Dashboard and upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file. The system accepts lecture notes, textbooks, case law, or any study material up to 10 MB. Choose a subject category and the platform will take care of the rest.",
     detail: "The upload extracts text, splits it into chunks, and generates vector embeddings — building an intelligent index of your document's content.",
     link: "/dashboard",
     linkLabel: "Go to Dashboard",

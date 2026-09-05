@@ -37,6 +37,21 @@ SUMMARY = """Judge this summary against the source passage.
 - Concision: no padding, no restating the same point in different words, no meta-commentary such as "this passage discusses".
 - Standalone sense: it should be readable by someone who has not seen the passage, with no dangling references."""
 
+SUMMARY_STRUCTURED = """
+- Structured mode: each point must stand alone and correspond to a real clause in the source, not an invented subdivision of a narrative provision. Invented bullets put the score below 50."""
+
+MCQ_DISTRACTOR_EASY = """
+- Distractor check (easy tier, strict): for each of the 3 non-marked options, is it clearly and unambiguously FALSE according to the source — not merely 'not the best answer'? Flag any option that could reasonably be argued correct, or that the passage does not address at all. Any such distractor puts the set below 50."""
+
+MCQ_DISTRACTOR_MEDIUM = """
+- Distractor check: for each of the 3 non-marked options, is it clearly FALSE according to the source — not merely 'not the best answer'? An option that could reasonably be argued correct, or that the passage does not address, puts the set below 50."""
+
+MCQ_DISTRACTOR_HARD = """
+- Distractor check (hard tier, slightly more lenient on near-misses): for each of the 3 non-marked options, is it factually FALSE according to the source? Near-miss facts from the same passage are expected and acceptable. Only flag an option that could reasonably be argued CORRECT, or that the passage does not address at all. Those still put the set below 50."""
+
+MCQ_DIFFICULTY_CONSISTENCY = """
+- Difficulty consistency: say in reasoning whether the questions match the requested tier (easy / medium / hard). Do NOT fail the set solely for a mismatch — mention it, then score on the other criteria."""
+
 # The chat agent answers one of two ways per turn and the two are held to different
 # standards. Which rubric applies is decided by whether context was actually retrieved,
 # not by anything the reply says about itself.
@@ -65,8 +80,21 @@ RUBRICS = {
 }
 
 
-def for_task(task: str, grounded: bool = False) -> str:
+def for_task(task: str, grounded: bool = False, extras: dict | None = None) -> str:
     """The rubric for a task. `grounded` selects the strict chat rubric."""
+    extras = extras or {}
     if task == "chat_msg":
         return CHAT_GROUNDED if grounded else CHAT_GENERAL
-    return RUBRICS.get(task, GENERIC)
+    text = RUBRICS.get(task, GENERIC)
+    if task == "summary" and extras.get("summary_style") == "structured":
+        text += SUMMARY_STRUCTURED
+    if task == "mcq":
+        difficulty = (extras.get("difficulty") or "medium").lower()
+        if difficulty == "easy":
+            text += MCQ_DISTRACTOR_EASY
+        elif difficulty == "hard":
+            text += MCQ_DISTRACTOR_HARD
+        else:
+            text += MCQ_DISTRACTOR_MEDIUM
+        text += MCQ_DIFFICULTY_CONSISTENCY
+    return text

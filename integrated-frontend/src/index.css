@@ -1,29 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
 @import "tailwindcss";
 
 /**
  * Design tokens.
  *
- * The look is a royal-blue LMS: a pale lavender navigation rail against near-white content,
- * generously rounded white cards with hairline borders instead of heavy shadows, and one
- * saturated blue used sparingly -- the active nav pill, the primary button, the data marks.
- * Colour is scarce on purpose, so the places it does appear are the places that matter.
+ * Academic-legal: cream paper, slate ink, deep navy chrome, and the same modern blue as
+ * the rest of LearnMateAI. Saturated blue is still scarce -- active nav, primary actions
+ * -- so the page reads as a chambers desk rather than a generic LMS.
  */
 @theme {
   /* Brand ramp. `primary` is the only saturated colour in the interface. */
   --color-primary: #2340E0;
   --color-primary-dark: #1A31B8;
   --color-primary-hover: #1E39D0;
-  --color-primary-light: #E5E9FE;
-  --color-primary-soft: #F1F3FE;
+  --color-primary-light: #E4EAF8;
+  --color-primary-soft: #EEF2F8;
   --color-primary-ring: rgba(35, 64, 224, 0.14);
 
-  --color-accent: #6366F1;
-  --color-accent-light: #EEF0FF;
-  --color-cyan: #0891B2;
-  --color-cyan-light: #E0F5FA;
-  --color-violet: #7C3AED;
-  --color-violet-light: #F1EBFE;
+  --color-accent: #3B5B8C;
+  --color-accent-light: #E8EEF6;
+  --color-cyan: #0F766E;
+  --color-cyan-light: #E6F4F2;
+  --color-violet: #4C3D8A;
+  --color-violet-light: #EEEAF8;
+  --color-navy: #152238;
 
   /* Status. Reserved -- never reused as a decorative colour. */
   --color-success: #15803D;
@@ -33,26 +33,28 @@
   --color-danger: #DC2626;
   --color-danger-light: #FDECEC;
 
-  /* Surfaces */
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #F7F8FD;
-  --color-background: #FAFBFE;
-  --color-sidebar: #F4F5FC;
-  --color-shell: #EDEFF9;
+  /* Surfaces -- cream paper, not clinical white. */
+  --color-surface: #FFFBF5;
+  --color-surface-alt: #F4EEE4;
+  --color-background: #F3EEE4;
+  --color-sidebar: #EBE4D8;
+  --color-shell: #E4DCCE;
+  --color-paper: #FBF6EC;
 
-  /* Ink */
-  --color-heading: #101533;
-  --color-body: #3B4166;
-  --color-muted: #6C7191;
-  --color-subtle: #9BA0BC;
+  /* Ink -- slate, not purple-navy. */
+  --color-heading: #1A2433;
+  --color-body: #3E4757;
+  --color-muted: #5C6575;
+  --color-subtle: #8A918C;
 
   /* Lines */
-  --color-border: #E7E9F5;
-  --color-border-light: #F1F2FA;
-  --color-border-strong: #D6D9EC;
+  --color-border: #E4DDD0;
+  --color-border-light: #EFE9DD;
+  --color-border-strong: #D4CBBA;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-family-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-family-sans: 'Source Sans 3', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.8125rem;
@@ -96,53 +98,53 @@ html.dark {
      it, native selects and date pickers stay light and punch holes in the page. */
   color-scheme: dark;
 
-  /* Brand. #2340E0 is a mid-tone: correct on near-white, muddy against a dark surface. The
-     ramp shifts up in lightness while holding the hue, so it still reads as the same blue. */
-  --color-primary: #6182FF;
-  --color-primary-hover: #7C97FF;
+  /* Brand. Lifted in lightness so the same blue still reads on navy, without the glare of
+     a neon accent on a late-night study session. */
+  --color-primary: #7B93F0;
+  --color-primary-hover: #93A7F4;
   /* Inverted on purpose. `primary-dark` is only ever used as *text on* `primary-light`
      (see .badge-blue and .notice-info), so when that fill becomes a deep tint this has to
      become the light half of the pair, not the dark one. */
-  --color-primary-dark: #A8BAFF;
-  --color-primary-light: #1D2551;
-  --color-primary-soft: #161C3A;
-  --color-primary-ring: rgba(97, 130, 255, 0.28);
+  --color-primary-dark: #C5D0F8;
+  --color-primary-light: #1C2744;
+  --color-primary-soft: #151C30;
+  --color-primary-ring: rgba(123, 147, 240, 0.22);
 
-  --color-accent: #8B8DF7;
-  --color-accent-light: #211F4A;
-  --color-cyan: #22B8D9;
-  --color-cyan-light: #10303A;
-  --color-violet: #A78BFA;
-  --color-violet-light: #251B44;
+  --color-accent: #9BB0D4;
+  --color-accent-light: #1A2438;
+  --color-cyan: #5FBFB5;
+  --color-cyan-light: #12302C;
+  --color-violet: #B4A6D8;
+  --color-violet-light: #221C33;
+  --color-navy: #0C1220;
 
-  /* Status. Same rule as the light theme: reserved, never decorative. The `-light` pairs
-     are deep tints that a light status colour sits on top of. */
-  --color-success: #4ADE80;
+  /* Status. Same rule as the light theme: reserved, never decorative. Softened so they
+     do not bloom on a dark page. */
+  --color-success: #6ECF8E;
   --color-success-light: #12301F;
-  --color-warning: #FBBF24;
+  --color-warning: #E0B45A;
   --color-warning-light: #35270B;
-  --color-danger: #F87171;
+  --color-danger: #E07A7A;
   --color-danger-light: #3A1A1A;
 
-  /* Surfaces. The light theme stacks near-white cards on a faintly tinted shell; this
-     inverts the stack so cards sit *above* the background rather than below it. */
-  --color-surface: #151B33;
-  --color-surface-alt: #1C2340;
-  --color-background: #0E1327;
-  --color-sidebar: #10152B;
-  --color-shell: #080C1B;
+  /* Surfaces. Deep navy, not purple. Cards sit slightly above the shell. */
+  --color-surface: #141A28;
+  --color-surface-alt: #1A2233;
+  --color-background: #0C1220;
+  --color-sidebar: #101624;
+  --color-shell: #080C16;
+  --color-paper: #121826;
 
-  /* Ink. Deliberately not pure white at the top of the ramp: #FFFFFF on a dark surface
-     glares and makes long reading tiring. */
-  --color-heading: #EEF0FA;
-  --color-body: #C4CAE4;
-  --color-muted: #949CBE;
-  --color-subtle: #6E7699;
+  /* Ink. Kept well below pure white so long reading at night does not glare. */
+  --color-heading: #D0D5E0;
+  --color-body: #A7AEBE;
+  --color-muted: #8A92A3;
+  --color-subtle: #6B7384;
 
   /* Lines */
-  --color-border: #272F52;
-  --color-border-light: #1E2543;
-  --color-border-strong: #3A4470;
+  --color-border: #243044;
+  --color-border-light: #1C2536;
+  --color-border-strong: #33415A;
 
   /* Shadows do almost nothing on a dark ground -- there is no light for them to occlude.
      They are deepened so the little they contribute is not simply invisible. */
@@ -171,7 +173,7 @@ body {
   background-color: var(--color-shell);
   color: var(--color-body);
   font-size: var(--font-size-base);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -673,7 +675,7 @@ html.dark .notice-warn { border-color: #4A3A12; color: #FCD34D; }
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-2xl);
-  background: linear-gradient(135deg, var(--color-primary) 0%, #3B39D8 50%, #2A1F9E 100%);
+  background: linear-gradient(135deg, #152238 0%, #1E3A6B 48%, #2340E0 100%);
   color: #fff;
 }
 .hero-panel::after {
@@ -692,7 +694,7 @@ html.dark .notice-warn { border-color: #4A3A12; color: #FCD34D; }
 
 /* ─── Auth split screen ─── */
 .auth-aside {
-  background: linear-gradient(155deg, var(--color-primary) 0%, #3B2FC9 55%, #1B2A9E 100%);
+  background: linear-gradient(155deg, #152238 0%, #1E3A6B 55%, #2340E0 100%);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -742,4 +744,135 @@ html.dark .notice-warn { border-color: #4A3A12; color: #FCD34D; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ─── Legal reading surface ───
+   Serif on cream (or navy paper in dark mode) for long-form text. UI chrome stays
+   Source Sans 3; only the thing being read uses Source Serif 4. */
+.paper {
+  background: var(--color-paper);
+  color: var(--color-heading);
+  font-family: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+html.dark .paper {
+  color: #C9CED8;
+}
+
+/* Split-screen workspace: dense PDF (or cleaned text) beside chat / generation. */
+.workspace-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: min(72vh, 54rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+@media (max-width: 1023px) {
+  .workspace-split {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+.workspace-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 28rem;
+  background: var(--color-surface);
+}
+@media (min-width: 1024px) {
+  .workspace-pane + .workspace-pane {
+    border-left: 1px solid var(--color-border);
+  }
+}
+.workspace-pane-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Evidentiary citation chips -- page and paragraph, not a footnote dump. */
+.cite {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-heading);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  font-family: var(--font-family-sans);
+}
+.cite-page {
+  color: var(--color-primary);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+}
+.tab-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tab-btn.is-active {
+  background: var(--color-surface);
+  color: var(--color-heading);
+  box-shadow: var(--shadow-card);
+}
+
+.flashcard {
+  perspective: 900px;
+  cursor: pointer;
+}
+.flashcard-inner {
+  position: relative;
+  min-height: 8.5rem;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease;
+}
+.flashcard.is-flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-paper);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.flashcard-back {
+  transform: rotateY(180deg);
+  background: var(--color-surface);
 }

@@ -25,6 +25,7 @@ from typing import Dict
 
 from ..evaluator.judge import get_judge
 from ..evaluator.verdict import gated_verdict
+from ..runtime_limits import add_timing
 from ..storage import content_store
 from . import gate
 from .helpers import _log
@@ -39,7 +40,8 @@ def evaluate_node(state: ChatState) -> Dict:
     if not state.get("evaluate", True):
         return {"passed": True, "verdict": None,
                 "attempts": [{"attempt": state["attempt"], "reply": state.get("reply", ""),
-                              "verdict": None}]}
+                              "verdict": None}],
+                "timings": add_timing(state, "judge_ms", time.perf_counter())}
 
     # Cheaper than the judge by four orders of magnitude, and asked first: on a turn the
     # judge cannot say anything useful about, ~36s of second-model inference buys a number
@@ -64,10 +66,12 @@ def evaluate_node(state: ChatState) -> Dict:
             "critique": "",
             "attempts": [{"attempt": state["attempt"],
                           "reply": state.get("reply", ""), "verdict": verdict}],
+            "timings": add_timing(state, "judge_ms", time.perf_counter()),
         }
 
     _log(state, "[*] Evaluating...")
     started = time.time()
+    clock = time.perf_counter()
 
     contexts = state.get("contexts")
     if contexts:
@@ -102,4 +106,5 @@ def evaluate_node(state: ChatState) -> Dict:
         # Appended, not overwritten -- see the reducer on `attempts` in state.py.
         "attempts": [{"attempt": state["attempt"], "reply": state.get("reply", ""),
                       "verdict": verdict}],
+        "timings": add_timing(state, "judge_ms", clock),
     }

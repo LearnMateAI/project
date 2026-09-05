@@ -52,11 +52,12 @@ MAX_SENTENCES = 30
 CHARS_PER_SENTENCE = 120
 
 
-def _summarise(source: str, sentences: int, doc_id, user_id=None) -> str:
+def _summarise(source: str, sentences: int, doc_id, user_id=None,
+               model_id: str = None) -> str:
     """One un-judged, un-stored summary pass. Empty string when the generation failed."""
     result = generate_resource(
         "summary", source, count=sentences, doc_id=doc_id, user_id=user_id,
-        evaluate=False, persist=False, verbose=False)
+        evaluate=False, persist=False, verbose=False, model_id=model_id)
     return (result.get("content") or "").strip()
 
 
@@ -70,7 +71,9 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
                        max_attempts: int = None, evaluate: bool = True,
                        persist: bool = True, verbose: bool = True,
                        max_chars: int = None, user_id: str = None,
-                       on_progress=None) -> Dict:
+                       on_progress=None, summary_style: str = None,
+                       model_id: str = None, difficulty: str = None,
+                       topic: str = None) -> Dict:
     """
     Summarise every page of a document and combine them into one comprehensive summary.
 
@@ -106,7 +109,8 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
         _log(progress, f"[*] Summarising page {record['page_number']} "
                        f"({len(pages) + 1}/{len(records)})...")
         # Truncated because one page can still exceed the window on a dense layout.
-        summary = _summarise(text[:budget], PAGE_SENTENCES, doc_id, user_id)
+        summary = _summarise(text[:budget], PAGE_SENTENCES, doc_id, user_id,
+                             model_id=model_id)
         if summary:
             pages.append({"page_number": record["page_number"], "summary": summary})
 
@@ -136,7 +140,8 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
         # answer and only has to shrink -- halving is what makes the loop converge -- but
         # a flat budget here is where the detail was being thrown away, before the final
         # pass ever saw it.
-        notes = [_summarise("\n\n".join(batch), _fold_sentences(batch), doc_id)
+        notes = [_summarise("\n\n".join(batch), _fold_sentences(batch), doc_id,
+                            user_id, model_id=model_id)
                  for batch in batches]
         notes = [note for note in notes if note]
 
@@ -147,7 +152,8 @@ def summarize_document(doc_id, count: int = None, threshold: int = None,
     result = generate_resource(
         "summary", "\n\n".join(notes)[:budget], count=sentences, doc_id=doc_id,
         threshold=threshold, max_attempts=max_attempts, evaluate=evaluate,
-        persist=persist, verbose=verbose, user_id=user_id, on_progress=on_progress)
+        persist=persist, verbose=verbose, user_id=user_id, on_progress=on_progress,
+        summary_style=summary_style, model_id=model_id, topic=topic)
 
     result["pages"] = pages
     return result

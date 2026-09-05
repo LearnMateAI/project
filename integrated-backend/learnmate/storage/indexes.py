@@ -43,6 +43,12 @@ def create_indexes(database: Database) -> None:
     database[config.COLL_PAGES].create_index(
         [("doc_id", ASCENDING), ("page_number", ASCENDING)], unique=True)
 
+    database[config.COLL_BM25].create_index([("doc_id", ASCENDING)])
+    database[config.COLL_BM25].create_index(
+        [("doc_id", ASCENDING), ("page_number", ASCENDING), ("chunk_index", ASCENDING)],
+        unique=True,
+    )
+
     # --- Generated content and its audit trail ----------------------------------------
     database[config.COLL_RESOURCES].create_index(
         [("doc_id", ASCENDING), ("task", ASCENDING), ("created_at", DESCENDING)])

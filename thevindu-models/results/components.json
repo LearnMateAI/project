@@ -1,0 +1,13 @@
+{
+  "path": "live integrated-backend chat_agent + evaluator (same as components-Dinura)",
+  "env_changed": false,
+  "selectable_default_changed": false,
+  "status": "packages wired; live generate_node/Judge runner is scripts/eval_components.py",
+  "note": "Per-model RESULTS.md currently copy the 2026-09-04 eval_gguf.py numbers (same fixtures). Re-run eval_components.py to overwrite this file with live-prompt scores. Do not treat this stub as a second measurement.",
+  "source_until_rerun": "results/gguf.json",
+  "machine": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "note": "Laptop CPU; not Colab T4; not uvicorn chat p95."
+  }
+}

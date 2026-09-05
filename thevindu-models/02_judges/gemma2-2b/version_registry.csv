@@ -1,0 +1,2 @@
+candidate_id,role,passed,agreement,mean_ms,system_role,verdict
+gemma2-2b-judge,judge,reject — not a drop-in,1.00,38323,False,reject — not a drop-in

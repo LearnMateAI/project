@@ -1,0 +1,6 @@
+# Per-model copy of testing/acceptance_thresholds.yaml (gemma2-2b)
+candidate_id: gemma2-2b
+role: generator
+baseline: false
+both_required: true
+pair_judge: llama32-3b

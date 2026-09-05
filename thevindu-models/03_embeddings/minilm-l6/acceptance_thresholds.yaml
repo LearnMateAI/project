@@ -1,0 +1,6 @@
+candidate_id: minilm-l6
+role: embeddings
+baseline: true
+primary_fixture: real_pdf
+promote_if_toy_wins_and_real_loses: false
+dim: 384

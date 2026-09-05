@@ -1,0 +1,2 @@
+candidate_id,role,passed,agreement,mean_ms,system_role,verdict
+llama32-3b,judge,baseline — keep live,1.00,32967,True,baseline — keep live

@@ -1,0 +1,2 @@
+candidate_id,role,passed,grounded,json,mean_ms,verdict
+gemma2-2b,generator,reject,0.67,0.00,14856,reject

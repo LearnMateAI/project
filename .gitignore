@@ -10,6 +10,10 @@ __pycache__/
 **/.env
 
 models/
+*.gguf
+
+# Comparison-run scratch under thevindu-models (weights must never be committed)
+thevindu-models/**/weights/
 
 # Redirected huggingface_hub cache (learnmate/config.py); avoids ~/.cache/huggingface on
 # machines where that directory isn't writable. Downloaded models, not source.

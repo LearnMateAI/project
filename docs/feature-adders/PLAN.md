@@ -44,6 +44,7 @@ Work lands on `thevindu-feature` in **tier order**, one commit family per featur
 - `feature/export-office`
 - `feature/bm25-hybrid`
 - `feature/multi-model`
+- `thevindu-models` — laptop drop-in bake-off (generators/judges/embeddings/rerankers). Evidence in `thevindu-models/RESULTS.md`. Not a `main` merge.
 
 Tier 1 can merge internally as soon as spot-checked. Tier 3 stays on this branch until eval notes exist.
 
@@ -64,8 +65,8 @@ Tier 1 can merge internally as soon as spot-checked. Tier 3 stays on this branch
 
 Before merging BM25 or a new default model to `main`:
 
-1. BM25: log `retrieval_mix` (`ann` / `bm25` / `both`) and report how often the reranker keeps BM25-only chunks.
-2. Models: run the same `acceptance_thresholds.yaml` discipline as the ML track; experimental ids stay experimental.
+1. BM25: log `retrieval_mix` (`ann` / `bm25` / `both`) and report how often the reranker keeps BM25-only chunks. **Recorded 2026-09-04** on `thevindu-models`: see `thevindu-models/RESULTS.md` §6 — BM25-only kept once in 30 top-3 slots; hybrid stays on.
+2. Models: run the same `acceptance_thresholds.yaml` discipline as the ML track; experimental ids stay experimental. **Recorded 2026-09-04:** comparison work lives on branch `thevindu-models` only; no live default changed.
 
 ---
 

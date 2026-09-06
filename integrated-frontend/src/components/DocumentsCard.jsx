@@ -18,17 +18,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { listDocuments, uploadDocument } from "../api/documents.js";
 import { useJob } from "../hooks/useJob.js";
-import { MATTER_TYPES, setMatterType } from "../lib/matterTypes.js";
 import JobProgress from "./JobProgress.jsx";
-
-const SUBJECTS = [
-  "Constitutional Law",
-  "Law of Contract",
-  "Criminal Law",
-  "Law of Torts",
-  "Property Law",
-  "General",
-];
 
 // Matches LEARNMATE_MAX_PDF_MB in integrated-backend/.env. Kept in step deliberately:
 // a browser limit looser than the server's just means the upload finishes and is then
@@ -44,8 +34,6 @@ function fileExtension(name) {
 
 function DocumentsCard({ onUploaded }) {
   const [documentCount, setDocumentCount] = useState(null);
-  const [subject, setSubject] = useState("General");
-  const [matterKind, setMatterKind] = useState("case");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [progress, setProgress] = useState(0);
@@ -98,7 +86,7 @@ function DocumentsCard({ onUploaded }) {
     const result = await job.run(() =>
       uploadDocument({
         file,
-        subject,
+        subject: "General",
         onUploadProgress: (event) => {
           if (event.total) setProgress(Math.round((event.loaded * 100) / event.total));
         },
@@ -107,7 +95,6 @@ function DocumentsCard({ onUploaded }) {
 
     if (result) {
       const documentId = result.document_id || result.id;
-      if (documentId) setMatterType(documentId, matterKind);
       setSuccess(
         result.skipped
           ? `"${file.name}" was already indexed — ready straight away.`
@@ -137,7 +124,7 @@ function DocumentsCard({ onUploaded }) {
     <section className="card">
       <div className="card-head">
         <div>
-          <h2>File a source</h2>
+          <h2>Upload a document</h2>
           <p className="text-[12px] text-muted mt-0.5">
             {documentCount === null
               ? "Checking your library..."
@@ -154,40 +141,6 @@ function DocumentsCard({ onUploaded }) {
       </div>
 
       <div className="card-body">
-        <label className="field-label" htmlFor="matter-kind">
-          File as
-        </label>
-        <select
-          id="matter-kind"
-          value={matterKind}
-          onChange={(e) => setMatterKind(e.target.value)}
-          disabled={busy}
-          className="select mb-4"
-        >
-          {MATTER_TYPES.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.singular}
-            </option>
-          ))}
-        </select>
-
-        <label className="field-label" htmlFor="subject">
-          Subject
-        </label>
-        <select
-          id="subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          disabled={busy}
-          className="select mb-4"
-        >
-          {SUBJECTS.map((entry) => (
-            <option key={entry} value={entry}>
-              {entry}
-            </option>
-          ))}
-        </select>
-
         <label
           onDragOver={(e) => {
             e.preventDefault();
@@ -217,17 +170,12 @@ function DocumentsCard({ onUploaded }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
           </svg>
           <p className="text-[13px] font-semibold text-heading">
-            {busy ? "Working on it..." : "Drop a file here, or click to choose"}
+            {busy ? "Working on it..." : "Drop a document here, or click to choose"}
           </p>
           <p className="text-[11.5px] text-subtle mt-0.5">
             PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) · up to {MAX_MB} MB
           </p>
-          <p className="text-[11.5px] text-muted mt-2 leading-relaxed max-w-sm mx-auto">
-            Text is extracted the same way as a PDF: pages, slides, or sections are cleaned,
-            chunked, and indexed so you can generate summaries and quizzes. Image-only
-            scans or slides with no selectable text cannot be indexed. Older .doc / .ppt
-            files need to be saved as .docx / .pptx first.
-          </p>
+          
         </label>
 
         {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the

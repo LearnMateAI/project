@@ -15,7 +15,6 @@ import DocumentsCard from "../components/DocumentsCard.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import ResourcesPanel from "../components/ResourcesPanel.jsx";
 import WorkspaceChat from "../components/WorkspaceChat.jsx";
-import { MATTER_TYPES, getMatterType, matterLabel, setMatterType } from "../lib/matterTypes.js";
 
 const POLL_MS = 3000;
 
@@ -39,9 +38,7 @@ function Documents() {
   const [selectedId, setSelectedId] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [viewerLoading, setViewerLoading] = useState(false);
-  const [matterFilter, setMatterFilter] = useState("");
   const [workspaceTab, setWorkspaceTab] = useState("generate");
-  const [matterVersion, setMatterVersion] = useState(0);
   const pdfUrlRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const openedFromLinkRef = useRef(false);
@@ -103,9 +100,7 @@ function Documents() {
   }, [documents, searchParams]);
 
   const selected = documents.find((doc) => doc.id === selectedId) || null;
-  const visible = matterFilter
-    ? documents.filter((doc) => getMatterType(doc.id) === matterFilter)
-    : documents;
+  const visible = documents;
 
   async function handleSelect(doc) {
     setSelectedId(doc.id);
@@ -141,7 +136,6 @@ function Documents() {
     if (!window.confirm(`Remove "${doc.filename}" from your library?`)) return;
     try {
       const res = await deleteDocument(doc.id);
-      setMatterType(doc.id, "");
       setNotice(
         res.data.purged
           ? `"${doc.filename}" was deleted.`
@@ -157,11 +151,6 @@ function Documents() {
     }
   }
 
-  function handleMatterChange(docId, kind) {
-    setMatterType(docId, kind);
-    setMatterVersion((value) => value + 1);
-  }
-
   const readyCount = documents.filter((doc) => doc.processing_status === "Ready").length;
 
   return (
@@ -171,7 +160,7 @@ function Documents() {
           <h1>Library</h1>
           <p>
             {documents.length === 0
-              ? "File a PDF, Word, PowerPoint, or LaTeX source"
+              ? "Upload a PDF, Word, PowerPoint, or LaTeX document"
               : `${documents.length} filed · ${readyCount} ready`}
           </p>
         </div>
@@ -207,19 +196,6 @@ function Documents() {
                 </option>
               ))}
             </select>
-            <select
-              className="select w-auto"
-              value={getMatterType(selected.id)}
-              onChange={(e) => handleMatterChange(selected.id, e.target.value)}
-              aria-label="Matter type"
-            >
-              <option value="">Unfiled</option>
-              {MATTER_TYPES.map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.singular}
-                </option>
-              ))}
-            </select>
             <span className="badge badge-gray">
               {selected.page_count
                 ? `${selected.page_count} ${selected.unit_label || "pages"}`
@@ -229,6 +205,7 @@ function Documents() {
 
           <div className="workspace-split">
             <DocumentReader
+              key={`${selected.id}-${selected.source_kind || "pdf"}`}
               documentId={selected.id}
               filename={selected.filename}
               pdfUrl={pdfUrl}
@@ -282,33 +259,13 @@ function Documents() {
 
           <section className="card overflow-hidden">
             <div className="card-head">
-              <h2>Filed sources</h2>
+              <h2>Existing Sources</h2>
               {anyProcessing && (
                 <span className="badge badge-blue">
                   <span className="spinner w-3 h-3" />
                   Processing
                 </span>
               )}
-            </div>
-
-            <div className="px-4 pt-3 chip-row">
-              <button
-                type="button"
-                className={`cite ${!matterFilter ? "cite-page" : ""}`}
-                onClick={() => setMatterFilter("")}
-              >
-                All
-              </button>
-              {MATTER_TYPES.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  className={`cite ${matterFilter === entry.id ? "cite-page" : ""}`}
-                  onClick={() => setMatterFilter(entry.id)}
-                >
-                  {entry.label}
-                </button>
-              ))}
             </div>
 
             <div className="overflow-x-auto">
@@ -318,8 +275,8 @@ function Documents() {
                 <EmptyState
                   body={
                     documents.length === 0
-                      ? "No sources yet — file a PDF, Word, PowerPoint, or LaTeX file to get started."
-                      : "Nothing filed under this type yet."
+                      ? "No documents yet  : Upload a PDF, Word, PowerPoint, or LaTeX file to get started."
+                      : "No documents to show."
                   }
                   action={null}
                 />
@@ -328,8 +285,6 @@ function Documents() {
                   <thead>
                     <tr>
                       <th>Filename</th>
-                      <th>Type</th>
-                      <th>Subject</th>
                       <th className="num">Units</th>
                       <th className="num">Size</th>
                       <th>Status</th>
@@ -346,10 +301,6 @@ function Documents() {
                         <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
                           {doc.filename}
                         </td>
-                        <td className="text-muted whitespace-nowrap">
-                          {matterLabel(getMatterType(doc.id))}
-                        </td>
-                        <td className="text-muted whitespace-nowrap">{doc.subject}</td>
                         <td className="num">{doc.page_count ?? "—"}</td>
                         <td className="num whitespace-nowrap">{formatSize(doc.file_size)}</td>
                         <td>
@@ -389,8 +340,6 @@ function Documents() {
           </section>
         </div>
       )}
-      {/* matterVersion forces the type column to refresh after a localStorage write. */}
-      <span className="sr-only" aria-hidden="true">{matterVersion}</span>
     </div>
   );
 }

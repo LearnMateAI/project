@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAnalytics } from "../api/analytics.js";
-import { listResources, resourceLabel } from "../api/resources.js";
 import { useAuth } from "../context/useAuth.js";
 
 // The routes a signed-out visitor is allowed to reach, so `go()` leaves them alone.
@@ -10,7 +9,6 @@ const PUBLIC_PATHS = new Set(["/", "/home", "/about", "/tour"]);
 function HomePage() {
   const { user, isAuthenticated } = useAuth();
   const [stats, setStats] = useState(null);
-  const [recent, setRecent] = useState([]);
 
   // Where a link should go for somebody who has not signed up yet. Most destinations on
   // this page need a session to do anything, so pointing a visitor at one would bounce
@@ -27,7 +25,6 @@ function HomePage() {
     // home page a moment after it rendered. See api/client.js.
     if (!isAuthenticated) {
       setStats(null);
-      setRecent([]);
       return;
     }
 
@@ -36,12 +33,6 @@ function HomePage() {
       setStats(res.data);
     } catch {
       setStats(null);
-    }
-    try {
-      const res = await listResources();
-      setRecent(res.data.slice(0, 4));
-    } catch {
-      setRecent([]);
     }
   }, [isAuthenticated]);
 
@@ -55,7 +46,7 @@ function HomePage() {
   const features = [
     {
       title: "File & read",
-      desc: "Organise PDFs as cases, statutes, outlines or briefs. Extracted text from court files with a text layer is indexed for study.",
+      desc: "Organise PDFs, notes, slides, and other course material. Extracted text is indexed for study.",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -65,8 +56,8 @@ function HomePage() {
       color: "text-primary bg-primary-light",
     },
     {
-      title: "Ask the record",
-      desc: "Keep the PDF open and ask beside it. Every answer cites the page and paragraph it was retrieved from.",
+      title: "Ask a Question",
+      desc: "Keep the source open and ask beside it. Every answer cites the page, slide, or section it was retrieved from.",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
@@ -76,8 +67,8 @@ function HomePage() {
       color: "text-accent bg-accent-light",
     },
     {
-      title: "IRAC, flashcards, MBE",
-      desc: "Generate IRAC case briefs, flip-card key points, and bar-style MCQs — still the four engine types, reviewed by a second model.",
+      title: "Study materials",
+      desc: "Generate summaries, key points, and practice questions from your documents.",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.331 0 4.472.89 6.042 2.346M12 6.042a8.967 8.967 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.346" />
@@ -88,12 +79,6 @@ function HomePage() {
     },
   ];
 
-  const quickActions = [
-    { label: "File a source", to: "/documents", desc: "Cases, statutes, outlines, briefs" },
-    { label: "Ask the record", to: "/chat", desc: "Answers cite page and paragraph" },
-    { label: "View Analytics", to: "/analytics", desc: "Track your study progress" },
-    { label: "Take a Tour", to: "/tour", desc: "Learn how the platform works" },
-  ];
 
   return (
     <div className="animate-fade-in">
@@ -101,16 +86,12 @@ function HomePage() {
       <div className="hero-panel p-8 lg:p-10 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
-            <h1 className="text-[30px] lg:text-[34px] leading-tight font-bold text-white tracking-tight m-0">
+            <h1 className="text-[30px] lg:text-[34px] leading-tight font-bold !text-white tracking-tight m-0">
               {isAuthenticated
                 ? `Welcome to LearnMateAI${user?.name ? `, ${user.name.split(" ")[0]}` : ""}`
-                : "Study law without drowning in the PDF"}
+                : "Study smarter with your course material"}
             </h1>
-            <p className="text-white/75 text-[15px] leading-relaxed max-w-xl mt-3 mb-0">
-              {isAuthenticated
-                ? "File a judgment, keep it open, and ask or generate IRAC briefs, flashcards, and bar-style MCQs beside it."
-                : "A workspace for law students and bar candidates: grounded answers with page and paragraph cites, and study material a second model has already graded."}
-            </p>
+            
           </div>
           <Link
             to={go("/try")}
@@ -165,7 +146,7 @@ function HomePage() {
         <div className="card p-8 text-center">
           <h2 className="text-[19px] font-bold text-heading mb-2">Ready to start?</h2>
           <p className="text-[13.5px] text-muted leading-relaxed max-w-lg mx-auto mb-5">
-            Create an account, upload your first PDF, and have summaries, key points, practice
+            Create an account, upload your first document, and have summaries, key points, practice
             questions and a chat that answers from your own material.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -179,53 +160,9 @@ function HomePage() {
         </div>
       ) : (
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card p-6">
-          <h2 className="text-[15px] font-semibold text-heading mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {quickActions.map((a) => (
-              <Link
-                key={a.label}
-                to={a.to}
-                className="border border-border rounded-lg p-3 hover:border-primary hover:bg-primary-light/30 transition-colors no-underline block"
-              >
-                <p className="text-[13px] font-medium text-heading">{a.label}</p>
-                <p className="text-[11px] text-muted mt-0.5">{a.desc}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
+        
 
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[15px] font-semibold text-heading">Recent Resources</h2>
-            <Link to="/resources" className="text-[12px] text-primary font-medium hover:underline">
-              View all →
-            </Link>
-          </div>
-          {recent.length === 0 ? (
-            <p className="text-[13px] text-muted">
-              No materials yet. File a source and generate an IRAC brief, flashcards, or MCQs.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {recent.map((r) => (
-                <li key={r.id}>
-                  <Link
-                    to={`/resources/${r.id}`}
-                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-background transition-colors no-underline"
-                  >
-                    <span className="text-[13px] font-medium text-heading">
-                      {resourceLabel(r.resource_type, r.params)}
-                    </span>
-                    <span className="text-[11px] text-subtle">
-                      {new Date(r.created_at).toLocaleDateString()}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        
       </div>
       )}
     </div>

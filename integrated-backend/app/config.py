@@ -41,6 +41,8 @@ def _env_bool(name: str, default: bool) -> bool:
 # frontend and a local one can both be allowed at once.
 _ORIGINS = _env("FRONTEND_ORIGIN", "http://localhost:5173")
 FRONTEND_ORIGINS = [origin.strip() for origin in _ORIGINS.split(",") if origin.strip()]
+if "http://localhost" in FRONTEND_ORIGINS and "http://localhost:5173" not in FRONTEND_ORIGINS:
+    FRONTEND_ORIGINS.append("http://localhost:5173")
 
 # --- Tokens ----------------------------------------------------------------------------
 # No default, on purpose. A fallback secret is worse than a missing one: it works in

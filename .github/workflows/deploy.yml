@@ -3,7 +3,7 @@ name: Deploy Application
 on:
   push:
     branches:
-      - dinura-deployment
+      - deployment
   workflow_dispatch:
 
 jobs:
@@ -27,10 +27,19 @@ jobs:
         run: |
           python -m compileall integrated-backend
 
-      - name: Frontend build
+      - name: Frontend lint
         run: |
           npm ci --prefix integrated-frontend
+          npm run lint --prefix integrated-frontend
+
+      - name: Frontend build
+        run: |
           npm run build --prefix integrated-frontend
+
+      - name: Compose configuration check
+        run: |
+          cp .env.example .env
+          docker compose config >/dev/null
 
   deploy:
     needs: ci
@@ -51,12 +60,22 @@ jobs:
             set -e
             cd ~/app
             git fetch origin
-            git checkout dinura-deployment
-            git reset --hard origin/dinura-deployment
+            git checkout deployment
+            git reset --hard origin/deployment
 
             if [ ! -f .env ]; then
-              cp .env.example .env
+              echo "~/app/.env is missing. Create it once from .env.example with production secrets."
+              exit 1
             fi
+
+            grep -q '^PUBLIC_ORIGIN=https\?://' .env || {
+              echo "PUBLIC_ORIGIN is missing from ~/app/.env"
+              exit 1
+            }
+
+            set -a
+            . ./.env
+            set +a
 
             chmod 600 .env
             if docker info >/dev/null 2>&1; then
@@ -68,15 +87,21 @@ jobs:
               exit 1
             fi
 
-            $DOCKER_CMD compose build
-            $DOCKER_CMD compose up -d
+            chmod +x ./scripts/configure-keycloak.sh
+            $DOCKER_CMD compose up -d --build --remove-orphans
+            PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
+              COMPOSE_CMD="$DOCKER_CMD compose" ./scripts/configure-keycloak.sh
             $DOCKER_CMD compose ps
 
-            if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then
-              echo "Backend health check passed"
-            else
-              echo "Backend health check failed"
-              $DOCKER_CMD compose logs --tail 200 backend
-              exit 1
-            fi
+            for attempt in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then
+                echo "Backend health check passed"
+                exit 0
+              fi
+              sleep 10
+            done
+
+            echo "Backend health check failed"
+            $DOCKER_CMD compose logs --tail 200 backend
+            exit 1
           EOF

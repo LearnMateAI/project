@@ -32,11 +32,6 @@ function DocumentReader({
   const [textLoading, setTextLoading] = useState(false);
 
   useEffect(() => {
-    setMode(isPdf ? "pdf" : "text");
-    setPages([]);
-  }, [documentId, isPdf]);
-
-  useEffect(() => {
     if (mode !== "text" || !documentId) return undefined;
     let cancelled = false;
     // Fetch triggered by a mode switch, not a render. The rule guards against cascading

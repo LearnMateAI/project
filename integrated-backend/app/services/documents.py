@@ -22,8 +22,25 @@ otherwise leak every embedding of every deleted document.
 
 from typing import Dict, List, Optional
 
-from learnmate.ingestion import validate_upload
-from learnmate.ingestion.formats import kind_from_record, media_type_for, unit_label_for
+try:
+    from learnmate.ingestion import validate_upload
+except ImportError:
+    from learnmate.ingestion import validate_pdf
+
+    def validate_upload(file_bytes, filename, content_type=None):
+        return "pdf", validate_pdf(file_bytes, filename, content_type)
+from learnmate.ingestion.convert import convert_to_pdf
+try:
+    from learnmate.ingestion.formats import kind_from_record, media_type_for, unit_label_for
+except ImportError:
+    def kind_from_record(document):
+        return "pdf"
+
+    def media_type_for(kind):
+        return "application/pdf"
+
+    def unit_label_for(kind):
+        return "pages"
 from learnmate.storage import ownership, pdf_store
 from learnmate.storage.vectors import get_vector_store
 
@@ -73,13 +90,15 @@ def upload(user_id: str, file_bytes: bytes, filename: str, content_type: str = N
     """
     # Before anything is written. read_source checks the size again on the way in, but a
     # user should learn their 40 MB scan is too big without waiting for it to be stored.
-    validate_upload(file_bytes, filename, content_type)
+    source_kind, _ = validate_upload(file_bytes, filename, content_type)
+    stored_bytes, stored_filename = convert_to_pdf(file_bytes, filename, source_kind)
+    validate_upload(stored_bytes, stored_filename, "application/pdf")
 
-    document = pdf_store.store_pdf(file_bytes, filename=filename)
+    document = pdf_store.store_pdf(stored_bytes, filename=stored_filename)
 
     # The library entry, with this user's own name and subject for it. Written before the
     # job is queued so the document appears in their list immediately.
-    link = ownership.link(user_id, document["_id"], filename, subject)
+    link = ownership.link(user_id, document["_id"], stored_filename, subject)
 
     return serialize(document, link)
 

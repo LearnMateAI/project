@@ -75,7 +75,7 @@ function PublicLayout({ children }) {
       <footer className="border-t border-border bg-surface">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[12px] text-subtle m-0">
-            LearnMateAI — upload a PDF, ask it questions, generate study material from it.
+            LearnMateAI — upload a document, ask it questions, generate study material from it.
           </p>
           <Link to="/register" className="text-[12.5px] font-semibold text-primary no-underline hover:underline">
             Create a free account

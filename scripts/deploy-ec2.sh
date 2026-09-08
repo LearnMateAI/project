@@ -23,13 +23,12 @@ git checkout "${DEPLOY_BRANCH}" || git checkout -b "${DEPLOY_BRANCH}" "origin/${
 git reset --hard "origin/${DEPLOY_BRANCH}"
 
 if [ -n "${APP_ENV_FILE_B64:-}" ]; then
-  echo "$APP_ENV_FILE_B64" | base64 -d > .env
+  echo "$APP_ENV_FILE_B64" | base64 -d | tr -d '\r' > .env
   chmod 600 .env
 elif [ ! -f .env ]; then
   echo "Missing .env and APP_ENV_FILE_B64 was not provided" >&2
   exit 1
 fi
-
 set -a
 # shellcheck disable=SC1091
 . ./.env

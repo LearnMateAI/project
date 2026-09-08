@@ -342,7 +342,7 @@ function Chat() {
                   <button
                     type="button"
                     className="btn-ghost shrink-0"
-                    onClick={() => navigate(`/documents?open=${current.document_id}`)}
+                    onClick={() => navigate(`/documents/${current.document_id}`)}
                   >
                     Open source
                   </button>

@@ -73,6 +73,7 @@ function App() {
 
       <Route path="/dashboard" element={protect(<Dashboard />)} />
       <Route path="/documents" element={protect(<Documents />)} />
+      <Route path="/documents/:documentId" element={protect(<Documents />)} />
       <Route path="/resources" element={protect(<Resources />)} />
       <Route path="/resources/:resourceId" element={protect(<ResourceView />)} />
       <Route path="/chat" element={protect(<Chat />)} />

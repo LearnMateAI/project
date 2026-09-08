@@ -26,6 +26,9 @@ MCQ **medium** = today’s generator, unchanged. Easy and hard are additive.
 | 5 | Export docx/pptx | **Yes** | `GET /api/resources/{id}/export` reads stored content only | Moderate (new deps) | No |
 | 6 | BM25 hybrid | **Yes** | ingest sidecar + retrieve merge **before** existing reranker | High — live answers | Yes — ANN vs BM25 vs both |
 | 7 | Multi-model | **Yes** | registry YAML + optional `model_id`; **one** llama.cpp load; unload/reload | High — live generation | Yes — per-model gate; experimental LoRA stays labelled |
+| 8 | Chat rename / resume | **Yes** | session `title` + last-turn preview; composer stays on the same session | Low | No |
+| 9 | Full-window source view | **Yes** | existing `DocumentReader` overlay | Low | No |
+| 10 | Past uploaded content | **Yes** | `/documents/:id` + dashboard list of library rows | Low | No |
 
 **Not feasible / not done:** keeping two GGUFs in RAM for concurrent roles is already how generator+judge work (two files). Keeping **two generators** loaded at once is **rejected** — same mutable-context rule as the single worker.
 

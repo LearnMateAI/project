@@ -55,7 +55,7 @@ PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD
 
 $COMPOSE_CMD ps
 
-if curl -fsS http://127.0.0.1/api/health >/dev/null; then
+if curl -fsSL http://127.0.0.1/api/health >/dev/null; then
   echo "Backend health check passed"
 else
   echo "Backend health check failed" >&2

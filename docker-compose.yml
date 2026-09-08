@@ -2,13 +2,20 @@ services:
   mongo:
     image: mongo:8
     restart: unless-stopped
+    networks:
+      default: null
     volumes:
-      - mongo_data:/data/db
-    command: ["--wiredTigerCacheSizeGB", "1"]
+      - type: volume
+        source: mongo_data
+        target: /data/db
+        volume: {}
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 10s
-      timeout: 5s
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - db.adminCommand('ping').ok
       retries: 10
       start_period: 20s
 

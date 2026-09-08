@@ -15,6 +15,9 @@ Tier 3 items have a before/after eval note.
 | BM25 hybrid retrieve | Additive: ANN top 20, BM25 top 10, merge, **existing** reranker. Logged as `ann` / `bm25` / `both` | ingest sidecar + `retrieve.py` |
 | Multi-model | Registry + optional `model_id`; one llama.cpp generator at a time; unload/reload; experimental LoRA labelled, not default | `models_registry.yaml`, `GET /api/models` |
 | Upload docx / pptx / tex | Same extract → clean → chunk → embed path as PDF, so MCQ/summary/chat work on lecture slides and LaTeX notes. `.doc`/`.ppt` rejected with a save-as hint. | `extract_office.py`, `validate_upload`, DocumentsCard |
+| Chat history | Rename conversations, show last-turn preview, continue from the stored transcript | `PATCH /api/chat/sessions/{id}`, chat page |
+| Full-window source | Read the uploaded file over the whole viewport (PDF or cleaned text) | `DocumentReader` overlay |
+| Past uploads | Reopen any filed source at `/documents/:id`; dashboard list | documents route, dashboard |
 
 ## Latency, quality, failures (this pass)
 

@@ -85,3 +85,15 @@ def count_user_sessions(user_id: str) -> int:
 def unbind_session(session_id: str) -> bool:
     """Release a session's PDF, letting a different one be ingested into it."""
     return _collection().delete_one({"session_id": session_id}).deleted_count > 0
+
+
+def rename_session(session_id: str, title: str) -> bool:
+    """Set the display title. Returns False if the session is not bound."""
+    result = _collection().update_one(
+        {"session_id": session_id},
+        {"$set": {
+            "title": title,
+            "updated_at": datetime.now(timezone.utc),
+        }},
+    )
+    return result.matched_count > 0

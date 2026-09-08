@@ -35,7 +35,9 @@ function WorkspaceChat({ documentId, ready }) {
     setError("");
     try {
       const listed = await listSessions();
-      const existing = (listed.data || []).find((session) => session.document_id === documentId);
+      const matching = (listed.data || []).filter((session) => session.document_id === documentId);
+      matching.sort((a, b) => String(b.last_activity || "").localeCompare(String(a.last_activity || "")));
+      const existing = matching[0];
       if (existing) {
         setSessionId(existing.session_id);
         const messages = await getMessages(existing.session_id);
@@ -135,7 +137,11 @@ function WorkspaceChat({ documentId, ready }) {
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask about this source…"
+                  placeholder={
+                    turns.length
+                      ? "Continue this conversation…"
+                      : "Ask a question — answers cite page and paragraph…"
+                  }
           disabled={job.isRunning || !sessionId}
           className="input flex-1 rounded-full"
         />

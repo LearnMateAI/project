@@ -61,7 +61,7 @@ aws ssm describe-instance-information \
   --output text
 # Should return your instance ID
 ```
-
+###
 ### 1.4 Create CI IAM User for GitHub Actions
 
 1. IAM → Users → **Add user** → name: `LearnMateCICD`

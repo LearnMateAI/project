@@ -47,6 +47,9 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -64,42 +67,23 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ -z "${EC2_INSTANCE_ID}" ] || [ -z "${EC2_APP_DIR}" ] || [ -z "${APP_ENV_FILE_B64}" ]; then
-            echo "Missing required secrets: EC2_INSTANCE_ID, EC2_APP_DIR, and APP_ENV_FILE_B64 must be set." >&2
+          if [ -z "${EC2_INSTANCE_ID:-}" ] || [ -z "${EC2_APP_DIR:-}" ]; then
+            echo "Missing required secrets: EC2_INSTANCE_ID and EC2_APP_DIR must be set." >&2
             exit 1
           fi
 
-          DEPLOY_SCRIPT=$(mktemp)
-          cat > "$DEPLOY_SCRIPT" <<SCRIPT
-          set -euo pipefail
-          export APP_DIR="${EC2_APP_DIR}"
-          export APP_ENV_FILE_B64="${APP_ENV_FILE_B64}"
-          export GITHUB_REPO="${GITHUB_REPOSITORY}"
-          export GIT_DEPLOY_TOKEN="${GIT_DEPLOY_TOKEN:-}"
-          export DEPLOY_BRANCH="deployment"
-
-          mkdir -p "\${APP_DIR}"
-          cd "\${APP_DIR}"
-
-          if [ ! -d .git ]; then
-            git init
-            git remote add origin "https://github.com/\${GITHUB_REPO}.git"
+          echo "Checking that instance ${EC2_INSTANCE_ID} is registered with SSM..."
+          ONLINE=$(aws ssm describe-instance-information \
+            --filters "Key=InstanceIds,Values=${EC2_INSTANCE_ID}" \
+            --query "length(InstanceInformationList)" \
+            --output text)
+          if [ "${ONLINE}" != "1" ]; then
+            echo "Instance ${EC2_INSTANCE_ID} is not online in SSM." >&2
+            exit 1
           fi
 
-          if [ -n "\${GIT_DEPLOY_TOKEN}" ]; then
-            git remote set-url origin "https://x-access-token:\${GIT_DEPLOY_TOKEN}@github.com/\${GITHUB_REPO}.git"
-          fi
-
-          git fetch origin deployment
-          git checkout deployment || git checkout -b deployment origin/deployment
-          git reset --hard origin/deployment
-
-          chmod +x ./scripts/deploy-ec2.sh ./scripts/configure-keycloak.sh
-          ./scripts/deploy-ec2.sh
-          SCRIPT
-
-          SCRIPT_B64=$(base64 -w 0 "$DEPLOY_SCRIPT")
-          rm -f "$DEPLOY_SCRIPT"
+          PARAMS_FILE=$(mktemp)
+          python3 scripts/build-ssm-deploy-params.py > "${PARAMS_FILE}"
 
           echo "Sending SSM command to instance ${EC2_INSTANCE_ID}"
           COMMAND_ID=$(aws ssm send-command \
@@ -107,9 +91,10 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy LearnMate via GitHub Actions (${GITHUB_REPOSITORY}@${GITHUB_SHA})" \
             --timeout-seconds 3600 \
-            --parameters commands="echo ${SCRIPT_B64} | base64 -d | bash" \
+            --parameters "file://${PARAMS_FILE}" \
             --query "Command.CommandId" \
             --output text)
+          rm -f "${PARAMS_FILE}"
 
           echo "Waiting for SSM command ${COMMAND_ID} to complete..."
           if ! aws ssm wait command-executed \

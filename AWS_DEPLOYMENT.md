@@ -80,7 +80,7 @@ Configure these GitHub repository secrets:
 - `AWS_REGION`: AWS region of the EC2 instance, for example `ap-southeast-1`
 - `EC2_INSTANCE_ID`: target instance ID, for example `i-0123456789abcdef0`
 - `EC2_APP_DIR`: app directory on the instance, usually `/home/ubuntu/app`
-- `APP_ENV_FILE_B64`: base64-encoded production `.env` file
+- `APP_ENV_FILE_B64`: base64-encoded production `.env` file (optional if `.env` already exists on the instance)
 
 Optional:
 

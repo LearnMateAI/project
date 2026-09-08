@@ -2,7 +2,25 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/app}"
+APP_DIR="${APP_DIR/#\~/$HOME}"
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-deployment}"
+GITHUB_REPO="${GITHUB_REPO:-LearnMateAI/project}"
+
+mkdir -p "$APP_DIR"
 cd "$APP_DIR"
+
+if [ ! -d .git ]; then
+  git init
+  git remote add origin "https://github.com/${GITHUB_REPO}.git"
+fi
+
+if [ -n "${GIT_DEPLOY_TOKEN:-}" ]; then
+  git remote set-url origin "https://x-access-token:${GIT_DEPLOY_TOKEN}@github.com/${GITHUB_REPO}.git"
+fi
+
+git fetch origin "${DEPLOY_BRANCH}"
+git checkout "${DEPLOY_BRANCH}" || git checkout -b "${DEPLOY_BRANCH}" "origin/${DEPLOY_BRANCH}"
+git reset --hard "origin/${DEPLOY_BRANCH}"
 
 if [ -n "${APP_ENV_FILE_B64:-}" ]; then
   echo "$APP_ENV_FILE_B64" | base64 -d > .env

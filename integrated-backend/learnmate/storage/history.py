@@ -93,3 +93,28 @@ def list_sessions(limit: int = 20) -> List[Dict]:
         {"$limit": limit},
     ]
     return list(_collection().aggregate(pipeline))
+
+
+def activity_for_sessions(session_ids: List[str]) -> Dict[str, Dict]:
+    """
+    Last turn and turn count per session, for the conversation list.
+
+    One aggregation instead of N finds, so listing 50 chats does not scan each transcript.
+    """
+    if not session_ids:
+        return {}
+    pipeline = [
+        {"$match": {"session_id": {"$in": list(session_ids)}}},
+        {"$sort": {"created_at": -1}},
+        {"$group": {
+            "_id": "$session_id",
+            "turns": {"$sum": 1},
+            "last_content": {"$first": "$content"},
+            "last_role": {"$first": "$role"},
+            "last_at": {"$first": "$created_at"},
+        }},
+    ]
+    return {
+        row["_id"]: row
+        for row in _collection().aggregate(pipeline)
+    }

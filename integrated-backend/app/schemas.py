@@ -98,6 +98,10 @@ class CreateSessionRequest(BaseModel):
     title: Optional[str] = Field(default=None, max_length=200)
 
 
+class RenameSessionRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+
+
 class SendMessageRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
     # False skips the judge: a faster reply, not reviewed for hallucination.

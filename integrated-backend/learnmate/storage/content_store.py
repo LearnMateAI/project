@@ -13,6 +13,7 @@ module when you care which collection you are touching.
 
 from .evaluations import evaluation_breakdown, evaluation_stats, log_evaluation, stage_counts
 from .history import (
+    activity_for_sessions,
     clear_history,
     count_turns,
     list_sessions,
@@ -32,11 +33,13 @@ from .sessions import (
     count_user_sessions,
     get_session,
     list_user_sessions,
+    rename_session,
     session_doc_id,
     unbind_session,
 )
 
 __all__ = [
+    "activity_for_sessions",
     "bind_session_document",
     "clear_history",
     "count_by_task",
@@ -53,6 +56,7 @@ __all__ = [
     "list_user_sessions",
     "load_history",
     "log_evaluation",
+    "rename_session",
     "save_resource",
     "save_turn",
     "session_doc_id",

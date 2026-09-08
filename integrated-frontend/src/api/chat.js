@@ -21,6 +21,14 @@ export function listSessions() {
   return api.get("/api/chat/sessions");
 }
 
+export function getSession(sessionId) {
+  return api.get(`/api/chat/sessions/${sessionId}`);
+}
+
+export function renameSession(sessionId, title) {
+  return api.patch(`/api/chat/sessions/${sessionId}`, { title });
+}
+
 /**
  * The transcript, oldest first.
  *

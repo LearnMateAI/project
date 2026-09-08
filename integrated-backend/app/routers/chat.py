@@ -21,7 +21,7 @@ from fastapi import APIRouter, Depends
 
 from ..deps import get_current_user
 from ..jobs import enqueue
-from ..schemas import CreateSessionRequest, SendMessageRequest
+from ..schemas import CreateSessionRequest, RenameSessionRequest, SendMessageRequest
 from ..services import chat as service
 from ..services import ownership as access
 
@@ -42,8 +42,21 @@ def create_session(payload: CreateSessionRequest, user: dict = Depends(get_curre
 
 @router.get("/sessions")
 def list_sessions(user: dict = Depends(get_current_user)):
-    """This user's conversations, most recent first."""
+    """This user's conversations, most recently active first, with last-message preview."""
     return service.list_sessions(user["id"])
+
+
+@router.get("/sessions/{session_id}")
+def get_session(session_id: str, user: dict = Depends(get_current_user)):
+    """One conversation: title, bound document, last activity."""
+    return service.get_session(user["id"], session_id)
+
+
+@router.patch("/sessions/{session_id}")
+def rename_session(session_id: str, payload: RenameSessionRequest,
+                   user: dict = Depends(get_current_user)):
+    """Rename a conversation. The bound PDF is not affected."""
+    return service.rename_session(user["id"], session_id, payload.title)
 
 
 @router.get("/sessions/{session_id}/messages")

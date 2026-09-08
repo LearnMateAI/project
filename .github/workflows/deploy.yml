@@ -107,11 +107,29 @@ jobs:
           
           aws ssm wait command-executed \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --command-id "$COMMAND_ID"
+            --command-id "$COMMAND_ID" || echo "SSM Command returned failure status. Fetching logs..."
             
-          echo "Deployment Output:"
+          echo "=== STANDARD ERROR ==="
+          aws ssm get-command-invocation \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --command-id "$COMMAND_ID" \
+            --query "StandardErrorContent" \
+            --output text
+            
+          echo "=== STANDARD OUTPUT ==="
           aws ssm get-command-invocation \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
             --command-id "$COMMAND_ID" \
             --query "StandardOutputContent" \
             --output text
+            
+          STATUS=$(aws ssm get-command-invocation \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --command-id "$COMMAND_ID" \
+            --query "Status" \
+            --output text)
+            
+          if [ "$STATUS" != "Success" ]; then
+            echo "Deployment failed with status: $STATUS"
+            exit 1
+          fi

@@ -97,9 +97,19 @@ jobs:
           rm -f "${PARAMS_FILE}"
 
           echo "Waiting for SSM command ${COMMAND_ID} to complete..."
-          if ! aws ssm wait command-executed \
-            --instance-id "${EC2_INSTANCE_ID}" \
-            --command-id "${COMMAND_ID}"; then
+          
+          STATUS="InProgress"
+          while [ "$STATUS" = "InProgress" ] || [ "$STATUS" = "Pending" ] || [ "$STATUS" = "Delayed" ]; do
+            sleep 15
+            STATUS=$(aws ssm get-command-invocation \
+              --instance-id "${EC2_INSTANCE_ID}" \
+              --command-id "${COMMAND_ID}" \
+              --query "Status" \
+              --output text)
+            echo "Current status: $STATUS"
+          done
+          
+          if [ "$STATUS" != "Success" ]; then
             echo "SSM command did not finish successfully. Fetching logs..."
           fi
 

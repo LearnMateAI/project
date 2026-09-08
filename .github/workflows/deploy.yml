@@ -6,6 +6,10 @@ on:
       - deployment
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -24,8 +28,7 @@ jobs:
           node-version: '20'
 
       - name: Backend syntax check
-        run: |
-          python -m compileall integrated-backend
+        run: python -m compileall integrated-backend/app integrated-backend/learnmate
 
       - name: Frontend lint
         run: |
@@ -33,8 +36,7 @@ jobs:
           npm run lint --prefix integrated-frontend
 
       - name: Frontend build
-        run: |
-          npm run build --prefix integrated-frontend
+        run: npm run build --prefix integrated-frontend
 
       - name: Compose configuration check
         run: |
@@ -53,83 +55,90 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy via AWS SSM
+        env:
+          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+          EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
+          APP_ENV_FILE_B64: ${{ secrets.APP_ENV_FILE_B64 }}
+          GIT_DEPLOY_TOKEN: ${{ secrets.GIT_DEPLOY_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          # The shell script that will run on the EC2 instance
-          COMMANDS='
-          set -e
-          
-          # Ensure app directory exists
-          mkdir -p ${{ secrets.EC2_APP_DIR }}
-          cd ${{ secrets.EC2_APP_DIR }}
-          
-          # Decode the environment variables from the GitHub Secret
-          echo "${{ secrets.APP_ENV_FILE_B64 }}" | base64 -d > .env
-          chmod 600 .env
-          
-          # Source the .env to get PUBLIC_ORIGIN and passwords
-          set -a
-          . ./.env
-          set +a
-          
-          # Ensure it is a git repository
+          set -euo pipefail
+
+          if [ -z "${EC2_INSTANCE_ID}" ] || [ -z "${EC2_APP_DIR}" ] || [ -z "${APP_ENV_FILE_B64}" ]; then
+            echo "Missing required secrets: EC2_INSTANCE_ID, EC2_APP_DIR, and APP_ENV_FILE_B64 must be set." >&2
+            exit 1
+          fi
+
+          DEPLOY_SCRIPT=$(mktemp)
+          cat > "$DEPLOY_SCRIPT" <<SCRIPT
+          set -euo pipefail
+          export APP_DIR="${EC2_APP_DIR}"
+          export APP_ENV_FILE_B64="${APP_ENV_FILE_B64}"
+          export GITHUB_REPO="${GITHUB_REPOSITORY}"
+          export GIT_DEPLOY_TOKEN="${GIT_DEPLOY_TOKEN:-}"
+          export DEPLOY_BRANCH="deployment"
+
+          mkdir -p "\${APP_DIR}"
+          cd "\${APP_DIR}"
+
           if [ ! -d .git ]; then
             git init
-            git remote add origin https://github.com/LearnMateAI/project.git
+            git remote add origin "https://github.com/\${GITHUB_REPO}.git"
           fi
-          
-          git fetch origin
+
+          if [ -n "\${GIT_DEPLOY_TOKEN}" ]; then
+            git remote set-url origin "https://x-access-token:\${GIT_DEPLOY_TOKEN}@github.com/\${GITHUB_REPO}.git"
+          fi
+
+          git fetch origin deployment
           git checkout deployment || git checkout -b deployment origin/deployment
           git reset --hard origin/deployment
-          
-          chmod +x ./scripts/configure-keycloak.sh
-          docker compose up -d --build --remove-orphans
-          
-          # Wait a few seconds for keycloak to start
-          sleep 10
-          
-          PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
-            COMPOSE_CMD="docker compose" ./scripts/configure-keycloak.sh
-            
-          docker compose ps
-          '
-          
-          echo "Sending command to EC2 Instance: ${{ secrets.EC2_INSTANCE_ID }}"
-          SCRIPT_B64=$(echo "$COMMANDS" | base64 -w 0)
+
+          chmod +x ./scripts/deploy-ec2.sh ./scripts/configure-keycloak.sh
+          ./scripts/deploy-ec2.sh
+          SCRIPT
+
+          SCRIPT_B64=$(base64 -w 0 "$DEPLOY_SCRIPT")
+          rm -f "$DEPLOY_SCRIPT"
+
+          echo "Sending SSM command to instance ${EC2_INSTANCE_ID}"
           COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --instance-ids "${EC2_INSTANCE_ID}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploy LearnMate via GitHub Actions" \
-            --parameters commands="echo $SCRIPT_B64 | base64 -d | bash" \
+            --comment "Deploy LearnMate via GitHub Actions (${GITHUB_REPOSITORY}@${GITHUB_SHA})" \
+            --timeout-seconds 3600 \
+            --parameters commands="echo ${SCRIPT_B64} | base64 -d | bash" \
             --query "Command.CommandId" \
             --output text)
-            
-          echo "Waiting for SSM command $COMMAND_ID to complete..."
-          
-          aws ssm wait command-executed \
-            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --command-id "$COMMAND_ID" || echo "SSM Command returned failure status. Fetching logs..."
-            
+
+          echo "Waiting for SSM command ${COMMAND_ID} to complete..."
+          if ! aws ssm wait command-executed \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}"; then
+            echo "SSM command did not finish successfully. Fetching logs..."
+          fi
+
           echo "=== STANDARD ERROR ==="
           aws ssm get-command-invocation \
-            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --command-id "$COMMAND_ID" \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}" \
             --query "StandardErrorContent" \
             --output text
-            
+
           echo "=== STANDARD OUTPUT ==="
           aws ssm get-command-invocation \
-            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --command-id "$COMMAND_ID" \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}" \
             --query "StandardOutputContent" \
             --output text
-            
+
           STATUS=$(aws ssm get-command-invocation \
-            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --command-id "$COMMAND_ID" \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}" \
             --query "Status" \
             --output text)
-            
+
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment failed with status: $STATUS"
+            echo "Deployment failed with status: ${STATUS}" >&2
             exit 1
           fi

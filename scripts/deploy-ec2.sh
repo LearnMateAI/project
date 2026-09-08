@@ -44,6 +44,19 @@ else
 fi
 export COMPOSE_CMD
 
+if [ "$(swapon --show | wc -l)" -eq 0 ]; then
+  echo "No swap detected. Adding 4G swap file to prevent OOM kills..."
+  sudo fallocate -l 4G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf >/dev/null
+  echo "Swap enabled"
+else
+  echo "Swap already active:"
+  swapon --show
+fi
+
 chmod +x ./scripts/configure-keycloak.sh
 
 $COMPOSE_CMD up -d --build --remove-orphans

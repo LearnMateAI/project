@@ -7,13 +7,28 @@ set -eu
 compose="${COMPOSE_CMD:-docker compose}"
 keycloak_server="http://localhost:8080/auth"
 
-$compose exec -T keycloak /opt/keycloak/bin/kcadm.sh config credentials \
-  --server "$keycloak_server" \
-  --realm master \
-  --user admin \
-  --password "$KEYCLOAK_ADMIN_PASSWORD"
+kcadm() {
+  $compose exec -T keycloak /opt/keycloak/bin/kcadm.sh "$@"
+}
 
-client_id=$($compose exec -T keycloak /opt/keycloak/bin/kcadm.sh get clients \
+wait_for_keycloak() {
+  for i in $(seq 1 30); do
+    if kcadm config credentials \
+      --server "$keycloak_server" \
+      --realm master \
+      --user admin \
+      --password "$KEYCLOAK_ADMIN_PASSWORD" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 2
+  done
+  echo "Keycloak admin credentials not ready in time" >&2
+  return 1
+}
+
+wait_for_keycloak
+
+client_id=$(kcadm get clients \
   -r learnmate -q clientId=learnmate-frontend --fields id \
   | sed -n 's/.*"id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)
 
@@ -25,7 +40,7 @@ fi
 redirect_uris="[\"${PUBLIC_ORIGIN}/*\"]"
 web_origins="[\"${PUBLIC_ORIGIN}\"]"
 
-$compose exec -T keycloak /opt/keycloak/bin/kcadm.sh update "clients/$client_id" \
+kcadm update "clients/$client_id" \
   -r learnmate \
   -s "redirectUris=$redirect_uris" \
   -s "webOrigins=$web_origins"

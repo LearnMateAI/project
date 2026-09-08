@@ -48,7 +48,19 @@ chmod +x ./scripts/configure-keycloak.sh
 
 $COMPOSE_CMD up -d --build --remove-orphans
 
-sleep 10
+echo "Waiting for Keycloak to become ready..."
+for i in $(seq 1 60); do
+  if curl -fsS http://127.0.0.1/auth/health/ready >/dev/null 2>&1; then
+    echo "Keycloak is ready"
+    break
+  fi
+  if [ "$i" -eq 60 ]; then
+    echo "Keycloak did not become ready in time" >&2
+    $COMPOSE_CMD logs --tail 100 keycloak || true
+    exit 1
+  fi
+  sleep 5
+done
 
 PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
   COMPOSE_CMD="$COMPOSE_CMD" ./scripts/configure-keycloak.sh

@@ -30,7 +30,6 @@ elif [ ! -f .env ]; then
   exit 1
 fi
 set -a
-# shellcheck disable=SC1091
 . ./.env
 set +a
 
@@ -59,41 +58,95 @@ fi
 
 chmod +x ./scripts/configure-keycloak.sh
 
-set +e
-$COMPOSE_CMD up -d --build --remove-orphans
-COMPOSE_UP_EXIT=$?
-set -e
+echo "=== Building and starting containers ==="
+$COMPOSE_CMD up -d --build --remove-orphans || true
 
-if [ "$COMPOSE_UP_EXIT" -ne 0 ]; then
-  echo "docker compose up returned $COMPOSE_UP_EXIT, checking container states..." >&2
+echo "=== Container status ==="
+$COMPOSE_CMD ps || true
+
+wait_for_container_healthy() {
+  local service="$1"
+  local timeout="${2:-300}"
+  local elapsed=0
+  echo "Waiting for $service to become healthy (up to ${timeout}s)..."
+  while [ "$elapsed" -lt "$timeout" ]; do
+    local state
+    state=$($COMPOSE_CMD ps --format "{{.Name}}\t{{.State}}" 2>/dev/null | grep "${service}" | awk '{print $2}' || true)
+    if [ "$state" = "healthy" ]; then
+      echo "$service is healthy"
+      return 0
+    fi
+    if [ "$state" = "unhealthy" ]; then
+      echo "$service is unhealthy, checking logs..." >&2
+      $COMPOSE_CMD logs --tail 50 "$service" || true
+      if [ "$elapsed" -ge "$timeout" ]; then
+        echo "$service failed to become healthy in time" >&2
+        return 1
+      fi
+    fi
+    sleep 5
+    elapsed=$((elapsed + 5))
+  done
+  echo "$service did not become healthy within ${timeout}s" >&2
+  $COMPOSE_CMD logs --tail 100 "$service" || true
+  return 1
+}
+
+wait_for_keycloak_http() {
+  local timeout="${1:-300}"
+  local elapsed=0
+  echo "Waiting for Keycloak HTTP /auth/health/ready (up to ${timeout}s)..."
+  while [ "$elapsed" -lt "$timeout" ]; do
+    if $COMPOSE_CMD exec -T keycloak sh -c \
+      'exec 3<> /dev/tcp/127.0.0.1/8080; echo -e "GET /auth/health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n" >&3; head -n 1 <&3 | grep -q "200 OK"' \
+      >/dev/null 2>&1; then
+      echo "Keycloak HTTP is ready"
+      return 0
+    fi
+    sleep 5
+    elapsed=$((elapsed + 5))
+  done
+  echo "Keycloak HTTP did not become ready within ${timeout}s" >&2
+  return 1
+}
+
+if ! wait_for_container_healthy "mongo" 180; then
+  echo "Mongo failed to start. Checking system resources..." >&2
+  free -h || true
+  df -h / || true
+  $COMPOSE_CMD logs --tail 100 mongo || true
+  exit 1
 fi
 
-echo "Waiting for Keycloak to become ready..."
+if ! wait_for_container_healthy "qdrant" 120; then
+  echo "Qdrant failed to start" >&2
+  $COMPOSE_CMD logs --tail 100 qdrant || true
+  exit 1
+fi
+
+if ! wait_for_keycloak_http 180; then
+  echo "Keycloak did not become ready in time" >&2
+  $COMPOSE_CMD logs --tail 100 keycloak || true
+  exit 1
+fi
+
+PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
+  COMPOSE_CMD="$COMPOSE_CMD" ./scripts/configure-keycloak.sh
+
+echo "Waiting for backend to become healthy..."
 for i in $(seq 1 60); do
-  if $COMPOSE_CMD exec -T keycloak sh -c \
-    'exec 3<> /dev/tcp/127.0.0.1/8080; echo -e "GET /auth/health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n" >&3; head -n 1 <&3 | grep -q "200 OK"' \
-    >/dev/null 2>&1; then
-    echo "Keycloak is ready"
+  if curl -fsSL http://127.0.0.1/api/health >/dev/null 2>&1; then
+    echo "Backend health check passed"
     break
   fi
   if [ "$i" -eq 60 ]; then
-    echo "Keycloak did not become ready in time" >&2
-    $COMPOSE_CMD logs --tail 100 keycloak || true
+    echo "Backend health check failed" >&2
+    $COMPOSE_CMD logs --tail 200 backend || true
+    $COMPOSE_CMD logs --tail 200 mongo || true
     exit 1
   fi
   sleep 5
 done
 
-PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
-  COMPOSE_CMD="$COMPOSE_CMD" ./scripts/configure-keycloak.sh
-
+echo "=== Deployment complete ==="
 $COMPOSE_CMD ps
-
-if curl -fsSL http://127.0.0.1/api/health >/dev/null; then
-  echo "Backend health check passed"
-else
-  echo "Backend health check failed" >&2
-  $COMPOSE_CMD logs --tail 200 backend || true
-  $COMPOSE_CMD logs --tail 200 mongo || true
-  exit 1
-fi

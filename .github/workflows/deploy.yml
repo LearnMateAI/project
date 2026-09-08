@@ -45,63 +45,72 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EC2 via SSH
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: SSH and deploy latest app
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+      - name: Deploy via AWS SSM
         run: |
+          # The shell script that will run on the EC2 instance
+          COMMANDS='
           set -e
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${EC2_USERNAME}@${EC2_HOST} <<'EOF'
-            set -e
-            cd ~/app
-            git fetch origin
-            git checkout deployment
-            git reset --hard origin/deployment
-
-            if [ ! -f .env ]; then
-              echo "~/app/.env is missing. Create it once from .env.example with production secrets."
-              exit 1
-            fi
-
-            grep -q '^PUBLIC_ORIGIN=https\?://' .env || {
-              echo "PUBLIC_ORIGIN is missing from ~/app/.env"
-              exit 1
-            }
-
-            set -a
-            . ./.env
-            set +a
-
-            chmod 600 .env
-            if docker info >/dev/null 2>&1; then
-              DOCKER_CMD="docker"
-            elif sudo -n docker info >/dev/null 2>&1; then
-              DOCKER_CMD="sudo -n docker"
-            else
-              echo "Docker daemon is not accessible for deployment user"
-              exit 1
-            fi
-
-            chmod +x ./scripts/configure-keycloak.sh
-            $DOCKER_CMD compose up -d --build --remove-orphans
-            PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
-              COMPOSE_CMD="$DOCKER_CMD compose" ./scripts/configure-keycloak.sh
-            $DOCKER_CMD compose ps
-
-            for attempt in $(seq 1 30); do
-              if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then
-                echo "Backend health check passed"
-                exit 0
-              fi
-              sleep 10
-            done
-
-            echo "Backend health check failed"
-            $DOCKER_CMD compose logs --tail 200 backend
-            exit 1
-          EOF
+          
+          # Ensure app directory exists
+          mkdir -p ${{ secrets.EC2_APP_DIR }}
+          cd ${{ secrets.EC2_APP_DIR }}
+          
+          # Decode the environment variables from the GitHub Secret
+          echo "${{ secrets.APP_ENV_FILE_B64 }}" | base64 -d > .env
+          chmod 600 .env
+          
+          # Source the .env to get PUBLIC_ORIGIN and passwords
+          set -a
+          . ./.env
+          set +a
+          
+          # Ensure it is a git repository
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin https://github.com/LearnMateAI/project.git
+          fi
+          
+          git fetch origin
+          git checkout deployment || git checkout -b deployment origin/deployment
+          git reset --hard origin/deployment
+          
+          chmod +x ./scripts/configure-keycloak.sh
+          docker compose up -d --build --remove-orphans
+          
+          # Wait a few seconds for keycloak to start
+          sleep 10
+          
+          PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" \
+            COMPOSE_CMD="docker compose" ./scripts/configure-keycloak.sh
+            
+          docker compose ps
+          '
+          
+          echo "Sending command to EC2 Instance: ${{ secrets.EC2_INSTANCE_ID }}"
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy LearnMate via GitHub Actions" \
+            --parameters commands="$COMMANDS" \
+            --query "Command.CommandId" \
+            --output text)
+            
+          echo "Waiting for SSM command $COMMAND_ID to complete..."
+          
+          aws ssm wait command-executed \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --command-id "$COMMAND_ID"
+            
+          echo "Deployment Output:"
+          aws ssm get-command-invocation \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --command-id "$COMMAND_ID" \
+            --query "StandardOutputContent" \
+            --output text

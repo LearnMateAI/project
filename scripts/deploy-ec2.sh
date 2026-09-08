@@ -70,7 +70,9 @@ fi
 
 echo "Waiting for Keycloak to become ready..."
 for i in $(seq 1 60); do
-  if curl -fsS http://127.0.0.1/auth/health/ready >/dev/null 2>&1; then
+  if $COMPOSE_CMD exec -T keycloak sh -c \
+    'exec 3<> /dev/tcp/127.0.0.1/8080; echo -e "GET /auth/health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n" >&3; head -n 1 <&3 | grep -q "200 OK"' \
+    >/dev/null 2>&1; then
     echo "Keycloak is ready"
     break
   fi

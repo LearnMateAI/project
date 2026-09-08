@@ -94,11 +94,12 @@ jobs:
           '
           
           echo "Sending command to EC2 Instance: ${{ secrets.EC2_INSTANCE_ID }}"
+          SCRIPT_B64=$(echo "$COMMANDS" | base64 -w 0)
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy LearnMate via GitHub Actions" \
-            --parameters commands="$COMMANDS" \
+            --parameters commands="echo $SCRIPT_B64 | base64 -d | bash" \
             --query "Command.CommandId" \
             --output text)
             

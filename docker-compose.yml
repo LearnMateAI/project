@@ -50,11 +50,11 @@ services:
       - ./integrated-backend/keycloak/realm:/opt/keycloak/data/import:ro
       - ./integrated-backend/keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      test: ["CMD-SHELL", "exec 3<> /dev/tcp/127.0.0.1/8080; echo -e \"GET /auth/health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n\" >&3; head -n 1 <&3 | grep -q '200 OK'"]
       interval: 10s
       timeout: 5s
-      retries: 12
-      start_period: 30s
+      retries: 20
+      start_period: 60s
 
   backend:
     build:

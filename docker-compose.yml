@@ -11,11 +11,11 @@ services:
         volume: {}
     command: ["--wiredTigerCacheSizeGB", "0.5"]
     healthcheck:
-      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok' || exit 1"]
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
       timeout: 10s
       retries: 12
-      start_period: 30s
+      start_period: 60s
 
   qdrant:
     image: qdrant/qdrant:v1.18.1

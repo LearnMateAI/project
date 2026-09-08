@@ -59,7 +59,14 @@ fi
 
 chmod +x ./scripts/configure-keycloak.sh
 
+set +e
 $COMPOSE_CMD up -d --build --remove-orphans
+COMPOSE_UP_EXIT=$?
+set -e
+
+if [ "$COMPOSE_UP_EXIT" -ne 0 ]; then
+  echo "docker compose up returned $COMPOSE_UP_EXIT, checking container states..." >&2
+fi
 
 echo "Waiting for Keycloak to become ready..."
 for i in $(seq 1 60); do
@@ -85,5 +92,6 @@ if curl -fsSL http://127.0.0.1/api/health >/dev/null; then
 else
   echo "Backend health check failed" >&2
   $COMPOSE_CMD logs --tail 200 backend || true
+  $COMPOSE_CMD logs --tail 200 mongo || true
   exit 1
 fi

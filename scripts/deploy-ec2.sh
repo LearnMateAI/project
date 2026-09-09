@@ -59,7 +59,7 @@ fi
 chmod +x ./scripts/configure-keycloak.sh
 
 echo "=== Building and starting containers ==="
-$COMPOSE_CMD up -d --build --remove-orphans || true
+$COMPOSE_CMD up -d --build --remove-orphans --force-recreate || true
 
 echo "=== Container status ==="
 $COMPOSE_CMD ps || true

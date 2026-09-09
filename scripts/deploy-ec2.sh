@@ -98,10 +98,10 @@ wait_for_container_healthy() {
 wait_for_keycloak_http() {
   local timeout="${1:-300}"
   local elapsed=0
-  echo "Waiting for Keycloak HTTP /auth/health/ready (up to ${timeout}s)..."
+  echo "Waiting for Keycloak management health endpoint (up to ${timeout}s)..."
   while [ "$elapsed" -lt "$timeout" ]; do
     if $COMPOSE_CMD exec -T keycloak sh -c \
-      'exec 3<> /dev/tcp/127.0.0.1/8080; echo -e "GET /auth/health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n" >&3; head -n 1 <&3 | grep -q "200 OK"' \
+      'exec 3<> /dev/tcp/127.0.0.1/9000; echo -e "GET /health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n" >&3; head -n 1 <&3 | grep -q "200 OK"' \
       >/dev/null 2>&1; then
       echo "Keycloak HTTP is ready"
       return 0

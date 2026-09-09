@@ -1,14 +1,14 @@
 services:
   mongo:
-    # Keep the major version compatible with the already-initialized persistent volume.
-    # MongoDB does not support starting an older server version against newer data files.
-    image: mongo:8
+    # MongoDB 8 cannot run on the Ubuntu 24.04 6.19+ kernel used by this EC2 AMI.
+    # This uses a fresh, version-7 volume; the previous Mongo 8 volume remains intact.
+    image: mongo:7
     restart: unless-stopped
     networks:
       default: null
     volumes:
       - type: volume
-        source: mongo_data
+        source: mongo_data_v7
         target: /data/db
         volume: {}
     command: ["--wiredTigerCacheSizeGB", "0.5"]
@@ -118,7 +118,7 @@ services:
       - keycloak
 
 volumes:
-  mongo_data:
+  mongo_data_v7:
   qdrant_data:
   keycloak_data:
   model_data:

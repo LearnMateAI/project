@@ -137,7 +137,7 @@ PUBLIC_ORIGIN="$PUBLIC_ORIGIN" KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD
 
 echo "Waiting for backend to become healthy..."
 for i in $(seq 1 60); do
-  if curl -fsSL http://127.0.0.1/api/health >/dev/null 2>&1; then
+  if $COMPOSE_CMD exec -T backend curl -fsS http://127.0.0.1:8000/api/health >/dev/null 2>&1; then
     echo "Backend health check passed"
     break
   fi

@@ -35,13 +35,16 @@ set +a
 
 if docker info >/dev/null 2>&1; then
   COMPOSE_CMD="docker compose"
+  DOCKER_CMD="docker"
 elif sudo -n docker info >/dev/null 2>&1; then
   COMPOSE_CMD="sudo docker compose"
+  DOCKER_CMD="sudo docker"
 else
   echo "Docker daemon is not accessible for the deployment user" >&2
   exit 1
 fi
 export COMPOSE_CMD
+export DOCKER_CMD
 
 if [ "$(swapon --show | wc -l)" -eq 0 ]; then
   echo "No swap detected. Adding 4G swap file to prevent OOM kills..."
@@ -70,19 +73,19 @@ wait_for_container_healthy() {
   local elapsed=0
   echo "Waiting for $service to become healthy (up to ${timeout}s)..."
   while [ "$elapsed" -lt "$timeout" ]; do
-    local state
-    state=$($COMPOSE_CMD ps --format "{{.Name}}\t{{.State}}" 2>/dev/null | grep "${service}" | awk '{print $2}' || true)
-    if [ "$state" = "healthy" ]; then
+    local container_id health
+    container_id=$($COMPOSE_CMD ps -q "$service" 2>/dev/null | head -n 1 || true)
+    health=""
+    if [ -n "$container_id" ]; then
+      health=$($DOCKER_CMD inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_id" 2>/dev/null || true)
+    fi
+    if [ "$health" = "healthy" ]; then
       echo "$service is healthy"
       return 0
     fi
-    if [ "$state" = "unhealthy" ]; then
+    if [ "$health" = "unhealthy" ]; then
       echo "$service is unhealthy, checking logs..." >&2
       $COMPOSE_CMD logs --tail 50 "$service" || true
-      if [ "$elapsed" -ge "$timeout" ]; then
-        echo "$service failed to become healthy in time" >&2
-        return 1
-      fi
     fi
     sleep 5
     elapsed=$((elapsed + 5))

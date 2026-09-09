@@ -1,6 +1,8 @@
 services:
   mongo:
-    image: mongo:7
+    # Keep the major version compatible with the already-initialized persistent volume.
+    # MongoDB does not support starting an older server version against newer data files.
+    image: mongo:8
     restart: unless-stopped
     networks:
       default: null

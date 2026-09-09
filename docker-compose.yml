@@ -72,7 +72,6 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_healthy
-      keycloak:
     volumes:
       - model_data:/app/models
       - hf_cache:/app/data/hf_cache

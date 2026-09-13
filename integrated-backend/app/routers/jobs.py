@@ -38,6 +38,7 @@ def _serialize(job: dict) -> dict:
         "progress": job.get("progress") or {},
         "result": job.get("result"),
         "error": job.get("error"),
+        "error_code": job.get("error_code"),
         "params": job.get("params", {}),
         "created_at": stamp("created_at"),
         "started_at": stamp("started_at"),

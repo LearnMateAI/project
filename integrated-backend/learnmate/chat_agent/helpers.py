@@ -8,6 +8,7 @@ from typing import Dict, List
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
+from ..runtime_limits import check_job_deadline
 from .state import ChatState
 
 
@@ -20,6 +21,8 @@ def _log(state: ChatState, message: str) -> None:
     same messages reach a client polling a job record. The callback is never allowed to
     break the turn -- a failed progress update is cosmetic, a lost answer is not.
     """
+    check_job_deadline()
+
     if state.get("verbose", True):
         print(message)
 

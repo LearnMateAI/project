@@ -161,7 +161,9 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
                             threshold: int = None, max_attempts: int = None,
                             evaluate: bool = True, persist: bool = True,
                             verbose: bool = True, max_chars: int = None,
-                            user_id: str = None, on_progress=None) -> Dict:
+                            user_id: str = None, on_progress=None,
+                            difficulty: str = None, model_id: str = None,
+                            summary_style: str = None, topic: str = None) -> Dict:
     """
     Generate a list-shaped resource from across a whole document.
 
@@ -219,8 +221,7 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
             task, "\n\n".join(group)[:budget], count=ask, doc_id=doc_id,
             threshold=threshold, max_attempts=max_attempts, evaluate=evaluate,
             persist=False, verbose=verbose, user_id=user_id,
-            # Prefixed with the group, because a caller watching a job sees only the last
-            # message and "attempt 2/2" alone does not say how far through it is.
+            difficulty=difficulty, model_id=model_id,
             on_progress=(lambda message, n=index: on_progress(
                 f"Group {n}/{len(groups)}: {message}")) if on_progress else None)
 
@@ -259,6 +260,8 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
             source_preview="\n\n".join(groups[0]) if groups else "",
             params={"count": requested, "per_page": per_page, "generated": len(items),
                     "groups": len(groups), "evaluated": evaluate, "whole_document": True,
+                    "difficulty": difficulty, "model_id": model_id,
+                    "topic": topic,
                     "threshold": threshold if threshold is not None
                     else config.EVALUATOR_THRESHOLD})
         _log(progress, f"[+] Stored resource {resource_id}")

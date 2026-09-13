@@ -1,0 +1,139 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - deployment
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Backend syntax check
+        run: python -m compileall integrated-backend/app integrated-backend/learnmate
+
+      - name: Frontend lint
+        run: |
+          npm ci --prefix integrated-frontend
+          npm run lint --prefix integrated-frontend
+
+      - name: Frontend build
+        run: npm run build --prefix integrated-frontend
+
+      - name: Compose configuration check
+        run: |
+          cp .env.example .env
+          docker compose config >/dev/null
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy via AWS SSM
+        env:
+          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+          EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
+          APP_ENV_FILE_B64: ${{ secrets.APP_ENV_FILE_B64 }}
+          GIT_DEPLOY_TOKEN: ${{ secrets.GIT_DEPLOY_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${EC2_INSTANCE_ID:-}" ] || [ -z "${EC2_APP_DIR:-}" ]; then
+            echo "Missing required secrets: EC2_INSTANCE_ID and EC2_APP_DIR must be set." >&2
+            exit 1
+          fi
+
+          echo "Checking that instance ${EC2_INSTANCE_ID} is registered with SSM..."
+          ONLINE=$(aws ssm describe-instance-information \
+            --filters "Key=InstanceIds,Values=${EC2_INSTANCE_ID}" \
+            --query "length(InstanceInformationList)" \
+            --output text)
+          if [ "${ONLINE}" != "1" ]; then
+            echo "Instance ${EC2_INSTANCE_ID} is not online in SSM." >&2
+            exit 1
+          fi
+
+          PARAMS_FILE=$(mktemp)
+          python3 scripts/build-ssm-deploy-params.py > "${PARAMS_FILE}"
+
+          echo "Sending SSM command to instance ${EC2_INSTANCE_ID}"
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${EC2_INSTANCE_ID}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy LearnMate via GitHub Actions (${GITHUB_REPOSITORY}@${GITHUB_SHA})" \
+            --timeout-seconds 3600 \
+            --parameters "file://${PARAMS_FILE}" \
+            --query "Command.CommandId" \
+            --output text)
+          rm -f "${PARAMS_FILE}"
+
+          echo "Waiting for SSM command ${COMMAND_ID} to complete..."
+          
+          STATUS="InProgress"
+          while [ "$STATUS" = "InProgress" ] || [ "$STATUS" = "Pending" ] || [ "$STATUS" = "Delayed" ]; do
+            sleep 15
+            STATUS=$(aws ssm get-command-invocation \
+              --instance-id "${EC2_INSTANCE_ID}" \
+              --command-id "${COMMAND_ID}" \
+              --query "Status" \
+              --output text)
+            echo "Current status: $STATUS"
+          done
+          
+          if [ "$STATUS" != "Success" ]; then
+            echo "SSM command did not finish successfully. Fetching logs..."
+          fi
+
+          echo "=== STANDARD ERROR ==="
+          aws ssm get-command-invocation \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}" \
+            --query "StandardErrorContent" \
+            --output text
+
+          echo "=== STANDARD OUTPUT ==="
+          aws ssm get-command-invocation \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}" \
+            --query "StandardOutputContent" \
+            --output text
+
+          STATUS=$(aws ssm get-command-invocation \
+            --instance-id "${EC2_INSTANCE_ID}" \
+            --command-id "${COMMAND_ID}" \
+            --query "Status" \
+            --output text)
+
+          if [ "$STATUS" != "Success" ]; then
+            echo "Deployment failed with status: ${STATUS}" >&2
+            exit 1
+          fi

@@ -70,6 +70,8 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
     # raises when this session already has a different PDF. All of it while the session's
     # existing document is still untouched.
     data, filename = pdf_store.read_source(source, filename)
+    from .validate import validate_upload
+    validate_upload(data, filename)
     digest = hashlib.sha256(data).hexdigest()
     sessions.check_free(session_id, digest, filename)
 
@@ -111,11 +113,11 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
         # it -- a document is keyed on the SHA-256 of exactly these bytes. Reading them
         # back out of GridFS here would be a second transfer of a file already in hand,
         # which on the upload path is the third time those bytes have moved.
-        pages = preprocess(data)
+        pages = preprocess(data, filename=document.get("filename") or filename)
         if not pages:
             raise ValueError(
-                f"No extractable text in {document['filename']}. If it is a scanned PDF "
-                "it needs OCR before it can be indexed."
+                f"No extractable text in {document['filename']}. A scanned PDF needs "
+                "OCR; a Word/PowerPoint file needs selectable text, not image-only slides."
             )
         log(f"[*] Extracted {len(pages)} pages with text")
 
@@ -132,6 +134,8 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
             # happens when a filter is tightened and pages start being dropped.
             store.delete(doc_id=doc_id)
             pdf_store.delete_pages(doc_id)
+            from ..storage import bm25_store
+            bm25_store.delete_for(doc_id)
 
         # --- Store the readable text --------------------------------------------------
         # Chunks are shaped for retrieval; resource generation wants the page as it reads.
@@ -143,6 +147,8 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
         # --- Embed --------------------------------------------------------------------
         log(f"[*] Embedding {len(documents)} chunks into {store.describe_backend()}...")
         store.add_documents(documents)
+        from ..storage import bm25_store
+        bm25_store.index_documents(doc_id, documents)
         # Also flips the status to Ready.
         pdf_store.mark_ingested(doc_id, len(pages), len(documents))
     except Exception as exc:

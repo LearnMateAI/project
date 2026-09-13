@@ -20,13 +20,17 @@ import api from "./client.js";
  */
 export const RESOURCE_TYPES = [
   { type: "summary", label: "Summary", countLabel: "sentences", pooled: false },
-  { type: "keypoints", label: "Key Points", countLabel: "points", pooled: true },
+  { type: "keypoints", label: "Key points", countLabel: "points", pooled: true },
   { type: "mcq", label: "MCQs", countLabel: "questions", pooled: true },
   { type: "practice_qsn", label: "Practice Questions", countLabel: "questions", pooled: true },
 ];
 
 /** The display name for a stored resource, which carries the engine's own type name. */
-export function resourceLabel(type) {
+export function resourceLabel(type, params) {
+  const topic = String(params?.topic || "").toLowerCase();
+  if (type === "summary" && topic.includes("summarize")) return "Summary";
+  if (type === "keypoints") return "Key points";
+  if (type === "mcq" && params?.difficulty === "hard") return "Practice Questions";
   return RESOURCE_TYPES.find((entry) => entry.type === type)?.label || type;
 }
 
@@ -52,6 +56,9 @@ export function generateResource({
   perPage,
   evaluate = true,
   threshold,
+  summaryStyle,
+  difficulty,
+  modelId,
 }) {
   return api.post("/api/resources/generate", {
     document_id: documentId,
@@ -65,6 +72,9 @@ export function generateResource({
     per_page: perPage ?? null,
     evaluate,
     threshold: threshold ?? null,
+    summary_style: summaryStyle || null,
+    difficulty: difficulty || null,
+    model_id: modelId || null,
   });
 }
 
@@ -81,4 +91,23 @@ export function getResource(resourceId) {
 
 export function deleteResource(resourceId) {
   return api.delete(`/api/resources/${resourceId}`);
+}
+
+/** Download a stored resource as .docx or .pptx. Does not regenerate. */
+export async function exportResource(resourceId, format = "docx") {
+  const response = await api.get(`/api/resources/${resourceId}/export`, {
+    params: { format },
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], { type: response.headers["content-type"] });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const disposition = response.headers["content-disposition"] || "";
+  const match = disposition.match(/filename="?([^"]+)"?/i);
+  link.href = url;
+  link.download = match?.[1] || `resource.${format}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }

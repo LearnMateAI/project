@@ -11,7 +11,7 @@ Kept as one importable name because every node in both agents already reads
 module when you care which collection you are touching.
 """
 
-from .evaluations import evaluation_stats, log_evaluation, stage_counts
+from .evaluations import evaluation_breakdown, evaluation_stats, log_evaluation, stage_counts
 from .history import (
     clear_history,
     count_turns,
@@ -43,6 +43,7 @@ __all__ = [
     "count_turns",
     "count_user_sessions",
     "delete_resource",
+    "evaluation_breakdown",
     "evaluation_stats",
     "get_resource",
     "get_session",

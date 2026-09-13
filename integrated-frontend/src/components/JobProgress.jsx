@@ -19,15 +19,21 @@ function JobProgress({ job, className = "" }) {
 
   if (!job.isRunning) return null;
 
-  const { message, current, total } = job.progress || {};
+  const { message, current, total, jobStatus } = job.progress || {};
   const percent = total ? Math.min(100, Math.round((current / total) * 100)) : null;
+  const waitingForServer = jobStatus === "queued" || /^waiting/i.test(message || "");
 
   return (
     <div className={`rounded-xl bg-primary-soft border border-primary-light px-3.5 py-3 ${className}`}>
       <p className="flex items-center gap-2.5 text-[13px] font-medium text-primary-dark m-0">
-        <span className="spinner" />
-        {message || "Working..."}
+        {waitingForServer ? <span className="spinner" /> : null}
+        {message || (waitingForServer ? "Waiting for the server..." : "Working...")}
       </p>
+      {!waitingForServer && (
+        <p className="text-[11.5px] text-muted m-0 mt-1 leading-relaxed">
+          Job running in the background — safe to navigate away.
+        </p>
+      )}
       {percent !== null && (
         <div className="track mt-2.5">
           <span style={{ width: `${percent}%` }} />

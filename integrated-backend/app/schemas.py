@@ -85,6 +85,10 @@ class GenerateRequest(BaseModel):
     # False skips both gates. Roughly halves the time, and the result is unreviewed.
     evaluate: bool = True
     threshold: Optional[int] = Field(default=None, ge=0, le=100)
+    # Additive; omitted = current behaviour (narrative summary, medium MCQs, default model).
+    summary_style: Optional[str] = Field(default=None, pattern="^(narrative|structured|auto)$")
+    difficulty: Optional[str] = Field(default=None, pattern="^(easy|medium|hard)$")
+    model_id: Optional[str] = Field(default=None, max_length=80)
 
 
 # --- Chat ------------------------------------------------------------------------------
@@ -98,6 +102,7 @@ class SendMessageRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
     # False skips the judge: a faster reply, not reviewed for hallucination.
     evaluate: bool = True
+    model_id: Optional[str] = Field(default=None, max_length=80)
 
 
 # --- Jobs ------------------------------------------------------------------------------

@@ -2,46 +2,47 @@
 Refusing an upload before any work is spent on it.
 
 Ingestion is expensive -- extraction, splitting, and a few thousand embeddings through a
-CPU model -- so everything that can reject a file is checked first, and every message here
-is written to be shown to the person who uploaded it rather than logged.
+CPU model -- so everything that can reject the file is checked first, and every message
+here is written to be shown to the person who uploaded it rather than logged.
 
-    is it a PDF at all       extension and content type
-    is it small enough       MAX_PDF_MB, checked again in pdf_files.read_source
-    can it be opened         corrupt files and password-protected ones fail the same way
-    how many pages           1..MAX_PAGE_COUNT
+    is it a supported kind   pdf / docx / pptx / tex
+    is it small enough       MAX_PDF_MB (the upload ceiling, not PDF-specific)
+    can it be opened         corrupt, encrypted, or empty-of-text files fail here
+    how many units           PDF pages, slides, Word slices, or TeX sections
 
-Size and page count are two different limits on purpose: a 3 MB scan of 800 pages is a
-small file and a very long ingest.
-
-The page count is returned rather than discarded -- the upload handler stores it on the
+The unit count is returned rather than discarded -- the upload handler stores it on the
 document record, so the number the user is shown comes from the same read that validated
 the file.
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 
 from .. import config
+from .formats import (
+    ALLOWED_CONTENT_TYPES,
+    KIND_DOCX,
+    KIND_PDF,
+    KIND_PPTX,
+    KIND_TEX,
+    confirm_kind,
+    detect_kind,
+)
 
-ALLOWED_CONTENT_TYPES = ("application/pdf", "application/x-pdf", "application/octet-stream")
 
-
-def validate_pdf(file_bytes: bytes, filename: str,
-                 content_type: Optional[str] = None) -> int:
+def validate_upload(file_bytes: bytes, filename: str,
+                    content_type: Optional[str] = None) -> Tuple[str, int]:
     """
-    Check an upload is a PDF this system will accept. Returns its page count.
+    Check an upload is a source this system will accept.
 
-    Raises ValueError with a human-readable message on any failure; the API layer turns
-    that into a 400 with the message passed through unchanged.
+    Returns (kind, unit_count). Raises ValueError with a human-readable message.
     """
-    import fitz  # PyMuPDF, the same reader ingestion itself uses
+    kind = detect_kind(filename)
 
-    if not (filename or "").lower().endswith(".pdf"):
-        raise ValueError("Only PDF files are allowed.")
-
-    # Browsers send application/pdf; some send octet-stream for a file dragged from disk,
-    # which is why that is allowed and the extension check above is the real gate.
     if content_type and content_type.split(";")[0].strip() not in ALLOWED_CONTENT_TYPES:
-        raise ValueError(f"Unsupported file type {content_type!r}. Please upload a PDF.")
+        raise ValueError(
+            f"Unsupported file type {content_type!r}. "
+            "Upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file."
+        )
 
     if not file_bytes:
         raise ValueError("This file is empty.")
@@ -52,6 +53,29 @@ def validate_pdf(file_bytes: bytes, filename: str,
             f"{config.MAX_PDF_MB:g} MB upload limit."
         )
 
+    confirm_kind(kind, file_bytes)
+
+    if kind == KIND_PDF:
+        return kind, _pdf_page_count(file_bytes, filename)
+    if kind == KIND_DOCX:
+        return kind, _count_office(file_bytes, kind)
+    if kind == KIND_PPTX:
+        return kind, _count_office(file_bytes, kind)
+    return kind, _tex_section_count(file_bytes)
+
+
+def validate_pdf(file_bytes: bytes, filename: str,
+                 content_type: Optional[str] = None) -> int:
+    """PDF-only wrapper kept for callers that still expect a page count."""
+    kind, count = validate_upload(file_bytes, filename, content_type)
+    if kind != KIND_PDF:
+        raise ValueError("Only PDF files are allowed.")
+    return count
+
+
+def _pdf_page_count(file_bytes: bytes, filename: str) -> int:
+    import fitz  # PyMuPDF, the same reader ingestion itself uses
+
     try:
         document = fitz.open(stream=file_bytes, filetype="pdf")
     except Exception:
@@ -61,8 +85,6 @@ def validate_pdf(file_bytes: bytes, filename: str,
         )
 
     try:
-        # Encryption is reported rather than lumped in with corruption, because the two
-        # have completely different fixes and the user knows which one applies.
         if document.needs_pass:
             raise ValueError(
                 "This PDF is password-protected. Please upload an unprotected copy."
@@ -78,5 +100,39 @@ def validate_pdf(file_bytes: bytes, filename: str,
             f"{filename} has {page_count} pages, over the {config.MAX_PAGE_COUNT}-page "
             f"limit."
         )
-
     return page_count
+
+
+def _count_office(file_bytes: bytes, kind: str) -> int:
+    from .extract_office import extract_docx, extract_pptx
+
+    pages = extract_docx(file_bytes) if kind == KIND_DOCX else extract_pptx(file_bytes)
+    if not pages:
+        label = "Word document" if kind == KIND_DOCX else "PowerPoint deck"
+        raise ValueError(
+            f"No extractable text in this {label}. "
+            "Image-only slides or an empty file cannot be indexed."
+        )
+    if len(pages) > config.MAX_PAGE_COUNT:
+        raise ValueError(
+            f"This file has {len(pages)} extractable units, over the "
+            f"{config.MAX_PAGE_COUNT}-page limit."
+        )
+    return len(pages)
+
+
+def _tex_section_count(file_bytes: bytes) -> int:
+    from .extract_office import extract_tex
+
+    pages = extract_tex(file_bytes)
+    if not pages:
+        raise ValueError(
+            "No extractable text in this LaTeX file. "
+            "A preamble-only or command-only source cannot be indexed."
+        )
+    if len(pages) > config.MAX_PAGE_COUNT:
+        raise ValueError(
+            f"This LaTeX file has {len(pages)} sections, over the "
+            f"{config.MAX_PAGE_COUNT}-page limit."
+        )
+    return len(pages)

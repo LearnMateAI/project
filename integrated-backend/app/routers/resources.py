@@ -18,10 +18,12 @@ working while it is updated.
 """
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 
 from ..deps import get_current_user
 from ..jobs import enqueue
 from ..schemas import GenerateRequest
+from ..services import export as export_service
 from ..services import ownership as access
 from ..services import resources as service
 
@@ -53,6 +55,9 @@ def generate(payload: GenerateRequest, user: dict = Depends(get_current_user)):
             "per_page": payload.per_page,
             "evaluate": payload.evaluate,
             "threshold": payload.threshold,
+            "summary_style": payload.summary_style,
+            "difficulty": payload.difficulty,
+            "model_id": payload.model_id,
         },
         message=f"Waiting to generate {task}.",
     )
@@ -79,6 +84,26 @@ def get_resource(resource_id: str, user: dict = Depends(get_current_user)):
     first attempt, what the judge objected to, and what the retry changed.
     """
     return service.get_resource(user["id"], resource_id)
+
+
+@router.get("/{resource_id}/export")
+def export_resource(
+    resource_id: str,
+    format: str = Query("docx", pattern="^(docx|pptx)$"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Download a stored resource as Word or PowerPoint.
+
+    Formats the judged content already in Mongo. Does not generate or re-judge.
+    """
+    data, media_type, filename = export_service.export_resource(
+        user["id"], resource_id, format)
+    return Response(
+        content=data,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.delete("/{resource_id}")

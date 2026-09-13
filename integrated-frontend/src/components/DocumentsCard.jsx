@@ -1,5 +1,5 @@
 /**
- * Upload a PDF.
+ * Upload a source file (PDF, Word, PowerPoint, or LaTeX).
  *
  * The shape of this follows the backend: the POST returns `202 {document, job_id}`, so
  * uploading is two phases with very different durations.
@@ -20,23 +20,20 @@ import { listDocuments, uploadDocument } from "../api/documents.js";
 import { useJob } from "../hooks/useJob.js";
 import JobProgress from "./JobProgress.jsx";
 
-const SUBJECTS = [
-  "Constitutional Law",
-  "Law of Contract",
-  "Criminal Law",
-  "Law of Torts",
-  "Property Law",
-  "General",
-];
-
 // Matches LEARNMATE_MAX_PDF_MB in integrated-backend/.env. Kept in step deliberately:
 // a browser limit looser than the server's just means the upload finishes and is then
 // rejected, after the user has waited for it.
 const MAX_MB = 10;
+const SOURCE_EXTENSIONS = [".pdf", ".docx", ".pptx", ".tex"];
+
+function fileExtension(name) {
+  const lower = (name || "").toLowerCase();
+  const dot = lower.lastIndexOf(".");
+  return dot >= 0 ? lower.slice(dot) : "";
+}
 
 function DocumentsCard({ onUploaded }) {
   const [documentCount, setDocumentCount] = useState(null);
-  const [subject, setSubject] = useState("General");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [progress, setProgress] = useState(0);
@@ -70,8 +67,9 @@ function DocumentsCard({ onUploaded }) {
     job.reset();
 
     // Checked here as well as on the server so an obviously wrong file costs nothing.
-    if (file.type !== "application/pdf") {
-      setError("Only PDF files are accepted.");
+    // Extension, not MIME: Windows often sends an empty type or octet-stream for .docx / .tex.
+    if (!SOURCE_EXTENSIONS.includes(fileExtension(file.name))) {
+      setError("Upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file.");
       return;
     }
     if (file.size > MAX_MB * 1024 * 1024) {
@@ -88,7 +86,7 @@ function DocumentsCard({ onUploaded }) {
     const result = await job.run(() =>
       uploadDocument({
         file,
-        subject,
+        subject: "General",
         onUploadProgress: (event) => {
           if (event.total) setProgress(Math.round((event.loaded * 100) / event.total));
         },
@@ -96,13 +94,14 @@ function DocumentsCard({ onUploaded }) {
     );
 
     if (result) {
+      const documentId = result.document_id || result.id;
       setSuccess(
         result.skipped
           ? `"${file.name}" was already indexed — ready straight away.`
-          : `"${file.name}" is ready: ${result.pages} pages, ${result.chunks} chunks.`,
+          : `"${file.name}" is ready: ${result.pages} extractable units, ${result.chunks} passages.`,
       );
       await refreshCount();
-      onUploaded?.();
+      onUploaded?.({ id: documentId, ...result });
     }
 
     setSending(false);
@@ -125,13 +124,13 @@ function DocumentsCard({ onUploaded }) {
     <section className="card">
       <div className="card-head">
         <div>
-          <h2>Upload</h2>
+          <h2>Upload a document</h2>
           <p className="text-[12px] text-muted mt-0.5">
             {documentCount === null
               ? "Checking your library..."
               : documentCount === 0
-                ? "No documents yet"
-                : `${documentCount} document${documentCount === 1 ? "" : "s"} in your library`}
+                ? "No sources yet"
+                : `${documentCount} source${documentCount === 1 ? "" : "s"} in your library`}
           </p>
         </div>
         <span className="icon-tile icon-tile-soft w-10 h-10">
@@ -142,23 +141,6 @@ function DocumentsCard({ onUploaded }) {
       </div>
 
       <div className="card-body">
-        <label className="field-label" htmlFor="subject">
-          Subject
-        </label>
-        <select
-          id="subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          disabled={busy}
-          className="select mb-4"
-        >
-          {SUBJECTS.map((entry) => (
-            <option key={entry} value={entry}>
-              {entry}
-            </option>
-          ))}
-        </select>
-
         <label
           onDragOver={(e) => {
             e.preventDefault();
@@ -176,7 +158,7 @@ function DocumentsCard({ onUploaded }) {
         >
           <input
             type="file"
-            accept="application/pdf"
+            accept=".pdf,.docx,.pptx,.tex,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/x-tex,text/plain"
             onChange={handleFileChange}
             disabled={busy}
             className="sr-only"
@@ -188,9 +170,12 @@ function DocumentsCard({ onUploaded }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
           </svg>
           <p className="text-[13px] font-semibold text-heading">
-            {busy ? "Working on it..." : "Drop a PDF here, or click to choose"}
+            {busy ? "Working on it..." : "Drop a document here, or click to choose"}
           </p>
-          <p className="text-[11.5px] text-subtle mt-0.5">PDF only · up to {MAX_MB} MB</p>
+          <p className="text-[11.5px] text-subtle mt-0.5">
+            PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) · up to {MAX_MB} MB
+          </p>
+          
         </label>
 
         {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the

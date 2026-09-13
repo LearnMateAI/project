@@ -44,7 +44,7 @@ async def upload_document(
     user: dict = Depends(get_current_user),
 ):
     """
-    Store a PDF and queue it for processing.
+    Store a PDF, Word, PowerPoint or LaTeX file and queue it for processing.
 
     Returns {document, job_id}. The document is usable for nothing until its
     `processing_status` reaches "Ready".
@@ -78,13 +78,13 @@ def get_document(document_id: str, user: dict = Depends(get_current_user)):
 
 @router.get("/{document_id}/file")
 def get_document_file(document_id: str, user: dict = Depends(get_current_user)):
-    """The stored PDF itself, for the viewer."""
+    """The stored original file, for the viewer or a download."""
     document = service.get_document(user["id"], document_id)
     data = service.get_pdf_bytes(user["id"], document_id)
 
     return Response(
         content=data,
-        media_type="application/pdf",
+        media_type=service.get_file_media_type(user["id"], document_id),
         # inline so a browser renders it rather than downloading it; the filename is still
         # what a "save as" will suggest.
         headers={"Content-Disposition":

@@ -39,7 +39,38 @@ MCQ_SCHEMA = {
 }
 
 
-def build_prompt(source: str, count: int) -> str:
+DIFFICULTIES = ("easy", "medium", "hard")
+
+_DIFFICULTY_RULES = {
+    "easy": (
+        "- Difficulty: EASY. Each question targets a single, explicitly-stated fact.\n"
+        "- Distractors should be clearly wrong on a plain reading; one obviously "
+        "implausible option is acceptable."
+    ),
+    "medium": (
+        "- Difficulty: MEDIUM. Plausible distractors; answering requires reading the "
+        "passage, not just recognising keywords."
+    ),
+    "hard": (
+        "- Difficulty: HARD. Distractors are near-misses: a real fact from elsewhere in "
+        "THIS passage, a subtly wrong number/date/section, or a commonly-confused related "
+        "provision. A question may require combining two statements.\n"
+        "- Write in the style of a bar-exam (MBE) stem when the passage supports it: a "
+        "short fact pattern or statutory snippet, then a question of law.\n"
+        "- A hard distractor must still be factually FALSE per the source — never make "
+        "the question ambiguous or arguable."
+    ),
+}
+
+
+def resolve_difficulty(requested: str | None) -> str:
+    choice = (requested or "medium").strip().lower()
+    return choice if choice in DIFFICULTIES else "medium"
+
+
+def build_prompt(source: str, count: int, difficulty: str = "medium") -> str:
+    tier = resolve_difficulty(difficulty)
+    extra = _DIFFICULTY_RULES[tier]
     return f"""Write {count} multiple-choice questions based only on the passage below.
 
 PASSAGE:
@@ -54,6 +85,7 @@ Rules:
 - The three wrong options must be plausible but clearly wrong according to the passage.
 - Do not make the correct option consistently the longest, and do not always put it first.
 - Never use "All of the above" or "None of the above".
+{extra}
 
 Return JSON: {{"questions": [{{"question": "...", "options": ["...","...","...","..."], "correct_answer": "..."}}]}}"""
 

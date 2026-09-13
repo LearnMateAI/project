@@ -15,6 +15,8 @@
  * conversation looks identical to one still in progress.
  */
 
+import CitationChips from "./CitationChips.jsx";
+
 function ChatMessage({ turn }) {
   const isUser = turn.role === "user";
 
@@ -28,8 +30,6 @@ function ChatMessage({ turn }) {
     );
   }
 
-  const pages = (turn.pages || []).filter((page) => page !== null && page !== undefined);
-  const uniquePages = [...new Set(pages)].sort((a, b) => a - b);
   const flagged = turn.accepted === false && turn.score !== null && turn.score !== undefined;
 
   return (
@@ -52,7 +52,7 @@ function ChatMessage({ turn }) {
           </p>
         )}
 
-        <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-body">{turn.content}</div>
+        <div className="whitespace-pre-wrap text-[14px] leading-[1.7] text-body font-serif">{turn.content}</div>
 
         {flagged && (
           <p className="text-[12px] text-warning mt-2.5">
@@ -60,18 +60,7 @@ function ChatMessage({ turn }) {
           </p>
         )}
 
-        {/* Numbered footnote chips, one per source page -- echoing how a citation would be
-            marked in the text itself, rather than a plain "From pages ..." caption. */}
-        {uniquePages.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2.5">
-            {uniquePages.map((page, i) => (
-              <span key={page} className="footnote-chip">
-                <span className="footnote-mark">{i + 1}</span>
-                p. {page}
-              </span>
-            ))}
-          </div>
-        )}
+        <CitationChips turn={turn} />
 
         {/* Live replies carry the retrieved chunks; replayed history carries page numbers
             only, so this appears on the turn you just asked for. */}
@@ -83,10 +72,12 @@ function ChatMessage({ turn }) {
             <div className="mt-2 space-y-2">
               {turn.contexts.map((context, index) => (
                 <div key={index} className="bg-surface-alt border border-border-light rounded-lg p-2.5">
-                  <p className="text-subtle mb-1 font-medium">
-                    Page {context.page_number} · match {Number(context.score ?? 0).toFixed(2)}
+                  <p className="text-subtle mb-1 font-medium font-sans">
+                    {context.page_number != null ? `Page ${context.page_number}` : "Source"}
+                    {context.paragraph != null ? ` · ¶${context.paragraph}` : ""}
+                    {context.score != null ? ` · match ${Number(context.score).toFixed(2)}` : ""}
                   </p>
-                  <p className="text-body leading-relaxed">{context.text}</p>
+                  <p className="text-body leading-relaxed font-serif">{context.text}</p>
                 </div>
               ))}
             </div>

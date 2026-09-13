@@ -1,0 +1,27 @@
+# Selectable generator models. LEARNMATE_GENERATOR_MODEL is still the fallback when
+# a request omits model_id — this file does not replace .env.
+#
+# selectable_default: true  may become the UI default (must have cleared the ML gate)
+# experimental: true        shown with a label; never the silent default
+#
+# Paths are filenames under LEARNMATE_MODELS_DIR unless they are already absolute.
+
+default_id: qwen25-3b
+
+models:
+  - id: qwen25-3b
+    display_name: Qwen 2.5 3B Instruct
+    gguf_path: qwen2.5-3b-instruct-q4_k_m.gguf
+    context_length: 4096
+    chat_format: ""
+    role_hint: general-purpose 3B
+    selectable_default: true
+    experimental: false
+  - id: legal-1.5b
+    display_name: Sri Lankan legal domain 1.5B
+    gguf_path: learnmate-legal-qwen2.5-1.5b-q8_0.gguf
+    context_length: 4096
+    chat_format: ""
+    role_hint: Sri Lankan legal domain 1.5B, experimental
+    selectable_default: false
+    experimental: true

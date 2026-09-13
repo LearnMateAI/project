@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAnalytics } from "../api/analytics.js";
 import { errorMessage } from "../api/client.js";
 import { listDocuments } from "../api/documents.js";
+import { listModels } from "../api/models.js";
 import { listResources } from "../api/resources.js";
 import { LineChart } from "../components/charts.jsx";
 
@@ -52,6 +53,7 @@ function Analytics() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [modelNames, setModelNames] = useState({});
 
   useEffect(() => {
     getAnalytics()
@@ -76,6 +78,20 @@ function Analytics() {
     listDocuments()
       .then((res) => setDocuments(res.data))
       .catch(() => setDocuments([]));
+  }, []);
+
+  // id -> display_name, so "By model" reads "Sri Lankan legal domain 1.5B" rather than the
+  // raw registry id. Best-effort and independent of the stats call: a breakdown by model
+  // is still useful with the bare id if this one fails.
+  useEffect(() => {
+    listModels()
+      .then((res) => {
+        const byId = Object.fromEntries(
+          (res.data || []).map((model) => [model.id, model.display_name]),
+        );
+        setModelNames(byId);
+      })
+      .catch(() => setModelNames({}));
   }, []);
 
   // Seven days ending today, so the rightmost point is always "now" and an empty day is a
@@ -145,7 +161,7 @@ function Analytics() {
     <div>
       <div className="page-header">
         <h1>Your Analytics</h1>
-        
+        <p>How much you&rsquo;ve studied, and how the generated material is holding up</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 border-y border-border mb-6">
@@ -198,6 +214,40 @@ function Analytics() {
           )}
         </div>
       </div>
+
+      {(Object.keys(stats.evaluation?.by_model || {}).length > 0 ||
+        Object.keys(stats.evaluation?.by_difficulty || {}).length > 0) && (
+        <section className="card mb-5">
+          <div className="card-head">
+            <div>
+              <h2>Quality breakdown</h2>
+              <p className="text-[12px] text-muted mt-0.5">
+                Judge pass rate by generator and by MCQ difficulty
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 px-5 pb-5">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">By model</p>
+              {Object.entries(stats.evaluation?.by_model || {}).map(([id, row]) => (
+                <p key={id} className="text-[13px] text-body m-0 py-1 border-b border-border-light last:border-0">
+                  <span className="font-medium">{modelNames[id] || id}</span>
+                  <span className="text-muted"> · {(row.pass_rate * 100).toFixed(0)}% pass · n={row.n}</span>
+                </p>
+              ))}
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">By MCQ difficulty</p>
+              {Object.entries(stats.evaluation?.by_difficulty || {}).map(([id, row]) => (
+                <p key={id} className="text-[13px] text-body m-0 py-1 border-b border-border-light last:border-0">
+                  <span className="font-medium">{id}</span>
+                  <span className="text-muted"> · {(row.pass_rate * 100).toFixed(0)}% pass · n={row.n}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

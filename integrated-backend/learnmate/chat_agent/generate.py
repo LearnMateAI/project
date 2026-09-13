@@ -11,11 +11,14 @@ retrieve already settled. This node never re-decides the mode.
     contexts + query (+ critique)  -->  reply, attempt
 """
 
+import time
 from typing import Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_generator_llm
+from ..llm.registry import consume_generator_load_ms
+from ..runtime_limits import JobTimeout, add_timing
 from .helpers import _as_messages, _emit_reply, _emit_token, _log
 from .prompts import GENERAL_SYSTEM, GROUNDED_SYSTEM
 from .state import ChatState
@@ -23,6 +26,7 @@ from .state import ChatState
 
 def generate_node(state: ChatState) -> Dict:
     """Write the reply with whichever generator the mode calls for."""
+    started = time.perf_counter()
     attempt = state.get("attempt", 0) + 1
     _log(state, f"[*] Generating (attempt {attempt}/{state['max_attempts']})...")
 
@@ -71,7 +75,10 @@ def generate_node(state: ChatState) -> Dict:
         # Low but non-zero temperature: enough variation that a regeneration can differ
         # from the reply the judge just rejected, not so much that it drifts.
         pieces = []
-        for chunk in get_generator_llm().stream(messages, temperature=0.3, max_tokens=320, stop=["\n\nQuestion:", "\n\nUser:"]):
+        for chunk in get_generator_llm(
+            model_id=state.get("model_id"),
+            on_progress=lambda message: _log(state, message),
+        ).stream(messages, temperature=0.3, max_tokens=320, stop=["\n\nQuestion:", "\n\nUser:"]):
             text = chunk.content or ""
             if not text:
                 continue
@@ -86,9 +93,19 @@ def generate_node(state: ChatState) -> Dict:
         # regeneration if it rejects this -- takes longer than writing it did. Saying so
         # lets a client show an answer now instead of a cursor for another half minute.
         _emit_reply(state, reply, attempt)
-        return {"attempt": attempt, "reply": reply}
+        timings = add_timing(state, "generate_ms", started)
+        load_ms = consume_generator_load_ms()
+        if load_ms:
+            timings["model_load_ms"] = timings.get("model_load_ms", 0) + load_ms
+        return {"attempt": attempt, "reply": reply, "timings": timings}
+    except JobTimeout:
+        raise
     except Exception as exc:
         # Return an empty reply rather than raising: the graph continues, the judge
         # scores the emptiness badly, and the retry loop gets a chance to recover.
         _log(state, f"[!] Generation failed: {exc}")
-        return {"attempt": attempt, "reply": ""}
+        timings = add_timing(state, "generate_ms", started)
+        load_ms = consume_generator_load_ms()
+        if load_ms:
+            timings["model_load_ms"] = timings.get("model_load_ms", 0) + load_ms
+        return {"attempt": attempt, "reply": "", "timings": timings}

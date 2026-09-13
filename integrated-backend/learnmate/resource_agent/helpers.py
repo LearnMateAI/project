@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from ..runtime_limits import check_job_deadline
 from .state import ResourceState
 from .task import Task
 
@@ -15,6 +16,8 @@ def _log(state: ResourceState, message: str) -> None:
     callback is never allowed to break the run -- a failed progress update is a cosmetic
     problem, and a generation that dies because of one is not.
     """
+    check_job_deadline()
+
     if state.get("verbose", True):
         print(message)
 

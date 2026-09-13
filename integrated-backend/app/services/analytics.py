@@ -55,5 +55,7 @@ def overview(user_id: str) -> Dict:
             # clustered in a narrow band cannot, at any threshold.
             "scores": content_store.evaluation_stats(user_id=user_id),
             "stages": content_store.stage_counts(user_id=user_id),
+            "by_model": content_store.evaluation_breakdown(user_id, "model_id"),
+            "by_difficulty": content_store.evaluation_breakdown(user_id, "difficulty"),
         },
     }

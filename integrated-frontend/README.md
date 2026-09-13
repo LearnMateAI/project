@@ -107,12 +107,12 @@ and cannot be linked; a student will want to come back to a quiz.
 
 | | |
 |---|---|
-| **Dashboard** | upload, recent resources, headline counts |
-| **Documents** | library, PDF viewer, and the generation panel. Re-polls while anything is `Processing`, so a row becomes `Ready` on its own |
-| **Resources** | everything generated, filterable by document and type |
-| **Resource** | one resource — quizzes are interactive, answers hidden until you submit |
-| **Chat** | conversations, one per document, with mode/score/pages on every reply |
-| **Analytics** | activity counts, plus the judge's score distribution and which gate decided each attempt |
+| **Dashboard** | upload, recent materials, headline counts |
+| **Library** (`/documents`) | file by Cases / Statutes / Outlines / Briefs; split workspace (PDF or extracted text beside generate / ask) |
+| **Study materials** | everything generated, filterable by source and type |
+| **Resource** | one resource — quizzes, IRAC briefs, flashcard drill |
+| **Ask the record** (`/chat`) | conversations with page and paragraph citations |
+| **Analytics** | activity counts, plus the judge's score distribution |
 
 ### The `scope` choice, and why the panel explains it
 

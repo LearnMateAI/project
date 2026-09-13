@@ -40,7 +40,7 @@ def read_source(source: Union[str, Path, bytes], filename: str = None) -> Tuple[
     if isinstance(source, (str, Path)):
         path = Path(source)
         if not path.exists():
-            raise FileNotFoundError(f"No such PDF: {path}")
+            raise FileNotFoundError(f"No such file: {path}")
         data = path.read_bytes()
         filename = filename or path.name
     else:
@@ -59,10 +59,14 @@ def read_source(source: Union[str, Path, bytes], filename: str = None) -> Tuple[
     return data, filename
 
 
-def put(filename: str, data: bytes, digest: str) -> ObjectId:
+def put(filename: str, data: bytes, digest: str, content_type: str = None) -> ObjectId:
     """Write bytes into GridFS and return the id to store on the document record."""
     return bucket().upload_from_stream(
-        filename, data, metadata={"sha256": digest, "content_type": "application/pdf"})
+        filename, data,
+        metadata={
+            "sha256": digest,
+            "content_type": content_type or "application/pdf",
+        })
 
 
 def get(gridfs_id) -> Optional[bytes]:

@@ -71,12 +71,21 @@ def store_pdf(source: Union[str, Path, bytes], filename: str = None) -> Dict:
 
     # Bytes first: a record pointing at nothing would be worse than orphaned bytes, which
     # the unique sha256 index means can only ever happen once per file anyway.
-    gridfs_id = pdf_files.put(filename, data, digest)
+    from learnmate.ingestion.formats import detect_kind, media_type_for
+
+    try:
+        source_kind = detect_kind(filename)
+    except ValueError:
+        source_kind = "pdf"
+
+    gridfs_id = pdf_files.put(
+        filename, data, digest, content_type=media_type_for(source_kind))
 
     record = {
         "filename": filename,
         "sha256": digest,
         "size_bytes": len(data),
+        "source_kind": source_kind,
         "gridfs_id": gridfs_id,
         "uploaded_at": datetime.now(timezone.utc),
         # Filled in by the ingestion pipeline once the text has been processed.
@@ -155,6 +164,7 @@ def delete_document(doc_id: Union[str, ObjectId]) -> bool:
     database = get_db()
     database[config.COLL_CHUNKS].delete_many({"doc_id": document["_id"]})
     database[config.COLL_PAGES].delete_many({"doc_id": document["_id"]})
+    database[config.COLL_BM25].delete_many({"doc_id": document["_id"]})
     pdf_files.drop(document.get("gridfs_id"))
     database[config.COLL_DOCUMENTS].delete_one({"_id": document["_id"]})
     return True

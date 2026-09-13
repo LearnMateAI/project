@@ -31,8 +31,12 @@ export function getMessages(sessionId) {
   return api.get(`/api/chat/sessions/${sessionId}/messages`);
 }
 
-export function sendMessage({ sessionId, message, evaluate = true }) {
-  return api.post(`/api/chat/sessions/${sessionId}/messages`, { message, evaluate });
+export function sendMessage({ sessionId, message, evaluate = true, modelId }) {
+  return api.post(`/api/chat/sessions/${sessionId}/messages`, {
+    message,
+    evaluate,
+    model_id: modelId || null,
+  });
 }
 
 export function deleteSession(sessionId) {

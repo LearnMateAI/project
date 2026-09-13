@@ -1,0 +1,16 @@
+.git
+.github
+.venv
+venv
+**/__pycache__
+*.pyc
+*.log
+.env
+.env.*
+!.env.example
+model-Thevindu
+integrated-backend/data
+integrated-backend/build
+integrated-backend/tests
+integrated-frontend/node_modules
+integrated-frontend/dist

@@ -5,7 +5,7 @@ const steps = [
   {
     num: "01",
     title: "Upload Your Document",
-    desc: "Upload a PDF, Word, PowerPoint, or LaTeX file — lecture notes, textbooks, case law. The system extracts text, splits it into meaningful chunks, and builds a vector index for intelligent retrieval.",
+    desc: "Upload a PDF, Word, PowerPoint, or LaTeX file — notes, readings, slides, or other course material. The system extracts text, splits it into meaningful chunks, and builds a searchable index.",
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -84,8 +84,8 @@ function AboutPage() {
           practice questions — all grounded in the actual content they need to learn.
         </p>
         <p className="text-[14px] text-body leading-relaxed">
-          Originally designed for law students working with complex legal texts, the platform handles 
-          any subject. Every piece of generated content is quality-checked by an independent AI judge, 
+          Built for students working with complex course material, the platform handles any subject.
+          Every piece of generated content is quality-checked by an independent review step,
           and every answer in chat is traced back to its source pages — because study material you 
           cannot verify is study material you cannot trust.
         </p>

@@ -15,8 +15,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { errorMessage } from "../../api/client.js";
-import { listModels } from "../../api/models.js";
-import { deleteResource, exportResource, getResource, resourceLabel } from "../../api/resources.js";
+import { deleteResource, getResource, resourceLabel } from "../../api/resources.js";
+import { formatSriLankaDateTime } from "../../lib/dateTime.js";
 import Flashcards from "../../components/Flashcards.jsx";
 import McqQuiz from "./McqQuiz.jsx";
 import PracticeQuestions from "./PracticeQuestions.jsx";
@@ -105,8 +105,6 @@ function ResourceView() {
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [exporting, setExporting] = useState("");
-  const [modelNames, setModelNames] = useState({});
 
   const fetchResource = useCallback(async () => {
     setLoading(true);
@@ -127,33 +125,6 @@ function ResourceView() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchResource();
   }, [fetchResource]);
-
-  useEffect(() => {
-    // id -> display_name, so the metadata line can say "Sri Lankan legal domain 1.5B"
-    // instead of the raw registry id a student has no reason to recognise. Best-effort:
-    // an older resource's model may since have left the registry, and the raw id is
-    // still a legible fallback for that case.
-    listModels()
-      .then((res) => {
-        const byId = Object.fromEntries(
-          (res.data || []).map((model) => [model.id, model.display_name]),
-        );
-        setModelNames(byId);
-      })
-      .catch(() => setModelNames({}));
-  }, []);
-
-  async function handleExport(format) {
-    setExporting(format);
-    setError("");
-    try {
-      await exportResource(resourceId, format);
-    } catch (err) {
-      setError(errorMessage(err, "Could not export this resource."));
-    } finally {
-      setExporting("");
-    }
-  }
 
   async function handleDelete() {
     if (!window.confirm("Delete this resource?")) return;
@@ -205,20 +176,6 @@ function ResourceView() {
         </h1>
         <div className="flex flex-wrap gap-2 shrink-0">
           <button
-            onClick={() => handleExport("docx")}
-            disabled={Boolean(exporting)}
-            className="btn-secondary"
-          >
-            {exporting === "docx" ? "Exporting…" : "Word"}
-          </button>
-          <button
-            onClick={() => handleExport("pptx")}
-            disabled={Boolean(exporting)}
-            className="btn-secondary"
-          >
-            {exporting === "pptx" ? "Exporting…" : "PowerPoint"}
-          </button>
-          <button
             onClick={handleDelete}
             className="btn-secondary hover:text-danger hover:border-danger-light"
           >
@@ -231,14 +188,7 @@ function ResourceView() {
       </div>
 
       <p className="text-[12px] text-subtle mb-3">
-        Generated {new Date(resource.created_at).toLocaleString()}
-        {params.whole_document ? " from the whole document" : ""}
-        {params.groups ? ` (${params.groups} group${params.groups === 1 ? "" : "s"})` : ""}
-        {params.summary_style ? ` · ${params.summary_style}` : ""}
-        {params.difficulty ? ` · ${params.difficulty}` : ""}
-        {params.model_id ? ` · ${modelNames[params.model_id] || params.model_id}` : ""}
-        {resource.score != null ? ` · judge ${resource.score}/100` : ""}
-        {resource.accepted === false ? " · flagged" : ""}
+        {formatSriLankaDateTime(resource.created_at)}
       </p>
 
       {error && <p className="notice notice-error mb-4">{error}</p>}

@@ -168,8 +168,8 @@ function Chat() {
   return (
     <div>
       <div className="page-header">
-        <h1>Ask the record</h1>
-        <p>Answers cite the page and paragraph they were retrieved from</p>
+        <h1>Ask a Question</h1>
+      
       </div>
 
       {error && <p className="notice notice-error mb-4">{error}</p>}
@@ -186,7 +186,7 @@ function Chat() {
             </label>
             {documents.length === 0 ? (
               <p className="text-[12.5px] text-muted leading-relaxed">
-                No sources are ready yet. File a PDF in the library and wait for it to finish processing.
+                No sources are ready yet. File a document in the library and wait for it to finish processing.
               </p>
             ) : (
               <select
@@ -208,7 +208,7 @@ function Chat() {
             {sessions.length === 0 ? (
               <EmptyState
                 className="mt-4 px-0"
-                body="No conversations yet — pick a document above to start one."
+                body="No conversations yet"
               />
             ) : (
               <ul className="mt-5 space-y-1 list-none p-0 m-0">
@@ -245,7 +245,7 @@ function Chat() {
             <EmptyState
               className="m-auto px-6 py-10"
               title="No conversation selected"
-              body="Pick one on the left, or start a new one from a document."
+              body="Pick a chat on the left, or start a new chat."
             />
           ) : (
             <>

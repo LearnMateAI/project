@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useAuth } from "../context/useAuth.js";
 
 const SUBJECTS = [
-  "Constitutional Law",
-  "Law of Contract",
-  "Criminal Law",
-  "Law of Torts",
-  "Property Law",
+  "Mathematics",
+  "Science",
+  "Technology",
+  "Business",
+  "Languages",
   "General",
 ];
 

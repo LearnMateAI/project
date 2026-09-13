@@ -12,10 +12,8 @@ import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
 import DocumentReader from "../components/DocumentReader.jsx";
 import DocumentsCard from "../components/DocumentsCard.jsx";
-import EmptyState from "../components/EmptyState.jsx";
 import ResourcesPanel from "../components/ResourcesPanel.jsx";
 import WorkspaceChat from "../components/WorkspaceChat.jsx";
-import { MATTER_TYPES, getMatterType, matterLabel, setMatterType } from "../lib/matterTypes.js";
 
 const POLL_MS = 3000;
 
@@ -25,6 +23,19 @@ const STATUS_STYLES = {
   Uploaded: "badge-gray",
   "Failed Processing": "badge-red",
 };
+
+// One cover tint per subject, drawn from the existing palette tokens rather than new
+// colours -- a document's subject is the one thing worth telling apart at a glance on a
+// shelf of otherwise-identical PDFs.
+const SUBJECT_TINTS = {
+  "Constitutional Law": "var(--color-primary)",
+  "Law of Contract": "var(--color-violet)",
+  "Criminal Law": "var(--color-cyan)",
+  "Law of Torts": "var(--color-accent)",
+  "Property Law": "var(--color-success)",
+  General: "var(--color-subtle)",
+};
+const DEFAULT_TINT = "var(--color-muted)";
 
 function formatSize(bytes) {
   if (!bytes) return "—";
@@ -39,9 +50,7 @@ function Documents() {
   const [selectedId, setSelectedId] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [viewerLoading, setViewerLoading] = useState(false);
-  const [matterFilter, setMatterFilter] = useState("");
   const [workspaceTab, setWorkspaceTab] = useState("generate");
-  const [matterVersion, setMatterVersion] = useState(0);
   const pdfUrlRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const openedFromLinkRef = useRef(false);
@@ -103,10 +112,6 @@ function Documents() {
   }, [documents, searchParams]);
 
   const selected = documents.find((doc) => doc.id === selectedId) || null;
-  const visible = matterFilter
-    ? documents.filter((doc) => getMatterType(doc.id) === matterFilter)
-    : documents;
-
   async function handleSelect(doc) {
     setSelectedId(doc.id);
     setNotice("");
@@ -141,7 +146,6 @@ function Documents() {
     if (!window.confirm(`Remove "${doc.filename}" from your library?`)) return;
     try {
       const res = await deleteDocument(doc.id);
-      setMatterType(doc.id, "");
       setNotice(
         res.data.purged
           ? `"${doc.filename}" was deleted.`
@@ -157,11 +161,6 @@ function Documents() {
     }
   }
 
-  function handleMatterChange(docId, kind) {
-    setMatterType(docId, kind);
-    setMatterVersion((value) => value + 1);
-  }
-
   const readyCount = documents.filter((doc) => doc.processing_status === "Ready").length;
 
   return (
@@ -171,7 +170,7 @@ function Documents() {
           <h1>Library</h1>
           <p>
             {documents.length === 0
-              ? "File a PDF, Word, PowerPoint, or LaTeX source"
+              ? "Upload a PDF, Word, PowerPoint, or LaTeX document"
               : `${documents.length} filed · ${readyCount} ready`}
           </p>
         </div>
@@ -207,19 +206,6 @@ function Documents() {
                 </option>
               ))}
             </select>
-            <select
-              className="select w-auto"
-              value={getMatterType(selected.id)}
-              onChange={(e) => handleMatterChange(selected.id, e.target.value)}
-              aria-label="Matter type"
-            >
-              <option value="">Unfiled</option>
-              {MATTER_TYPES.map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.singular}
-                </option>
-              ))}
-            </select>
             <span className="badge badge-gray">
               {selected.page_count
                 ? `${selected.page_count} ${selected.unit_label || "pages"}`
@@ -229,6 +215,7 @@ function Documents() {
 
           <div className="workspace-split">
             <DocumentReader
+              key={`${selected.id}-${selected.source_kind || "pdf"}`}
               documentId={selected.id}
               filename={selected.filename}
               pdfUrl={pdfUrl}
@@ -280,9 +267,9 @@ function Documents() {
             <DocumentsCard onUploaded={() => fetchDocuments({ quiet: true })} />
           </div>
 
-          <section className="card overflow-hidden">
-            <div className="card-head">
-              <h2>Filed sources</h2>
+          <div>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2 className="section-title mb-0">Library</h2>
               {anyProcessing && (
                 <span className="badge badge-blue">
                   <span className="spinner w-3 h-3" />
@@ -291,68 +278,50 @@ function Documents() {
               )}
             </div>
 
-            <div className="px-4 pt-3 chip-row">
-              <button
-                type="button"
-                className={`cite ${!matterFilter ? "cite-page" : ""}`}
-                onClick={() => setMatterFilter("")}
-              >
-                All
-              </button>
-              {MATTER_TYPES.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  className={`cite ${matterFilter === entry.id ? "cite-page" : ""}`}
-                  onClick={() => setMatterFilter(entry.id)}
-                >
-                  {entry.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="overflow-x-auto">
-              {loading ? (
-                <p className="px-5 py-6 text-[13px] text-muted">Loading library...</p>
-              ) : visible.length === 0 ? (
-                <EmptyState
-                  body={
-                    documents.length === 0
-                      ? "No sources yet — file a PDF, Word, PowerPoint, or LaTeX file to get started."
-                      : "Nothing filed under this type yet."
-                  }
-                  action={null}
-                />
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Filename</th>
-                      <th>Type</th>
-                      <th>Subject</th>
-                      <th className="num">Units</th>
-                      <th className="num">Size</th>
-                      <th>Status</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visible.map((doc) => (
-                      <tr
-                        key={doc.id}
-                        onClick={() => handleSelect(doc)}
-                        className={`is-clickable ${selectedId === doc.id ? "is-selected" : ""}`}
+            {loading ? (
+              <p className="card px-5 py-6 text-[13px] text-muted">Loading documents...</p>
+            ) : documents.length === 0 ? (
+              <p className="card px-5 py-6 text-[13px] text-muted">
+                No documents yet — upload a file above to get started.
+              </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* The shelf: each PDF is a cover tinted by subject rather than a row in a
+                    table, so the library reads as a set of books rather than a spreadsheet. */}
+                {documents.map((doc) => {
+                  const tint = SUBJECT_TINTS[doc.subject] || DEFAULT_TINT;
+                  return (
+                    <div
+                      key={doc.id}
+                      onClick={() => handleSelect(doc)}
+                      className={`book-tile cursor-pointer ${selectedId === doc.id ? "is-selected" : ""}`}
+                    >
+                      <div
+                        className="book-cover"
+                        style={{
+                          backgroundImage: `linear-gradient(150deg, ${tint} 0%, color-mix(in srgb, ${tint} 70%, black) 100%)`,
+                        }}
                       >
-                        <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={1.6}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span className="text-[10px] font-bold text-white/75 tracking-[0.04em] uppercase truncate">
+                          {doc.subject}
+                        </span>
+                      </div>
+                      <div className="book-tile-body">
+                        <p
+                          className="text-[13px] font-semibold text-heading mb-1.5 truncate"
+                          title={doc.filename}
+                        >
                           {doc.filename}
-                        </td>
-                        <td className="text-muted whitespace-nowrap">
-                          {matterLabel(getMatterType(doc.id))}
-                        </td>
-                        <td className="text-muted whitespace-nowrap">{doc.subject}</td>
-                        <td className="num">{doc.page_count ?? "—"}</td>
-                        <td className="num whitespace-nowrap">{formatSize(doc.file_size)}</td>
-                        <td>
+                        </p>
+                        <p className="text-[11px] text-subtle mb-2.5">
+                          {doc.page_count
+                            ? `${doc.page_count} ${doc.unit_label || "pages"}`
+                            : (doc.source_kind || "pdf").toUpperCase()} · {formatSize(doc.file_size)}
+                        </p>
+                        <div className="flex items-center justify-between gap-2">
                           <span
                             className={`badge ${STATUS_STYLES[doc.processing_status] || "badge-gray"}`}
                             title={doc.processing_error || undefined}
@@ -360,37 +329,33 @@ function Documents() {
                             <span className="badge-dot" />
                             {doc.processing_status}
                           </span>
-                        </td>
-                        <td className="num">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDelete(doc);
                             }}
-                            className="text-[12px] font-semibold text-muted hover:text-danger"
+                            className="text-[11.5px] font-semibold text-muted hover:text-danger"
                           >
                             Delete
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {documents
               .filter((doc) => doc.processing_status === "Failed Processing" && doc.processing_error)
               .map((doc) => (
-                <p key={doc.id} className="notice notice-error mx-4 mb-4 text-[12px]">
+                <p key={doc.id} className="notice notice-error mt-4 text-[12px]">
                   <span className="font-semibold">{doc.filename}:</span> {doc.processing_error}
                 </p>
               ))}
-          </section>
+          </div>
         </div>
       )}
-      {/* matterVersion forces the type column to refresh after a localStorage write. */}
-      <span className="sr-only" aria-hidden="true">{matterVersion}</span>
     </div>
   );
 }

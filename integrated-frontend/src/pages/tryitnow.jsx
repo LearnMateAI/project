@@ -21,7 +21,7 @@ function TryItNow() {
     <div className="animate-fade-in max-w-3xl">
       <div className="page-header mb-6">
         <h1>Try It Now</h1>
-        <p>File a PDF and generate an IRAC brief, flashcards, or bar-style MCQs</p>
+        <p>Upload a document and generate summaries, key points, or practice questions</p>
       </div>
 
       {/* Step indicator */}
@@ -71,7 +71,7 @@ function TryItNow() {
               <div>
                 <h2 className="text-[15px] font-semibold text-heading">Step 1: Upload a Document</h2>
                 <p className="text-[13px] text-muted mt-1">
-                  Choose a subject and upload a PDF, Word, PowerPoint, or LaTeX file. The system will extract, chunk, and index the content automatically.
+                  Upload a PDF, Word, PowerPoint, or LaTeX file. The content will be processed automatically.
                 </p>
               </div>
             </div>
@@ -103,7 +103,7 @@ function TryItNow() {
             <div className="grid gap-3 sm:grid-cols-2">
               {[
                 { type: "Summary", desc: "A concise overview of the content", icon: "📝" },
-                { type: "Flashcards", desc: "Key points you can flip through", icon: "💡" },
+                { type: "Key points", desc: "Important ideas from your document", icon: "💡" },
                 { type: "MCQs", desc: "Multiple choice test questions", icon: "✅" },
                 { type: "Practice Questions", desc: "Open-ended study questions", icon: "📖" },
               ].map((item) => (

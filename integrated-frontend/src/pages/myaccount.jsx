@@ -81,23 +81,6 @@ function MyAccount() {
         </div>
       </div>
 
-      {/* Quick links */}
-      <h2 className="text-[15px] font-semibold text-heading mb-3">Quick Links</h2>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          { to: "/documents", label: "My Documents", desc: "View and manage uploads", icon: "📄" },
-          { to: "/resources", label: "My Resources", desc: "Browse generated material", icon: "📚" },
-          { to: "/analytics", label: "Analytics", desc: "View detailed stats", icon: "📊" },
-        ].map((item) => (
-          <Link key={item.to} to={item.to} className="card card-hover p-4 flex items-center gap-3 no-underline">
-            <span className="text-xl">{item.icon}</span>
-            <div>
-              <p className="text-[13px] font-medium text-heading">{item.label}</p>
-              <p className="text-[11px] text-muted">{item.desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

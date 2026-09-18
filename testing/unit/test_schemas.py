@@ -59,3 +59,32 @@ def test_create_session_requires_document_id():
     with pytest.raises(ValidationError):
         CreateSessionRequest()
     CreateSessionRequest(document_id="507f1f77bcf86cd799439011")
+
+
+def test_summary_style_accepts_narrative_structured_auto_or_omitted():
+    assert GenerateRequest(document_id="abc", resource_type="summary").summary_style is None
+    for style in ("narrative", "structured", "auto"):
+        body = GenerateRequest(document_id="abc", resource_type="summary", summary_style=style)
+        assert body.summary_style == style
+    with pytest.raises(ValidationError):
+        GenerateRequest(document_id="abc", resource_type="summary", summary_style="bulleted")
+
+
+def test_difficulty_accepts_easy_medium_hard_or_omitted():
+    assert GenerateRequest(document_id="abc", resource_type="mcq").difficulty is None
+    for level in ("easy", "medium", "hard"):
+        body = GenerateRequest(document_id="abc", resource_type="mcq", difficulty=level)
+        assert body.difficulty == level
+    with pytest.raises(ValidationError):
+        GenerateRequest(document_id="abc", resource_type="mcq", difficulty="impossible")
+
+
+def test_rename_session_schema_rejects_empty_but_not_whitespace_title():
+    from app.schemas import RenameSessionRequest
+
+    with pytest.raises(ValidationError):
+        RenameSessionRequest(title="")
+    # The schema only enforces min_length=1; a whitespace-only title passes here and is
+    # rejected downstream by app.services.chat.rename_session (see test_chat_service.py).
+    assert RenameSessionRequest(title="   ").title == "   "
+    assert RenameSessionRequest(title="Contract law revision").title == "Contract law revision"

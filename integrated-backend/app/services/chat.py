@@ -17,7 +17,7 @@ backend that is 30-60 seconds, which is why the router runs it as a job.
 """
 
 import uuid
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from learnmate.chat_agent import ChatAgent
 from learnmate.ingestion import require_kind
@@ -25,18 +25,39 @@ from learnmate.storage import content_store
 
 from . import ownership as access
 
+PREVIEW_CHARS = 80
 
-def _serialize_session(session: Dict, turns: int = None) -> Dict:
+
+def preview_message(text: str, limit: int = PREVIEW_CHARS) -> str:
+    """One-line snippet for the conversation list. Empty in, empty out."""
+    collapsed = " ".join((text or "").split())
+    if len(collapsed) <= limit:
+        return collapsed
+    return collapsed[: limit - 1].rstrip() + "…"
+
+
+def _iso(value) -> Optional[str]:
+    return value.isoformat() if value else None
+
+
+def _serialize_session(session: Dict, activity: Dict = None) -> Dict:
     """One session binding, in the shape the frontend reads."""
+    activity = activity or {}
     bound_at = session.get("bound_at")
+    last_at = activity.get("last_at") or session.get("updated_at") or bound_at
+    last_content = activity.get("last_content") or ""
     return {
         "session_id": session["session_id"],
         "document_id": str(session.get("doc_id")) if session.get("doc_id") else None,
         "filename": session.get("filename"),
         "title": session.get("title") or session.get("filename"),
         "kinds": session.get("kinds", []),
-        "created_at": bound_at.isoformat() if bound_at else None,
-        "message_count": turns,
+        "created_at": _iso(bound_at),
+        "updated_at": _iso(session.get("updated_at")),
+        "last_activity": _iso(last_at),
+        "message_count": int(activity.get("turns") or 0),
+        "last_message": preview_message(last_content) if last_content else "",
+        "last_role": activity.get("last_role"),
     }
 
 
@@ -98,13 +119,39 @@ def create_session(user_id: str, doc_id: str, title: str = None) -> Dict:
         title=title or document.get("filename", "Untitled"),
     )
 
-    return _serialize_session(content_store.get_session(session_id), turns=0)
+    return _serialize_session(content_store.get_session(session_id), {"turns": 0})
+
+
+def get_session(user_id: str, session_id: str) -> Dict:
+    """One conversation's metadata, including last-turn preview."""
+    session = access.require_session(user_id, session_id)
+    activity = content_store.activity_for_sessions([session_id]).get(session_id) or {}
+    return _serialize_session(session, activity)
 
 
 def list_sessions(user_id: str) -> List[Dict]:
-    """The user's conversations, most recent first."""
-    return [_serialize_session(session)
-            for session in content_store.list_user_sessions(user_id)]
+    """The user's conversations, most recently active first."""
+    rows = content_store.list_user_sessions(user_id)
+    activity = content_store.activity_for_sessions(
+        [row["session_id"] for row in rows if row.get("session_id")])
+    serialized = [
+        _serialize_session(row, activity.get(row["session_id"]))
+        for row in rows
+    ]
+    serialized.sort(key=lambda row: row.get("last_activity") or row.get("created_at") or "",
+                    reverse=True)
+    return serialized
+
+
+def rename_session(user_id: str, session_id: str, title: str) -> Dict:
+    """Change the display title. The bound document is untouched."""
+    access.require_session(user_id, session_id)
+    cleaned = (title or "").strip()
+    if not cleaned:
+        raise ValueError("Give the conversation a name.")
+    if not content_store.rename_session(session_id, cleaned[:200]):
+        raise ValueError("Could not rename this conversation.")
+    return get_session(user_id, session_id)
 
 
 def get_messages(user_id: str, session_id: str) -> List[Dict]:

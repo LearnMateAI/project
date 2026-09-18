@@ -75,6 +75,7 @@ function Dashboard() {
   );
 
   const recent = resources.slice(0, 5);
+  const recentSources = documents.slice(0, 6);
 
   // The "Split-screen workspace" card jumps straight into the PDF+chat split view for a
   // document instead of just landing on the library like "File a source" does -- the two
@@ -127,6 +128,50 @@ function Dashboard() {
 
         <section className="card">
             <div className="card-head">
+              <h2>Past uploads</h2>
+              <Link to="/documents" className="text-[12.5px] font-semibold text-primary no-underline hover:underline">
+                Library →
+              </Link>
+            </div>
+
+            {recentSources.length === 0 ? (
+              <p className="px-5 py-6 text-[13px] text-muted leading-relaxed">
+                Filed sources stay here. Open one to read the original in a window beside chat and study material.
+              </p>
+            ) : (
+              <div>
+                {recentSources.map((doc) => (
+                  <Link key={doc.id} to={`/documents/${doc.id}`} className="list-row">
+                    <span className="min-w-0">
+                      <span className="block text-[13.5px] font-semibold text-heading truncate">
+                        {doc.filename}
+                      </span>
+                      <span className="block text-[11.5px] text-muted truncate">
+                        {doc.subject}
+                        {doc.page_count ? ` · ${doc.page_count} ${doc.unit_label || "pages"}` : ""}
+                      </span>
+                      {doc.upload_date && (
+                        <span className="block text-[11.5px] text-subtle">
+                          {new Date(doc.upload_date).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      )}
+                    </span>
+                    <span className={`badge ${doc.processing_status === "Ready" ? "badge-green" : "badge-gray"}`}>
+                      {doc.processing_status}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+        </section>
+      </div>
+
+      <section className="card mt-5">
+            <div className="card-head">
               <h2>Recent resources</h2>
               <Link to="/resources" className="text-[12.5px] font-semibold text-primary no-underline hover:underline">
                 View all →
@@ -167,7 +212,6 @@ function Dashboard() {
               </div>
             )}
         </section>
-      </div>
     </div>
   );
 }

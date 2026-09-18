@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
 import DocumentReader from "../components/DocumentReader.jsx";
@@ -32,6 +32,8 @@ function formatSize(bytes) {
 }
 
 function Documents() {
+  const { documentId: routeDocumentId } = useParams();
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,7 +46,6 @@ function Documents() {
   const [matterVersion, setMatterVersion] = useState(0);
   const pdfUrlRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const openedFromLinkRef = useRef(false);
 
   const fetchDocuments = useCallback(async ({ quiet = false } = {}) => {
     if (!quiet) setLoading(true);
@@ -83,22 +84,17 @@ function Documents() {
     [],
   );
 
-  // Deep link from the dashboard's "Split-screen workspace" card (?open=<id>): jump
-  // straight into that document's workspace instead of the library list. Runs once the
-  // matching row has loaded, and only once -- the ref stops it firing again after the
-  // student navigates back to the library while the param is still in the URL.
+  // Deep link: dashboard `?open=<id>` becomes `/documents/:id`. The path is what
+  // reopening a past upload uses; the query is kept so old links still work.
   useEffect(() => {
-    if (openedFromLinkRef.current) return;
     const openId = searchParams.get("open");
     if (!openId) return;
-    const doc = documents.find((entry) => entry.id === openId);
-    if (!doc) return;
-    openedFromLinkRef.current = true;
-    handleSelect(doc);
+    if (!documents.some((entry) => entry.id === openId)) return;
     setSearchParams((params) => {
       params.delete("open");
       return params;
     }, { replace: true });
+    navigate(`/documents/${openId}`, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documents, searchParams]);
 
@@ -111,6 +107,9 @@ function Documents() {
     setSelectedId(doc.id);
     setNotice("");
     setWorkspaceTab("generate");
+    if (routeDocumentId !== doc.id) {
+      navigate(`/documents/${doc.id}`);
+    }
 
     if (pdfUrlRef.current) {
       URL.revokeObjectURL(pdfUrlRef.current);
@@ -137,6 +136,24 @@ function Documents() {
     }
   }
 
+  useEffect(() => {
+    if (!routeDocumentId) {
+      if (selectedId) {
+        setSelectedId(null);
+        if (pdfUrlRef.current) {
+          URL.revokeObjectURL(pdfUrlRef.current);
+          pdfUrlRef.current = null;
+        }
+        setPdfUrl(null);
+      }
+      return;
+    }
+    if (selectedId === routeDocumentId) return;
+    const doc = documents.find((entry) => entry.id === routeDocumentId);
+    if (doc) handleSelect(doc);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents, routeDocumentId]);
+
   async function handleDelete(doc) {
     if (!window.confirm(`Remove "${doc.filename}" from your library?`)) return;
     try {
@@ -150,6 +167,7 @@ function Documents() {
       if (selectedId === doc.id) {
         setSelectedId(null);
         setPdfUrl(null);
+        navigate("/documents");
       }
       await fetchDocuments({ quiet: true });
     } catch (err) {
@@ -189,7 +207,7 @@ function Documents() {
       {selected ? (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className="btn-secondary" onClick={() => setSelectedId(null)}>
+            <button type="button" className="btn-secondary" onClick={() => navigate("/documents")}>
               ← Library
             </button>
             <select
@@ -361,8 +379,19 @@ function Documents() {
                             {doc.processing_status}
                           </span>
                         </td>
-                        <td className="num">
+                        <td className="num whitespace-nowrap">
                           <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelect(doc);
+                            }}
+                            className="text-[12px] font-semibold text-primary hover:underline mr-3"
+                          >
+                            Open
+                          </button>
+                          <button
+                            type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDelete(doc);

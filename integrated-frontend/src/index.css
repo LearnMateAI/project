@@ -796,6 +796,20 @@ html.dark .paper {
   overflow: auto;
 }
 
+.document-reader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+}
+.document-reader-overlay-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* Evidentiary citation chips -- page and paragraph, not a footnote dump. */
 .cite {
   display: inline-flex;

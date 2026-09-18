@@ -39,7 +39,13 @@ def test_app_routes_explore_vs_protected(frontend_root: Path):
 def test_upload_client_enforces_ten_megabytes(frontend_root: Path):
     src = (frontend_root / "src" / "components" / "DocumentsCard.jsx").read_text(encoding="utf-8")
     assert "const MAX_MB = 10" in src
-    assert "Only PDF files are accepted" in src
+    assert "Upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file." in src
+
+
+def test_upload_client_accepts_office_and_tex(frontend_root: Path):
+    src = (frontend_root / "src" / "components" / "DocumentsCard.jsx").read_text(encoding="utf-8")
+    assert 'SOURCE_EXTENSIONS = [".pdf", ".docx", ".pptx", ".tex"]' in src
+    assert "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in src
 
 
 def test_protected_route_waits_while_checking(frontend_root: Path):

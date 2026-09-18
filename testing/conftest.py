@@ -70,7 +70,8 @@ def _not_in_unit_tests(*args, **kwargs):
 from learnmate.resource_agent.tasks import TASK_NAMES  # noqa: E402
 from learnmate.ingestion.sessions import require_kind  # noqa: E402
 from learnmate.ingestion.source_text import build_source_text  # noqa: E402
-from learnmate.ingestion.validate import validate_pdf  # noqa: E402
+from learnmate.ingestion.validate import validate_pdf, validate_upload  # noqa: E402
+from learnmate.ingestion.formats import detect_kind, kind_from_record  # noqa: E402
 
 sys.modules["learnmate.chat_agent"].ChatAgent = _Stub
 sys.modules["learnmate.resource_agent"].TASK_NAMES = TASK_NAMES
@@ -80,6 +81,9 @@ sys.modules["learnmate.resource_agent"].summarize_document = _not_in_unit_tests
 sys.modules["learnmate.ingestion"].require_kind = require_kind
 sys.modules["learnmate.ingestion"].build_source_text = build_source_text
 sys.modules["learnmate.ingestion"].validate_pdf = validate_pdf
+sys.modules["learnmate.ingestion"].validate_upload = validate_upload
+sys.modules["learnmate.ingestion"].detect_kind = detect_kind
+sys.modules["learnmate.ingestion"].kind_from_record = kind_from_record
 sys.modules["learnmate.ingestion"].ingest_pdf = _not_in_unit_tests
 
 import pytest  # noqa: E402

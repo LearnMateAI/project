@@ -14,6 +14,7 @@ from app.routers import auth
 from app.routers import chat
 from app.routers import documents
 from app.routers import jobs
+from app.routers import models
 from app.routers import resources
 
 
@@ -33,6 +34,7 @@ def build_slim_app() -> FastAPI:
     app.include_router(chat.router)
     app.include_router(jobs.router)
     app.include_router(analytics.router)
+    app.include_router(models.router)
 
     @app.get("/")
     def root():

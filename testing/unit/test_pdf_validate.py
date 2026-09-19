@@ -16,7 +16,7 @@ def _pdf_with_text(text: str = "Section 1. Directors owe duties to the company."
 
 
 def test_non_pdf_extension_rejected():
-    with pytest.raises(ValueError, match="Only PDF"):
+    with pytest.raises(ValueError, match="Upload a PDF, Word"):
         validate_pdf(b"%PDF", "notes.txt", "application/pdf")
 
 
@@ -40,5 +40,5 @@ def test_valid_pdf_returns_page_count():
 
 
 def test_garbage_bytes_are_corrupt():
-    with pytest.raises(ValueError, match="could not be read"):
+    with pytest.raises(ValueError, match="not a readable PDF"):
         validate_pdf(b"not-a-pdf-at-all", "notes.pdf", "application/pdf")

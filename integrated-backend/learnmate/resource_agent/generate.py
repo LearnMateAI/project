@@ -28,6 +28,24 @@ from .mcq import resolve_difficulty
 from .state import ResourceState
 from .tasks import get_task
 
+# Rough tokens per item, by task -- the same calibration whole_document.MAX_PER_CALL uses
+# to cap a single call's item count, but expressed as a per-item cost so a passage-scope
+# request (which asks for its whole count in one call, unbatched) can size max_tokens to
+# fit instead of being silently capped. Can't import whole_document's constants here: that
+# module imports .agent, which imports .graph, which imports this module -- a cycle.
+_TOKENS_PER_ITEM = {"mcq": 130, "practice_qsn": 100, "keypoints": 65}
+_DEFAULT_TOKENS_PER_ITEM = 100
+_BASE_OVERHEAD_TOKENS = 150
+# Ceiling, not a target: stays well inside GENERATOR_N_CTX's headroom after the prompt
+# (source passage up to MAX_SOURCE_CHARS plus rules), so a bigger ask degrades to "still
+# capped, still parses" rather than overflowing the context window.
+_MAX_TOKENS_CEILING = 3072
+
+
+def _max_tokens_for(task_name: str, count: int) -> int:
+    per_item = _TOKENS_PER_ITEM.get(task_name, _DEFAULT_TOKENS_PER_ITEM)
+    return min(_MAX_TOKENS_CEILING, max(1024, per_item * max(count, 1) + _BASE_OVERHEAD_TOKENS))
+
 
 def _prompt_for(task, state: ResourceState) -> str:
     fn = task.build_prompt
@@ -67,7 +85,9 @@ def generate_node(state: ResourceState) -> Dict:
     started = time.time()
     clock = time.perf_counter()
     try:
+        max_tokens = _max_tokens_for(task.name, state.get("count", 5))
         reply = get_generator_llm(
+            max_tokens=max_tokens,
             model_id=state.get("model_id"),
             on_progress=lambda message: _log(state, message),
         ).invoke(

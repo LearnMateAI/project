@@ -20,7 +20,7 @@ jobs:
         run: python -m pytest testing/unit testing/integration -q
 
       - name: Install extras needed only by integrated-backend/tests
-        run: pip install langgraph python-docx python-pptx
+        run: pip install langgraph python-docx python-pptx numpy
 
       - name: integrated-backend suite (learnmate package imports LangGraph, no GGUF load)
         working-directory: integrated-backend

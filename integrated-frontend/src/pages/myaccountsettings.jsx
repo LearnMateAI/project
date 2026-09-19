@@ -103,8 +103,9 @@ function MyAccountSettings() {
               </p>
             </div>
             <div>
-              <label className="flex items-start gap-3 cursor-pointer">
+              <label htmlFor="evaluate-by-default" className="flex items-start gap-3 cursor-pointer">
                 <input
+                  id="evaluate-by-default"
                   type="checkbox"
                   name="evaluateByDefault"
                   checked={form.evaluateByDefault}

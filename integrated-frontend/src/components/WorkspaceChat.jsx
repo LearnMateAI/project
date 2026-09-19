@@ -6,7 +6,7 @@
  * /documents for /chat.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createSession, getMessages, listSessions, sendMessage } from "../api/chat.js";
 import { errorMessage } from "../api/client.js";
 import { useJob } from "../hooks/useJob.js";
@@ -24,44 +24,61 @@ function WorkspaceChat({ documentId, ready }) {
   const job = useJob();
   const bottomRef = useRef(null);
 
-  const openSession = useCallback(async () => {
-    if (!documentId || !ready) {
-      setSessionId(null);
-      setTurns([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const listed = await listSessions();
-      const existing = (listed.data || []).find((session) => session.document_id === documentId);
-      if (existing) {
-        setSessionId(existing.session_id);
-        const messages = await getMessages(existing.session_id);
-        setTurns(messages.data || []);
-      } else {
-        const created = await createSession({ documentId });
-        setSessionId(created.data.session_id);
-        setTurns([]);
-      }
-    } catch (err) {
-      setError(errorMessage(err, "Could not open a conversation for this document."));
-    } finally {
-      setLoading(false);
-    }
-  }, [documentId, ready]);
-
   useEffect(() => {
     // Fetch-on-mount (and again if the selected document changes). The rule guards
     // against cascading renders from derived state; this is a request to an external
     // system, which is what an effect is for.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    //
+    // `cancelled` guards the create-or-reuse decision itself, not just the state updates
+    // after it: StrictMode's dev-only double-invoke runs this effect twice back to back,
+    // and without checking `cancelled` before acting on `listSessions()`'s result, both
+    // invocations see "no existing session" and each call createSession(), leaving one
+    // real session plus an orphaned duplicate for the same document.
+    let cancelled = false;
+
+    async function openSession() {
+      if (!documentId || !ready) {
+        if (!cancelled) {
+          setSessionId(null);
+          setTurns([]);
+          setLoading(false);
+        }
+        return;
+      }
+      if (!cancelled) {
+        setLoading(true);
+        setError("");
+      }
+      try {
+        const listed = await listSessions();
+        if (cancelled) return;
+        const existing = (listed.data || []).find((session) => session.document_id === documentId);
+        if (existing) {
+          setSessionId(existing.session_id);
+          const messages = await getMessages(existing.session_id);
+          if (cancelled) return;
+          setTurns(messages.data || []);
+        } else {
+          const created = await createSession({ documentId });
+          if (cancelled) return;
+          setSessionId(created.data.session_id);
+          setTurns([]);
+        }
+      } catch (err) {
+        if (!cancelled) setError(errorMessage(err, "Could not open a conversation for this document."));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
     openSession();
     job.reset();
+    return () => {
+      cancelled = true;
+    };
     // job.reset is stable; including it would clear a running turn on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openSession]);
+  }, [documentId, ready]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

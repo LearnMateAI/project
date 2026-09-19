@@ -50,7 +50,7 @@ def _to_sparse(text: str) -> dict:
     indices = []
     values = []
     for w, c in counts.items():
-        idx = int(hashlib.md5(w.encode()).hexdigest(), 16) % 1000000
+        idx = int(hashlib.md5(w.encode(), usedforsecurity=False).hexdigest(), 16) % 1000000
         if idx not in indices:
             indices.append(idx)
             values.append(float(c))

@@ -7,11 +7,12 @@ Hugging Face rather than being an error the user has to go and fix by hand.
 """
 
 from pathlib import Path
+from typing import Optional
 
 from .. import config
 
 
-def ensure_gguf(path: str, repo_id: str, filename: str) -> str:
+def ensure_gguf(path: str, repo_id: str, filename: str, revision: Optional[str] = None) -> str:
     """
     Return a local path to a GGUF file, downloading it on first use.
 
@@ -53,9 +54,13 @@ def ensure_gguf(path: str, repo_id: str, filename: str) -> str:
     print(f"[*] {target.name} not found locally; downloading from {repo_id} (~2 GB, once)...")
 
     # HF_TOKEN only lifts anonymous rate limits here; both default models are public.
+    # `revision` pins to a specific commit so a future push to the repo can't silently
+    # swap the model a fresh checkout downloads; omitted (None) falls back to the repo's
+    # default branch, same as before this was threaded through.
     return hf_hub_download(
         repo_id=repo_id,
         filename=filename,
         local_dir=str(models_dir),
         token=config.HF_TOKEN,
+        revision=revision,
     )

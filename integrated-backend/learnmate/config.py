@@ -128,6 +128,11 @@ GENERATOR_MODEL = _env("LEARNMATE_GENERATOR_MODEL",
 # rather than downloading a *different* model and running that instead.
 GENERATOR_REPO = _env_optional("LEARNMATE_GENERATOR_REPO", "Qwen/Qwen2.5-3B-Instruct-GGUF")
 GENERATOR_FILE = _env_optional("LEARNMATE_GENERATOR_FILE", "qwen2.5-3b-instruct-q4_k_m.gguf")
+# Pinned so a future push to this repo can't silently swap the model a fresh checkout
+# downloads. Current as of 2026-09-19 -- bump deliberately (via .env, not by editing this
+# default) if the repo is ever intentionally updated.
+GENERATOR_REVISION = _env_optional(
+    "LEARNMATE_GENERATOR_REVISION", "7dabda4d13d513e3e842b20f0d435c732f172cbe")
 
 # A finetune with a non-standard prompt template needs its chat format named here
 # (e.g. "chatml", "llama-3"). Empty lets llama.cpp read it from the GGUF metadata,
@@ -150,6 +155,9 @@ JUDGE_MODEL = _env("LEARNMATE_JUDGE_MODEL",
                    str(MODELS_DIR / "Llama-3.2-3B-Instruct-Q4_K_M.gguf"))
 JUDGE_REPO = _env_optional("LEARNMATE_JUDGE_REPO", "bartowski/Llama-3.2-3B-Instruct-GGUF")
 JUDGE_FILE = _env_optional("LEARNMATE_JUDGE_FILE", "Llama-3.2-3B-Instruct-Q4_K_M.gguf")
+# Same reasoning as GENERATOR_REVISION above -- current as of 2026-09-19.
+JUDGE_REVISION = _env_optional(
+    "LEARNMATE_JUDGE_REVISION", "5ab33fa94d1d04e903623ae72c95d1696f09f9e8")
 JUDGE_CHAT_FORMAT = _env("LEARNMATE_JUDGE_CHAT_FORMAT", "")
 
 # Judging is short-output / long-input: a resource plus its source text must fit.

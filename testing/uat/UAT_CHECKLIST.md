@@ -59,6 +59,7 @@ Tick the box only if the behaviour is visible on screen (or the gap is recorded 
 - [ ] Question the PDF clearly answers produces a reply
 - [ ] Follow-up that uses “it” / “this” still makes sense (rewrite node)
 - [ ] **Known gap:** chat bubble may not show pdf vs general badge; API still has `turn.mode`
+- [ ] ~~UAT-12 Rename a chat~~ — **DROPPED**, not implemented, see `testing/RESULTS.md` 19 Sep 2026
 
 **Notes:**
 

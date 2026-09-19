@@ -53,7 +53,7 @@ def consume_generator_load_ms() -> int:
 
 def _build(role: str, backend: str, model: str, repo: str, filename: str,
            chat_format: str, n_ctx: int, api_url: str, api_key: str,
-           temperature: float, max_tokens: int):
+           temperature: float, max_tokens: int, revision: Optional[str] = None):
     """Construct the chat model one role's configuration describes."""
     if backend == "http":
         return HttpChatModel(
@@ -94,7 +94,7 @@ def _build(role: str, backend: str, model: str, repo: str, filename: str,
     # ensure_gguf downloads on first use, so this is where a fresh checkout blocks for a
     # few minutes -- not somewhere deep inside a generation.
     return LlamaCppChatModel(
-        gguf_path=ensure_gguf(model, repo, filename),
+        gguf_path=ensure_gguf(model, repo, filename, revision),
         n_ctx=n_ctx,
         n_threads=config.N_THREADS,
         n_gpu_layers=config.N_GPU_LAYERS,
@@ -133,6 +133,7 @@ def resolve_generator_settings(model_id: Optional[str] = None):
             "model": config.GENERATOR_MODEL,
             "repo": config.GENERATOR_REPO,
             "filename": config.GENERATOR_FILE,
+            "revision": config.GENERATOR_REVISION,
             "chat_format": config.GENERATOR_CHAT_FORMAT,
             "n_ctx": config.GENERATOR_N_CTX,
             "api_url": config.GENERATOR_API_URL,
@@ -156,6 +157,7 @@ def resolve_generator_settings(model_id: Optional[str] = None):
         "model": entry["resolved_path"],
         "repo": "",
         "filename": "",
+        "revision": None,
         "chat_format": entry.get("chat_format") or "",
         "n_ctx": int(entry.get("context_length") or config.GENERATOR_N_CTX),
         "api_url": config.GENERATOR_API_URL,
@@ -218,7 +220,7 @@ def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 102
             "generator", settings["backend"], model_path,
             settings["repo"], settings["filename"], settings["chat_format"],
             settings["n_ctx"], settings["api_url"], settings["api_key"],
-            temp, max_tokens,
+            temp, max_tokens, settings.get("revision"),
         )
         if settings["backend"] == "llamacpp":
             _LOADED_GENERATOR_PATH = model_path
@@ -244,6 +246,6 @@ def get_judge_llm(temperature: float = 0.0, max_tokens: int = 512):
             "judge", config.JUDGE_BACKEND, config.JUDGE_MODEL,
             config.JUDGE_REPO, config.JUDGE_FILE, config.JUDGE_CHAT_FORMAT,
             config.JUDGE_N_CTX, config.JUDGE_API_URL, config.JUDGE_API_KEY,
-            temperature, max_tokens,
+            temperature, max_tokens, config.JUDGE_REVISION,
         )
     return _LLM_CACHE[key]

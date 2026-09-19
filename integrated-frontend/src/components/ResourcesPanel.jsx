@@ -307,8 +307,9 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
             </div>
           )}
 
-          <label className="flex items-start gap-2.5 rounded-xl border border-border p-3 cursor-pointer hover:border-border-strong">
+          <label htmlFor="evaluate-toggle" className="flex items-start gap-2.5 rounded-xl border border-border p-3 cursor-pointer hover:border-border-strong">
             <input
+              id="evaluate-toggle"
               type="checkbox"
               checked={evaluate}
               onChange={(e) => setEvaluate(e.target.checked)}

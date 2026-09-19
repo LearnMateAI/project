@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 
 def test_error_message_uses_backend_detail_and_network_hint(frontend_root: Path):
     src = (frontend_root / "src" / "api" / "client.js").read_text(encoding="utf-8")
@@ -13,7 +15,10 @@ def test_error_message_uses_backend_detail_and_network_hint(frontend_root: Path)
 
 
 def test_auth_api_paths(frontend_root: Path):
-    src = (frontend_root / "src" / "api" / "auth.js").read_text(encoding="utf-8")
+    auth_file = frontend_root / "src" / "api" / "auth.js"
+    if not auth_file.exists():
+        pytest.skip("deployment is Keycloak-only; the local /api/auth/* client was removed")
+    src = auth_file.read_text(encoding="utf-8")
     assert "/api/auth/register" in src
     assert "/api/auth/login" in src
     assert "/api/auth/me" in src
@@ -39,7 +44,7 @@ def test_app_routes_explore_vs_protected(frontend_root: Path):
 def test_upload_client_enforces_ten_megabytes(frontend_root: Path):
     src = (frontend_root / "src" / "components" / "DocumentsCard.jsx").read_text(encoding="utf-8")
     assert "const MAX_MB = 10" in src
-    assert "Only PDF files are accepted" in src
+    assert "Upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file." in src
 
 
 def test_protected_route_waits_while_checking(frontend_root: Path):

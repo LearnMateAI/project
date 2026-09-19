@@ -84,10 +84,18 @@ export function AuthProvider({ children }) {
           localStorage.setItem("user", JSON.stringify(nextUser));
           setToken(keycloak.token);
           setUser(nextUser);
+        } else if (!cancelled) {
+          // check-sso resolved but found no valid session -- e.g. a stored token that has
+          // since expired or was invalidated server-side. Clear it so ProtectedRoute, which
+          // only checks "is there a token," doesn't keep granting access to a dead session.
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setToken(null);
+          setUser(null);
         }
       } catch {
-        // Keycloak unreachable, or genuinely no session -- either way this just means
-        // "not logged in," not an error worth surfacing.
+        // Keycloak unreachable -- genuinely unknown, not a definite "no session," so
+        // an existing session is left alone rather than logged out on a network blip.
       }
 
       if (!cancelled) setChecking(false);

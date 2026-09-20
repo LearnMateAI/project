@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React DevTools - Profiler</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .devtools { display: flex; height: 100vh; }
+        .sidebar { width: 300px; background: #252526; border-right: 1px solid #3c3c3c; padding: 16px; overflow-y: auto; }
+        .sidebar h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #858585; margin-bottom: 12px; }
+        .session { padding: 10px 12px; background: #2d2d2d; border-radius: 4px; margin-bottom: 8px; cursor: pointer; }
+        .session.active { background: #094771; border: 1px solid #007acc; }
+        .session-name { font-weight: 500; margin-bottom: 4px; }
+        .session-meta { font-size: 0.75rem; color: #858585; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .toolbar { background: #252526; border-bottom: 1px solid #3c3c3c; padding: 8px 16px; display: flex; gap: 12px; align-items: center; }
+        .toolbar button { background: #3c3c3c; border: none; color: #d4d4d4; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .toolbar button:hover { background: #4a4a4a; }
+        .toolbar button.active { background: #007acc; }
+        .flamegraph { flex: 1; padding: 24px; overflow: auto; background: #1e1e1e; }
+        .flame-frame { background: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 4px; margin-bottom: 8px; padding: 12px; }
+        .flame-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .flame-component { font-weight: 600; font-size: 0.9rem; }
+        .flame-time { font-size: 0.75rem; color: #858585; }
+        .flame-bar { height: 24px; background: #3c3c3c; border-radius: 3px; overflow: hidden; position: relative; }
+        .flame-bar-fill { height: 100%; background: #007acc; border-radius: 3px; display: flex; align-items: center; padding: 0 8px; font-size: 0.7rem; white-space: nowrap; }
+        .ranked { flex: 1; padding: 24px; overflow: auto; background: #1e1e1e; }
+        .ranked-table { width: 100%; border-collapse: collapse; }
+        .ranked-table th, .ranked-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #3c3c3c; }
+        .ranked-table th { color: #858585; font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+        .ranked-table tr:hover { background: #2d2d2d; }
+        .ranked-component { font-weight: 500; }
+        .ranked-render { color: #4ec9b0; font-family: monospace; }
+        .ranked-duration { color: #dcdcaa; font-family: monospace; }
+        .tabs { display: flex; gap: 4px; background: #252526; border-bottom: 1px solid #3c3c3c; }
+        .tab { padding: 8px 16px; background: transparent; border: none; color: #858585; cursor: pointer; font-size: 0.85rem; border-bottom: 2px solid transparent; }
+        .tab.active { color: #d4d4d4; border-bottom-color: #007acc; }
+    </style>
+</head>
+<body>
+    <div class="devtools">
+        <aside class="sidebar">
+            <h3>Recordings</h3>
+            <div class="session active">
+                <div class="session-name">Dashboard Load</div>
+                <div class="session-meta">2.1 ms · 14 renders · 2026-09-20 10:04</div>
+            </div>
+            <div class="session">
+                <div class="session-name">Chat Message Send</div>
+                <div class="session-meta">45 ms · 8 renders · 2026-09-20 10:03</div>
+            </div>
+            <div class="session">
+                <div class="session-name">Resource Generation</div>
+                <div class="session-meta">12 ms · 6 renders · 2026-09-20 10:02</div>
+            </div>
+        </aside>
+
+        <div class="main">
+            <div class="toolbar">
+                <button class="active">▶ Record</button>
+                <button>⏹ Stop</button>
+                <button>🔄 Reload & Profile</button>
+                <select style="background: #3c3c3c; border: none; color: #d4d4d4; padding: 6px 12px; border-radius: 4px;">
+                    <option>Flamegraph</option>
+                    <option>Ranked</option>
+                    <option>Timeline</option>
+                </select>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active">Flamegraph</button>
+                <button class="tab">Ranked</button>
+            </div>
+
+            <div class="flamegraph">
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">App</span>
+                        <span class="flame-time">2.1 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 100%;">App (2.1 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">Layout</span>
+                        <span class="flame-time">1.8 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 86%;">Layout (1.8 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">Sidebar</span>
+                        <span class="flame-time">0.9 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 43%;">Sidebar (0.9 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">Topbar</span>
+                        <span class="flame-time">0.4 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 22%;">Topbar (0.4 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">DashboardPage</span>
+                        <span class="flame-time">1.2 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 57%;">DashboardPage (1.2 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">DocumentsCard</span>
+                        <span class="flame-time">0.8 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 38%;">DocumentsCard (0.8 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">AnalyticsCard</span>
+                        <span class="flame-time">0.3 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 14%;">AnalyticsCard (0.3 ms)</div>
+                    </div>
+                </div>
+                <div class="flame-frame">
+                    <div class="flame-header">
+                        <span class="flame-component">AuthProvider</span>
+                        <span class="flame-time">0.1 ms</span>
+                    </div>
+                    <div class="flame-bar">
+                        <div class="flame-bar-fill" style="width: 5%;">AuthProvider (0.1 ms)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ranked" style="display: none;">
+                <table class="ranked-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Renders</th>
+                            <th>Total Duration</th>
+                            <th>Avg Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="ranked-component">App</td><td>1</td><td class="ranked-duration">2.1 ms</td><td class="ranked-duration">2.1 ms</td></tr>
+                        <tr><td class="ranked-component">Layout</td><td>1</td><td class="ranked-duration">1.8 ms</td><td class="ranked-duration">1.8 ms</td></tr>
+                        <tr><td class="ranked-component">DashboardPage</td><td>1</td><td class="ranked-duration">1.2 ms</td><td class="ranked-duration">1.2 ms</td></tr>
+                        <tr><td class="ranked-component">DocumentsCard</td><td>1</td><td class="ranked-duration">0.8 ms</td><td class="ranked-duration">0.8 ms</td></tr>
+                        <tr><td class="ranked-component">Sidebar</td><td>1</td><td class="ranked-duration">0.9 ms</td><td class="ranked-duration">0.9 ms</td></tr>
+                        <tr><td class="ranked-component">Topbar</td><td>1</td><td class="ranked-duration">0.4 ms</td><td class="ranked-duration">0.4 ms</td></tr>
+                        <tr><td class="ranked-component">AnalyticsCard</td><td>1</td><td class="ranked-duration">0.3 ms</td><td class="ranked-duration">0.3 ms</td></tr>
+                        <tr><td class="ranked-component">AuthProvider</td><td>1</td><td class="ranked-duration">0.1 ms</td><td class="ranked-duration">0.1 ms</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

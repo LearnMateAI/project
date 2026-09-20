@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS Code - Debug Configuration (launch.json)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .vscode { max-width: 900px; margin: 0 auto; }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-radius: 6px 6px 0 0; border: 1px solid #3c3c3c; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .editor { background: #1e1e1e; border: 1px solid #3c3c3c; border-top: none; border-radius: 0 0 6px 6px; padding: 16px; }
+        .linenums { color: #858585; user-select: none; padding-right: 16px; }
+        .code { white-space: pre; }
+        .keyword { color: #c586c0; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .comment { color: #6a9955; }
+        .property { color: #9cdcfe; }
+        .punctuation { color: #d4d4d4; }
+        .bracket { color: #d4d4d4; }
+    </style>
+</head>
+<body>
+    <div class="vscode">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">.vscode/launch.json</span></div>
+        <div class="editor">
+            <div class="code"><span class="linenums"> 1</span><span class="punctuation">{</span>
+<span class="linenums"> 2</span>  <span class="property">"version"</span><span class="punctuation">:</span> <span class="string">"0.2.0"</span><span class="punctuation">,</span>
+<span class="linenums"> 3</span>  <span class="property">"configurations"</span><span class="punctuation">:</span> <span class="punctuation">[</span>
+<span class="linenums"> 4</span>    <span class="punctuation">{</span>
+<span class="linenums"> 5</span>      <span class="property">"name"</span><span class="punctuation">:</span> <span class="string">"Python: FastAPI (Backend)"</span><span class="punctuation">,</span>
+<span class="linenums"> 6</span>      <span class="property">"type"</span><span class="punctuation">:</span> <span class="string">"python"</span><span class="punctuation">,</span>
+<span class="linenums"> 7</span>      <span class="property">"request"</span><span class="punctuation">:</span> <span class="string">"launch"</span><span class="punctuation">,</span>
+<span class="linenums"> 8</span>      <span class="property">"module"</span><span class="punctuation">:</span> <span class="string">"uvicorn"</span><span class="punctuation">,</span>
+<span class="linenums"> 9</span>      <span class="property">"args"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">"server:app"</span><span class="punctuation">,</span> <span class="string">"--reload"</span><span class="punctuation">,</span> <span class="string">"--port"</span><span class="punctuation">,</span> <span class="string">"8010"</span><span class="punctuation">]</span><span class="punctuation">,</span>
+<span class="linenums">10</span>      <span class="property">"cwd"</span><span class="punctuation">:</span> <span class="string">"${workspaceFolder}/integrated-backend"</span><span class="punctuation">,</span>
+<span class="linenums">11</span>      <span class="property">"env"</span><span class="punctuation">:</span> <span class="punctuation">{</span>
+<span class="linenums">12</span>        <span class="property">"JWT_SECRET_KEY"</span><span class="punctuation">:</span> <span class="string">"dev-secret"</span><span class="punctuation">,</span>
+<span class="linenums">13</span>        <span class="property">"MONGODB_URI"</span><span class="punctuation">:</span> <span class="string">"mongodb://localhost:27018"</span><span class="punctuation">,</span>
+<span class="linenums">14</span>        <span class="property">"QDRANT_URL"</span><span class="punctuation">:</span> <span class="string">"http://localhost:6335"</span>
+<span class="linenums">15</span>      <span class="punctuation">},</span>
+<span class="linenums">16</span>      <span class="property">"console"</span><span class="punctuation">:</span> <span class="string">"integratedTerminal"</span>
+<span class="linenums">17</span>    <span class="punctuation">},</span>
+<span class="linenums">18</span>    <span class="punctuation">{</span>
+<span class="linenums">19</span>      <span class="property">"name"</span><span class="punctuation">:</span> <span class="string">"Node: Vite (Frontend)"</span><span class="punctuation">,</span>
+<span class="linenums">20</span>      <span class="property">"type"</span><span class="punctuation">:</span> <span class="string">"node"</span><span class="punctuation">,</span>
+<span class="linenums">21</span>      <span class="property">"request"</span><span class="punctuation">:</span> <span class="string">"launch"</span><span class="punctuation">,</span>
+<span class="linenums">22</span>      <span class="property">"runtimeExecutable"</span><span class="punctuation">:</span> <span class="string">"npm"</span><span class="punctuation">,</span>
+<span class="linenums">23</span>      <span class="property">"runtimeArgs"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">"run"</span><span class="punctuation">,</span> <span class="string">"dev"</span><span class="punctuation">]</span><span class="punctuation">,</span>
+<span class="linenums">24</span>      <span class="property">"cwd"</span><span class="punctuation">:</span> <span class="string">"${workspaceFolder}/integrated-frontend"</span><span class="punctuation">,</span>
+<span class="linenums">25</span>      <span class="property">"console"</span><span class="punctuation">:</span> <span class="string">"integratedTerminal"</span>
+<span class="linenums">26</span>    <span class="punctuation">}</span>
+<span class="linenums">27</span>  <span class="punctuation">],</span>
+<span class="linenums">28</span>  <span class="property">"compounds"</span><span class="punctuation">:</span> <span class="punctuation">[</span>
+<span class="linenums">29</span>    <span class="punctuation">{</span>
+<span class="linenums">30</span>      <span class="property">"name"</span><span class="punctuation">:</span> <span class="string">"Full Stack Debug"</span><span class="punctuation">,</span>
+<span class="linenums">31</span>      <span class="property">"configurations"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">"Python: FastAPI (Backend)"</span><span class="punctuation">,</span> <span class="string">"Node: Vite (Frontend)"</span><span class="punctuation">]</span>
+<span class="linenums">32</span>    <span class="punctuation">}</span>
+<span class="linenums">33</span>  <span class="punctuation">]</span>
+<span class="linenums">34</span><span class="punctuation">}</span></div>
+        </div>
+    </div>
+</body>
+</html>

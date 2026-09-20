@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Shell - Document Counts & Query Performance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .terminal { background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #2d2d2d; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .prompt { color: #6a9955; } .command { color: #d4d4d4; }
+        .output { padding: 16px; white-space: pre-wrap; }
+        .db { color: #569cd6; font-weight: bold; }
+        .number { color: #b5cea8; }
+        .string { color: #ce9178; }
+        .keyword { color: #c586c0; }
+        .comment { color: #6a9955; }
+        .object { color: #dcdcaa; }
+        .success { color: #4ec9b0; }
+        .coll { color: #4ec9b0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">mongosh</span></div>
+        <div class="output"><span class="prompt">learnmate></span> <span class="command">db.documents.countDocuments()</span>
+<span class="output"><span class="number">12</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.pages.countDocuments()</span>
+<span class="output"><span class="number">156</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.chunks.countDocuments()</span>
+<span class="output"><span class="number">1247</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.chat_sessions.countDocuments()</span>
+<span class="output"><span class="number">45</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.chat_turns.countDocuments()</span>
+<span class="output"><span class="number">234</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.resources.countDocuments()</span>
+<span class="output"><span class="number">46</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.evaluations.countDocuments()</span>
+<span class="output"><span class="number">56</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.jobs.countDocuments()</span>
+<span class="output"><span class="number">67</span>
+
+<span class="prompt">learnmate></span> <span class="command">db.users.findOne()</span>
+<span class="output">{
+  _id: ObjectId(<span class="string">"66f1a2b3c4d5e6f7a8b9c0d1"</span>),
+  email: <span class="string">"john.doe@example.com"</span>,
+  name: <span class="string">"John Doe"</span>,
+  password_hash: <span class="string">"$2b$12$..."</span>,
+  created_at: ISODate(<span class="string">"2026-09-15T10:30:00Z"</span>),
+  keycloak_id: <span class="string">"a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8"</span>
+}</div>
+    </div>
+</body>
+</html>

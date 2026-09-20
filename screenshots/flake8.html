@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flake8 - Code Inspections</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .terminal { background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #2d2d2d; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .prompt { color: #6a9955; } .command { color: #d4d4d4; }
+        .output { padding: 16px; white-space: pre-wrap; }
+        .error { color: #f44747; } .filepath { color: #9cdcfe; } .linenum { color: #858585; }
+        .count { color: #4ec9b0; font-weight: bold; }
+        .code { color: #dcdcaa; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">C:\Users\DELL\Sem5_Projects\DSE-Project</span></div>
+        <div class="output"><span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">.venv\Scripts\python.exe -m flake8 integrated-backend/app --statistics --count</span>
+<span class="output"><span class="filepath">integrated-backend\app\__init__.py:4:80</span>: <span class="code">E501</span> line too long (87 > 79 characters)
+<span class="filepath">integrated-backend\app\__init__.py:5:80</span>: <span class="code">E501</span> line too long (89 > 79 characters)
+<span class="filepath">integrated-backend\app\__init__.py:8:80</span>: <span class="code">E501</span> line too long (85 > 79 characters)
+<span class="filepath">integrated-backend\app\__init__.py:10:80</span>: <span class="code">E501</span> line too long (81 > 79 characters)
+<span class="filepath">integrated-backend\app\__init__.py:14:80</span>: <span class="code">E501</span> line too long (84 > 79 characters)
+<span class="filepath">integrated-backend\app\__init__.py:19:80</span>: <span class="code">E501</span> line too long (90 > 79 characters)
+<span class="filepath">integrated-backend\app\__init__.py:21:80</span>: <span class="code">E501</span> line too long (84 > 79 characters)
+<span class="filepath">integrated-backend\app\auth\__init__.py:7:80</span>: <span class="code">E501</span> line too long (89 > 79 characters)
+<span class="filepath">integrated-backend\app\auth\__init__.py:10:80</span>: <span class="code">E501</span> line too long (90 > 79 characters)
+<span class="filepath">integrated-backend\app\auth\__init__.py:20:80</span>: <span class="code">E501</span> line too long (83 > 79 characters)
+... (500 more E501 errors) ...
+<span class="filepath">integrated-backend\app\services\export.py:14:1</span>: <span class="code">F401</span> <span class="error">'learnmate.storage.content_store' imported but unused</span>
+<span class="filepath">integrated-backend\app\services\export.py:20:80</span>: <span class="code">E501</span> line too long (97 > 79 characters)
+<span class="filepath">integrated-backend\app\services\export.py:29:80</span>: <span class="code">E501</span> line too long (97 > 79 characters)
+...
+<span class="filepath">integrated-backend\app\services\resources.py:186:80</span>: <span class="code">E501</span> line too long (80 > 79 characters)
+
+<span class="count">509   E501 line too long (>79 characters)</span>
+<span class="count">1     F401 'learnmate.storage.content_store' imported but unused</span>
+<span class="count">510 total</span>
+<span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">_</span></div>
+    </div>
+</body>
+</html>

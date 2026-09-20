@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPy - Type Checking</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .terminal { background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #2d2d2d; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .prompt { color: #6a9955; } .command { color: #d4d4d4; }
+        .output { padding: 16px; white-space: pre-wrap; }
+        .error { color: #f44747; } .filepath { color: #9cdcfe; } .linenum { color: #858585; }
+        .error-type { color: #ce9178; } .note { color: #6a9955; }
+        .summary { color: #f44747; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">C:\Users\DELL\Sem5_Projects\DSE-Project</span></div>
+        <div class="output"><span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">.venv\Scripts\python.exe -m mypy integrated-backend/app --ignore-missing-imports</span>
+<span class="output"><span class="filepath">integrated-backend\app\services\documents.py:81</span>: <span class="note">note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase</span>
+<span class="filepath">integrated-backend\app\services\documents.py:146</span>: <span class="error">error:</span> Incompatible default for parameter <span class="error-type">"first"</span> (default has type <span class="error-type">"None"</span>, parameter has type <span class="error-type">"int"</span>)  [assignment]
+<span class="filepath">integrated-backend\app\services\documents.py:146</span>: <span class="note">note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True</span>
+<span class="filepath">integrated-backend\app\services\documents.py:146</span>: <span class="error">error:</span> Incompatible default for parameter <span class="error-type">"last"</span> (default has type <span class="error-type">"None"</span>, parameter has type <span class="error-type">"int"</span>)  [assignment]
+<span class="filepath">integrated-backend\app\services\chat.py:29</span>: <span class="error">error:</span> Incompatible default for parameter <span class="error-type">"turns"</span> (default has type <span class="error-type">"None"</span>, parameter has type <span class="error-type">"int"</span>)  [assignment]
+<span class="filepath">integrated-backend\app\services\chat.py:77</span>: <span class="error">error:</span> Incompatible default for parameter <span class="error-type">"title"</span> (default has type <span class="error-type">"None"</span>, parameter has type <span class="error-type">"str"</span>)  [assignment]
+<span class="filepath">integrated-backend\app\services\chat.py:101</span>: <span class="error">error:</span> Argument 1 to <span class="error-type">"_serialize_session"</span> has incompatible type <span class="error-type">"dict[Any, Any] | None"</span>; expected <span class="error-type">"dict[Any, Any]"</span>  [arg-type]
+<span class="filepath">integrated-backend\app\services\chat.py:118</span>: <span class="error">error:</span> Incompatible default for parameter <span class="error-type">"model_id"</span> (default has type <span class="error-type">"None"</span>, parameter has type <span class="error-type">"str"</span>)  [assignment]
+<span class="filepath">integrated-backend\app\deps.py:81</span>: <span class="error">error:</span> Value of type <span class="error-type">"dict[Any, Any] | None"</span> is not indexable  [index]
+<span class="filepath">integrated-backend\app\deps.py:81</span>: <span class="error">error:</span> Item <span class="error-type">"None"</span> of <span class="error-type">"dict[Any, Any] | None"</span> has no attribute <span class="error-type">"get"</span>  [union-attr]
+<span class="filepath">integrated-backend\app\deps.py:93</span>: <span class="error">error:</span> Value of type <span class="error-type">"dict[Any, Any] | None"</span> is not indexable  [index]
+<span class="filepath">integrated-backend\app\deps.py:93</span>: <span class="error">error:</span> Item <span class="error-type">"None"</span> of <span class="error-type">"dict[Any, Any] | None"</span> has no attribute <span class="error-type">"get"</span>  [union-attr]
+<span class="filepath">integrated-backend\app\jobs\runners.py:87</span>: <span class="error">error:</span> Incompatible types in assignment (expression has type <span class="error-type">"str"</span>, target has type <span class="error-type">"float | None"</span>)  [assignment]
+<span class="filepath">integrated-backend\app\jobs\runners.py:89</span>: <span class="error">error:</span> Unsupported operand types for - (<span class="error-type">"float"</span> and <span class="error-type">"None"</span>)  [operator]
+<span class="filepath">integrated-backend\app\jobs\runners.py:98</span>: <span class="error">error:</span> Argument 2 to <span class="error-type">"set_partial"</span> has incompatible type <span class="error-type">"float"</span>; expected <span class="error-type">"str"</span>  [arg-type]
+<span class="filepath">integrated-backend\app\jobs\runners.py:117</span>: <span class="error">error:</span> <span class="error-type">"Callable[[str], None]"</span> has no attribute <span class="error-type">"flush"</span>  [attr-defined]
+<span class="filepath">integrated-backend\app\jobs\runners.py:118</span>: <span class="error">error:</span> <span class="error-type">"Callable[[str], None]"</span> has no attribute <span class="error-type">"freeze"</span>  [attr-defined]
+<span class="filepath">integrated-backend\app\jobs\runners.py:247</span>: <span class="error">error:</span> Argument 1 to <span class="error-type">"get"</span> of <span class="error-type">"dict"</span> has incompatible type <span class="error-type">"Any | None"</span>; expected <span class="error-type">"str"</span>  [arg-type]
+<span class="filepath">integrated-backend\app\jobs\worker.py:189</span>: <span class="error">error:</span> Value of type variable <span class="error-type">"SupportsRichComparisonT"</span> of <span class="error-type">"sorted"</span> cannot be <span class="error-type">"Any | None"</span>  [type-var]
+<span class="filepath">integrated-backend\app\routers\documents.py:56</span>: <span class="error">error:</span> Argument 4 to <span class="error-type">"upload"</span> has incompatible type <span class="error-type">"str | None"</span>; expected <span class="error-type">"str"</span>  [arg-type]
+<span class="filepath">integrated-backend\app\routers\chat.py:40</span>: <span class="error">error:</span> Argument 3 to <span class="error-type">"create_session"</span> has incompatible type <span class="error-type">"str | None"</span>; expected <span class="error-type">"str"</span>  [arg-type]
+
+<span class="summary">Found 200 errors in 48 files (checked 27 source files)</span>
+<span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">_</span></div>
+    </div>
+</body>
+</html>

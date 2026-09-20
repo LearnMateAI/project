@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pylint - Code Inspections</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .terminal { background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #2d2d2d; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .prompt { color: #6a9955; } .command { color: #d4d4d4; }
+        .output { padding: 16px; white-space: pre-wrap; }
+        .error { color: #f44747; } .filepath { color: #9cdcfe; } .linenum { color: #858585; }
+        .score { color: #4ec9b0; font-weight: bold; font-size: 1.1em; }
+        .module { color: #c586c0; font-weight: bold; }
+        .warning { color: #dcdcaa; }
+        .refactor { color: #4ec9b0; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">C:\Users\DELL\Sem5_Projects\DSE-Project</span></div>
+        <div class="output"><span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">.venv\Scripts\python.exe -m pylint integrated-backend/app</span>
+<span class="output"><span class="module">************* Module app.services.export</span>
+<span class="filepath">integrated-backend\app\services\export.py:121:0</span>: <span class="refactor">R0915</span>: Too many statements (<span class="linenum">64/50</span>) (too-many-statements)
+<span class="filepath">integrated-backend\app\services\export.py:14:0</span>: <span class="warning">W0611</span>: Unused content_store imported from learnmate.storage (unused-import)
+
+<span class="module">************* Module app.services.resources</span>
+<span class="filepath">integrated-backend\app\services\resources.py:108:0</span>: <span class="refactor">R0913</span>: Too many arguments (<span class="linenum">14/5</span>) (too-many-arguments)
+<span class="filepath">integrated-backend\app\services\resources.py:108:0</span>: <span class="refactor">R0917</span>: Too many positional arguments (<span class="linenum">14/5</span>) (too-many-positional-arguments)
+<span class="filepath">integrated-backend\app\services\resources.py:108:0</span>: <span class="refactor">R0914</span>: Too many local variables (<span class="linenum">24/15</span>) (too-many-locals)
+
+------------------------------------------------------------------
+Your code has been rated at <span class="score">9.26/10</span> (previous run: 9.26/10, +0.00)
+<span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">_</span></div>
+    </div>
+</body>
+</html>

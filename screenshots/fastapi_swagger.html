@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI - Swagger UI (/docs)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #fafafa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; }
+        .swagger-ui { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .topbar { background: #1e1e1e; color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px 4px 0 0; }
+        .topbar h1 { font-size: 1.5rem; font-weight: 600; }
+        .topbar .version { background: #4ec9b0; color: #1e1e1e; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+        .info { background: #f5f5f5; border: 1px solid #e1e1e1; border-radius: 0 0 4px 4px; padding: 24px; margin-bottom: 24px; }
+        .info h2 { color: #333; margin-bottom: 8px; }
+        .info p { color: #666; line-height: 1.6; }
+        .section { margin-bottom: 32px; }
+        .section h3 { color: #333; font-size: 1.1rem; padding: 12px 16px; background: #f0f0f0; border-left: 4px solid #4ec9b0; margin-bottom: 16px; cursor: pointer; }
+        .section h3:hover { background: #e8e8e8; }
+        .endpoint { background: white; border: 1px solid #e1e1e1; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+        .endpoint-header { display: flex; align-items: center; padding: 12px 16px; gap: 12px; cursor: pointer; }
+        .endpoint-header:hover { background: #fafafa; }
+        .method { font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; min-width: 70px; text-align: center; }
+        .method.get { background: #e8f5e9; color: #2e7d32; }
+        .method.post { background: #e3f2fd; color: #1565c0; }
+        .method.put { background: #fff3e0; color: #ef6c00; }
+        .method.delete { background: #fbe9e7; color: #c62828; }
+        .path { font-family: monospace; color: #333; font-size: 0.9rem; flex: 1; }
+        .summary { color: #666; font-size: 0.85rem; max-width: 300px; }
+        .auth-btn { background: #4ec9b0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .auth-btn:hover { background: #3db89e; }
+        .try-it { background: #f8f9fa; border-top: 1px solid #e1e1e1; padding: 16px; }
+        .try-it-btn { background: #4ec9b0; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .try-it-btn:hover { background: #3db89e; }
+        .response { background: #1e1e1e; color: #4ec9b0; padding: 16px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; overflow-x: auto; margin-top: 16px; }
+        .endpoint-expanded { display: block; }
+        .endpoint-collapsed { display: none; }
+    </style>
+</head>
+<body>
+    <div class="swagger-ui">
+        <div class="topbar">
+            <h1>LearnMate API</h1>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span style="color: #888;">v1.0.0</span>
+                <button class="auth-btn">Authorize</button>
+            </div>
+        </div>
+        <div class="info">
+            <h2>LearnMate API</h2>
+            <p>Upload a PDF, ask it questions, generate study material from it.</p>
+        </div>
+
+        <div class="section">
+            <h3>🔐 /api/auth - Authentication</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/register</span>
+                    <span class="summary">Register new user</span>
+                </div>
+                <div class="try-it endpoint-expanded">
+                    <strong>Request Body:</strong>
+                    <pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 4px; margin: 8px 0; font-size: 0.85rem;">{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securePass123"
+}</pre>
+                    <button class="try-it-btn">Try it out</button>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/login</span>
+                    <span class="summary">Login</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/auth/me</span>
+                    <span class="summary">Get current user</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📄 /api/documents - Document Management</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/documents/upload</span>
+                    <span class="summary">Upload PDF (multipart/form-data)</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/documents</span>
+                    <span class="summary">List user documents</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/documents/{id}</span>
+                    <span class="summary">Get document details</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/documents/{id}/file</span>
+                    <span class="summary">Download original PDF</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/documents/{id}/pages</span>
+                    <span class="summary">Get cleaned page text</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🧠 /api/resources - Resource Generation</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/resources/generate</span>
+                    <span class="summary">Generate resource (async, returns 202)</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/resources</span>
+                    <span class="summary">List resources</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>💬 /api/chat - Chat Sessions</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/chat/sessions</span>
+                    <span class="summary">Create chat session</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/chat/sessions</span>
+                    <span class="summary">List chat sessions</span>
+                </div>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/chat/sessions/{id}/messages</span>
+                    <span class="summary">Send message (async)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🏥 /api/health - Health Check (Expanded)</h3>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/health</span>
+                    <span class="summary">System health check</span>
+                </div>
+                <div class="try-it endpoint-expanded">
+                    <button class="try-it-btn">Execute</button>
+                    <strong>Response:</strong>
+                    <div class="response">{
+  "status": "ok",
+  "checks": {
+    "mongodb": {
+      "ok": true,
+      "uri": "mongodb://localhost:27018",
+      "database": "learnmate"
+    },
+    "vectors": {
+      "ok": true,
+      "backend": "qdrant",
+      "collections": 3,
+      "points_count": 1247
+    },
+    "generator": {
+      "ok": true,
+      "backend": "llamacpp",
+      "model": "models/qwen25-lora.gguf"
+    },
+    "judge": {
+      "ok": true,
+      "backend": "llamacpp",
+      "model": "models/judge.gguf"
+    }
+  }
+}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

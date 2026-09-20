@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Compass - Performance Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; }
+        .compass { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { background: #00684a; color: white; padding: 20px 24px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.5rem; font-weight: 600; }
+        header .cluster { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
+        .stat-card { background: white; border: 1px solid #e1e1e1; border-radius: 8px; padding: 20px; }
+        .stat-card h3 { color: #666; font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .stat-card .value { font-size: 2rem; font-weight: 700; color: #00684a; }
+        .stat-card .value.warning { color: #f59e0b; }
+        .stat-card .value.error { color: #ef4444; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+        .tab { padding: 12px 24px; background: #f0f0f0; border: none; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: 500; color: #666; }
+        .tab.active { background: white; color: #00684a; border: 1px solid #e1e1e1; border-bottom: none; }
+        .panel { background: white; border: 1px solid #e1e1e1; border-radius: 0 0 8px 8px; overflow: hidden; }
+        .panel-header { background: #f8f9fa; padding: 16px 24px; border-bottom: 1px solid #e1e1e1; display: flex; justify-content: space-between; align-items: center; }
+        .panel-header h2 { font-size: 1.1rem; font-weight: 600; }
+        .chart-placeholder { height: 300px; background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%); display: flex; align-items: center; justify-content: center; color: #999; font-size: 1.1rem; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 24px; }
+        .metric { padding: 16px; background: #f8f9fa; border-radius: 6px; }
+        .metric label { display: block; color: #666; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 6px; }
+        .metric span { font-family: monospace; font-size: 1.25rem; font-weight: 600; color: #333; }
+        .slow-queries { padding: 0 24px 24px; }
+        .slow-query { background: #f8f9fa; border: 1px solid #e1e1e1; border-radius: 6px; padding: 16px; margin-bottom: 12px; }
+        .slow-query-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .slow-query-time { background: #fef2f2; color: #ef4444; padding: 4px 10px; border-radius: 4px; font-weight: 600; font-size: 0.85rem; }
+        .slow-query-collection { color: #666; font-size: 0.85rem; }
+        .slow-query-text { font-family: monospace; font-size: 0.85rem; color: #333; background: #fff; padding: 12px; border-radius: 4px; border: 1px solid #e1e1e1; }
+    </style>
+</head>
+<body>
+    <div class="compass">
+        <header>
+            <h1>📊 MongoDB Performance Dashboard</h1>
+            <div class="cluster">learnmate-mongo · localhost:27018</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Operations/sec</h3>
+                <div class="value">1,247</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Query Latency</h3>
+                <div class="value">12 ms</div>
+            </div>
+            <div class="stat-card">
+                <h3>Connections</h3>
+                <div class="value">24 / 100</div>
+            </div>
+            <div class="stat-card">
+                <h3>Memory Usage</h3>
+                <div class="value">1.2 GB / 4 GB</div>
+            </div>
+            <div class="stat-card">
+                <h3>Disk Usage</h3>
+                <div class="value">2.4 GB / 10 GB</div>
+            </div>
+            <div class="stat-card">
+                <h3>Slow Queries (>100ms)</h3>
+                <div class="value warning">3</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active">Overview</button>
+            <button class="tab">Real-time</button>
+            <button class="tab">Query Profiler</button>
+            <button class="tab">Indexes</button>
+            <button class="tab">Replication</button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Operations Throughput (Last 1 Hour)</h2>
+                <select style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option>1 Hour</option>
+                    <option>6 Hours</option>
+                    <option>24 Hours</option>
+                    <option>7 Days</option>
+                </select>
+            </div>
+            <div class="chart-placeholder">📈 Line chart: ops/sec over time (peaks at 2,100 ops/sec during ingestion)</div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px;">
+            <div class="panel-header">
+                <h2>Query Latency Distribution</h2>
+            </div>
+            <div class="chart-placeholder">📊 Histogram: 95th percentile = 45ms, 99th percentile = 120ms</div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px;">
+            <div class="panel-header">
+                <h2>Key Metrics</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric"><label>Documents Read/sec</label><span>890</span></div>
+                <div class="metric"><label>Documents Written/sec</label><span>357</span></div>
+                <div class="metric"><label>Index Hit Rate</label><span>99.2%</span></div>
+                <div class="metric"><label>Cache Hit Rate</label><span>98.7%</span></div>
+                <div class="metric"><label>Avg Object Size</label><span>2.1 KB</span></div>
+                <div class="metric"><label>Index Size</label><span>412 MB</span></div>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px;">
+            <div class="panel-header">
+                <h2>Slow Queries (>100ms)</h2>
+            </div>
+            <div class="slow-queries">
+                <div class="slow-query">
+                    <div class="slow-query-header">
+                        <span class="slow-query-time">156 ms</span>
+                        <span class="slow-query-collection">evaluations</span>
+                    </div>
+                    <div class="slow-query-text">db.evaluations.aggregate([{ $match: { stage: "judge", score: { $type: "number" } } }, { $group: { _id: "$task", n: { $sum: 1 }, avg: { $avg: "$score" } } }])</div>
+                </div>
+                <div class="slow-query">
+                    <div class="slow-query-header">
+                        <span class="slow-query-time">203 ms</span>
+                        <span class="slow-query-collection">chunks</span>
+                    </div>
+                    <div class="slow-query-text">db.chunks.find({ doc_id: ObjectId("66f1a2b3c4d5e6f7") }).sort({ chunk_index: 1 })</div>
+                </div>
+                <div class="slow-query">
+                    <div class="slow-query-header">
+                        <span class="slow-query-time">127 ms</span>
+                        <span class="slow-query-collection">chat_turns</span>
+                    </div>
+                    <div class="slow-query-text">db.chat_turns.find({ session_id: ObjectId("66f1a2b3c4d5e6f7") }).sort({ created_at: 1 })</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

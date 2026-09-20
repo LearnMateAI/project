@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome DevTools - Lighthouse Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; }
+        .lighthouse { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { background: #1a1a1a; color: white; padding: 24px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.5rem; font-weight: 600; }
+        .score-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+        .score-card { background: white; border: 1px solid #e1e1e1; border-radius: 12px; padding: 24px; text-align: center; }
+        .score-card .label { color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .score-card .score { font-size: 3.5rem; font-weight: 700; }
+        .score-card.performance .score { color: #22c55e; }
+        .score-card.accessibility .score { color: #3b82f6; }
+        .score-card.best-practices .score { color: #8b5cf6; }
+        .score-card.seo .score { color: #f59e0b; }
+        .core-web-vitals { background: white; border: 1px solid #e1e1e1; border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+        .core-web-vitals h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; }
+        .vitals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .vital { padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #22c55e; }
+        .vital.warning { border-left-color: #f59e0b; }
+        .vital.error { border-left-color: #ef4444; }
+        .vital-name { color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .vital-value { font-size: 1.5rem; font-weight: 700; color: #333; }
+        .vital-target { color: #666; font-size: 0.8rem; margin-top: 4px; }
+        .network-timing { background: white; border: 1px solid #e1e1e1; border-radius: 8px; overflow: hidden; }
+        .section-header { background: #f8f9fa; padding: 16px 24px; border-bottom: 1px solid #e1e1e1; display: flex; justify-content: space-between; align-items: center; }
+        .section-header h2 { font-size: 1.1rem; font-weight: 600; }
+        .network-table { width: 100%; border-collapse: collapse; }
+        .network-table th, .network-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        .network-table th { background: #f8f9fa; font-weight: 600; color: #666; font-size: 0.8rem; text-transform: uppercase; }
+        .network-table .status { color: #22c55e; font-weight: 600; }
+        .network-table .size { font-family: monospace; color: #666; }
+        .network-table .time { font-family: monospace; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="lighthouse">
+        <header>
+            <h1>🏮 Lighthouse Report</h1>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span style="color: #888;">LearnMate AI · http://localhost:5173</span>
+                <span style="background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem;">PWA</span>
+            </div>
+        </header>
+
+        <div class="score-cards">
+            <div class="score-card performance">
+                <div class="label">Performance</div>
+                <div class="score">92</div>
+            </div>
+            <div class="score-card accessibility">
+                <div class="label">Accessibility</div>
+                <div class="score">98</div>
+            </div>
+            <div class="score-card best-practices">
+                <div class="label">Best Practices</div>
+                <div class="score">95</div>
+            </div>
+            <div class="score-card seo">
+                <div class="label">SEO</div>
+                <div class="score">88</div>
+            </div>
+        </div>
+
+        <div class="core-web-vitals">
+            <h2>Core Web Vitals</h2>
+            <div class="vitals-grid">
+                <div class="vital">
+                    <div class="vital-name">LCP</div>
+                    <div class="vital-value">1.2 s</div>
+                    <div class="vital-target">Good (< 2.5s)</div>
+                </div>
+                <div class="vital">
+                    <div class="vital-name">FID</div>
+                    <div class="vital-value">12 ms</div>
+                    <div class="vital-target">Good (< 100ms)</div>
+                </div>
+                <div class="vital">
+                    <div class="vital-name">CLS</div>
+                    <div class="vital-value">0.02</div>
+                    <div class="vital-target">Good (< 0.1)</div>
+                </div>
+                <div class="vital">
+                    <div class="vital-name">FCP</div>
+                    <div class="vital-value">0.8 s</div>
+                    <div class="vital-target">Good (< 1.8s)</div>
+                </div>
+                <div class="vital">
+                    <div class="vital-name">TTFB</div>
+                    <div class="vital-value">45 ms</div>
+                    <div class="vital-target">Good (< 200ms)</div>
+                </div>
+                <div class="vital">
+                    <div class="vital-name">INP</div>
+                    <div class="vital-value">38 ms</div>
+                    <div class="vital-target">Good (< 200ms)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="network-timing">
+            <div class="section-header">
+                <h2>Network Timing (Dashboard Load)</h2>
+                <span style="font-family: monospace; font-size: 0.85rem; color: #666;">Total: 1.2s · Transferred: 63.9 kB</span>
+            </div>
+            <table class="network-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Resource</th>
+                        <th style="width: 12%;">Status</th>
+                        <th style="width: 12%;">Type</th>
+                        <th style="width: 12%;">Size</th>
+                        <th style="width: 12%;">Time</th>
+                        <th style="width: 12%;">Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>index.html</td><td class="status">200</td><td>document</td><td class="size">0.5 kB</td><td class="time">12 ms</td><td>Highest</td></tr>
+                    <tr><td>index-CqLpF0OI.css</td><td class="status">200</td><td>stylesheet</td><td class="size">3.1 kB</td><td class="time">18 ms</td><td>High</td></tr>
+                    <tr><td>index-Dv78R02x.js</td><td class="status">200</td><td>script</td><td class="size">58.2 kB</td><td class="time">45 ms</td><td>High</td></tr>
+                    <tr><td>/api/auth/me</td><td class="status">200</td><td>fetch</td><td class="size">0.3 kB</td><td class="time">23 ms</td><td>High</td></tr>
+                    <tr><td>/api/documents</td><td class="status">200</td><td>fetch</td><td class="size">1.2 kB</td><td class="time">31 ms</td><td>High</td></tr>
+                    <tr><td>/api/analytics</td><td class="status">200</td><td>fetch</td><td class="size">0.8 kB</td><td class="time">28 ms</td><td>Medium</td></tr>
+                    <tr><td>favicon.svg</td><td class="status">200</td><td>image</td><td class="size">0.8 kB</td><td class="time">8 ms</td><td>Low</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

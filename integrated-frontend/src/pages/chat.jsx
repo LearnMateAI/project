@@ -16,7 +16,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { createSession, deleteSession, getMessages, listSessions, sendMessage } from "../api/chat.js";
+import { createSession, deleteSession, getMessages, listSessions, renameSession, sendMessage } from "../api/chat.js";
 import { errorMessage } from "../api/client.js";
 import { listDocuments } from "../api/documents.js";
 import ChatMessage from "../components/ChatMessage.jsx";
@@ -24,6 +24,18 @@ import JobProgress from "../components/JobProgress.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import StreamingMessage from "../components/StreamingMessage.jsx";
 import { useJob } from "../hooks/useJob.js";
+
+function formatWhen(iso) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 function Chat() {
   const { sessionId } = useParams();
@@ -36,6 +48,8 @@ function Chat() {
   const [error, setError] = useState("");
   const [loadingTurns, setLoadingTurns] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameDraft, setRenameDraft] = useState("");
 
   const job = useJob();
   const bottomRef = useRef(null);
@@ -163,6 +177,23 @@ function Chat() {
     }
   }
 
+  function startRename(session) {
+    setRenamingId(session.session_id);
+    setRenameDraft(session.title || session.filename || "");
+  }
+
+  async function commitRename(session) {
+    const title = renameDraft.trim();
+    setRenamingId(null);
+    if (!title || title === (session.title || session.filename)) return;
+    try {
+      await renameSession(session.session_id, title);
+      await refreshSessions();
+    } catch (err) {
+      setError(errorMessage(err, "Could not rename this conversation."));
+    }
+  }
+
   const current = sessions.find((session) => session.session_id === sessionId);
 
   return (
@@ -213,26 +244,72 @@ function Chat() {
             ) : (
               <ul className="mt-5 space-y-1 list-none p-0 m-0">
                 {sessions.map((session) => (
-                  <li key={session.session_id} className="flex items-center gap-1 group">
-                    <button
-                      onClick={() => navigate(`/chat/${session.session_id}`)}
-                      className={`flex-1 min-w-0 text-left text-[13px] font-medium rounded-lg px-2.5 py-2 truncate transition-colors ${
-                        session.session_id === sessionId
-                          ? "bg-primary-light text-primary-dark"
-                          : "text-muted hover:bg-surface-alt hover:text-heading"
-                      }`}
-                      title={session.filename}
-                    >
-                      {session.title || session.filename}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSession(session)}
-                      className="shrink-0 w-6 h-6 rounded-md text-subtle hover:bg-danger-light hover:text-danger opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
-                      title="Delete conversation"
-                      aria-label="Delete conversation"
-                    >
-                      ×
-                    </button>
+                  <li key={session.session_id} className="group">
+                    {renamingId === session.session_id ? (
+                      <form
+                        className="px-1 py-1"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          commitRename(session);
+                        }}
+                      >
+                        <input
+                          autoFocus
+                          value={renameDraft}
+                          onChange={(e) => setRenameDraft(e.target.value)}
+                          onBlur={() => commitRename(session)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") setRenamingId(null);
+                          }}
+                          className="input text-[13px] w-full"
+                          aria-label="Conversation name"
+                          maxLength={200}
+                        />
+                      </form>
+                    ) : (
+                      <div className="flex items-start gap-1">
+                        <button
+                          onClick={() => navigate(`/chat/${session.session_id}`)}
+                          className={`flex-1 min-w-0 text-left rounded-lg px-2.5 py-2 transition-colors ${
+                            session.session_id === sessionId
+                              ? "bg-primary-light text-primary-dark"
+                              : "text-muted hover:bg-surface-alt hover:text-heading"
+                          }`}
+                          title={session.filename}
+                        >
+                          <span className="block text-[13px] font-medium truncate">
+                            {session.title || session.filename}
+                          </span>
+                          {session.last_message ? (
+                            <span className="block text-[11.5px] text-subtle truncate mt-0.5">
+                              {session.last_message}
+                            </span>
+                          ) : (
+                            <span className="block text-[11.5px] text-subtle truncate mt-0.5">
+                              No messages yet
+                            </span>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => startRename(session)}
+                          className="shrink-0 w-6 h-6 mt-1.5 rounded-md text-subtle hover:bg-surface-alt hover:text-heading opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                          title="Rename conversation"
+                          aria-label="Rename conversation"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSession(session)}
+                          className="shrink-0 w-6 h-6 mt-1.5 rounded-md text-subtle hover:bg-danger-light hover:text-danger opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                          title="Delete conversation"
+                          aria-label="Delete conversation"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -250,10 +327,26 @@ function Chat() {
           ) : (
             <>
               <div className="card-head">
-                <div className="min-w-0">
-                  <h2 className="truncate">{current?.filename || "Conversation"}</h2>
-                  
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate">{current?.title || current?.filename || "Conversation"}</h2>
+                  <p className="text-[12px] text-muted m-0 truncate">
+                    {current?.filename}
+                    {current?.last_activity
+                      ? ` · last ${formatWhen(current.last_activity)}`
+                      : turns.length
+                        ? " · pick up where you left off"
+                        : ""}
+                  </p>
                 </div>
+                {current?.document_id && (
+                  <button
+                    type="button"
+                    className="btn-ghost shrink-0"
+                    onClick={() => navigate(`/documents/${current.document_id}`)}
+                  >
+                    Open source
+                  </button>
+                )}
               </div>
 
               <div className="flex-1 space-y-3.5 overflow-y-auto px-4 py-5 bg-background">
@@ -279,7 +372,7 @@ function Chat() {
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Ask a question — answers cite page and paragraph…"
+                  placeholder={turns.length ? "Continue this conversation…" : "Ask a question — answers cite page and paragraph…"}
                   disabled={job.isRunning}
                   className="input flex-1 rounded-full"
                 />

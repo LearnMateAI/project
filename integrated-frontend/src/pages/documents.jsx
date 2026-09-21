@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { errorMessage } from "../api/client.js";
 import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents.js";
+import ConfusionHeatmap from "../components/ConfusionHeatmap.jsx";
 import DocumentReader from "../components/DocumentReader.jsx";
 import DocumentsCard from "../components/DocumentsCard.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -39,6 +40,8 @@ function Documents() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [viewerLoading, setViewerLoading] = useState(false);
   const [workspaceTab, setWorkspaceTab] = useState("generate");
+  // The page the class-insights tab asked the reader to show.
+  const [focusPage, setFocusPage] = useState(null);
   const pdfUrlRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const openedFromLinkRef = useRef(false);
@@ -106,6 +109,7 @@ function Documents() {
     setSelectedId(doc.id);
     setNotice("");
     setWorkspaceTab("generate");
+    setFocusPage(null);
 
     if (pdfUrlRef.current) {
       URL.revokeObjectURL(pdfUrlRef.current);
@@ -212,6 +216,7 @@ function Documents() {
               loading={viewerLoading}
               sourceKind={selected.source_kind || "pdf"}
               unitLabel={selected.unit_label || "pages"}
+              focusPage={focusPage}
             />
 
             <div className="workspace-pane">
@@ -230,6 +235,13 @@ function Documents() {
                 >
                   Ask the record
                 </button>
+                <button
+                  type="button"
+                  className={`tab-btn ${workspaceTab === "insights" ? "is-active" : ""}`}
+                  onClick={() => setWorkspaceTab("insights")}
+                >
+                  Class insights
+                </button>
               </div>
               <div className="workspace-pane-body">
                 <div hidden={workspaceTab !== "generate"} className={workspaceTab === "generate" ? "" : "hidden"}>
@@ -247,6 +259,19 @@ function Documents() {
                     ready={selected.processing_status === "Ready"}
                   />
                 </div>
+                {/* Mounted only while open: it mines the whole class's questions, which
+                    is worth doing when someone looks and not on every document switch. */}
+                {workspaceTab === "insights" && (
+                  <div className="p-4">
+                    <ConfusionHeatmap
+                      documentId={selected.id}
+                      selectedPage={focusPage}
+                      onSelectPage={setFocusPage}
+                      unit={selected.unit_label === "slides" ? "Slide"
+                        : selected.unit_label === "sections" ? "Section" : "Page"}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

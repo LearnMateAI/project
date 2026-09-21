@@ -136,6 +136,10 @@ def ingest_pdf(source: Union[str, Path, bytes], filename: str = None,
             pdf_store.delete_pages(doc_id)
             from ..storage import bm25_store
             bm25_store.delete_for(doc_id)
+            # Cached answers cite the old chunking's pages. Their index_version would stop
+            # matching anyway once mark_ingested restamps the document; this frees them.
+            from ..cache import invalidate_document
+            invalidate_document(doc_id, "reingest")
 
         # --- Store the readable text --------------------------------------------------
         # Chunks are shaped for retrieval; resource generation wants the page as it reads.

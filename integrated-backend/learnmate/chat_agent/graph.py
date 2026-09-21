@@ -11,10 +11,18 @@ behaviour lives in the node modules it imports.
 Only one edge is conditional (evaluate -> decide). Everything else is a straight line,
 which is deliberate: the sequencing is fixed and only the accept/retry choice depends on
 what happened at runtime.
+
+With LEARNMATE_CACHE_ENABLED the answer cache adds a second conditional edge, and one node
+at each end (see cache_nodes.py):
+
+    rewrite -> cache_lookup -+-> retrieve -> generate -> ... -> persist -> cache_store -> END
+                             +-> persist (hit) ---------------------^
 """
 
 from langgraph.graph import END, StateGraph
 
+from .. import config
+from .cache_nodes import cache_lookup_node, cache_store_node, route_after_cache
 from .evaluate import evaluate_node
 from .generate import generate_node
 from .persist import persist_node
@@ -24,8 +32,9 @@ from .routing import decide
 from .state import ChatState
 
 
-def build_chat_graph():
+def build_chat_graph(with_cache: bool = None):
     """Compile the one-turn chat graph."""
+    with_cache = config.CACHE_ENABLED if with_cache is None else with_cache
     # The state schema tells LangGraph which keys exist and which ones have reducers.
     graph = StateGraph(ChatState)
 
@@ -36,7 +45,14 @@ def build_chat_graph():
     graph.add_node("persist", persist_node)
 
     graph.set_entry_point("rewrite")
-    graph.add_edge("rewrite", "retrieve")
+    if with_cache:
+        graph.add_node("cache_lookup", cache_lookup_node)
+        graph.add_node("cache_store", cache_store_node)
+        graph.add_edge("rewrite", "cache_lookup")
+        graph.add_conditional_edges("cache_lookup", route_after_cache,
+                                    {"persist": "persist", "retrieve": "retrieve"})
+    else:
+        graph.add_edge("rewrite", "retrieve")
     graph.add_edge("retrieve", "generate")
     graph.add_edge("generate", "evaluate")
 
@@ -45,7 +61,11 @@ def build_chat_graph():
     graph.add_conditional_edges("evaluate", decide,
                                 {"generate": "generate", "persist": "persist"})
 
-    graph.add_edge("persist", END)
+    if with_cache:
+        graph.add_edge("persist", "cache_store")
+        graph.add_edge("cache_store", END)
+    else:
+        graph.add_edge("persist", END)
     return graph.compile()
 
 

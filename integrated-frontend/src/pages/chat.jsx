@@ -143,8 +143,9 @@ function Chat() {
         query: result.query,
         standalone_query: result.standalone_query,
         contexts: result.contexts,
-                pages: (result.contexts || []).map((context) => context.page_number),
-                citations: result.citations,
+        pages: (result.contexts || []).map((context) => context.page_number),
+        citations: result.citations,
+        cache: result.cache,
       },
     ]);
     refreshSessions();

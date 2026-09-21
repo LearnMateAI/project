@@ -20,12 +20,26 @@ stores what that worker is doing.
 A job that was `running` when the process died is not recoverable: the work was in memory.
 `fail_running()` is called once at startup to mark those, so a poll gets an answer instead
 of waiting on a worker that no longer exists.
+
+That is the in-memory queue's rule. With JOB_QUEUE_BACKEND=mongo the records *are* the
+queue, and a job carries a lease instead:
+
+    queued --claim()--> running (lease_owner, lease_until) --finish()/fail()--> done | failed
+                           |   ^
+                           |   +-- heartbeat() renews lease_until while the worker lives
+                           +-- lease lapses (worker died) --requeue_expired()--> queued again,
+                               or failed once max_attempts runs have been spent
+
+Claiming is one atomic find_one_and_update, so two workers can never take the same job,
+and every lease time is computed by the database server (`$$NOW`), so workers on machines
+with different clocks still agree on when a lease has lapsed.
 """
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from bson import ObjectId
+from pymongo import ReturnDocument
 
 from .. import config
 from .ids import coerce_id
@@ -42,8 +56,9 @@ def _collection():
 
 
 def create(user_id: str, kind: str, params: Optional[Dict] = None,
-           message: str = "Queued.") -> Dict:
+           message: str = "Queued.", max_attempts: int = 1) -> Dict:
     """Record a new job as queued and return it."""
+    now = datetime.now(timezone.utc)
     record = {
         "user_id": str(user_id),
         "kind": kind,
@@ -53,12 +68,123 @@ def create(user_id: str, kind: str, params: Optional[Dict] = None,
         "result": None,
         "error": None,
         "error_code": None,
-        "created_at": datetime.now(timezone.utc),
+        "created_at": now,
         "started_at": None,
         "finished_at": None,
+        # Lease-queue bookkeeping. Inert under the in-memory queue.
+        "available_at": now,
+        "attempts": 0,
+        "max_attempts": max(1, int(max_attempts)),
+        "lease_owner": None,
+        "lease_until": None,
+        "heartbeat_at": None,
     }
     record["_id"] = _collection().insert_one(record).inserted_id
     return record
+
+
+def _lease_expiry(lease_s: float) -> Dict:
+    """`$$NOW + lease_s`, evaluated by the database server."""
+    return {"$dateAdd": {"startDate": "$$NOW", "unit": "millisecond",
+                         "amount": int(lease_s * 1000)}}
+
+
+def claim(worker_id: str, kinds: Sequence[str], lease_s: float) -> Optional[Dict]:
+    """
+    Atomically take the oldest due job of one of `kinds`, or None if there is none.
+
+    The update is an aggregation pipeline so the lease is stamped with the server's clock.
+    `available_at` is compared with this process's clock, which only decides *when* a
+    backed-off retry becomes eligible -- a few milliseconds of skew there is harmless.
+    """
+    return _collection().find_one_and_update(
+        {"status": QUEUED, "kind": {"$in": list(kinds)},
+         "available_at": {"$lte": datetime.now(timezone.utc)}},
+        [{"$set": {
+            "status": RUNNING,
+            "lease_owner": worker_id,
+            "started_at": "$$NOW",
+            "heartbeat_at": "$$NOW",
+            "lease_until": _lease_expiry(lease_s),
+            "attempts": {"$add": [{"$ifNull": ["$attempts", 0]}, 1]},
+            "progress.message": "Started.",
+        }}],
+        sort=[("created_at", 1)],
+        return_document=ReturnDocument.AFTER,
+    )
+
+
+def heartbeat(job_id, worker_id: str, lease_s: float) -> bool:
+    """
+    Renew a lease. False means this worker no longer holds it -- the job was reaped and
+    may already be running elsewhere -- and whatever it produces must be thrown away.
+    """
+    result = _collection().update_one(
+        {"_id": coerce_id(job_id), "status": RUNNING, "lease_owner": worker_id},
+        [{"$set": {"heartbeat_at": "$$NOW", "lease_until": _lease_expiry(lease_s)}}],
+    )
+    return result.matched_count == 1
+
+
+def requeue_expired(backoff_s: float = 0) -> Tuple[int, int]:
+    """
+    Recover jobs whose worker stopped renewing its lease. Returns (requeued, failed).
+
+    Both updates are conditional on the lease still being lapsed, so any number of reapers
+    can run at once and a job is moved exactly once. A job that has used its attempts is
+    failed rather than tried again: a document that crashes the worker every time must
+    not take down every worker in turn.
+    """
+    lapsed = {"$lt": ["$lease_until", "$$NOW"]}
+    spent = {"$gte": [{"$ifNull": ["$attempts", 1]}, {"$ifNull": ["$max_attempts", 1]}]}
+    base = {"status": RUNNING, "lease_owner": {"$ne": None}}
+
+    failed = _collection().update_many(
+        {**base, "$expr": {"$and": [lapsed, spent]}},
+        [{"$set": {"status": FAILED, "error_code": "interrupted",
+                   "error": "The worker running this job stopped responding, and it has "
+                            "used all its attempts. Please try again.",
+                   "finished_at": "$$NOW", "lease_owner": None, "lease_until": None,
+                   "progress.message": "Failed."}}],
+    ).modified_count
+
+    requeued = _collection().update_many(
+        {**base, "$expr": {"$and": [lapsed, {"$not": [spent]}]}},
+        [{"$set": {"status": QUEUED, "lease_owner": None, "lease_until": None,
+                   "available_at": {"$dateAdd": {"startDate": "$$NOW", "unit": "millisecond",
+                                                 "amount": int(backoff_s * 1000)}},
+                   "progress.message": "Retrying: the worker running this stopped.",
+                   "progress.partial": None, "progress.reply_ready": False}}],
+    ).modified_count
+    return requeued, failed
+
+
+def fail_legacy_orphans(reason: str) -> int:
+    """
+    At start-up under the lease queue: fail `running` jobs that carry no lease.
+
+    Those were taken by an in-memory worker in a process that has since stopped -- no lease
+    will ever lapse for them. Queued jobs from that era are kept, and made claimable.
+    """
+    now = datetime.now(timezone.utc)
+    _collection().update_many(
+        {"status": QUEUED, "available_at": {"$exists": False}},
+        {"$set": {"available_at": now, "attempts": 0, "max_attempts": 1}})
+    return _collection().update_many(
+        {"status": RUNNING, "lease_owner": {"$in": [None]}},
+        {"$set": {"status": FAILED, "error": reason, "error_code": "interrupted",
+                  "finished_at": now, "progress.message": "Failed."}},
+    ).modified_count
+
+
+def queue_depth(kinds: Optional[Sequence[str]] = None) -> Dict[str, int]:
+    """How many jobs are waiting and running -- the health endpoint's queue gauge."""
+    match: Dict[str, Any] = {"status": {"$in": [QUEUED, RUNNING]}}
+    if kinds:
+        match["kind"] = {"$in": list(kinds)}
+    counts = {row["_id"]: row["n"] for row in _collection().aggregate([
+        {"$match": match}, {"$group": {"_id": "$status", "n": {"$sum": 1}}}])}
+    return {"queued": counts.get(QUEUED, 0), "running": counts.get(RUNNING, 0)}
 
 
 def start(job_id, message: str = "Started.") -> None:
@@ -132,8 +258,22 @@ def set_reply_ready(job_id, text: str) -> None:
         pass
 
 
-def finish(job_id, result: Any = None, message: str = "Done.") -> None:
-    """Mark a job done, with whatever the caller should be handed back."""
+def _owned(job_id, worker_id: Optional[str]) -> Dict:
+    """The filter for a terminal write: under a lease, only by the worker holding it."""
+    query: Dict[str, Any] = {"_id": coerce_id(job_id)}
+    if worker_id is not None:
+        query.update({"status": RUNNING, "lease_owner": worker_id})
+    return query
+
+
+def finish(job_id, result: Any = None, message: str = "Done.",
+           worker_id: Optional[str] = None) -> bool:
+    """
+    Mark a job done, with whatever the caller should be handed back.
+
+    With a `worker_id`, only if that worker still holds the lease; False means it lost the
+    lease (it was presumed dead and the job requeued) and this result is discarded.
+    """
     update: Dict[str, Any] = {
         "status": DONE, "result": result, "error": None, "error_code": None,
         "finished_at": datetime.now(timezone.utc),
@@ -147,21 +287,25 @@ def finish(job_id, result: Any = None, message: str = "Done.") -> None:
     }
     if isinstance(result, dict) and result.get("timings"):
         update["progress.timings"] = result["timings"]
-    _collection().update_one(
-        {"_id": coerce_id(job_id)},
-        {"$set": update},
-    )
+    if worker_id is not None:
+        update["lease_owner"] = None
+        update["lease_until"] = None
+    return _collection().update_one(_owned(job_id, worker_id),
+                                    {"$set": update}).matched_count == 1
 
 
-def fail(job_id, error: str, error_code: str = "unknown") -> None:
+def fail(job_id, error: str, error_code: str = "unknown",
+         worker_id: Optional[str] = None) -> bool:
     """Mark a job failed, keeping the message for the user to read."""
-    _collection().update_one(
-        {"_id": coerce_id(job_id)},
-        {"$set": {"status": FAILED, "error": str(error)[:2000],
-                  "error_code": error_code,
-                  "finished_at": datetime.now(timezone.utc),
-                  "progress.message": "Failed."}},
-    )
+    update: Dict[str, Any] = {"status": FAILED, "error": str(error)[:2000],
+                              "error_code": error_code,
+                              "finished_at": datetime.now(timezone.utc),
+                              "progress.message": "Failed."}
+    if worker_id is not None:
+        update["lease_owner"] = None
+        update["lease_until"] = None
+    return _collection().update_one(_owned(job_id, worker_id),
+                                    {"$set": update}).matched_count == 1
 
 
 def fail_running(reason: str) -> int:

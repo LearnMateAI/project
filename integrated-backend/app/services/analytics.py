@@ -27,6 +27,9 @@ from typing import Dict
 from learnmate import config as engine_config
 from learnmate.storage import content_store, ownership
 
+from . import ownership as access
+from ..errors import NotFound
+
 
 def overview(user_id: str) -> Dict:
     """Everything the analytics page shows, in one call."""
@@ -59,3 +62,20 @@ def overview(user_id: str) -> Dict:
             "by_difficulty": content_store.evaluation_breakdown(user_id, "difficulty"),
         },
     }
+
+
+def document_heatmap(user_id: str, doc_id: str, refresh: bool = False) -> Dict:
+    """
+    Where the class gets stuck in one document.
+
+    Anyone with the document in their library may see it, and what they see aggregates
+    every student who has the same document -- that is the point of it. It is also why it
+    is aggregate-only with a k-anonymity floor (LEARNMATE_INSIGHTS_MIN_USERS): no question
+    text, no user, and no page or topic fewer than k students contributed to.
+    """
+    if not engine_config.INSIGHTS_ENABLED:
+        raise NotFound("Class insights are switched off on this server.")
+    document = access.require_document(user_id, doc_id)
+    from learnmate.insights import get_heatmap
+
+    return {"filename": document.get("filename"), **get_heatmap(document["_id"], refresh)}

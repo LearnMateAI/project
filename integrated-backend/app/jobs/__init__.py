@@ -9,12 +9,16 @@ hold a connection for, and none of which a proxy will allow it to.
     POST /api/...            -> 202 {job_id}
     GET  /api/jobs/{job_id}  -> queued | running | done | failed, with progress
 
-    worker.py   the queue: one thread, and why it is exactly one
-    runners.py  what each kind of job actually does
+    queue.py        where jobs wait: in memory, or in MongoDB under a lease
+    worker.py       who takes them: one thread, or a pool, and when it must be one
+    worker_main.py  a worker process with no API attached, for scaling out
+    runners.py      what each kind of job actually does
 
 The job *records* live in learnmate/storage/jobs.py, next to the rest of the persistence.
 """
 
-from .worker import enqueue, shutdown, start_worker, warm_up
+from .worker import (enqueue, shutdown, start_worker, start_workers, warm_up,
+                     worker_status)
 
-__all__ = ["enqueue", "shutdown", "start_worker", "warm_up"]
+__all__ = ["enqueue", "shutdown", "start_worker", "start_workers", "warm_up",
+           "worker_status"]

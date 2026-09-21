@@ -71,6 +71,39 @@ WARM_UP_ON_START = _env_bool("API_WARM_UP", True)
 # is constructed. Independent of API_WARM_UP: either may be set without the other.
 WARM_MODELS_ON_START = _env_bool("API_WARM_MODELS", False)
 
+# --- Job queue ---------------------------------------------------------------------------
+# Where queued work waits, and how many threads take it. See app/jobs/queue.py.
+#
+#   memory   an in-process queue.Queue and one worker: the original design, and still the
+#            right one while the models run inside this process (llama.cpp holds one
+#            context per model, so a second worker would only wait on its lock).
+#   mongo    the job records themselves are the queue. Workers claim a job atomically
+#            with a time-limited lease and renew it while they work; a job whose worker
+#            died is requeued when the lease lapses instead of being lost. Any number of
+#            worker threads -- and worker *processes* (python -m app.jobs.worker_main) --
+#            can share one database. Pair it with served models (LEARNMATE_*_BACKEND=http,
+#            e.g. llama-server with parallel slots; see scripts/serve/).
+JOB_QUEUE_BACKEND = _env("JOB_QUEUE_BACKEND", "memory").lower()
+# Worker threads in this process. Forced to 1 while either model runs in-process.
+JOB_WORKERS = max(1, _env_int("JOB_WORKERS", 1))
+# 0 makes the API process enqueue only, leaving all work to worker_main processes.
+JOB_RUN_IN_API = _env_bool("JOB_RUN_IN_API", True)
+# Which job kinds this process's workers take, e.g. "chat" on a GPU box, "ingest" elsewhere.
+JOB_KINDS = [kind.strip() for kind in _env("JOB_KINDS", "ingest,resource,chat").split(",")
+             if kind.strip()]
+# A lease is renewed every HEARTBEAT seconds and lapses LEASE seconds after the last
+# renewal, so a dead worker's job is back in the queue within about a lease.
+JOB_LEASE_S = max(10, _env_int("JOB_LEASE_S", 60))
+JOB_HEARTBEAT_S = max(2, _env_int("JOB_HEARTBEAT_S", 15))
+JOB_REAP_INTERVAL_S = max(2, _env_int("JOB_REAP_INTERVAL_S", 15))
+# Runs per job, including the first. A job that kills its worker every time must not be
+# retried forever.
+JOB_MAX_ATTEMPTS = max(1, _env_int("JOB_MAX_ATTEMPTS", 2))
+# How long an idle worker waits before asking the database again. Enqueues in the same
+# process wake it at once; other processes' enqueues wait at most this long.
+JOB_POLL_S = float(_env("JOB_POLL_S", "0.5"))
+JOB_RETRY_BACKOFF_S = _env_int("JOB_RETRY_BACKOFF_S", 5)
+
 # --- Listings --------------------------------------------------------------------------
 MAX_DOCUMENTS = _env_int("API_MAX_DOCUMENTS", 200)
 MAX_RESOURCES = _env_int("API_MAX_RESOURCES", 100)

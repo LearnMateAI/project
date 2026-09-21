@@ -25,18 +25,18 @@ from ..storage.vectors import get_vector_store
 
 
 def _rank_pages_by_topic(doc_id, topic: str) -> List[int]:
-    """Page numbers ordered by how well their best chunk matches the topic."""
-    hits = get_vector_store().similarity_search_with_score(topic, k=12, doc_id=doc_id)
+    """
+    Page numbers ordered by how well their best chunk matches the topic.
 
-    ranked, seen = [], set()
-    for document, _ in hits:
-        number = document.metadata.get("page_number")
-        # De-duplicated because several chunks of one page can all rank highly, and the
-        # page is read whole either way.
-        if number is not None and number not in seen:
-            seen.add(number)
-            ranked.append(number)
-    return ranked
+    The same retriever the chat agent uses (LEARNMATE_TOPIC_RETRIEVAL_STRATEGY, which
+    follows the chat strategy unless set), so a topic like "s. 12 of the Companies Act"
+    gets the lexical half of hybrid search here too -- dense vectors alone are poor at
+    section numbers and defined terms.
+    """
+    from ..retrieval.retriever import rank_pages
+
+    return rank_pages(topic, doc_id, k=config.TOPIC_SEARCH_K,
+                      rerank=config.TOPIC_RERANK)
 
 
 def _load_pages(doc_id, selected: Optional[List[int]]) -> List[dict]:

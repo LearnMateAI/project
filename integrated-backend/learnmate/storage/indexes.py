@@ -89,7 +89,34 @@ def create_indexes(database: Database) -> None:
     # doc_id alone.
     database[config.COLL_USER_DOCUMENTS].create_index([("doc_id", ASCENDING)])
 
+    # The confusion heatmap reads every assistant turn about one document, in time order.
+    database[config.COLL_CHAT_TURNS].create_index(
+        [("doc_id", ASCENDING), ("role", ASCENDING), ("created_at", ASCENDING)])
+    # One user row and one assistant row per job, at most. A job queue that retries a
+    # turn after a worker died mid-persist then cannot write the turn twice; persist
+    # treats the DuplicateKeyError as "already saved".
+    database[config.COLL_CHAT_TURNS].create_index(
+        [("meta.job_id", ASCENDING), ("role", ASCENDING)], unique=True,
+        partialFilterExpression={"meta.job_id": {"$type": "string"}})
+
     # --- Background jobs --------------------------------------------------------------
     database[config.COLL_JOBS].create_index(
         [("user_id", ASCENDING), ("created_at", DESCENDING)])
     database[config.COLL_JOBS].create_index([("status", ASCENDING)])
+    # The lease queue's claim query: oldest queued job that is due. Partial, so the index
+    # holds only the (few) queued jobs rather than every job ever run.
+    database[config.COLL_JOBS].create_index(
+        [("available_at", ASCENDING), ("created_at", ASCENDING)],
+        partialFilterExpression={"status": "queued"})
+    # The reaper's query: running jobs whose lease has lapsed.
+    database[config.COLL_JOBS].create_index(
+        [("lease_until", ASCENDING)], partialFilterExpression={"status": "running"})
+
+    # --- Answer cache decisions ---------------------------------------------------------
+    database[config.COLL_CACHE_EVENTS].create_index(
+        [("ts", ASCENDING)], expireAfterSeconds=config.CACHE_EVENTS_TTL_DAYS * 86400)
+    database[config.COLL_CACHE_EVENTS].create_index(
+        [("doc_id", ASCENDING), ("ts", ASCENDING)])
+
+    # --- Mined insights -------------------------------------------------------------------
+    # One cached heatmap per document; keyed by _id, so no extra index is needed.

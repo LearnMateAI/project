@@ -98,6 +98,7 @@ function WorkspaceChat({ documentId, ready }) {
         standalone_query: result.standalone_query,
         contexts: result.contexts,
         citations: result.citations,
+        cache: result.cache,
         pages: (result.contexts || []).map((context) => context.page_number),
       },
     ]);

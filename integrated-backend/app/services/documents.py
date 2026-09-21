@@ -188,5 +188,10 @@ def delete_document(user_id: str, doc_id: str) -> Dict:
         # since point ids are derived from (doc_id, page, chunk).
         pass
 
+    # Answers about a document nobody has any more. Never raises.
+    from learnmate.cache import invalidate_document
+
+    invalidate_document(document_id, "deleted")
+
     pdf_store.delete_document(document_id)
     return {"removed": True, "purged": True}

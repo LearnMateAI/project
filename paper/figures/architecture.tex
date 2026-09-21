@@ -1,0 +1,50 @@
+% System architecture. Blue boxes are the four components this paper adds.
+% Three rows on a fixed grid: request path, turn pipeline, stores and model servers.
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\scriptsize,
+    box/.style={draw, rounded corners=2pt, align=center, minimum height=0.72cm,
+                minimum width=2.25cm, inner sep=2.5pt, fill=white},
+    new/.style={box, draw=blue!65!black, fill=blue!7, thick},
+    store/.style={draw, cylinder, shape border rotate=90, aspect=0.16, align=center,
+                  minimum height=0.85cm, minimum width=2.1cm, inner sep=2pt, fill=gray!8},
+    arr/.style={-{Stealth[length=1.6mm]}, semithick},
+    lbl/.style={font=\tiny, inner sep=1.2pt, fill=white},
+]
+% Row 1: the request path.
+\node[box]   (ui)    at (0, 0)     {React UI\\\tiny chat, reader, class insights};
+\node[box]   (api)   at (2.8, 0)   {FastAPI\\\tiny 202 + job id};
+\node[new]   (queue) at (6.1, 0)   {Lease queue\\\tiny atomic claim, \texttt{\$\$NOW} leases};
+\node[store] (mongo) at (14.1, 0)  {MongoDB\\\tiny jobs, turns, pages};
+
+% Row 2: one chat turn, left to right.
+\node[box]   (work)  at (6.1, -1.45)  {Worker pool $\times N$\\\tiny threads or processes};
+\node[new]   (cache) at (8.6, -1.45)  {Verified\\answer cache};
+\node[new]   (retr)  at (11.35, -1.45) {Hybrid retrieval\\\tiny dense + BM25, RRF};
+\node[box]   (gen)   at (14.1, -1.45) {Rerank, generate,\\judge};
+
+% Row 3: stores, servers and the miner.
+\node[new]   (mine)   at (2.9, -2.9)   {Confusion mining\\\tiny HDBSCAN + c-TF-IDF};
+\node[store] (qdrant) at (9.95, -2.9)  {Qdrant\\\tiny chunks, answers};
+\node[new]   (llama)  at (14.1, -2.9)  {llama-server $\times 2$\\\tiny continuous batching};
+
+% Request path.
+\draw[arr] (ui) -- (api);
+\draw[arr] (api) -- node[lbl, above] {enqueue} (queue);
+\draw[arr] (queue) -- node[lbl, above] {job records} (mongo);
+\draw[arr] (queue) -- node[lbl, right] {claim} (work);
+
+% The turn.
+\draw[arr] (work) -- (cache);
+\draw[arr] (cache) -- node[lbl, above] {miss} (retr);
+\draw[arr] (retr) -- (gen);
+\draw[arr] (gen) -- (llama);
+\draw[arr] (gen) -- node[lbl, right] {persist} (mongo);
+\draw[arr] (cache.south) -- (qdrant.north west);
+\draw[arr] (retr.south) -- (qdrant.north east);
+
+% Mining reads the turns and feeds the UI.
+\draw[arr, dashed] (mongo.east) -- ++(0.35, 0) |- (2.9, -3.75)
+    node[lbl, pos=0.75, above] {every student's turns, aggregated} -- (mine.south);
+\draw[arr] (mine.west) -| node[lbl, pos=0.3, above] {heatmap} (ui.south);
+\end{tikzpicture}}

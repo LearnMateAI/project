@@ -6,9 +6,12 @@
  *
  * Both stay in the same pane so the split workspace does not lose the document when the
  * student switches from scanning a scanned judgment to reading the extracted text.
+ *
+ * `focusPage` jumps to a page -- set by the class-insights heatmap beside it, so clicking
+ * "page 12 is where the class gets stuck" puts page 12 in front of the reader.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDocumentPages } from "../api/documents.js";
 
 function unitSingular(label) {
@@ -24,12 +27,33 @@ function DocumentReader({
   loading,
   sourceKind = "pdf",
   unitLabel = "pages",
+  focusPage = null,
 }) {
   const isPdf = sourceKind === "pdf";
   const [mode, setMode] = useState(isPdf ? "pdf" : "text");
   const [pages, setPages] = useState([]);
   const [textError, setTextError] = useState("");
   const [textLoading, setTextLoading] = useState(false);
+  const textRef = useRef(null);
+
+  // Text mode: scroll the requested page into view once its section exists -- within the
+  // reader's own pane where it scrolls, so the panel that asked (the heatmap) stays put.
+  useEffect(() => {
+    if (!focusPage || mode !== "text" || !textRef.current) return;
+    const section = textRef.current.querySelector(`[data-page="${focusPage}"]`);
+    if (!section) return;
+    const pane = textRef.current.closest(".workspace-pane-body");
+    if (pane && pane.scrollHeight > pane.clientHeight) {
+      const top = pane.scrollTop + section.getBoundingClientRect().top
+        - pane.getBoundingClientRect().top - 12;
+      pane.scrollTo({ top, behavior: "smooth" });
+    } else {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [focusPage, mode, pages]);
+
+  // The browser's PDF viewer honours #page=N; a new src (and key) makes it jump.
+  const pdfSrc = pdfUrl && focusPage ? `${pdfUrl}#page=${focusPage}` : pdfUrl;
 
   useEffect(() => {
     if (mode !== "text" || !documentId) return undefined;
@@ -88,9 +112,9 @@ function DocumentReader({
             Loading preview...
           </div>
         ) : mode === "pdf" && pdfUrl ? (
-          <iframe src={pdfUrl} title={filename} className="w-full h-full min-h-[28rem] border-0 bg-surface-alt" />
+          <iframe key={pdfSrc} src={pdfSrc} title={filename} className="w-full h-full min-h-[28rem] border-0 bg-surface-alt" />
         ) : mode === "text" ? (
-          <div className="paper h-full min-h-[28rem] px-5 py-6 sm:px-8 sm:py-7">
+          <div ref={textRef} className="paper h-full min-h-[28rem] px-5 py-6 sm:px-8 sm:py-7">
             {textLoading ? (
               <p className="font-sans text-[13px] text-muted m-0">Loading extracted text...</p>
             ) : textError ? (
@@ -101,7 +125,11 @@ function DocumentReader({
               </p>
             ) : (
               pages.map((page) => (
-                <section key={page.page_number} className="mb-8">
+                <section
+                  key={page.page_number}
+                  data-page={page.page_number}
+                  className={`mb-8 ${focusPage === page.page_number ? "border-l-2 border-primary pl-3 -ml-3.5" : ""}`}
+                >
                   <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted m-0 mb-2">
                     {unitSingular(unitLabel)} {page.page_number}
                   </p>

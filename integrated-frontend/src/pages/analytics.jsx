@@ -15,9 +15,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAnalytics } from "../api/analytics.js";
 import { errorMessage } from "../api/client.js";
+import { listDocuments } from "../api/documents.js";
 import { listModels } from "../api/models.js";
 import { listResources } from "../api/resources.js";
 import { LineChart } from "../components/charts.jsx";
+import ConfusionHeatmap from "../components/ConfusionHeatmap.jsx";
 
 const DAY_MS = 86400000;
 
@@ -52,6 +54,19 @@ function Analytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modelNames, setModelNames] = useState({});
+  // Ready documents, for the class-insights picker, and which one is shown.
+  const [readyDocs, setReadyDocs] = useState([]);
+  const [insightDocId, setInsightDocId] = useState("");
+
+  useEffect(() => {
+    listDocuments()
+      .then((res) => {
+        const ready = (res.data || []).filter((doc) => doc.processing_status === "Ready");
+        setReadyDocs(ready);
+        if (ready.length) setInsightDocId(ready[0].id);
+      })
+      .catch(() => setReadyDocs([]));
+  }, []);
 
   useEffect(() => {
     getAnalytics()
@@ -159,6 +174,34 @@ function Analytics() {
           />
         </div>
       </section>
+
+      {readyDocs.length > 0 && (
+        <section className="card mb-5">
+          <div className="card-head">
+            <div>
+              <h2>Where the class gets stuck</h2>
+              <p className="text-[12px] text-muted mt-0.5">
+                Every student&rsquo;s questions about the same notes, grouped by topic and page
+              </p>
+            </div>
+            <select
+              className="select w-auto min-w-[12rem]"
+              value={insightDocId}
+              onChange={(e) => setInsightDocId(e.target.value)}
+              aria-label="Document"
+            >
+              {readyDocs.map((doc) => (
+                <option key={doc.id} value={doc.id}>
+                  {doc.filename}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="px-5 pb-5 pt-2">
+            {insightDocId && <ConfusionHeatmap key={insightDocId} documentId={insightDocId} />}
+          </div>
+        </section>
+      )}
 
       {(Object.keys(stats.evaluation?.by_model || {}).length > 0 ||
         Object.keys(stats.evaluation?.by_difficulty || {}).length > 0) && (

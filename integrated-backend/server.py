@@ -199,4 +199,11 @@ def health():
     # Only the two databases decide whether this server can do its job right now.
     healthy = checks["mongodb"]["ok"] and checks["vectors"]["ok"]
 
-    return {"status": "ok" if healthy else "degraded", "checks": checks}
+    # Which queue, how many workers in this process, and how much is waiting. Informational:
+    # an API running with JOB_RUN_IN_API=0 has no workers here by design.
+    from app.jobs import worker_status
+
+    return {"status": "ok" if healthy else "degraded", "checks": checks,
+            "jobs": worker_status(),
+            "retrieval": engine_config.RETRIEVAL_STRATEGY,
+            "answer_cache": engine_config.CACHE_ENABLED}

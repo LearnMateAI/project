@@ -103,6 +103,10 @@ class SendMessageRequest(BaseModel):
     # False skips the judge: a faster reply, not reviewed for hallucination.
     evaluate: bool = True
     model_id: Optional[str] = Field(default=None, max_length=80)
+    # False asks for a freshly written answer even when an equivalent question has a
+    # verified one cached. Omitted follows the server (LEARNMATE_CACHE_ENABLED); True
+    # cannot switch on a cache the server has off.
+    use_cache: Optional[bool] = None
 
 
 # --- Jobs ------------------------------------------------------------------------------

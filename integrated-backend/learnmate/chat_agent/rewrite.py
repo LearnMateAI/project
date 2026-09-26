@@ -21,7 +21,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from ..llm import get_judge_llm
 from ..runtime_limits import JobTimeout, add_timing
 from .helpers import _log
-from .prompts import REWRITE_SYSTEM
+from .prompts import REWRITE_SYSTEM, format_history_block
 from .state import ChatState
 
 def _needs_rewrite(query: str, history: list) -> bool:
@@ -49,10 +49,9 @@ def rewrite_node(state: ChatState) -> Dict:
         return {"standalone_query": query,
                 "timings": add_timing(state, "rewrite_ms", started)}
 
-    history_text = "\n".join(f"{turn['role']}: {turn['content']}" for turn in history)
     messages = [
         SystemMessage(content=REWRITE_SYSTEM),
-        HumanMessage(content=f"Conversation history:\n{history_text}\n\n"
+        HumanMessage(content=f"{format_history_block(history)}"
                              f"Follow-up question: {query}"),
     ]
 

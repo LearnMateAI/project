@@ -15,7 +15,6 @@ function MyAccountSettings() {
   const [form, setForm] = useState({
     name: user?.name || "",
     defaultSubject: "General",
-    evaluateByDefault: true,
   });
   const [saved, setSaved] = useState(false);
 
@@ -33,7 +32,6 @@ function MyAccountSettings() {
     // Preferences are stored in localStorage since there is no backend endpoint for user settings.
     localStorage.setItem("learnmate_prefs", JSON.stringify({
       defaultSubject: form.defaultSubject,
-      evaluateByDefault: form.evaluateByDefault,
     }));
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -101,25 +99,6 @@ function MyAccountSettings() {
               <p className="text-[11px] text-subtle mt-1">
                 Pre-selects the subject when uploading new documents
               </p>
-            </div>
-            <div>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="evaluateByDefault"
-                  checked={form.evaluateByDefault}
-                  onChange={handleChange}
-                  className="mt-0.5 w-4 h-4 rounded border-border text-primary accent-primary"
-                />
-                <span>
-                  <span className="text-[13px] font-medium text-heading block">
-                    Enable quality review by default
-                  </span>
-                  <span className="text-[12px] text-muted block mt-0.5">
-                    A second AI model reviews generated resources before showing them. Takes longer, but catches low-quality output.
-                  </span>
-                </span>
-              </label>
             </div>
           </div>
         </div>

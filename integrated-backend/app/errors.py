@@ -46,6 +46,14 @@ class NotFound(Exception):
     """Raised by a service when the thing the caller named does not exist."""
 
 
+class RateLimited(Exception):
+    """Raised when a caller has used their enqueue budget (F-07)."""
+
+    def __init__(self, detail: str, retry_after: int = 60):
+        self.retry_after = retry_after
+        super().__init__(detail)
+
+
 def register_error_handlers(app: FastAPI) -> None:
     """Attach every handler. Called once from server.py."""
 
@@ -66,6 +74,14 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AccessDenied)
     async def _access_denied(request: Request, exc: AccessDenied):
         return JSONResponse(status_code=403, content={"detail": str(exc)})
+
+    @app.exception_handler(RateLimited)
+    async def _rate_limited(request: Request, exc: RateLimited):
+        return JSONResponse(
+            status_code=429,
+            content={"detail": str(exc)},
+            headers={"Retry-After": str(getattr(exc, "retry_after", 60))},
+        )
 
     @app.exception_handler(ValueError)
     async def _bad_request(request: Request, exc: ValueError):

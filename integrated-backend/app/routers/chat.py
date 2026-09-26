@@ -21,9 +21,12 @@ from fastapi import APIRouter, Depends
 
 from ..deps import get_current_user
 from ..jobs import enqueue
-from ..schemas import CreateSessionRequest, SendMessageRequest
+from ..schemas import CreateSessionRequest, FeedbackRequest, SendMessageRequest
 from ..services import chat as service
 from ..services import ownership as access
+from ..services.evaluate_policy import resolve_evaluate
+from ..services.input_guard import refuse_reason
+from ..services.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -62,15 +65,26 @@ def send_message(session_id: str, payload: SendMessageRequest,
     is a 403 now rather than a job that fails later.
     """
     access.require_session(user["id"], session_id)
+    blocked = refuse_reason(payload.message)
+    if blocked:
+        raise ValueError(blocked)
+    check_rate_limit(user["id"], "chat")
 
     job = enqueue(
         user["id"], "chat",
         {"session_id": session_id, "message": payload.message,
-         "evaluate": payload.evaluate, "model_id": payload.model_id},
+         "evaluate": resolve_evaluate(payload.evaluate), "model_id": payload.model_id},
         message="Waiting to answer.",
     )
 
     return {"job_id": str(job["_id"]), "status": job["status"], "kind": "chat"}
+
+
+@router.post("/turns/{turn_id}/feedback")
+def set_feedback(turn_id: str, payload: FeedbackRequest,
+                 user: dict = Depends(get_current_user)):
+    """Record a thumbs-up or thumbs-down on one assistant reply."""
+    return service.set_feedback(user["id"], turn_id, payload.label)
 
 
 @router.delete("/sessions/{session_id}")

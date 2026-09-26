@@ -15,6 +15,8 @@
  * conversation looks identical to one still in progress.
  */
 
+import { useState } from "react";
+import { sendFeedback } from "../api/chat.js";
 import CitationChips from "./CitationChips.jsx";
 
 function ChatMessage({ turn }) {
@@ -31,6 +33,7 @@ function ChatMessage({ turn }) {
   }
 
   const flagged = turn.accepted === false && turn.score !== null && turn.score !== undefined;
+  const [feedback, setFeedback] = useState(turn.feedback || null);
 
   return (
     <div className="flex justify-start animate-fade-in">
@@ -61,6 +64,29 @@ function ChatMessage({ turn }) {
         )}
 
         <CitationChips turn={turn} />
+
+        {turn.id && (
+          <div className="flex items-center gap-2 mt-2.5">
+            <button
+              type="button"
+              className={`btn-ghost text-[12px] px-2 py-0.5 ${feedback === "up" ? "text-primary" : ""}`}
+              onClick={() => {
+                sendFeedback(turn.id, "up").then(() => setFeedback("up")).catch(() => {});
+              }}
+            >
+              Helpful
+            </button>
+            <button
+              type="button"
+              className={`btn-ghost text-[12px] px-2 py-0.5 ${feedback === "down" ? "text-warning" : ""}`}
+              onClick={() => {
+                sendFeedback(turn.id, "down").then(() => setFeedback("down")).catch(() => {});
+              }}
+            >
+              Not helpful
+            </button>
+          </div>
+        )}
 
         {/* Live replies carry the retrieved chunks; replayed history carries page numbers
             only, so this appears on the turn you just asked for. */}

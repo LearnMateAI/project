@@ -179,6 +179,12 @@ def retrieve_node(state: ChatState) -> Dict:
     # Deliberately clear the contexts. Downstream nodes switch on "are there contexts",
     # so leaving weak chunks in place would ground the answer on irrelevant text and
     # then let the judge punish it for not matching.
-    _log(state, f"[*] General mode ({basis} score {top_score:.4f} < {threshold:.2f})")
+    #
+    # Document-bound turns then abstain in generate (F-03) instead of answering from
+    # general knowledge. Mode stays "general" so the existing judge-gate still skips
+    # a 25s call that has nothing to check.
+    bound = "document-bound abstain" if state.get("doc_id") is not None else "unbound general"
+    _log(state, f"[*] General mode ({bound}; {basis} score {top_score:.4f} "
+                f"< {threshold:.2f})")
     return {"contexts": [], "scores": [], "mode": "general", "top_score": top_score,
             **extra}

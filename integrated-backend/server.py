@@ -144,11 +144,9 @@ def health():
     # --- MongoDB: the corpus. Nothing works without it. --------------------------------
     try:
         ensure_indexes()
-        checks["mongodb"] = {"ok": True, "uri": engine_config.MONGODB_URI,
-                             "database": engine_config.MONGODB_DB}
+        checks["mongodb"] = {"ok": True, "database": "configured"}
     except Exception as exc:
-        checks["mongodb"] = {"ok": False, "uri": engine_config.MONGODB_URI,
-                             "error": str(exc)}
+        checks["mongodb"] = {"ok": False, "error": type(exc).__name__}
 
     # --- Vector store: retrieval. Chat and topic search need it. -----------------------
     # ping() rather than count(): counting would create the collection on a fresh install,
@@ -157,10 +155,15 @@ def health():
     try:
         from learnmate.storage.vectors import get_vector_store
 
-        checks["vectors"] = {"ok": True, **get_vector_store().ping()}
+        ping = get_vector_store().ping()
+        checks["vectors"] = {
+            "ok": True,
+            "backend": ping.get("backend") or engine_config.VECTOR_BACKEND,
+            "collection_exists": ping.get("collection_exists"),
+        }
     except Exception as exc:
         checks["vectors"] = {"ok": False, "backend": engine_config.VECTOR_BACKEND,
-                             "error": str(exc)}
+                             "error": type(exc).__name__}
 
     # --- Models: present, or downloaded on first use? ----------------------------------
     # Checked as files rather than by loading them: loading is ~2 GB and several seconds,
@@ -178,13 +181,13 @@ def health():
                 # somebody off to wait for a download that is not going to happen.
                 note = ("Missing, and no download source is configured. If this is the "
                         "finetuned model, build it: python scripts/build_finetuned_gguf.py")
-            return {"ok": path.exists(), "backend": backend, "model": model, "note": note}
+            return {"ok": path.exists(), "backend": backend, "role": "local", "note": note}
         if backend == "gemini":
             return {"ok": bool(engine_config.GEMINI_API_KEY), "backend": backend,
-                    "model": model,
+                    "role": "gemini",
                     "note": None if engine_config.GEMINI_API_KEY
                             else "GEMINI_API_KEY is not set."}
-        return {"ok": True, "backend": backend, "model": model, "note": None}
+        return {"ok": True, "backend": backend, "role": backend, "note": None}
 
     checks["generator"] = model_check(engine_config.GENERATOR_BACKEND,
                                       engine_config.GENERATOR_MODEL,

@@ -73,16 +73,16 @@ def evaluate_node(state: ChatState) -> Dict:
     started = time.time()
     clock = time.perf_counter()
 
-    contexts = state.get("contexts")
-    if contexts:
-        contexts = contexts[:2]
-        
+    # Same evidence the generator saw (F-06). Truncating here caused false rejects
+    # when the only supporting sentence lived in chunk 3.
+    contexts = state.get("contexts") or None
+
     query_to_judge = state.get("standalone_query") or state["query"]
 
     verdict = get_judge().judge_chat_reply(
         query_to_judge,                          # the standalone question resolves the history
         state.get("reply", ""),                  #   critique-padded one generate built
-        contexts=contexts or None,               # capped at 2 chunks to save prefill
+        contexts=contexts,
         history=None,                            # dropped because standalone_query resolves it
         threshold=state["threshold"],
     )

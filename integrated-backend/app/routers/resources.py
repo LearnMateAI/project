@@ -26,6 +26,8 @@ from ..schemas import GenerateRequest
 from ..services import export as export_service
 from ..services import ownership as access
 from ..services import resources as service
+from ..services.evaluate_policy import resolve_evaluate
+from ..services.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/api/resources", tags=["resources"])
 
@@ -42,6 +44,7 @@ def generate(payload: GenerateRequest, user: dict = Depends(get_current_user)):
     task = service.resolve_task(payload.resource_type)
     # Raises if the document is not this user's or is not Ready yet.
     access.require_ready_document(user["id"], payload.document_id)
+    check_rate_limit(user["id"], "resource")
 
     job = enqueue(
         user["id"], "resource",
@@ -53,7 +56,7 @@ def generate(payload: GenerateRequest, user: dict = Depends(get_current_user)):
             "pages": payload.pages,
             "count": payload.count,
             "per_page": payload.per_page,
-            "evaluate": payload.evaluate,
+            "evaluate": resolve_evaluate(payload.evaluate),
             "threshold": payload.threshold,
             "summary_style": payload.summary_style,
             "difficulty": payload.difficulty,

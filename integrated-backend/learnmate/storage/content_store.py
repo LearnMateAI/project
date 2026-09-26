@@ -19,6 +19,7 @@ from .history import (
     list_turns,
     load_history,
     save_turn,
+    set_feedback,
 )
 from .resources import (
     count_by_task,
@@ -55,6 +56,7 @@ __all__ = [
     "log_evaluation",
     "save_resource",
     "save_turn",
+    "set_feedback",
     "session_doc_id",
     "stage_counts",
     "unbind_session",

@@ -34,6 +34,7 @@ from learnmate.storage import content_store
 
 from .. import config
 from . import ownership as access
+from .evaluate_policy import resolve_evaluate
 
 # What the frontend already sends, mapped to what the engine calls them. Accepted so the
 # existing React code keeps working while it is migrated to the engine's names.
@@ -125,7 +126,7 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
         "doc_id": document_id,
         "user_id": user_id,
         "threshold": threshold,
-        "evaluate": evaluate,
+        "evaluate": resolve_evaluate(evaluate),
         "persist": True,
         # Nobody is watching stdout on the worker; progress goes to the job record.
         "verbose": False,

@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from .. import config
-from .ids import as_object_id
+from .ids import as_object_id, coerce_id
 from .mongo import get_db
 
 
@@ -77,6 +77,29 @@ def count_turns(user_id: str, role: str = None) -> int:
     if role:
         query["role"] = role
     return _collection().count_documents(query)
+
+
+def set_feedback(user_id: str, turn_id: str, label: str) -> Optional[Dict]:
+    """
+    Record a thumbs-up/down on one assistant turn (F-11).
+
+    Returns the updated turn, or None if it is missing or not this user's.
+    """
+    if label not in ("up", "down"):
+        raise ValueError("Feedback must be 'up' or 'down'.")
+    oid = coerce_id(turn_id)
+    if oid is None:
+        return None
+    turn = _collection().find_one({"_id": oid, "user_id": str(user_id), "role": "assistant"})
+    if not turn:
+        return None
+    _collection().update_one(
+        {"_id": oid},
+        {"$set": {"meta.feedback": label,
+                  "meta.feedback_at": datetime.now(timezone.utc)}},
+    )
+    turn = _collection().find_one({"_id": oid})
+    return turn
 
 
 def clear_history(session_id: str) -> int:

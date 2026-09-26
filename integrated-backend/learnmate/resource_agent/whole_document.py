@@ -217,9 +217,10 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
 
         _log({"verbose": verbose, "on_progress": on_progress},
              f"[*] Group {index}/{len(groups)}: asking for {ask} item(s)...")
+        # Gate 1 only per group (F-10). The LLM judge runs once on the pooled set.
         result = generate_resource(
             task, "\n\n".join(group)[:budget], count=ask, doc_id=doc_id,
-            threshold=threshold, max_attempts=max_attempts, evaluate=evaluate,
+            threshold=threshold, max_attempts=max_attempts, evaluate=False,
             persist=False, verbose=verbose, user_id=user_id,
             difficulty=difficulty, model_id=model_id,
             on_progress=(lambda message, n=index: on_progress(
@@ -251,12 +252,25 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
         _log(progress, f"[!] Got {len(items)} of the {requested} item(s) asked for.")
 
     accepted = every_group_accepted and passed
+    verdict = None
+    if evaluate and items and passed:
+        from ..evaluator.judge import get_judge
+        from .tasks import get_task
+
+        task_spec = get_task(task)
+        source = "\n\n".join(groups[0])[:budget] if groups else ""
+        _log(progress, "[*] Judging pooled set (one call)...")
+        verdict = get_judge().judge(
+            task, task_spec.render(items), source=source,
+            threshold=threshold if threshold is not None else config.EVALUATOR_THRESHOLD,
+        )
+        accepted = accepted and bool(verdict.get("passed"))
 
     resource_id = None
     if persist:
         resource_id = content_store.save_resource(
             doc_id=doc_id, user_id=user_id, task=task, content=items, accepted=accepted,
-            attempts=attempts, verdict=None,
+            attempts=attempts, verdict=verdict,
             source_preview="\n\n".join(groups[0]) if groups else "",
             params={"count": requested, "per_page": per_page, "generated": len(items),
                     "groups": len(groups), "evaluated": evaluate, "whole_document": True,
@@ -270,9 +284,7 @@ def generate_document_items(task: str, doc_id, count: int = None, per_page: int 
         "task": task,
         "content": items,
         "accepted": accepted,
-        # No single verdict: each group was judged on its own and the trail is in
-        # `attempts`. Reporting one group's score as the set's would be a lie.
-        "verdict": None,
+        "verdict": verdict,
         "attempts": attempts,
         "resource_id": str(resource_id) if resource_id else None,
         "requested": requested,

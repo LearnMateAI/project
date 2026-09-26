@@ -19,8 +19,15 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from ..llm import get_generator_llm
 from ..llm.registry import consume_generator_load_ms
 from ..runtime_limits import JobTimeout, add_timing
-from .helpers import _as_messages, _emit_reply, _emit_token, _log
-from .prompts import GENERAL_SYSTEM, GROUNDED_SYSTEM
+from .helpers import _emit_reply, _emit_token, _log
+from .prompts import (
+    GENERAL_SYSTEM,
+    GROUNDED_SYSTEM,
+    abstain_reply,
+    build_grounded_user,
+    format_history_block,
+    should_abstain,
+)
 from .state import ChatState
 
 
@@ -32,6 +39,16 @@ def generate_node(state: ChatState) -> Dict:
 
     contexts = state.get("contexts") or []
     query = state["query"]
+
+    # F-03: a session bound to a PDF that retrieved nothing useful must not answer
+    # from Qwen's pretraining. The judge is also skipped on this path, so a canned
+    # refuse is the only safe reply.
+    if should_abstain(state):
+        reply = abstain_reply(state.get("top_score"))
+        _log(state, "[*] Abstaining (document-bound, no relevant context)")
+        _emit_reply(state, reply, attempt)
+        timings = add_timing(state, "generate_ms", started)
+        return {"attempt": attempt, "reply": reply, "timings": timings}
 
     # --- Retry path ------------------------------------------------------------------
     # `critique` is only set once evaluate has rejected a reply, so this block is skipped
@@ -50,21 +67,19 @@ def generate_node(state: ChatState) -> Dict:
 
     # --- Mode selection --------------------------------------------------------------
     if contexts:
-        # Page numbers are prefixed so the model can cite them and so the metadata
-        # survives into persist for the "which pages was this from" record.
-        context_text = "\n\n".join(
-            f"Page {doc.metadata.get('page_number', 'N/A')}: {doc.page_content}"
-            for doc in contexts)
+        # XML delimiters + "untrusted data" so a planted line in the PDF cannot
+        # override the tutor rules (F-02). Page numbers stay inside the block for cites.
         system = GROUNDED_SYSTEM
-        user = f"Context:\n{context_text}\n\nQuestion: {query}"
+        user = build_grounded_user(query, contexts)
     else:
         system = GENERAL_SYSTEM
         user = query
 
-    # History goes between the system prompt and the current question so the model reads
-    # the conversation in the order it happened.
-    messages = [SystemMessage(content=system), *_as_messages(state.get("history")),
-                HumanMessage(content=user)]
+    # History is data inside the user turn (F-05), not extra Human/AI messages sitting
+    # between the system prompt and the question — that slot is what models treat as
+    # a newer instruction.
+    user = format_history_block(state.get("history")) + user
+    messages = [SystemMessage(content=system), HumanMessage(content=user)]
 
     try:
         # Streamed rather than awaited whole. The decode takes exactly as long either way

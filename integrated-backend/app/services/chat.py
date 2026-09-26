@@ -23,7 +23,9 @@ from learnmate.chat_agent import ChatAgent
 from learnmate.ingestion import require_kind
 from learnmate.storage import content_store
 
+from ..errors import NotFound
 from . import ownership as access
+from .evaluate_policy import resolve_evaluate
 
 
 def _serialize_session(session: Dict, turns: int = None) -> Dict:
@@ -70,6 +72,8 @@ def _serialize_turn(turn: Dict) -> Dict:
         "model_id": meta.get("model_id"),
         "retrieval_mix": meta.get("retrieval_mix"),
         "timings": meta.get("timings"),
+        "prompt_version": meta.get("prompt_version"),
+        "feedback": meta.get("feedback"),
         "created_at": created_at.isoformat() if created_at else None,
     }
 
@@ -142,7 +146,7 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         session_id=session_id,
         doc_id=doc_id,
         user_id=user_id,
-        evaluate=evaluate,
+        evaluate=resolve_evaluate(evaluate),
         verbose=False,
         on_progress=on_progress,
         on_token=on_token,
@@ -197,6 +201,14 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
             for document in result.get("contexts", [])
         ],
     }
+
+
+def set_feedback(user_id: str, turn_id: str, label: str) -> Dict:
+    """Thumbs on one assistant turn. The turn must belong to this user."""
+    turn = content_store.set_feedback(user_id, turn_id, label)
+    if not turn:
+        raise NotFound("Chat turn not found.")
+    return _serialize_turn(turn)
 
 
 def delete_session(user_id: str, session_id: str) -> Dict:

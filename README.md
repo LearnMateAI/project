@@ -15,6 +15,7 @@ track lives in `model-Thevindu/`.
 | [model-Thevindu/README.md](model-Thevindu/README.md) | Fine-tuning folder layout and honesty board |
 | [integrated-backend/README.md](integrated-backend/README.md) | Backend layout, config, endpoints |
 | [integrated-frontend/README.md](integrated-frontend/README.md) | React app |
+| [docs/ai-security-audit/README.md](docs/ai-security-audit/README.md) | AI/security audit, F-01–F-14 status, golden eval |
 
 **Live path today:** `integrated-frontend` + `integrated-backend` (local Qwen 2.5 + Llama 3.2 via llama.cpp).  
 **Offline path:** `model-Thevindu/` — corpus → pairs → LoRA → eval → promote a pointer. The first real candidate (`qwen25-lora-20260815-090709`) **failed the gate**. Do not promote it. The app must keep its generator / API fallback.

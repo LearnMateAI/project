@@ -375,6 +375,10 @@ RELEVANCE_THRESHOLD = _env_float("LEARNMATE_RELEVANCE_THRESHOLD", 0.25)
 
 EVALUATOR_THRESHOLD = _env_int("LEARNMATE_EVALUATOR_THRESHOLD", 70)
 
+# F-01: the public API used to honour client `evaluate=false`, which skipped the only
+# hallucination gate. Production always evaluates. Lab/CI can opt back in.
+ALLOW_CLIENT_EVALUATE = _env_bool("LEARNMATE_ALLOW_CLIENT_EVALUATE", False)
+
 # Retrieval modes whose chat replies skip the LLM judge entirely. Comma-separated; empty
 # judges everything, which is what this system did before the gate existed.
 #
@@ -407,6 +411,17 @@ MAX_ATTEMPTS = _env_int("LEARNMATE_MAX_ATTEMPTS", 2)
 # generation is allowed to take minutes. When set, the worker raises JobTimeout between
 # graph nodes (not mid-token) and records error_code=timeout.
 JOB_TIMEOUT_S = _env_int("LEARNMATE_JOB_TIMEOUT_S", 0)
+
+# Chat turns used to inherit 0 and run until process kill (F-07). 180s is enough for
+# generate + judge + one retry on the laptop CPU path; ingest/resource still use
+# JOB_TIMEOUT_S so a whole-document MCQ set can take minutes.
+CHAT_JOB_TIMEOUT_S = _env_int("LEARNMATE_CHAT_JOB_TIMEOUT_S", 180)
+
+# Per-user enqueue budget (F-07). Window is rolling seconds.
+RATE_LIMIT_WINDOW_S = _env_int("LEARNMATE_RATE_LIMIT_WINDOW_S", 600)
+RATE_LIMIT_CHAT = _env_int("LEARNMATE_RATE_LIMIT_CHAT", 10)
+RATE_LIMIT_RESOURCE = _env_int("LEARNMATE_RATE_LIMIT_RESOURCE", 6)
+RATE_LIMIT_INGEST = _env_int("LEARNMATE_RATE_LIMIT_INGEST", 8)
 
 # Rolling chat history depth, in user+assistant pairs.
 MAX_HISTORY_TURNS = _env_int("LEARNMATE_MAX_HISTORY_TURNS", 6)

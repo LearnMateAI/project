@@ -21,6 +21,7 @@ from fastapi.responses import Response
 from ..deps import get_current_user
 from ..jobs import enqueue
 from ..services import documents as service
+from ..services.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -49,6 +50,7 @@ async def upload_document(
     Returns {document, job_id}. The document is usable for nothing until its
     `processing_status` reaches "Ready".
     """
+    check_rate_limit(user["id"], "ingest")
     file_bytes = await file.read()
 
     # Raises ValueError -> 400 with a message meant to be read by whoever uploaded it.

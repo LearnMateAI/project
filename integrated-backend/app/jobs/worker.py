@@ -105,7 +105,12 @@ def _run_one(job_id: str) -> None:
 
     job_store.start(job_id)
     try:
-        set_deadline_seconds(engine_config.JOB_TIMEOUT_S)
+        timeout = (
+            engine_config.CHAT_JOB_TIMEOUT_S
+            if job.get("kind") == "chat"
+            else engine_config.JOB_TIMEOUT_S
+        )
+        set_deadline_seconds(timeout)
         result = runners.run(job)
         job_store.finish(job_id, result)
     except Exception as exc:

@@ -82,7 +82,7 @@ class GenerateRequest(BaseModel):
     per_page: Optional[int] = Field(default=None, ge=1, le=10)
 
     # --- evaluation ---
-    # False skips both gates. Roughly halves the time, and the result is unreviewed.
+    # Ignored unless LEARNMATE_ALLOW_CLIENT_EVALUATE=1 (lab/CI). Production always judges.
     evaluate: bool = True
     threshold: Optional[int] = Field(default=None, ge=0, le=100)
     # Additive; omitted = current behaviour (narrative summary, medium MCQs, default model).
@@ -98,9 +98,13 @@ class CreateSessionRequest(BaseModel):
     title: Optional[str] = Field(default=None, max_length=200)
 
 
+class FeedbackRequest(BaseModel):
+    label: str = Field(pattern="^(up|down)$")
+
+
 class SendMessageRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
-    # False skips the judge: a faster reply, not reviewed for hallucination.
+    # Ignored unless LEARNMATE_ALLOW_CLIENT_EVALUATE=1 (lab/CI). Production always judges.
     evaluate: bool = True
     model_id: Optional[str] = Field(default=None, max_length=80)
 

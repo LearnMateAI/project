@@ -35,7 +35,6 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
   const [amountMode, setAmountMode] = useState("total"); // "total" | "per_page"
   const [count, setCount] = useState(8);
   const [perPage, setPerPage] = useState(2);
-  const [evaluate, setEvaluate] = useState(true);
   const [summaryStyle, setSummaryStyle] = useState("auto");
   const [difficulty, setDifficulty] = useState("medium");
   const [modelId, setModelId] = useState("");
@@ -102,7 +101,7 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
         // Exactly one of the two, never both -- the backend rejects both together.
         count: usingPerPage ? null : Number(count),
         perPage: usingPerPage ? Number(perPage) : null,
-        evaluate,
+        evaluate: true,
         summaryStyle: resourceType === "summary" ? summaryStyle : null,
         difficulty: resourceType === "mcq" ? difficulty : null,
         modelId: modelId || null,
@@ -340,22 +339,9 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
             </div>
           )}
 
-          <label className="flex items-start gap-2.5 rounded-xl border border-border p-3 cursor-pointer hover:border-border-strong">
-            <input
-              type="checkbox"
-              checked={evaluate}
-              onChange={(e) => setEvaluate(e.target.checked)}
-              disabled={notReady || job.isRunning}
-              className="mt-0.5"
-            />
-            <span>
-              <span className="block text-[13px] font-semibold text-heading">Review before showing</span>
-              <span className="block text-[11.5px] text-muted mt-0.5 leading-relaxed">
-                A second model grades the result and one retry is allowed. Turning this off is
-                about twice as fast, and nothing checks what comes back.
-              </span>
-            </span>
-          </label>
+          <p className="text-[11.5px] text-muted leading-relaxed">
+            A second model always grades the result. Students cannot turn that off.
+          </p>
 
           <button type="submit" disabled={notReady || job.isRunning} className="btn-primary w-full py-2.5">
             {job.isRunning ? (

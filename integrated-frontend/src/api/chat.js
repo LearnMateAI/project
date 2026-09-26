@@ -39,6 +39,10 @@ export function sendMessage({ sessionId, message, evaluate = true, modelId }) {
   });
 }
 
+export function sendFeedback(turnId, label) {
+  return api.post(`/api/chat/turns/${turnId}/feedback`, { label });
+}
+
 export function deleteSession(sessionId) {
   return api.delete(`/api/chat/sessions/${sessionId}`);
 }

@@ -67,6 +67,13 @@ class ChatAgent:
         if not (query or "").strip():
             raise ValueError("Empty query.")
 
+        # F-13: a logged-in caller without a document would search the whole multi-tenant
+        # index. The API always binds a session; this stops the next route from forgetting.
+        if self.user_id and self.doc_id is None:
+            raise ValueError(
+                "This conversation is not bound to a document. Open a session on one PDF."
+            )
+
         # History is re-read from Mongo every turn rather than cached in the object, so
         # two processes sharing a session_id stay consistent.
         initial: ChatState = {

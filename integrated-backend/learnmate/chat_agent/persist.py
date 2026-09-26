@@ -15,7 +15,9 @@ once every attempt has been judged -- and this is the one node every path reache
 from typing import Dict, Optional, Tuple
 
 from ..storage import content_store
+from .citations import overlapping_citations
 from .helpers import _log
+from .prompts import PROMPT_VERSION
 from .state import ChatState
 
 
@@ -90,9 +92,11 @@ def persist_node(state: ChatState) -> Dict:
     content_store.save_turn(session_id, "user", state["query"],
                             doc_id=state.get("doc_id"), user_id=user_id)
 
+    citations = overlapping_citations(reply, state.get("contexts") or [])
+    contexts = state.get("contexts") or []
     # The assistant turn carries the audit trail alongside the text: how it was answered,
     # what it scored, whether it was accepted, how many tries it took, and which pages
-    # of the PDF it drew on.
+    # of the PDF the *reply* actually overlapped (F-09), not every retrieved page.
     content_store.save_turn(
         session_id, "assistant", reply, doc_id=state.get("doc_id"),
         user_id=user_id,
@@ -103,23 +107,18 @@ def persist_node(state: ChatState) -> Dict:
             # Every generation that ran, not the index of the one kept -- this is the cost
             # of the turn, and it stays honest when an earlier attempt won.
             "attempts": len(state.get("attempts", [])),
-            "pages": [doc.metadata.get("page_number") for doc in state.get("contexts") or []],
-            # Paragraph is the 1-based chunk index on that page — the pin-cite the UI
-            # shows. `pages` stays for anything that only needs the page list.
-            "citations": [
-                {
-                    "page": doc.metadata.get("page_number"),
-                    "paragraph": (
-                        doc.metadata.get("chunk_index") + 1
-                        if isinstance(doc.metadata.get("chunk_index"), int)
-                        else None
-                    ),
-                }
-                for doc in state.get("contexts") or []
-            ],
+            "pages": [cite["page"] for cite in citations],
+            "citations": citations,
             "model_id": state.get("model_id"),
+            "prompt_version": PROMPT_VERSION,
             "retrieval_mix": state.get("retrieval_mix"),
             "timings": state.get("timings"),
+            "trace": {
+                "standalone_query": state.get("standalone_query"),
+                "top_score": state.get("top_score"),
+                "chunk_count": len(contexts),
+                "tokens_est": max(len(reply or ""), 1) // 4,
+            },
         })
 
     return selection

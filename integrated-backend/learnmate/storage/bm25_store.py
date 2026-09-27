@@ -7,7 +7,7 @@ vector store uses — so a chunk appearing in both ANN and BM25 lists can be ded
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List
 
 from langchain_core.documents import Document
 

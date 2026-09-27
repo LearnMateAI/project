@@ -11,11 +11,23 @@
  * longer do. The warning below the reply stays: a score is a number a reader cannot act
  * on, whereas "check this against the document" is an instruction they can.
  *
+ *   cache     when the answer was reused from an equivalent question another student
+ *             asked about the same document. Said plainly: a reader should know this was
+ *             not written for their exact wording, and that it was checked when it was.
+ *
  * The same fields arrive on a live reply and on a turn replayed from history, so a resumed
  * conversation looks identical to one still in progress.
  */
 
+import { formatRelativeAge } from "../lib/dateTime.js";
 import CitationChips from "./CitationChips.jsx";
+
+function cacheTitle(cache) {
+  const parts = ["Reused from an equivalent question about this document"];
+  if (cache.similarity != null) parts.push(`similarity ${Number(cache.similarity).toFixed(2)}`);
+  if (cache.verifier != null) parts.push(`same-question check ${Number(cache.verifier).toFixed(2)}`);
+  return parts.join(" · ");
+}
 
 function ChatMessage({ turn }) {
   const isUser = turn.role === "user";
@@ -31,15 +43,25 @@ function ChatMessage({ turn }) {
   }
 
   const flagged = turn.accepted === false && turn.score !== null && turn.score !== undefined;
+  const cached = Boolean(turn.cache?.hit);
 
   return (
     <div className="flex justify-start animate-fade-in">
       <div className="bg-surface border border-border rounded-2xl rounded-bl-md px-4 py-3.5 max-w-[85%] shadow-card">
         {/* The row only exists when there is something to put in it -- rendered
             unconditionally it would leave an empty strip of margin above the reply. */}
-        {turn.attempts > 1 && (
+        {(turn.attempts > 1 || cached) && (
           <div className="flex flex-wrap items-center gap-2 mb-2.5">
-            <span className="text-[11.5px] text-subtle">{turn.attempts} attempts</span>
+            {cached && (
+              <span className="badge badge-green" title={cacheTitle(turn.cache)}>
+                <span className="badge-dot" />
+                Verified answer reused
+                {turn.cache.source_age_s != null && ` · ${formatRelativeAge(turn.cache.source_age_s)}`}
+              </span>
+            )}
+            {turn.attempts > 1 && (
+              <span className="text-[11.5px] text-subtle">{turn.attempts} attempts</span>
+            )}
           </div>
         )}
 

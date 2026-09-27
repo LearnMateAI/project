@@ -51,8 +51,14 @@ class ChatState(TypedDict, total=False):
                                     #   candidate reply exists, before the judge sees it --
                                     #   the point at which there is something worth reading
     model_id: Optional[str]         # optional registry id; omitted uses .env default
+    use_cache: Optional[bool]       # None follows LEARNMATE_CACHE_ENABLED; False skips it
+    job_id: Optional[str]           # the job running this turn, when there is one
     retrieval_mix: Optional[Dict]   # ANN / BM25 / both counts from hybrid retrieve
     timings: Optional[Dict]         # rewrite_ms / retrieve_ms / generate_ms / judge_ms / model_load_ms
+
+    # --- Written by cache_lookup (only when the answer cache is on) --------------------
+    query_vec: Optional[List[float]]  # the standalone query's embedding, reused by retrieve
+    cache: Optional[Dict]           # {hit, similarity, verifier, reason, ...}; see learnmate/cache
 
     # --- Written by rewrite ----------------------------------------------------------
     standalone_query: str           # the query with pronouns resolved; what we embed
@@ -62,6 +68,7 @@ class ChatState(TypedDict, total=False):
     scores: List[float]             # cosine similarity per chunk, aligned with `contexts`
     mode: str                       # "pdf" or "general" -- decided by score, not by the model
     top_score: float                # best similarity seen; the number the mode was decided on
+    retrieval: Optional[Dict]       # strategy, basis, and the nearest page -- see retriever.summary
 
     # --- Written by generate / evaluate (the retry loop) ------------------------------
     attempt: int                    # 1-based counter of generations so far

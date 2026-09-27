@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome DevTools - Performance Tab</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; }
+        .devtools { display: flex; flex-direction: column; height: 100vh; }
+        .toolbar { background: #252526; border-bottom: 1px solid #3c3c3c; padding: 8px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .toolbar button { background: #3c3c3c; border: none; color: #d4d4d4; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
+        .toolbar button:hover { background: #4a4a4a; }
+        .toolbar button.active { background: #007acc; }
+        .toolbar select { background: #3c3c3c; border: none; color: #d4d4d4; padding: 6px 12px; border-radius: 4px; }
+        .main { flex: 1; display: flex; overflow: hidden; }
+        .sidebar { width: 320px; background: #252526; border-right: 1px solid #3c3c3c; padding: 16px; overflow-y: auto; }
+        .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #858585; margin-bottom: 12px; }
+        .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #3c3c3c; }
+        .summary-label { color: #858585; }
+        .summary-value { font-weight: 600; font-family: monospace; }
+        .timeline { flex: 1; display: flex; flex-direction: column; }
+        .timeline-header { background: #252526; border-bottom: 1px solid #3c3c3c; padding: 8px 16px; display: flex; gap: 12px; align-items: center; }
+        .timeline-header select { background: #3c3c3c; border: none; color: #d4d4d4; padding: 4px 8px; border-radius: 3px; font-size: 0.75rem; }
+        .tracks { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+        .track { border-bottom: 1px solid #3c3c3c; min-height: 60px; position: relative; }
+        .track-header { position: absolute; left: 0; top: 0; bottom: 0; width: 200px; background: #252526; border-right: 1px solid #3c3c3c; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
+        .track-name { font-weight: 500; font-size: 0.8rem; }
+        .track-type { font-size: 0.7rem; color: #858585; }
+        .track-content { margin-left: 200px; padding: 8px; position: relative; }
+        .task { position: absolute; height: 20px; border-radius: 3px; display: flex; align-items: center; padding: 0 8px; font-size: 0.65rem; white-space: nowrap; overflow: hidden; }
+        .task.scripting { background: #e74c3c; color: white; }
+        .task.rendering { background: #f39c12; color: white; }
+        .task.painting { background: #9b59b6; color: white; }
+        .task.idle { background: #27ae60; color: white; }
+        .task.loading { background: #3498db; color: white; }
+        .bottom-panel { height: 200px; background: #252526; border-top: 1px solid #3c3c3c; display: flex; }
+        .bottom-tabs { display: flex; gap: 4px; padding: 8px 16px 0; background: #252526; border-bottom: 1px solid #3c3c3c; }
+        .bottom-tab { padding: 8px 16px; background: #3c3c3c; border: none; color: #858585; cursor: pointer; font-size: 0.75rem; border-radius: 4px 4px 0 0; }
+        .bottom-tab.active { background: #252526; color: #d4d4d4; }
+        .bottom-content { flex: 1; padding: 16px; overflow: auto; }
+        .table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .table th, .table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #3c3c3c; }
+        .table th { color: #858585; font-weight: 500; text-transform: uppercase; }
+        .table .self-time { color: #e74c3c; font-weight: 600; }
+        .table .total-time { color: #f39c12; }
+    </style>
+</head>
+<body>
+    <div class="devtools">
+        <div class="toolbar">
+            <button class="active">● Record</button>
+            <button>⏹ Stop</button>
+            <button>🔄 Reload</button>
+            <select>
+                <option>CPU: 4x slowdown</option>
+                <option>CPU: No throttling</option>
+                <option>Network: Offline</option>
+                <option>Network: Fast 3G</option>
+            </select>
+            <span style="margin-left: auto; color: #858585; font-size: 0.75rem;">Duration: 2.3s</span>
+        </div>
+
+        <div class="main">
+            <aside class="sidebar">
+                <h3>Summary</h3>
+                <div class="summary-item"><span class="summary-label">Total Time</span><span class="summary-value">2,341 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Scripting</span><span class="summary-value" style="color: #e74c3c;">892 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Rendering</span><span class="summary-value" style="color: #f39c12;">312 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Painting</span><span class="summary-value" style="color: #9b59b6;">87 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Loading</span><span class="summary-value" style="color: #3498db;">456 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Idle</span><span class="summary-value" style="color: #27ae60;">594 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Script Evaluation</span><span class="summary-value">234 ms</span></div>
+                <div class="summary-item"><span class="summary-label">Style & Layout</span><span class="summary-value">189 ms</span></div>
+                <div class="summary-item"><span class="summary-label">GC Events</span><span class="summary-value">3 (12 ms)</span></div>
+            </aside>
+
+            <div class="timeline">
+                <div class="timeline-header">
+                    <span style="color: #858585; font-size: 0.75rem;">0ms</span>
+                    <span style="flex: 1; text-align: center; color: #858585; font-size: 0.75rem;">1000ms</span>
+                    <span style="color: #858585; font-size: 0.75rem;">2341ms</span>
+                </div>
+                <div class="tracks">
+                    <div class="track" style="height: 80px;">
+                        <div class="track-header">
+                            <span class="track-name">Main</span>
+                            <span class="track-type">Thread</span>
+                        </div>
+                        <div class="track-content">
+                            <div class="task scripting" style="left: 2%; width: 15%; top: 8px;">Parse HTML</div>
+                            <div class="task loading" style="left: 18%; width: 25%; top: 8px;">Load JS Bundle</div>
+                            <div class="task scripting" style="left: 45%; width: 20%; top: 8px;">React Hydration</div>
+                            <div class="task rendering" style="left: 67%; width: 12%; top: 8px;">Initial Render</div>
+                            <div class="task painting" style="left: 80%; width: 8%; top: 8px;">Paint</div>
+                            <div class="task idle" style="left: 90%; width: 10%; top: 8px;">Idle</div>
+                        </div>
+                    </div>
+                    <div class="track" style="height: 60px;">
+                        <div class="track-header">
+                            <span class="track-name">Network</span>
+                            <span class="track-type">Resource Loading</span>
+                        </div>
+                        <div class="track-content">
+                            <div class="task loading" style="left: 5%; width: 8%; top: 8px;">index.html</div>
+                            <div class="task loading" style="left: 15%; width: 10%; top: 8px;">main.css</div>
+                            <div class="task loading" style="left: 28%; width: 35%; top: 8px;">main.js (187 kB)</div>
+                            <div class="task loading" style="left: 65%; width: 8%; top: 8px;">/api/auth/me</div>
+                            <div class="task loading" style="left: 75%; width: 8%; top: 8px;">/api/documents</div>
+                            <div class="task loading" style="left: 85%; width: 8%; top: 8px;">/api/analytics</div>
+                        </div>
+                    </div>
+                    <div class="track" style="height: 60px;">
+                        <div class="track-header">
+                            <span class="track-name">GPU</span>
+                            <span class="track-type">Graphics</span>
+                        </div>
+                        <div class="track-content">
+                            <div class="task painting" style="left: 65%; width: 25%; top: 8px;">Composite Layers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="bottom-tabs">
+                <button class="bottom-tab active">Bottom-Up</button>
+                <button class="bottom-tab">Call Tree</button>
+                <button class="bottom-tab">Event Log</button>
+            </div>
+            <div class="bottom-content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Self Time</th>
+                            <th style="width: 25%;">Total Time</th>
+                            <th style="width: 35%;">Function</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="self-time">234 ms</td><td class="total-time">234 ms</td><td>ReactDOM.render</td></tr>
+                        <tr><td class="self-time">189 ms</td><td class="total-time">189 ms</td><td>style & layout recalculation</td></tr>
+                        <tr><td class="self-time">156 ms</td><td class="total-time">445 ms</td><td>App component</td></tr>
+                        <tr><td class="self-time">112 ms</td><td class="total-time">112 ms</td><td>JSON.parse (API responses)</td></tr>
+                        <tr><td class="self-time">87 ms</td><td class="total-time">87 ms</td><td>paint</td></tr>
+                        <tr><td class="self-time">65 ms</td><td class="total-time">198 ms</td><td>DashboardPage</td></tr>
+                        <tr><td class="self-time">43 ms</td><td class="total-time">43 ms</td><td>garbage collection</td></tr>
+                        <tr><td class="self-time">31 ms</td><td class="total-time">124 ms</td><td>DocumentsCard</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

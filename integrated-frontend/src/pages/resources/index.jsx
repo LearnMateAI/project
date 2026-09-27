@@ -22,6 +22,7 @@ import { errorMessage } from "../../api/client.js";
 import { listDocuments } from "../../api/documents.js";
 import { listJobs } from "../../api/jobs.js";
 import { RESOURCE_TYPES, listResources, resourceLabel } from "../../api/resources.js";
+import { formatSriLankaDateTime } from "../../lib/dateTime.js";
 import EmptyState from "../../components/EmptyState.jsx";
 
 // A generation runs for minutes, and its own commentary changes about once a page. Only
@@ -134,7 +135,7 @@ function Resources() {
     <div>
       <div className="page-header">
         <h1>Study materials</h1>
-        <p>IRAC briefs, flashcards, MCQs and practice questions — newest first</p>
+        <p>Summaries, keypoints, MCQs and practice questions</p>
       </div>
 
       {/* Filters in one row above the list, which is where a filter belongs. */}
@@ -191,7 +192,7 @@ function Resources() {
         ) : resources.length === 0 && pending.length === 0 ? (
           <EmptyState
             title="No materials yet"
-            body="Generate from a source — open the library and use the panel beside the PDF."
+            body="Generate from a source : open the library and use the generator panel beside."
             action={
               <Link to="/documents" className="btn-primary">
                 Open library
@@ -255,7 +256,7 @@ function Resources() {
                     </span>
                     <span className="block text-[11.5px] text-subtle truncate">
                       {filenames[resource.document_id] || "Unknown document"} ·{" "}
-                      {new Date(resource.created_at).toLocaleString()}
+                      {formatSriLankaDateTime(resource.created_at)}
                     </span>
                   </span>
                 </span>

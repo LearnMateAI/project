@@ -778,6 +778,13 @@ html.dark .paper {
     min-height: 0;
   }
 }
+/* Side by side, each pane scrolls on its own: the reader can jump to page 40 without
+   carrying the heatmap or the chat input on the other side out of view. */
+@media (min-width: 1024px) {
+  .workspace-split {
+    height: max(28rem, calc(100dvh - 12.5rem));
+  }
+}
 .workspace-pane {
   display: flex;
   flex-direction: column;
@@ -820,6 +827,52 @@ html.dark .paper {
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
+}
+
+/* Class confusion heatmap: one cell per page, primary ink mixed in by --heat (0..1).
+   Tokens only, so the dark theme needs no rule of its own. */
+.heat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(1.5rem, 1fr));
+  gap: 3px;
+}
+.heat-cell {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  border: 1px solid var(--color-border-light);
+  background: color-mix(in oklab, var(--color-primary) calc(var(--heat, 0) * 100%), var(--color-surface-alt));
+  color: var(--color-muted);
+  font-size: 0.625rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.heat-cell.is-hot { color: var(--color-surface); }
+.heat-cell:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.heat-cell.is-selected { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.heat-cell.is-suppressed {
+  cursor: default;
+  background: repeating-linear-gradient(45deg, var(--color-surface-alt) 0 3px, var(--color-border-light) 3px 6px);
+}
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+}
+.heat-legend-ramp {
+  width: 6rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-surface-alt), var(--color-primary));
+  border: 1px solid var(--color-border-light);
 }
 
 .tab-bar {

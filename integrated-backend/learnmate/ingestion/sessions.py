@@ -21,7 +21,7 @@ Two rules live in this file:
     require_kind() a session opened for one purpose is not silently used for the other
 """
 
-from typing import Iterable, Optional, Sequence, Tuple, Union
+from typing import Iterable, Sequence, Tuple, Union
 
 from .. import config
 from ..storage import content_store

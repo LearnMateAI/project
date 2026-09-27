@@ -121,29 +121,31 @@
 
     <div class="lm-aside__body">
       <#if register??>
-        <h2 class="lm-aside__heading">Turn your reading list into study material.</h2>
-        <p class="lm-aside__blurb">Built for students working through dense texts: upload
-          once, then generate, quiz and question your way through it &mdash; with the source
-          always a click away.</p>
+        <h2 class="lm-aside__heading">Turn your Docs into study material.</h2>
+        
+        <p class="lm-aside__blurb">Built for students.<br> upload your study material, generate notes and quizzes, ask questions, and keep your source just a click away.
+</p>
       <#else>
-        <h2 class="lm-aside__heading">Study with material you can check.</h2>
-        <p class="lm-aside__blurb">Upload a PDF and LearnMateAI turns it into summaries, key
-          points and quizzes &mdash; every one of them graded by a second model, and every
-          chat answer traced back to its pages.</p>
+        <h2 class="lm-aside__heading">Study Intelligently with AI.</h2>
+        
       </#if>
 
       <ul class="lm-aside__points">
         <li>
-          <span class="lm-aside__tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
-          Summaries, key points, MCQs and practice questions from your own PDFs
+        </li>
+        <li>
         </li>
         <li>
           <span class="lm-aside__tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
-          Every answer in chat cites the pages it came from
+          Summaries, key points, MCQs and practice questions from your own Docs
         </li>
         <li>
           <span class="lm-aside__tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
-          A second model grades each generation, and low scores are flagged, not hidden
+          Get chat based answered for your questions.
+        </li>
+        <li>
+          <span class="lm-aside__tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span>
+          Verified by LLM as judge
         </li>
       </ul>
     </div>

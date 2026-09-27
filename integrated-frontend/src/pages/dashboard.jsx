@@ -17,21 +17,19 @@ const QUICK_START_BASE = [
   {
     key: "file",
     to: "/documents",
-    title: "File a source",
-    caption: "Cases, statutes, outlines, briefs",
+    title: "Upload a document",
     icon: "M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5",
   },
   {
-    key: "workspace",
-    title: "Split-screen workspace",
-    caption: "PDF beside chat and MCQs",
-    icon: "M3.75 3.75v16.5h16.5V3.75H3.75zM12 3.75v16.5",
+    key: "resources",
+    to: "/resources",
+    title: "View Study Materials",
+    icon: "M6.75 3.75h10.5A2.25 2.25 0 0119.5 6v12a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 18V6a2.25 2.25 0 012.25-2.25zM8.25 8.25h7.5m-7.5 3h7.5m-7.5 3h4.5",
   },
   {
     key: "ask",
     to: "/chat",
-    title: "Ask the record",
-    caption: "Answers cite page and paragraph",
+    title: "Ask a Question",
     icon: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155",
   },
 ];
@@ -76,19 +74,7 @@ function Dashboard() {
 
   const recent = resources.slice(0, 5);
 
-  // The "Split-screen workspace" card jumps straight into the PDF+chat split view for a
-  // document instead of just landing on the library like "File a source" does -- the two
-  // used to point at the same place. Prefer a Ready document (documents is newest-first);
-  // fall back to the newest one otherwise, or to the library itself when there is nothing
-  // filed yet.
-  const quickStart = useMemo(() => {
-    const workspaceDoc = documents.find((doc) => doc.processing_status === "Ready") || documents[0];
-    return QUICK_START_BASE.map((action) =>
-      action.key === "workspace"
-        ? { ...action, to: workspaceDoc ? `/documents?open=${workspaceDoc.id}` : "/documents" }
-        : action,
-    );
-  }, [documents]);
+  const quickStart = QUICK_START_BASE;
 
   return (
     <div>
@@ -135,7 +121,7 @@ function Dashboard() {
 
             {recent.length === 0 ? (
               <p className="px-5 py-6 text-[13px] text-muted leading-relaxed">
-                Once a source is ready, open it from the library and generate an IRAC brief, flashcards, or bar-style MCQs beside the PDF.
+                Once a document is ready, open it from the library and generate materials.
               </p>
             ) : (
               <div>

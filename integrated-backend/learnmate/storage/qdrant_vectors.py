@@ -15,13 +15,23 @@ wire to be scored here.
 
 Scores are raw cosine similarity in [-1, 1], the same scale MongoVectorStore returns, so
 RELEVANCE_THRESHOLD means one thing regardless of which backend is configured.
+
+Two collection layouts are understood, and detected rather than assumed:
+
+    legacy   one unnamed dense vector, plus a hashed word-count vector named "sparse" on
+             collections created after the first hybrid attempt. What this project has
+             always created, and still creates by default.
+    v2       named vectors: "dense" (cosine) and "bm25" (sparse, Modifier.IDF), with
+             doc_id indexed as the tenant key. Built by scripts/reindex_qdrant.py. This is
+             what `query()` fuses over -- see learnmate/retrieval/retriever.py.
 """
 
 import re
+import threading
 import uuid
 import hashlib
 from collections import Counter
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
@@ -38,6 +48,16 @@ _POINT_NAMESPACE = uuid.UUID("6f8a1d3e-2b41-4c9a-9d2f-7e5b0c1a4d88")
 
 class QdrantUnavailable(RuntimeError):
     """Raised when the Qdrant server cannot be reached, with the URL that was tried."""
+
+
+class UnsupportedStrategy(ValueError):
+    """The collection's layout cannot serve the retrieval strategy that was asked for."""
+
+
+# Strategies `query()` understands, and which named sparse vector each one reads.
+_SPARSE_FOR = {"bm25": "bm25", "rrf": "bm25", "dbsf": "bm25",
+               "splade": "splade", "rrf_splade": "splade"}
+QUERY_STRATEGIES = ("dense",) + tuple(_SPARSE_FOR)
 
 
 def _point_id(doc_id, page_number, chunk_index) -> str:
@@ -61,16 +81,25 @@ class QdrantVectorStore(VectorStore):
     """Chunk vectors in a Qdrant server, filtered by document."""
 
     def __init__(self, embedding: Embeddings = None, url: str = None,
-                 api_key: str = None, collection_name: str = None):
+                 api_key: str = None, collection_name: str = None, schema: str = None,
+                 splade: Optional[bool] = None):
         self._embedding = embedding or get_embeddings()
         self.url = url or config.QDRANT_URL
         self.api_key = api_key or config.QDRANT_API_KEY or None
         self.collection_name = collection_name or config.QDRANT_COLLECTION
+        # Only consulted when this process has to *create* the collection.
+        self._create_schema = (schema or config.QDRANT_SCHEMA).lower()
+        self._create_splade = config.SPLADE_ENABLED if splade is None else splade
         self._client = None
         self._collection_ready = False
+        self._ready_lock = threading.Lock()
         # Settled by ensure_collection: True only when the collection actually has a sparse
         # vector to write to and query. Never assumed -- see the note there.
         self._hybrid = False
+        # "legacy" or "v2", and for v2 the names of its sparse vectors. Also settled by
+        # ensure_collection, from what the server says the collection holds.
+        self.schema = "legacy"
+        self._sparse_names: frozenset = frozenset()
 
     # --- Connection ------------------------------------------------------------------
 
@@ -112,22 +141,35 @@ class QdrantVectorStore(VectorStore):
         if self._collection_ready:
             return
 
+        # The worker and the warm-up thread can both arrive here on a fresh install, and
+        # two concurrent create_collection calls end with the second one raising.
+        with self._ready_lock:
+            if self._collection_ready:
+                return
+            self._prepare_collection()
+            self._collection_ready = True
+
+    def _prepare_collection(self) -> None:
         from qdrant_client import models
 
         if not self.client.collection_exists(self.collection_name):
-            size = self._embedding.dimension
-            print(f"[*] Creating Qdrant collection {self.collection_name!r} "
-                  f"({size}-d, cosine + sparse)...")
-            self.client.create_collection(
-                collection_name=self.collection_name,
-                vectors_config=models.VectorParams(
-                    size=size, distance=models.Distance.COSINE),
-                sparse_vectors_config={"sparse": models.SparseVectorParams()},
-            )
+            if self._create_schema == "v2":
+                self.create_v2_collection(splade=self._create_splade)
+            else:
+                size = self._embedding.dimension
+                print(f"[*] Creating Qdrant collection {self.collection_name!r} "
+                      f"({size}-d, cosine + sparse)...")
+                self.client.create_collection(
+                    collection_name=self.collection_name,
+                    vectors_config=models.VectorParams(
+                        size=size, distance=models.Distance.COSINE),
+                    sparse_vectors_config={"sparse": models.SparseVectorParams()},
+                )
 
-        self._hybrid = bool(
-            self.client.get_collection(self.collection_name).config.params.sparse_vectors)
-        if not self._hybrid:
+        params = self.client.get_collection(self.collection_name).config.params
+        self._detect_schema(params)
+
+        if self.schema == "legacy" and not self._hybrid:
             print(f"[!] Collection {self.collection_name!r} predates hybrid search and has "
                   f"no sparse vector; running dense-only. To enable it, delete the "
                   f"collection and re-ingest (the PDFs and page text are in MongoDB, so "
@@ -145,7 +187,62 @@ class QdrantVectorStore(VectorStore):
             # Already present; Qdrant has no create-if-missing for payload indexes.
             pass
 
-        self._collection_ready = True
+    def _detect_schema(self, params) -> None:
+        """Read the layout off the collection's own config: named dense vector => v2."""
+        vectors = params.vectors
+        sparse = params.sparse_vectors or {}
+        if isinstance(vectors, dict) and config.QDRANT_DENSE_NAME in vectors:
+            self.schema = "v2"
+            self._sparse_names = frozenset(sparse)
+            self._hybrid = False
+        else:
+            self.schema = "legacy"
+            self._sparse_names = frozenset()
+            self._hybrid = bool(sparse)
+
+    def create_v2_collection(self, splade: bool = False) -> None:
+        """
+        Create this collection in the v2 layout.
+
+        `Modifier.IDF` is what makes the sparse vector BM25 rather than word counting: the
+        server keeps document frequencies per term and multiplies them into the query's
+        weights at search time, so no process has to hold corpus statistics. doc_id is the
+        tenant key -- every query filters on it -- and page_number is indexed for the
+        page-restricted scrolls resource generation does.
+        """
+        from qdrant_client import models
+
+        size = self._embedding.dimension
+        sparse = {config.QDRANT_SPARSE_NAME:
+                  models.SparseVectorParams(modifier=models.Modifier.IDF)}
+        if splade:
+            sparse[config.QDRANT_SPLADE_NAME] = models.SparseVectorParams()
+        print(f"[*] Creating Qdrant collection {self.collection_name!r} (v2: "
+              f"{size}-d dense + {', '.join(sparse)})...")
+        self.client.create_collection(
+            collection_name=self.collection_name,
+            vectors_config={config.QDRANT_DENSE_NAME: models.VectorParams(
+                size=size, distance=models.Distance.COSINE)},
+            sparse_vectors_config=sparse,
+        )
+        doc_index = (models.KeywordIndexParams(
+            type=models.KeywordIndexType.KEYWORD, is_tenant=True)
+                     if config.QDRANT_TENANT_INDEX else models.PayloadSchemaType.KEYWORD)
+        self.client.create_payload_index(self.collection_name, "doc_id",
+                                         field_schema=doc_index)
+        self.client.create_payload_index(self.collection_name, "page_number",
+                                         field_schema=models.PayloadSchemaType.INTEGER)
+
+    def supports(self, strategy: str) -> bool:
+        """Can this collection serve `strategy` through query()?"""
+        self.ensure_collection()
+        if strategy == "dense":
+            return True
+        sparse = _SPARSE_FOR.get(strategy)
+        if sparse is None or self.schema != "v2":
+            return False
+        name = config.QDRANT_SPARSE_NAME if sparse == "bm25" else config.QDRANT_SPLADE_NAME
+        return name in self._sparse_names
 
     def _doc_filter(self, doc_id=None, pages: Optional[List[int]] = None):
         """Build a Qdrant filter, or None when nothing is being narrowed."""
@@ -188,35 +285,81 @@ class QdrantVectorStore(VectorStore):
         self.ensure_collection()
         metadatas = metadatas or [{} for _ in texts]
         vectors = self._embedding.embed_documents(texts)
+        return self.upsert_chunks(texts, metadatas, vectors)
+
+    def _v2_vectors(self, texts: Sequence[str], dense: Sequence[List[float]]
+                    ) -> List[Dict[str, Any]]:
+        """Named vectors for a v2 point: dense, BM25 and -- if the collection has it -- SPLADE."""
+        from qdrant_client import models
+
+        from ..retrieval.sparse import bm25_doc_vector, get_splade
+        from .retrieval_meta import resolve_avgdl
+
+        avgdl = resolve_avgdl(texts)
+        splade = None
+        if config.QDRANT_SPLADE_NAME in self._sparse_names:
+            splade = get_splade(config.SPLADE_MODEL).encode_documents(list(texts))
+
+        named = []
+        for i, (text, vector) in enumerate(zip(texts, dense)):
+            indices, values = bm25_doc_vector(text, config.BM25_K1, config.BM25_B, avgdl)
+            point = {config.QDRANT_DENSE_NAME: vector,
+                     config.QDRANT_SPARSE_NAME: models.SparseVector(
+                         indices=indices, values=values)}
+            if splade is not None:
+                s_idx, s_val = splade[i]
+                point[config.QDRANT_SPLADE_NAME] = models.SparseVector(
+                    indices=s_idx, values=s_val)
+            named.append(point)
+        return named
+
+    def upsert_chunks(self, texts: Sequence[str], metadatas: Sequence[dict],
+                      dense: Sequence[List[float]]) -> List[str]:
+        """
+        Write chunks whose dense vectors are already computed.
+
+        Split out of add_texts so scripts/reindex_qdrant.py can move a corpus into a v2
+        collection by copying its existing embeddings instead of re-embedding every chunk.
+        """
+        from qdrant_client import models
+
+        self.ensure_collection()
+        texts = list(texts)
+        if self.schema == "v2":
+            from ..retrieval.sparse import ANALYZER_VERSION
+
+            point_vectors = self._v2_vectors(texts, dense)
+        else:
+            # A bare list addresses the unnamed dense vector; the dict form addresses it
+            # as "" alongside the named sparse one. Only the second is legal on a
+            # collection that has a sparse vector configured, and only the first on one
+            # that does not.
+            point_vectors = [
+                {"": vector, "sparse": models.SparseVector(**_to_sparse(text))}
+                if self._hybrid else vector
+                for text, vector in zip(texts, dense)
+            ]
 
         points, ids = [], []
-        for text, metadata, vector in zip(texts, metadatas, vectors):
+        for text, metadata, point_vector in zip(texts, metadatas, point_vectors):
             doc_id = str(metadata.get("doc_id", ""))
             page_number = metadata.get("page_number", 0)
             chunk_index = metadata.get("chunk_index", 0)
             identifier = _point_id(doc_id, page_number, chunk_index)
-
-            # A bare list addresses the unnamed dense vector; the dict form addresses it as
-            # "" alongside the named sparse one. Only the second is legal on a collection
-            # that has a sparse vector configured, and only the first on one that does not.
-            if self._hybrid:
-                point_vector = {"": vector,
-                                "sparse": models.SparseVector(**_to_sparse(text))}
-            else:
-                point_vector = vector
-
-            points.append(models.PointStruct(
-                id=identifier,
-                vector=point_vector,
-                payload={
-                    "doc_id": doc_id,
-                    "page_number": page_number,
-                    "chunk_index": chunk_index,
-                    "text": text,
-                    "filename": metadata.get("filename"),
-                    "source": metadata.get("source"),
-                },
-            ))
+            payload = {
+                "doc_id": doc_id,
+                "page_number": page_number,
+                "chunk_index": chunk_index,
+                "text": text,
+                "filename": metadata.get("filename"),
+                "source": metadata.get("source"),
+            }
+            if self.schema == "v2":
+                # Which analyzer built the bm25 vector: a query analysed differently
+                # would silently miss, so the index records what it was built with.
+                payload["analyzer"] = ANALYZER_VERSION
+            points.append(models.PointStruct(id=identifier, vector=point_vector,
+                                             payload=payload))
             ids.append(identifier)
 
         for start in range(0, len(points), config.QDRANT_BATCH_SIZE):
@@ -283,6 +426,12 @@ class QdrantVectorStore(VectorStore):
         k = k or config.TOP_K
         self.ensure_collection()
 
+        if self.schema == "v2":
+            # Plain cosine on the named dense vector. Fusion on a v2 collection is asked
+            # for explicitly, through query(), by a caller that knows its score is a rank.
+            return [(doc, score) for doc, score, _ in self.query(
+                "dense", query, self._embedding.embed_query(query), k, doc_id=doc_id)]
+
         if not self._hybrid:
             # Dense-only, and identical to the pre-hybrid behaviour: one vector, cosine
             # scores, nothing fused.
@@ -316,6 +465,126 @@ class QdrantVectorStore(VectorStore):
         )
         return [(self._to_document(point.payload, point.id), float(point.score))
                 for point in response.points]
+
+    def _sparse_query(self, strategy: str, text: str):
+        """The query-side sparse vector for `strategy`, or None when it has no terms."""
+        from qdrant_client import models
+
+        from ..retrieval.sparse import bm25_query_vector, get_splade
+
+        if _SPARSE_FOR[strategy] == "splade":
+            indices, values = get_splade(config.SPLADE_MODEL).encode_query(text)
+            name = config.QDRANT_SPLADE_NAME
+        else:
+            indices, values = bm25_query_vector(text)
+            name = config.QDRANT_SPARSE_NAME
+        if not indices:
+            # All stopwords ("what is it?"). An empty sparse query matches nothing, and a
+            # fused one would then be the dense branch alone -- which is what the caller
+            # gets, explicitly, rather than a request Qdrant may reject.
+            return None, name
+        return models.SparseVector(indices=indices, values=values), name
+
+    def query(self, strategy: str, text: str, query_vector: List[float], k: int,
+              doc_id=None, prefetch_k: Optional[int] = None, want_dense: bool = True
+              ) -> List[Tuple[Document, float, Optional[float]]]:
+        """
+        One retrieval strategy, executed inside Qdrant.
+
+        Returns (document, score, dense_cos) best first. `score` is whatever the strategy
+        ranks by -- cosine, BM25, or a fused rank score -- and is only comparable within
+        one call. `dense_cos` is the cosine between the query and the chunk's own dense
+        vector, fetched alongside, so a caller can apply RELEVANCE_THRESHOLD whatever the
+        ranking was. It is None only when `want_dense` is off.
+
+        The document filter is set on every prefetch as well as on the fused query. The
+        outer filter alone would let each branch spend its candidate budget on *other*
+        documents' chunks before fusion discarded them.
+        """
+        from qdrant_client import models
+
+        self.ensure_collection()
+        if not self.supports(strategy):
+            raise UnsupportedStrategy(
+                f"Collection {self.collection_name!r} ({self.schema}) cannot serve the "
+                f"{strategy!r} strategy. Build a v2 collection with "
+                f"scripts/reindex_qdrant.py.")
+
+        doc_filter = self._doc_filter(doc_id)
+        dense_name = config.QDRANT_DENSE_NAME if self.schema == "v2" else None
+        # The unnamed legacy vector cannot be asked for by name; it only ever serves
+        # "dense", where the score already is the cosine.
+        fetch_dense = want_dense and strategy != "dense" and dense_name is not None
+        with_vectors = [dense_name] if fetch_dense else False
+
+        if strategy == "dense":
+            response = self.client.query_points(
+                collection_name=self.collection_name, query=query_vector,
+                using=dense_name, query_filter=doc_filter, limit=k, with_payload=True)
+        else:
+            sparse, sparse_name = self._sparse_query(strategy, text)
+            if strategy in ("bm25", "splade"):
+                if sparse is None:
+                    return []
+                response = self.client.query_points(
+                    collection_name=self.collection_name, query=sparse, using=sparse_name,
+                    query_filter=doc_filter, limit=k, with_payload=True,
+                    with_vectors=with_vectors)
+            else:
+                prefetch_k = max(prefetch_k or config.HYBRID_PREFETCH, k)
+                prefetch = [models.Prefetch(query=query_vector, using=dense_name,
+                                            filter=doc_filter, limit=prefetch_k)]
+                if sparse is not None:
+                    prefetch.append(models.Prefetch(query=sparse, using=sparse_name,
+                                                    filter=doc_filter, limit=prefetch_k))
+                if strategy == "dbsf":
+                    fusion = models.FusionQuery(fusion=models.Fusion.DBSF)
+                elif config.RRF_K > 0:
+                    fusion = models.RrfQuery(rrf=models.Rrf(k=config.RRF_K))
+                else:
+                    fusion = models.FusionQuery(fusion=models.Fusion.RRF)
+                response = self.client.query_points(
+                    collection_name=self.collection_name, prefetch=prefetch, query=fusion,
+                    query_filter=doc_filter, limit=k, with_payload=True,
+                    with_vectors=with_vectors)
+
+        results = []
+        for point in response.points:
+            dense_cos = float(point.score) if strategy == "dense" else None
+            if fetch_dense:
+                vector = point.vector.get(dense_name) if isinstance(point.vector, dict) \
+                    else point.vector
+                if vector:
+                    # Qdrant stores cosine vectors normalised and the query embedding is
+                    # normalised too, so the dot product is the cosine.
+                    dense_cos = float(sum(a * b for a, b in zip(vector, query_vector)))
+            results.append((self._to_document(point.payload, point.id), float(point.score),
+                            dense_cos))
+        return results
+
+    def scroll_points(self, doc_id=None, with_vectors: bool = True):
+        """
+        Every point of one document (or the collection), payload and dense vector.
+
+        For scripts/reindex_qdrant.py, which copies embeddings between collections.
+        Yields (payload, dense_vector or None).
+        """
+        self.ensure_collection()
+        dense_name = config.QDRANT_DENSE_NAME if self.schema == "v2" else ""
+        offset = None
+        while True:
+            batch, offset = self.client.scroll(
+                collection_name=self.collection_name,
+                scroll_filter=self._doc_filter(doc_id),
+                limit=config.QDRANT_BATCH_SIZE, offset=offset,
+                with_payload=True, with_vectors=with_vectors)
+            for point in batch:
+                vector = point.vector
+                if isinstance(vector, dict):
+                    vector = vector.get(dense_name)
+                yield point.payload or {}, vector
+            if offset is None:
+                break
 
     @staticmethod
     def _to_document(payload: Dict[str, Any], point_id=None) -> Document:

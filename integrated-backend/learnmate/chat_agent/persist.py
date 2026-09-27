@@ -86,9 +86,12 @@ def persist_node(state: ChatState) -> Dict:
     user_id = state.get("user_id")
 
     # The user turn is saved here rather than at the start of the graph so that a turn
-    # which crashes mid-way leaves no half-record behind.
+    # which crashes mid-way leaves no half-record behind. The job id links the two rows of
+    # one turn, and makes saving them idempotent when a job queue retries the turn.
+    job_id = state.get("job_id")
     content_store.save_turn(session_id, "user", state["query"],
-                            doc_id=state.get("doc_id"), user_id=user_id)
+                            doc_id=state.get("doc_id"), user_id=user_id,
+                            meta={"job_id": job_id} if job_id else None)
 
     # The assistant turn carries the audit trail alongside the text: how it was answered,
     # what it scored, whether it was accepted, how many tries it took, and which pages
@@ -120,6 +123,15 @@ def persist_node(state: ChatState) -> Dict:
             "model_id": state.get("model_id"),
             "retrieval_mix": state.get("retrieval_mix"),
             "timings": state.get("timings"),
+            # What the question was once pronouns were resolved, and where in the document
+            # retrieval landed even when nothing there was good enough to answer from.
+            # This pair is what learnmate/insights mines: a general-mode turn has no
+            # citations, but it still has a nearest page.
+            "question": state["query"],
+            "standalone_query": state.get("standalone_query"),
+            "retrieval": state.get("retrieval"),
+            "cache": state.get("cache"),
+            "job_id": job_id,
         })
 
     return selection

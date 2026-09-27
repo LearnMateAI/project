@@ -29,7 +29,8 @@ class ChatAgent:
     def __init__(self, session_id: str = None, doc_id=None, threshold: int = None,
                  max_attempts: int = None, evaluate: bool = True, verbose: bool = True,
                  user_id: str = None, on_progress=None, on_token=None, on_reply=None,
-                 model_id: str = None):
+                 model_id: str = None, use_cache: bool = None, job_id: str = None,
+                 persist: bool = True):
         # A generated id gives an anonymous CLI session somewhere to store history,
         # without the caller having to invent one.
         self.session_id = session_id or f"cli-{uuid.uuid4().hex[:12]}"
@@ -54,6 +55,12 @@ class ChatAgent:
         # turn to end and a reader who already has the answer. See helpers._emit_reply.
         self.on_reply = on_reply
         self.model_id = model_id
+        # None follows LEARNMATE_CACHE_ENABLED. Only ever narrows it: a request cannot turn
+        # the cache on for a server that has it off (see cache_nodes.cache_active).
+        self.use_cache = use_cache
+        self.job_id = job_id
+        # False runs a turn without writing history or the cache -- evaluation runs.
+        self.persist = persist
 
     def ask(self, query: str) -> Dict:
         """
@@ -83,15 +90,18 @@ class ChatAgent:
             "on_token": self.on_token,
             "on_reply": self.on_reply,
             "model_id": self.model_id,
-            "persist": True,
+            "use_cache": self.use_cache,
+            "job_id": self.job_id,
+            "persist": self.persist,
             "attempt": 0,
             "attempts": [],
         }
 
         # LangGraph counts every node execution against this limit and raises if it is
         # exceeded. Two nodes per attempt (generate + evaluate) plus headroom for the
-        # linear nodes -- a safety net in case `decide` ever fails to terminate.
-        limit = 2 * self.max_attempts + 6
+        # linear nodes and the two cache nodes -- a safety net in case `decide` ever fails
+        # to terminate.
+        limit = 2 * self.max_attempts + 8
         final = get_chat_graph().invoke(initial, {"recursion_limit": limit})
         timings = final.get("timings") or {}
         logger.info(
@@ -119,6 +129,8 @@ class ChatAgent:
             "accepted": bool(final.get("passed")),
             "attempts": final.get("attempts", []),
             "retrieval_mix": final.get("retrieval_mix"),
+            "retrieval": final.get("retrieval"),
+            "cache": final.get("cache"),
             "model_id": self.model_id,
             "timings": timings,
         }

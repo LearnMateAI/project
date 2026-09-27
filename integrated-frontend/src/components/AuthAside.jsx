@@ -7,7 +7,7 @@
  */
 
 const points = [
-  "Summaries, key points, MCQs and practice questions from your own PDFs",
+  "Summaries, key points, MCQs and practice questions from your own documents",
   "Every answer in chat cites the pages it came from",
   "A second model grades each generation, and low scores are flagged, not hidden",
 ];

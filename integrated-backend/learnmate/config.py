@@ -428,6 +428,114 @@ BM25_TOP_K = _env_int("LEARNMATE_BM25_TOP_K", 10)
 # Per-document BM25 corpus (chunk text), stored in Mongo alongside pages/chunks.
 COLL_BM25 = "bm25_chunks"
 
+# --- Server-side hybrid retrieval (learnmate/retrieval/retriever.py) ------------------
+# Which retriever feeds the reranker.
+#
+#   legacy   dense ANN unioned with the in-process BM25 above -- the pipeline as it was.
+#   dense    dense ANN only.
+#   bm25     Qdrant's sparse index only (BM25 weights, IDF computed server-side).
+#   rrf      dense + bm25 fused by reciprocal rank inside Qdrant.     <- the new default
+#   dbsf     dense + bm25 fused by distribution-normalised score.        candidate
+#   splade / rrf_splade   the same with a learned sparse encoder (ablation).
+#
+# Everything except `legacy` and `dense` needs a v2 collection -- one with named vectors --
+# which scripts/reindex_qdrant.py builds from what is already in MongoDB. Left on legacy
+# until that has been run, and a strategy the collection cannot serve falls back to legacy
+# with one warning rather than failing a turn.
+RETRIEVAL_STRATEGY = _env("LEARNMATE_RETRIEVAL_STRATEGY", "legacy").lower()
+
+# Candidates each branch of a fused query contributes before fusion. The fusion then
+# keeps RERANK_CANDIDATES of them for the cross-encoder.
+HYBRID_PREFETCH = _env_int("LEARNMATE_HYBRID_PREFETCH", 40)
+
+# RRF's k. 60 is Cormack et al.'s value and what every other engine uses; 0 selects
+# Qdrant's built-in default (k=2), which the legacy collection's fused search ran with.
+RRF_K = _env_int("LEARNMATE_RRF_K", 60)
+
+# Schema for a collection this process creates. `v2` = named "dense" + "bm25" vectors;
+# `legacy` = the unnamed vector (+ hashed-TF "sparse") this project has always created.
+# Existing collections are detected, never converted.
+QDRANT_SCHEMA = _env("LEARNMATE_QDRANT_SCHEMA", "legacy").lower()
+QDRANT_DENSE_NAME = _env("LEARNMATE_QDRANT_DENSE_NAME", "dense")
+QDRANT_SPARSE_NAME = _env("LEARNMATE_QDRANT_SPARSE_NAME", "bm25")
+QDRANT_SPLADE_NAME = "splade"
+
+# Mark doc_id as the tenant key. Qdrant then co-locates each document's points and builds
+# per-tenant HNSW links, which is what keeps a filtered search fast at thousands of documents.
+QDRANT_TENANT_INDEX = _env_bool("LEARNMATE_QDRANT_TENANT_INDEX", True)
+
+# BM25 parameters. 1.2 / 0.75 are Lucene's and Qdrant's defaults (the in-process BM25 above
+# uses k1=1.5). avgdl 0 = read the stored corpus value (storage/retrieval_meta.py).
+BM25_K1 = _env_float("LEARNMATE_BM25_K1", 1.2)
+BM25_B = _env_float("LEARNMATE_BM25_B", 0.75)
+BM25_AVGDL = _env_float("LEARNMATE_BM25_AVGDL", 0.0)
+
+# Learned sparse ablation. Off: it needs a ~500 MB model and a forward pass per chunk.
+SPLADE_ENABLED = _env_bool("LEARNMATE_SPLADE_ENABLED", False)
+SPLADE_MODEL = _env("LEARNMATE_SPLADE_MODEL", "prithivida/Splade_PP_en_v1")
+
+# The page picker for topic-scoped study resources (ingestion/source_text.py). Defaults to
+# the chat strategy; `legacy` keeps its original plain vector search.
+TOPIC_RETRIEVAL_STRATEGY = _env("LEARNMATE_TOPIC_RETRIEVAL_STRATEGY",
+                                RETRIEVAL_STRATEGY).lower()
+TOPIC_RERANK = _env_bool("LEARNMATE_TOPIC_RERANK", False)
+TOPIC_SEARCH_K = _env_int("LEARNMATE_TOPIC_SEARCH_K", 12)
+
+# --- Verified semantic answer cache (learnmate/cache) ---------------------------------
+# Identical PDFs are stored once (documents are keyed by SHA-256), so a class studying the
+# same lecture notes shares one document id -- and asks the same questions. A reply the
+# judge accepted for one student is reused for another student's paraphrase of the same
+# question, skipping retrieval, generation and judging (~40s on the laptop CPU) entirely.
+#
+# A hit needs two things: the questions' embeddings within CACHE_TAU cosine, *and* a
+# cross-encoder trained on duplicate questions agreeing they ask the same thing. The second
+# check is what stops "advantages of X" being served the answer to "disadvantages of X",
+# which embed almost identically. Off by default; see eval/cache_bench.py for how TAU was
+# chosen.
+CACHE_ENABLED = _env_bool("LEARNMATE_CACHE_ENABLED", False)
+CACHE_COLLECTION = _env("LEARNMATE_CACHE_COLLECTION", "answer_cache")
+CACHE_TAU = _env_float("LEARNMATE_CACHE_TAU", 0.90)
+# Nearest cached questions the verifier reads per lookup.
+CACHE_CANDIDATES = _env_int("LEARNMATE_CACHE_CANDIDATES", 3)
+CACHE_VERIFIER_ENABLED = _env_bool("LEARNMATE_CACHE_VERIFIER_ENABLED", True)
+CACHE_VERIFIER_MODEL = _env("LEARNMATE_CACHE_VERIFIER_MODEL",
+                            "cross-encoder/quora-distilroberta-base")
+CACHE_VERIFIER_THRESHOLD = _env_float("LEARNMATE_CACHE_VERIFIER_THRESHOLD", 0.5)
+# Two weeks: a term's worth of revision for one set of notes, and short enough that a
+# changed prompt or model does not serve old answers for long even if nobody purges.
+CACHE_TTL_S = _env_int("LEARNMATE_CACHE_TTL_S", 14 * 24 * 3600)
+# Only answers the judge scored at least this are stored.
+CACHE_MIN_SCORE = _env_int("LEARNMATE_CACHE_MIN_SCORE", EVALUATOR_THRESHOLD)
+# Store answers to rewritten follow-ups ("what about his powers?")? Off: such an answer
+# leans on a conversation the next student has not had.
+CACHE_STORE_FOLLOWUPS = _env_bool("LEARNMATE_CACHE_STORE_FOLLOWUPS", False)
+# Bump when the chat prompts change, so answers written to the old ones stop matching.
+CACHE_PROMPT_VERSION = _env("LEARNMATE_CACHE_PROMPT_VERSION", "1")
+COLL_CACHE_EVENTS = "cache_events"
+CACHE_EVENTS_TTL_DAYS = _env_int("LEARNMATE_CACHE_EVENTS_TTL_DAYS", 90)
+
+# --- Confusion heatmap (learnmate/insights) --------------------------------------------
+# Mines every question asked about one shared document -- clusters them into topics and
+# maps them onto pages -- to show where in the document a class gets stuck.
+INSIGHTS_ENABLED = _env_bool("LEARNMATE_INSIGHTS_ENABLED", True)
+# k-anonymity: a page or topic is shown only once at least this many *different* students
+# contributed to it. Below that, a count could single a student out.
+INSIGHTS_MIN_USERS = _env_int("LEARNMATE_INSIGHTS_MIN_USERS", 3)
+# Fewer questions than this and there is nothing to cluster; pages are still counted.
+INSIGHTS_MIN_QUESTIONS = _env_int("LEARNMATE_INSIGHTS_MIN_QUESTIONS", 10)
+INSIGHTS_MIN_CLUSTER = _env_int("LEARNMATE_INSIGHTS_MIN_CLUSTER", 3)
+INSIGHTS_MIN_SAMPLES = _env_int("LEARNMATE_INSIGHTS_MIN_SAMPLES", 2)
+# A computed heatmap is reused for this long, or until new questions arrive.
+INSIGHTS_TTL_S = _env_int("LEARNMATE_INSIGHTS_TTL_S", 600)
+# How the four difficulty signals weigh into a page's confusion score.
+INSIGHTS_WEIGHTS = _env("LEARNMATE_INSIGHTS_WEIGHTS",
+                        "general=1,low_score=1,rejected=1,repeat=1")
+# A judged answer scoring under this counts as a low-scored one.
+INSIGHTS_LOW_SCORE = _env_int("LEARNMATE_INSIGHTS_LOW_SCORE", EVALUATOR_THRESHOLD)
+# The same student asking about the same topic again within this many days is a repeat.
+INSIGHTS_REPEAT_DAYS = _env_int("LEARNMATE_INSIGHTS_REPEAT_DAYS", 7)
+COLL_DOC_INSIGHTS = "doc_insights"
+
 # Selectable generators. LEARNMATE_GENERATOR_MODEL remains the fallback when model_id
 # is omitted. A failed-gate LoRA may be listed as experimental; it must not be default.
 MODELS_REGISTRY_PATH = Path(_env(

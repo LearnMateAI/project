@@ -20,50 +20,17 @@ import api from "./client.js";
  */
 export const RESOURCE_TYPES = [
   { type: "summary", label: "Summary", countLabel: "sentences", pooled: false },
-  { type: "keypoints", label: "Flashcards (key points)", countLabel: "cards", pooled: true },
+  { type: "keypoints", label: "Key points", countLabel: "points", pooled: true },
   { type: "mcq", label: "MCQs", countLabel: "questions", pooled: true },
   { type: "practice_qsn", label: "Practice Questions", countLabel: "questions", pooled: true },
-];
-
-/**
- * Law-student shortcuts. Each preset still maps onto one of the four engine types.
- * IRAC is a structured summary with a retrieval topic; flashcards are keypoints;
- * bar-style MCQs are hard MCQs.
- */
-export const STUDY_PRESETS = [
-  {
-    id: "irac",
-    title: "IRAC Case Brief",
-    hint: "Issue · Rule · Application · Conclusion from the holding",
-    resourceType: "summary",
-    summaryStyle: "structured",
-    topic: "IRAC case brief: Issue, Rule, Application, Conclusion of the principal holding",
-    count: 12,
-    scope: "passage",
-  },
-  {
-    id: "flashcards",
-    title: "Create Flashcards",
-    hint: "Key points as cards you can flip through",
-    resourceType: "keypoints",
-    count: 12,
-  },
-  {
-    id: "mbe",
-    title: "Bar-style (MBE) MCQs",
-    hint: "Hard stems with near-miss distractors",
-    resourceType: "mcq",
-    difficulty: "hard",
-    count: 8,
-  },
 ];
 
 /** The display name for a stored resource, which carries the engine's own type name. */
 export function resourceLabel(type, params) {
   const topic = String(params?.topic || "").toLowerCase();
-  if (type === "summary" && topic.includes("irac")) return "IRAC Case Brief";
-  if (type === "keypoints") return "Flashcards";
-  if (type === "mcq" && params?.difficulty === "hard") return "Bar-style (MBE) MCQs";
+  if (type === "summary" && topic.includes("summarize")) return "Summary";
+  if (type === "keypoints") return "Key points";
+  if (type === "mcq" && params?.difficulty === "hard") return "Practice Questions";
   return RESOURCE_TYPES.find((entry) => entry.type === type)?.label || type;
 }
 

@@ -19,3 +19,13 @@ router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 def overview(user: dict = Depends(get_current_user)):
     """Activity counts and the evaluation score distribution, for this user."""
     return service.overview(user["id"])
+
+
+@router.get("/documents/{doc_id}/heatmap")
+def document_heatmap(doc_id: str, refresh: bool = False,
+                     user: dict = Depends(get_current_user)):
+    """
+    The class confusion heatmap for one document: per-page confusion and question topics,
+    mined from every student's questions about it, aggregate-only (k-anonymous).
+    """
+    return service.document_heatmap(user["id"], doc_id, refresh)

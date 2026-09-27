@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Shell - Evaluation Stats Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .terminal { background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #2d2d2d; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .prompt { color: #6a9955; } .command { color: #d4d4d4; }
+        .output { padding: 16px; white-space: pre-wrap; }
+        .db { color: #569cd6; font-weight: bold; }
+        .number { color: #b5cea8; }
+        .string { color: #ce9178; }
+        .keyword { color: #c586c0; }
+        .comment { color: #6a9955; }
+        .object { color: #dcdcaa; }
+        .success { color: #4ec9b0; }
+        .coll { color: #4ec9b0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">mongosh</span></div>
+        <div class="output"><span class="prompt">learnmate></span> <span class="command">db.evaluations.aggregate([</span>
+<span class="output">  { $match: { stage: <span class="string">"judge"</span>, score: { $type: <span class="string">"number"</span> } } },
+  { $group: {
+      _id: <span class="string">"$task"</span>,
+      n: { $sum: <span class="number">1</span> },
+      min: { $min: <span class="string">"$score"</span> },
+      max: { $max: <span class="string">"$score"</span> },
+      avg: { $avg: <span class="string">"$score"</span> },
+      scores: { $push: <span class="string">"$score"</span> },
+      passes: { $sum: { $cond: [<span class="string">"$passed"</span>, <span class="number">1</span>, <span class="number">0</span>] } }
+  }},
+  { $sort: { _id: <span class="number">1</span> } }
+])</span>
+
+<span class="output">{
+  _id: <span class="string">"keypoints"</span>,
+  n: <span class="number">18</span>,
+  min: <span class="number">0.45</span>,
+  max: <span class="number">0.92</span>,
+  avg: <span class="number">0.73</span>,
+  scores: [ <span class="number">0.45</span>, <span class="number">0.52</span>, <span class="number">0.58</span>, <span class="number">0.61</span>, <span class="number">0.65</span>, <span class="number">0.68</span>, <span class="number">0.71</span>, <span class="number">0.73</span>, <span class="number">0.75</span>, <span class="number">0.76</span>, <span class="number">0.78</span>, <span class="number">0.81</span>, <span class="number">0.84</span>, <span class="number">0.87</span>, <span class="number">0.89</span>, <span class="number">0.91</span>, <span class="number">0.92</span>, <span class="number">0.92</span> ],
+  passes: <span class="number">14</span>
+}
+{
+  _id: <span class="string">"mcq"</span>,
+  n: <span class="number">20</span>,
+  min: <span class="number">0.38</span>,
+  max: <span class="number">0.89</span>,
+  avg: <span class="number">0.68</span>,
+  scores: [ <span class="number">0.38</span>, <span class="number">0.42</span>, <span class="number">0.48</span>, <span class="number">0.53</span>, <span class="number">0.57</span>, <span class="number">0.61</span>, <span class="number">0.64</span>, <span class="number">0.67</span>, <span class="number">0.69</span>, <span class="number">0.70</span>, <span class="number">0.72</span>, <span class="number">0.74</span>, <span class="number">0.76</span>, <span class="number">0.78</span>, <span class="number">0.80</span>, <span class="number">0.82</span>, <span class="number">0.84</span>, <span class="number">0.86</span>, <span class="number">0.88</span>, <span class="number">0.89</span> ],
+  passes: <span class="number">13</span>
+}
+{
+  _id: <span class="string">"summary"</span>,
+  n: <span class="number">8</span>,
+  min: <span class="number">0.52</span>,
+  max: <span class="number">0.88</span>,
+  avg: <span class="number">0.71</span>,
+  scores: [ <span class="number">0.52</span>, <span class="number">0.61</span>, <span class="number">0.67</span>, <span class="number">0.71</span>, <span class="number">0.72</span>, <span class="number">0.75</span>, <span class="number">0.82</span>, <span class="number">0.88</span> ],
+  passes: <span class="number">6</span>
+}</div>
+    </div>
+</body>
+</html>

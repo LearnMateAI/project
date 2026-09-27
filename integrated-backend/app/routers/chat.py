@@ -66,7 +66,8 @@ def send_message(session_id: str, payload: SendMessageRequest,
     job = enqueue(
         user["id"], "chat",
         {"session_id": session_id, "message": payload.message,
-         "evaluate": payload.evaluate, "model_id": payload.model_id},
+         "evaluate": payload.evaluate, "model_id": payload.model_id,
+         "use_cache": payload.use_cache},
         message="Waiting to answer.",
     )
 

@@ -42,7 +42,7 @@ function McqQuiz({ questions }) {
     <div>
       {barStyle && (
         <p className="notice notice-info mb-4">
-          Bar-style (MBE) set — hard stems with near-miss distractors, still only from this source.
+          Practice set — challenging questions based only on this document.
         </p>
       )}
       {submitted && (

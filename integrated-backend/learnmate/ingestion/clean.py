@@ -13,7 +13,7 @@ downstream by the splitter.
 
 import re
 import unicodedata
-from typing import Dict, List, Union
+from typing import Dict, List
 
 KIND_PDF_FALLBACK = "pdf"
 

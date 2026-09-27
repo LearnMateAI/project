@@ -145,6 +145,23 @@ def resolve_generator_settings(model_id: Optional[str] = None):
             f"Unknown model_id {model_id!r}. GET /api/models lists the ones this server "
             "can load."
         )
+    if config.GENERATOR_BACKEND == "http":
+        # Served, not loaded: the registry id is the name the server was started with
+        # (`llama-server --alias <id>`, see scripts/serve/), and the GGUF lives with the
+        # server rather than on this machine's disk.
+        return {
+            "id": entry["id"],
+            "backend": "http",
+            "model": entry["id"],
+            "repo": "",
+            "filename": "",
+            "chat_format": "",
+            "n_ctx": int(entry.get("context_length") or config.GENERATOR_N_CTX),
+            "api_url": config.GENERATOR_API_URL,
+            "api_key": config.GENERATOR_API_KEY,
+            "experimental": bool(entry.get("experimental")),
+            "display_name": entry.get("display_name"),
+        }
     if not entry.get("available"):
         raise ValueError(
             f"Model {model_id!r} ({entry.get('display_name')}) is listed but its GGUF is "

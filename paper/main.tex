@@ -91,13 +91,12 @@ learning analytics, educational technology
 
 \section{Introduction}
 
-Large language models can explain, quiz and summarise course material on demand, while
-retrieval-augmented generation (RAG) \cite{lewis2020rag} lets them answer from a student's own notes
-rather than from learned knowledge alone, reducing confident unsupported answers. Running the models
-locally keeps the notes and questions private, which matters to institutions that cannot send student
-data to third parties. The trade-off is speed and scalability: on a CPU, a 3B-parameter model generates
-one grounded answer much more slowly than a class can wait, and a single model instance handles one
-request at a time.
+Large language models can explain, quiz and summarise course material on demand, and retrieval-augmented
+generation (RAG) \cite{lewis2020rag} lets them answer from a student's own notes rather than from learned
+knowledge alone, reducing unsupported answers. Running the models locally keeps the notes and questions
+private, which matters to institutions that cannot send student data to third parties. The trade-off is
+speed and scale: on a CPU, a 3B-parameter model generates one grounded answer much more slowly than a
+class can wait, and one model instance handles one request at a time.
 
 \sys{} started as a single-student assistant: a student uploads a PDF, Word, PowerPoint or \LaTeX{} file
 and can ask questions or generate practice material from it, with a second model checking every output
@@ -154,29 +153,28 @@ Keycloak), access control and requests; that separation lets one service functio
 and a queued job. Upload, generation and chat all return \texttt{202 Accepted} with a job id that the browser
 polls for progress and the result.
 
-During ingestion, the system validates the upload, stores its bytes in GridFS, cleans the text (running
-headers, ligatures, hyphenation), divides it into chunks of at most 900 characters without crossing page
-boundaries, and embeds them. Chunk vectors go to Qdrant; data that cannot be recreated (files, page text,
-accounts, history, resources, verdicts and the queue) goes to MongoDB, so losing Qdrant requires a re-index
-while losing MongoDB loses the corpus. Since a document is identified by its content hash, ownership cannot be
-a field on it: it is kept in a separate collection with one row per person per document, which every access
-check uses, and the bytes are deleted only after the last owner deletes.
+Ingestion validates the upload, stores its bytes in GridFS, cleans the text, divides it into chunks of at
+most 900 characters that do not cross page boundaries, and embeds them. Chunk vectors go to Qdrant; data
+that cannot be recreated goes to MongoDB, so losing Qdrant requires a re-index while losing MongoDB loses
+the corpus. Since a document is keyed by its content hash, ownership cannot be a field on it: it lives in a
+separate collection, one row per person per document, which every access check uses, and the bytes are
+deleted only after the last owner deletes.
 
-A chat turn is a compiled state machine over the nodes in Fig.~\ref{fig:arch}, with one conditional edge
-used for a retry. The mode for each turn is selected from the retrieval score rather than from another
-model. In \emph{pdf} mode the best reranked chunk passes the threshold, so the answer is generated only
-from those chunks, includes page citations, and is judged strictly against them. In \emph{general} mode
-no relevant content is found, so the contexts are removed to prevent a weak passage from grounding the
-answer, and the interface indicates this. Generated resources pass two checks, cheapest first:
-structural validators in plain Python, then the judge, whose critique is used for one regeneration. The
-gates fail closed because unreviewed content should never be silently accepted.
+A chat turn is a compiled state machine over the nodes in Fig.~\ref{fig:arch}, with one conditional edge for
+a retry. The mode is selected from the retrieval score rather than from another model. In \emph{pdf} mode the
+best reranked chunk passes the threshold, so the answer is generated only from those chunks, includes page
+citations, and is judged strictly against them. In \emph{general} mode nothing relevant is found, so the
+contexts are removed to stop a weak passage grounding the answer, and the interface says so. Generated
+resources pass two checks, cheapest first: structural validators in plain Python, then the judge, whose
+critique feeds one regeneration. The gates fail closed, because unreviewed content should never pass
+silently.
 
 \subsection{Hybrid retrieval inside the vector database}
 \label{sec:retrieval}
 
-The original retriever returned the uncombined union of the top dense results and the top results from
-an in-process BM25 index. That index was rebuilt in every server process, rescored every chunk for
-each query, and did not use stemming, so \emph{duty} and \emph{duties} were different terms.
+The original retriever returned the uncombined union of the top dense results and the top results from an
+in-process BM25 index that was rebuilt in every server process, rescored every chunk for each query, and
+did not stem, so \emph{duty} and \emph{duties} were different terms.
 
 Both methods now run inside Qdrant. Okapi BM25 \cite{robertson2009bm25} has a document part---the
 saturated, length-normalised term frequency
@@ -185,11 +183,9 @@ The document part is calculated during ingestion and stored as a sparse vector o
 stopword-filtered terms; the query part is calculated by the server from the collection's own
 statistics, so no application process stores corpus statistics. Each request performs two prefetches,
 dense and sparse, both filtered to the student's document, which is the collection's tenant key, fused
-by reciprocal rank \cite{cormack2009rrf} with $k{=}60$; a cross-encoder then reranks the shortlist to
-the three chunks sent to the prompt. Since a fused score represents rank rather than similarity, the
-fallback decision without the reranker uses the chunk's own dense cosine, fetched at the same time. An
-existing deployment migrates by copying dense vectors into the new schema, and a configuration error
-falls back to the old union instead of failing a question.
+by reciprocal rank \cite{cormack2009rrf} with $k{=}60$; a cross-encoder then reranks the shortlist to the
+three chunks sent to the prompt. An existing deployment migrates by copying dense vectors into the new
+schema, and a configuration error falls back to the old union instead of failing a question.
 
 \subsection{Verified answer cache}
 \label{sec:cache}
@@ -203,18 +199,17 @@ cached questions for the same document, generator, prompt version, embedding mod
 candidates above a cosine threshold are checked by a cross-encoder trained on duplicate question pairs,
 and a hit requires its probability to exceed a second threshold.
 
-Only answers accepted by the judge in pdf mode, and not created by rewriting a follow-up, are stored,
-because a follow-up depends on a previous conversation the next student does not have. Entries expire and
-are invalidated when the document is re-ingested or deleted. No user or session identifier is stored in an
-entry---the cache stores an answer about a document, not who asked. A hit returns the stored answer with
-its citations, marked as reused, with its similarity and verifier scores.
+Only answers accepted by the judge in pdf mode, and not created by rewriting a follow-up, are stored, because a
+follow-up depends on a previous conversation the next student does not have. Entries expire and are invalidated
+when the document is re-ingested or deleted. No user or session identifier is stored---the cache holds an answer
+about a document, not who asked---and a hit returns the stored answer with its citations, marked as reused.
 
 \subsection{Lease queue and worker pool}
 \label{sec:serving}
 
-The original design used one worker thread and an in-memory queue. One worker was \emph{correct}, not
-simply inefficient: the in-process model has one mutable context, so two threads generating at once could
-corrupt both replies. But this serialised the class, and a restart failed all waiting jobs.
+The original design used one worker thread and an in-memory queue. One worker was \emph{correct}, not simply
+inefficient: the in-process model has one mutable context, so two threads generating at once could corrupt
+both replies. But it serialised the class, and a restart failed all waiting jobs.
 
 The job records now act as the queue. A worker claims the oldest due job using one atomic
 find-and-update operation and assigns a lease from the \emph{database's} clock, which makes lease
@@ -246,30 +241,15 @@ low after retry, and the same student returning to the same topic within one wee
 \label{eq:conf}
 \end{equation}
 where $\mathrm{vol}(p)$ is the page's question count divided by the maximum across shown pages and $x_i(p)$
-are the four signal rates. A page with no questions scores zero, and the components are returned with the
-score because \emph{why} a page is flagged is more useful than the count alone. Pages and topics with fewer
-than $k{=}3$ contributing students are hidden, and only topic keywords are shown, never question text.
+are the four signal rates. The components are returned with the score, because \emph{why} a page is flagged
+matters more than the count. Pages and topics with fewer than $k{=}3$ contributing students are hidden, and
+only topic keywords are shown, never question text.
 
 \section{Demonstration Setup and Practical Scenarios}
 
-\begin{table}[t]
-\caption{End-to-end verification. Speed is a ratio, not a wall-clock time.}
-\label{tab:verify}
-\centering
-\footnotesize
-\begin{tabular}{@{}p{0.635\columnwidth}r@{}}
-\toprule
-\textbf{Check} & \textbf{Result} \\
-\midrule
-29-step smoke test, defaults then all features on & 29/29, 29/29 \\
-Cache hit, exact repeat, against a full turn on the same machine & $\sim$$100\times$ faster \\
-Cache hit, paraphrase (cosine 0.96, verifier 0.97); near miss not reused & pass \\
-Worker killed mid-answer: requeued on lease lapse, finished by peer & pass \\
-Continuous batching, two concurrent requests & $+30\%$ tok/s \\
-Backend unit tests; browser checks over all views & 108; 11/11 \\
-\bottomrule
-\end{tabular}
-\end{table}
+% The end-to-end verification run used to be a table here. With Tables I and II now carrying measured
+% benchmark results, its checklist is reported as prose in Section V-A instead, which the 4-page limit
+% needs. The full run is recorded in IMPROVEMENTS.md in the repository.
 
 The demonstration runs on one machine and needs no network after installation: MongoDB and Qdrant in
 containers, the backend, a React frontend behind nginx, and two \texttt{llama-server} processes for the
@@ -317,22 +297,44 @@ answer---\val{WorkloadQuestions} questions with a known source chunk. A simulate
 asks \val{WorkloadAsks} questions over two weeks, drawn by a Zipf distribution, with one chapter held out for
 tuning thresholds.
 
-Table~\ref{tab:verify} reports a complete run on a CPU-only laptop using temporary stores. It is a correctness
-check rather than a benchmark, but it verifies the demonstration's two main claims: reuse is far cheaper than
-generation, and killing a worker does not lose the job. Speeds are ratios only, since a wall-clock time would
-describe the deployment's CPU or GPU, not \sys{}.
+A separate end-to-end run on a CPU-only laptop, against temporary stores, checks correctness rather than
+speed: a 29-step smoke test passes 29/29 both with default settings and with all four features enabled, an
+exact repeat is served from the cache about $100\times$ faster than a full turn on that machine, a near miss
+is correctly not reused, a worker killed mid-answer has its job requeued on lease lapse and finished by its
+peer, and two concurrent requests through one model server raise aggregate throughput by 30\%. Speeds are
+ratios only, since a wall-clock time would describe the deployment's CPU or GPU, not \sys{}.
 
 \subsection{Component benchmarks}
 
-Retrieval is evaluated on the seed questions and their paraphrases using Recall@3 and graded nDCG@10, before
-and after reranking (Table~\ref{tab:ir}). Hybrid retrieval increases nDCG@10 after reranking from
-\val{IRLegacyNdcg} to \val{IRRrfNdcg}.
+Retrieval is evaluated over \val{IRQueries} seed questions and paraphrases by Recall@3 and graded nDCG@10,
+before and after reranking (Table~\ref{tab:ir}). The result is worth stating plainly. Fusion helps the
+\emph{first stage}: both fused strategies and server-side BM25 beat the legacy union on every first-stage
+column of Table~\ref{tab:ir}. After the cross-encoder, though, the strategies converge: RRF and the legacy
+union both reach nDCG@10 \val{IRRrfNdcg} at Recall@3 \val{IRRrfRThree}\%, a difference that is not
+significant ($p=\val{IRRrfPValue}$). On a single 341-chunk document the reranker recovers most of what the
+first stage missed, and server-side BM25 alone reranks best of all, which is consistent with generated
+questions sharing vocabulary with their source chunk. At this scale the benefit of moving BM25 into the
+database is therefore architectural rather than a ranking gain---no process holds a lexical index, IDF is
+shared, and one tenant filter covers both halves---and the fused first stage is what a weaker or absent
+reranker would rely on. Retrieval score also decides each turn's mode, and it agrees with the ground truth
+for \val{ModeAccuracy}\% of questions.
+% First-stage figures are quoted from Table II rather than inline because eval/tables.py exposes macros only
+% for the reranked numbers. To quote them in the text, have it emit e.g.
+%   numbers["IRRrfNdcgFirst"] = _f(table["rrf"]["all"]["ndcg@10"]["mean"])
 % A scaling run (eval/ir_scaling.py) also compares in-process BM25 with the database's own as a
 % document grows. It is left out of the text for space, and because quoting it honestly needs a
 % ratio macro that eval/tables.py does not yet emit; to add one:
 %   numbers["ScaleBm25Ratio"] = _f(big["legacy_bm25_ms"]["p50"] / big["qdrant_bm25_ms"]["p50"], 1)
 % then cite \val{ScaleBm25Ratio}$\times$. Millisecond figures stay out of the prose deliberately:
 % they describe the machine, not the system.
+
+\begin{table}[b]
+\caption{Cache hit rules on held-out chapters. The middle row is the embedding threshold raised until it
+matches the verified rule's precision.}
+\label{tab:cache}
+\centering\footnotesize\setlength\tabcolsep{4pt}
+\resizebox{\columnwidth}{!}{\tbl{cache}}
+\end{table}
 
 % [b]: this table is allowed to sit at the foot of a column. As a top float it landed on the page where
 % the bibliography starts and pushed the last references onto a fifth page.
@@ -344,12 +346,15 @@ this run.}
 \resizebox{\columnwidth}{!}{\tbl{ir}}
 \end{table}
 
-The cache is evaluated as a classifier: a paraphrase should match its own question entry, a near miss
-should not. It achieves \val{CachePrecision}\% hit precision against \val{CacheEmbPrecision}\% for an
-embedding threshold alone, at \val{CacheRecall}\% recall, and replaying the fortnight answers
-\val{ReplayHitRate}\% of questions immediately; the strictness is deliberate, since a missed reuse only costs
-a slow answer. Serving is measured as a throughput ratio: one model server's token rate at
-\val{BatchGeneratorSlots} concurrent requests over its rate at one
+The cache is evaluated as a classifier over \val{CacheEntries} cached entries: a paraphrase should match its own
+question's entry, a near miss should miss (Table~\ref{tab:cache}). The verifier is what makes reuse safe. At the
+same threshold, an embedding score alone reaches \val{CacheEmbPrecision}\% precision and wrongly serves
+\val{CacheEmbFalseHit}\% of near misses; adding the duplicate-question cross-encoder raises precision to
+\val{CachePrecision}\% and cuts wrong reuse to \val{CacheFalseHit}\%, at \val{CacheRecall}\% recall. Reaching
+that precision with an embedding threshold alone needs $\tau{=}0.98$, which reuses almost nothing. The
+remaining wrong reuse is the honest cost of the design, and recall below one is deliberate, since a missed
+reuse only costs a slow answer. Serving is measured as a throughput ratio: one model server's token rate at
+\val{BatchGeneratorSlots} concurrent requests over its rate at one% CHUNKMARKER
 (\val{BatchGeneratorSpeedup}$\times$). Mining is evaluated using NMI \val{HeatNMI} and ARI \val{HeatARI}
 against the known topics, with \val{HeatAttribution}\% exact page attribution and
 \val{HeatAttributionNear}\% within one page.

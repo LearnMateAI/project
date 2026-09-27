@@ -1,6 +1,16 @@
 % Every entry was written from the published record. Before submission, re-check each
 % against the ACL Anthology / DBLP export (pages and DOIs in particular).
 
+% IEEEtran.bst control entry: force "et al." after 2 names, which keeps a 4-page
+% reference list from running onto a fifth page. Cited via stctlcite in main.tex.
+@IEEEtranBSTCTL{IEEEexample:BSTcontrol,
+  CTLuse_forced_etal       = "yes",
+  CTLmax_names_forced_etal = "2",
+  CTLnames_show_etal       = "1",
+  CTLuse_alt_spacing       = "yes",
+  CTLdash_repeated_names   = "no"
+}
+
 @inproceedings{lewis2020rag,
   title     = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
   author    = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and Riedel, Sebastian and Kiela, Douwe},
@@ -257,5 +267,43 @@
   author    = {Valbrune, Mirande and De Assis, Renee and Cardell, Suzanne and Taylor, Tess C. and Sappleton, Natalie and Mitchell, C. M. and Mitchell-Phillips, Kenneth},
   publisher = {OpenStax, Rice University},
   year      = {2019},
-  note      = {LibreTexts edition, CC BY-NC-SA 4.0. \url{https://biz.libretexts.org/Bookshelves/Civil_Law/Business_Law_I_Essentials_(OpenStax)}}
+  note      = {LibreTexts edition, CC BY-NC-SA 4.0}
+}
+
+@misc{langgraph2024,
+  title        = {{LangGraph}: Building Stateful, Multi-Actor Applications with {LLM}s},
+  author       = {{LangChain Inc.}},
+  howpublished = {\url{https://github.com/langchain-ai/langgraph}},
+  year         = {2024}
+}
+
+@misc{fastapi2018,
+  title        = {{FastAPI}: A Modern, Fast Web Framework for Building {API}s with {P}ython},
+  author       = {Ram{\'i}rez, Sebasti{\'a}n},
+  howpublished = {\url{https://github.com/fastapi/fastapi}},
+  year         = {2018}
+}
+
+@misc{keycloak2024,
+  title        = {{Keycloak}: Open Source Identity and Access Management},
+  author       = {{Keycloak Community}},
+  howpublished = {\url{https://www.keycloak.org}},
+  year         = {2024}
+}
+
+@article{ji2023hallucination,
+  title   = {Survey of Hallucination in Natural Language Generation},
+  author  = {Ji, Ziwei and Lee, Nayeon and Frieske, Rita and Yu, Tiezheng and Su, Dan and Xu, Yan and Ishii, Etsuko and Bang, Yejin and Madotto, Andrea and Fung, Pascale},
+  journal = {ACM Computing Surveys},
+  volume  = {55},
+  number  = {12},
+  pages   = {1--38},
+  year    = {2023}
+}
+
+@article{gao2023ragsurvey,
+  title  = {Retrieval-Augmented Generation for Large Language Models: A Survey},
+  author = {Gao, Yunfan and Xiong, Yun and Gao, Xinyu and Jia, Kangxiang and Pan, Jinliu and Bi, Yuxi and Dai, Yi and Sun, Jiawei and Wang, Meng and Wang, Haofen},
+  journal = {arXiv preprint arXiv:2312.10997},
+  year   = {2023}
 }

@@ -1,322 +1,381 @@
-% LearnMate -- ACL/EMNLP System Demonstrations submission.
+% LearnMateAI -- IEEE conference (4-page) system demonstration paper.
 %
-% Build:   cd paper && latexmk -pdf main.tex
-% Numbers: every figure quoted in the text is a \val{Name} macro defined in
+% Build:  cd paper
+%         pdflatex main && bibtex main && pdflatex main && pdflatex main
+%
+% Numbers: every benchmark value quoted in the text is a \val{Name} macro defined in
 %          tables/numbers.tex, which integrated-backend/eval/tables.py writes from the
-%          result files of the evaluation scripts. An undefined one prints as ??.
-%          Tables are \input only when their file exists.
+%          evaluation result files. If a script has not produced a value yet, it prints ??,
+%          so the paper cannot contain a made-up measurement. Generated tables are
+%          \input only when their file exists; until then they print "[pending: run eval]".
 %
-% Demo tracks review single-blind: author names are shown, hence [final] rather than
-% [review]. Check the current call before submitting.
-\documentclass[11pt]{article}
-\usepackage[final]{acl}
-\usepackage{times}
-\usepackage{latexsym}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{microtype}
-\usepackage{inconsolata}
+% Page budget: 4 pages including references, and it is full. When eval/tables.py fills
+%          Tables II and III, they become several lines longer, so check the page count
+%          again afterwards; the easiest space to recover is in the Section IV scenarios.
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{amsmath}
+\usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{url}
 \usepackage{tikz}
 \usetikzlibrary{positioning,shapes.geometric,arrows.meta,calc}
 
 \IfFileExists{tables/numbers.tex}{\input{tables/numbers.tex}}{}
 \newcommand{\val}[1]{\ifcsname #1\endcsname\csname #1\endcsname\else\textbf{??}\fi}
-\newcommand{\tbl}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}{\textit{[pending: run eval]}}}
-\newcommand{\sys}{\textsc{LearnMate}}
-
-\title{\sys: A Fully Local Study Assistant That Scales to the Classroom}
-
-% TODO(authors): full names, affiliations and emails of every author.
-\author{Dinura Ginige \and Co-author~Name \and Co-author~Name \\
-  Department, University (TODO) \\
-  \texttt{dinura1ginige@gmail.com}}
+\newcommand{\tbl}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}%
+  {\textit{[pending: run \texttt{python -m eval.tables}]}}}
+\newcommand{\sys}{LearnMateAI}
 
 \begin{document}
+
+% Explicit line breaks: at this title size about 40 characters fit per line, so the full title
+% needs three. Breaking it by hand keeps "Verification" from being left alone on the last line.
+\title{LearnMateAI: Improving AI-Based Learning\\Support with Hybrid Retrieval\\and Answer Verification}
+
+% Three blocks on ONE row. The department name is split across two lines on purpose: set on
+% a single line it makes each column too wide for the text block, and IEEEtran then wraps the
+% third author onto a second row.
+\author{\IEEEauthorblockN{Dinura Ginige}
+\IEEEauthorblockA{\textit{Dept. of Computer Science} \\
+\textit{and Engineering} \\
+\textit{University of Moratuwa}\\
+Moratuwa, Sri Lanka \\
+dinurag.23@cse.mrt.ac.lk}
+\and
+\IEEEauthorblockN{Thevindu Fernando}
+\IEEEauthorblockA{\textit{Dept. of Computer Science} \\
+\textit{and Engineering} \\
+\textit{University of Moratuwa}\\
+Moratuwa, Sri Lanka \\
+thevinduf.23@cse.mrt.ac.lk}
+\and
+\IEEEauthorblockN{Tharumini Gamage}
+\IEEEauthorblockA{\textit{Dept. of Computer Science} \\
+\textit{and Engineering} \\
+\textit{University of Moratuwa}\\
+Moratuwa, Sri Lanka \\
+tharuminig.23@cse.mrt.ac.lk}
+}
+
 \maketitle
+% Forces "et al." after two author names (see the IEEEtranBSTCTL entry in
+% references.bib), which keeps the reference list inside the 4-page limit.
+\bstctlcite{IEEEexample:BSTcontrol}
 
 \begin{abstract}
-Study assistants built on local language models keep students' notes and questions on
-hardware the institution controls, but they are designed for one student at a time: a
-turn takes tens of seconds on a laptop, retrieval rests on heuristics, and nothing is
-learned from the class as a whole. We present \sys{}, an open-source retrieval-augmented
-study assistant that runs entirely on local models and treats a class sharing the same
-course notes as an asset rather than a load. Four components make this work:
-(1)~hybrid retrieval computed inside the vector database, with BM25 weighting and reciprocal
-rank fusion in a single query;
-(2)~a \emph{verified} answer cache that reuses an answer the system's LLM judge accepted
-only when a duplicate-question cross-encoder confirms two students asked the same thing;
-(3)~a lease-based job queue on MongoDB feeding continuously batched llama.cpp servers; and
-(4)~confusion mining, which clusters every student's questions about a document and maps
-them onto its pages under $k$-anonymity.
-On eight chapters of an open law textbook and a simulated class of \val{WorkloadStudents}
-students, server-side hybrid retrieval raises nDCG@10 after reranking from
-\val{IRLegacyNdcg} to \val{IRRrfNdcg}, the verified cache serves reused answers with
-\val{CachePrecision}\% precision where an embedding threshold alone reaches
-\val{CacheEmbPrecision}\%, and question mining attributes \val{HeatAttribution}\% of
-questions to the right page.
+Study assistants based on local language models keep students' notes and questions on hardware
+controlled by the institution, but they are usually designed for one student at a time: generating one
+grounded answer can occupy the machine long enough for a class to form a queue, and the system does
+not learn from the class as a whole. We demonstrate \sys{}, an open-source self-learning platform in
+which all models run locally. A student uploads course notes and receives grounded chat with page
+citations, practice questions, key points and summaries, each checked by a second model before use.
+Since each document is stored once using its content hash, students who share lecture notes also share
+one index and, during revision, often ask similar questions. \sys{} uses this sharing through four
+mechanisms: hybrid dense and BM25 retrieval combined inside the vector database; a verified answer
+cache that reuses a judge-approved answer only when a cross-encoder confirms that two students asked
+the same question; a lease-based job queue feeding a worker pool and continuously batched model
+servers; and confusion mining, which groups student questions by pages of the shared notes under a
+$k$-anonymity floor. In an end-to-end run, reuse answered a repeated question about two orders of
+magnitude faster than generating it again on the same machine, and a worker killed during an answer
+had its job recovered by another worker.
 \end{abstract}
+
+\begin{IEEEkeywords}
+retrieval-augmented generation, local language models, semantic caching, hybrid retrieval,
+learning analytics, educational technology
+\end{IEEEkeywords}
 
 \section{Introduction}
 
-Large language models can explain, quiz and summarise course material on demand
-\citep{kasneci2023chatgpt}, and retrieval-augmented generation \citep{lewis2020rag} lets
-them answer from a student's own notes rather than from memory. Running the models locally
-keeps those notes and questions private, which matters to institutions that cannot send
-student data to a third party. The price is speed and scale: on a laptop CPU, one grounded
-answer from a 3B-parameter model takes 30--60 seconds, and a single model instance serves
-one student at a time.
+Large language models can explain, quiz and summarise course material on demand, while
+retrieval-augmented generation (RAG) \cite{lewis2020rag} lets them answer from a student's own notes
+rather than from learned knowledge alone, reducing confident unsupported answers. Running the models
+locally keeps the notes and questions private, which matters to institutions that cannot send student
+data to third parties. The trade-off is speed and scalability: on a CPU, a 3B-parameter model generates
+one grounded answer much more slowly than a class can wait, and a single model instance handles one
+request at a time.
 
-\sys{} started as such a single-student assistant. Its documents are stored by the
-SHA-256 of their bytes, however, and that detail changes the picture. When a class uploads
-the same lecture notes, every student is talking to the \emph{same} document -- one index,
-and, during revision, largely the same questions. This paper describes four additions that
-exploit that sharing, and the evaluation harness that measures them:
+\sys{} started as a single-student assistant: a student uploads a PDF, Word, PowerPoint or \LaTeX{} file
+and can ask questions or generate practice material from it, with a second model checking every output
+first. One implementation detail makes larger-scale use possible. Documents are identified by the
+SHA-256 hash of their bytes, so when thirty students upload the same lecture notes the file is stored,
+cleaned, chunked and embedded \emph{once}, and all thirty use the same document. Revising for the same
+exam, they also tend to ask similar questions in different wording.
 
-\begin{itemize}\setlength\itemsep{0pt}
-\item \textbf{Server-side hybrid retrieval.} Stemmed BM25 whose inverse document frequencies
-  are kept by the vector database, fused with dense retrieval by RRF inside one tenant-filtered
-  query, replacing an unfused union with an in-process BM25 index (\S\ref{sec:retrieval}).
-\item \textbf{Verified answer reuse.} A semantic cache of judge-accepted answers shared
-  across students, in which a cross-encoder must confirm that two questions are duplicates
-  before an answer is reused (\S\ref{sec:cache}).
-\item \textbf{Scalable serving.} A MongoDB job queue with atomic claims and renewable leases,
-  a pool of workers, and continuously batched model servers (\S\ref{sec:serving}).
-\item \textbf{Confusion mining.} A per-document heatmap of where a class struggles, mined
-  from every student's questions with aggregation pipelines, HDBSCAN and class-based
-  TF-IDF, and shown only above a $k$-anonymity floor (\S\ref{sec:mining}).
-\end{itemize}
-
-\noindent Everything runs on local models: Qwen2.5-3B \citep{qwen2025qwen25} writes answers,
-Llama-3.2-3B \citep{grattafiori2024llama3} judges them (a different model family, so the
-judge does not favour its own style), MiniLM \citep{wang2020minilm,reimers2019sbert} embeds,
-and a MiniLM cross-encoder reranks \citep{nogueira2019passage}. Code, the evaluation
-harness and a screencast are available.\footnote{TODO(authors): repository URL and video link.}
+This paper presents the working system and four mechanisms that turn one shared document into shared
+capacity: \textbf{hybrid retrieval inside the vector database} (Section~\ref{sec:retrieval}); a
+\textbf{verified answer cache} (Section~\ref{sec:cache}), where an accepted answer is reused only after a
+cross-encoder confirms that the two questions match; a \textbf{lease queue and worker pool}
+(Section~\ref{sec:serving}), letting many workers serve the class without losing a question when one
+crashes; and \textbf{confusion mining} (Section~\ref{sec:mining}), a per-page map of where the shared notes
+cause difficulty. All models run locally: Qwen2.5-3B-Instruct
+\cite{qwen2025qwen25} generates answers, Llama-3.2-3B-Instruct \cite{grattafiori2024llama3} grades
+them, and MiniLM models embed and rerank passages. The generator and judge use different model
+families on purpose: a judge sharing the generator's weights may rate its own style highly, causing the
+quality gate to lose its usefulness. The code and the evaluation harness are
+available.\footnote{\url{https://github.com/LearnMateAI/project}. Add the demonstration video link
+here once the screencast is recorded; most demo tracks ask for one.}
 
 \begin{figure*}[t]
 \centering
 \input{figures/architecture.tex}
-\caption{\sys{} architecture. A chat turn is a job: the API enqueues it, a worker claims it
-under a lease and runs the turn graph (rewrite $\to$ cache lookup $\to$ hybrid retrieval
-$\to$ rerank $\to$ generate $\to$ judge $\to$ persist $\to$ cache store). Blue boxes are the
-components added in this work.}
+\caption{\sys{} architecture. A chat turn is a background job: the API returns \texttt{202} with a job id, and a
+worker claims the job under a lease and runs the turn graph shown left to right, from the cache lookup through
+retrieval, generation and judging to persistence. Blue boxes are the four classroom-scale components; the dashed
+edge is the mining path, which reads all student turns and returns one aggregate heatmap.}
 \label{fig:arch}
 \end{figure*}
 
-\section{System Overview}
-\label{sec:overview}
+\section{Related Work}
 
-A student uploads a PDF, Word, PowerPoint or \LaTeX{} file. Ingestion extracts and cleans
-the text, removes running headers, splits it into chunks of at most 900 characters that
-never cross a page boundary, embeds them, and stores the chunks in Qdrant
-\citep{qdrant2023} and the pages, files and all history in MongoDB. The workspace
-(Figure~\ref{fig:screens}) shows the document beside two panels: a generator for key
-points, summaries and multiple-choice or short-answer questions, and a chat. Each chat turn
-is a LangGraph state machine (Figure~\ref{fig:arch}): a follow-up is rewritten into a
-standalone question; retrieval returns candidates that a cross-encoder reranks to three;
-if the best scores at least $0.5$ the answer is written from those chunks with page
-citations, otherwise the assistant says it is answering from general knowledge. The judge
-scores grounded answers from 1 to 100 against the retrieved text; a score under 70 triggers
-one regeneration with the judge's critique, and the better of the two attempts is kept.
-Everything slow runs as a background job that the browser polls, with the answer streamed
-into the job record as it is written.
+Hybrid lexical-dense retrieval and fusion methods are well studied \cite{cormack2009rrf}, as are
+learned sparse representations \cite{formal2021splade}. \sys{} contributes an engineering result rather than
+a new model: BM25 can run inside the vector database next to the dense index and use the same tenant filter.
+Semantic caches answer a new prompt with an earlier similar response \cite{bang2023gptcache}, where the main
+challenge is a safe similarity threshold; vCache \cite{schroeder2025vcache} learns one per entry with an
+error guarantee, whereas our approach suits a judged pipeline: a cross-encoder decides the match, and only
+answers accepted by an LLM judge \cite{zheng2023judge} are stored, so a reused answer has passed two checks.
+Continuous batching \cite{yu2022orca} is common in GPU serving; we contribute the queue design that lets a
+local deployment use it without losing work when a worker fails. Confusion has been detected from course-forum
+posts \cite{yang2015confusion}; \sys{} mines the questions students ask the assistant instead, mapped to pages
+of the shared notes under $k$-anonymity \cite{sweeney2002kanon}.
 
-\section{Scaling to the Classroom}
+\section{System Architecture and Technical Design}
+
+\subsection{Platform, request path and data model}
+
+The backend is a FastAPI web layer over an engine library (Fig.~\ref{fig:arch}). The engine does not
+depend on HTTP or user management, while the web layer handles accounts (local bcrypt tokens or federated
+Keycloak), access control and requests; that separation lets one service function handle both a web request
+and a queued job. Upload, generation and chat all return \texttt{202 Accepted} with a job id that the browser
+polls for progress and the result.
+
+During ingestion, the system validates the upload, stores its bytes in GridFS, cleans the text (running
+headers, ligatures, hyphenation), divides it into chunks of at most 900 characters without crossing page
+boundaries, and embeds them. Chunk vectors go to Qdrant; data that cannot be recreated (files, page text,
+accounts, history, resources, verdicts and the queue) goes to MongoDB, so losing Qdrant requires a re-index
+while losing MongoDB loses the corpus. Since a document is identified by its content hash, ownership cannot be
+a field on it: it is kept in a separate collection with one row per person per document, which every access
+check uses, and the bytes are deleted only after the last owner deletes.
+
+A chat turn is a compiled state machine over the nodes in Fig.~\ref{fig:arch}, with one conditional edge
+used for a retry. The mode for each turn is selected from the retrieval score rather than from another
+model. In \emph{pdf} mode the best reranked chunk passes the threshold, so the answer is generated only
+from those chunks, includes page citations, and is judged strictly against them. In \emph{general} mode
+no relevant content is found, so the contexts are removed to prevent a weak passage from grounding the
+answer, and the interface indicates this. Generated resources pass two checks, cheapest first:
+structural validators in plain Python, then the judge, whose critique is used for one regeneration. The
+gates fail closed because unreviewed content should never be silently accepted.
 
 \subsection{Hybrid retrieval inside the vector database}
 \label{sec:retrieval}
 
-The original retriever took the top 15 dense hits and the top 10 hits of an in-process
-BM25 index and returned their union, unfused, for the reranker. The BM25 index lived in
-each server process, was rebuilt from MongoDB on first use, and scored every chunk of the
-document on every query.
+The original retriever returned the uncombined union of the top dense results and the top results from
+an in-process BM25 index. That index was rebuilt in every server process, rescored every chunk for
+each query, and did not use stemming, so \emph{duty} and \emph{duties} were different terms.
 
-\sys{} now computes both halves in Qdrant. Okapi BM25 \citep{robertson2009bm25} factors
-into a document part -- the saturated, length-normalised term frequency
-$\frac{tf(k_1+1)}{tf+k_1(1-b+b\,|d|/\overline{|d|})}$ -- and a query part, the inverse
-document frequency. The first is computed at ingest and stored as a sparse vector over
-Porter-stemmed \citep{porter1980}, stopword-filtered terms hashed to 31-bit ids; the second
-is computed by the server from the collection's own statistics at query time (Qdrant's IDF
-modifier), so no process holds corpus statistics. A query then issues one request with two
-prefetches -- dense and sparse, each filtered to the student's document, which is the
-collection's tenant key -- fused by reciprocal rank \citep[$k{=}60$;][]{cormack2009rrf}.
-Because a fused score is a rank rather than a similarity, the fallback mode decision (used
-if the reranker is unavailable) compares the chunk's own dense cosine, fetched alongside.
-An existing collection is migrated by copying its dense vectors, without re-embedding.
+Both methods now run inside Qdrant. Okapi BM25 \cite{robertson2009bm25} has a document part---the
+saturated, length-normalised term frequency
+$tf(k_1{+}1)/(tf+k_1(1-b+b|d|/\overline{|d|}))$---and a query part based on inverse document frequency.
+The document part is calculated during ingestion and stored as a sparse vector of stemmed,
+stopword-filtered terms; the query part is calculated by the server from the collection's own
+statistics, so no application process stores corpus statistics. Each request performs two prefetches,
+dense and sparse, both filtered to the student's document, which is the collection's tenant key, fused
+by reciprocal rank \cite{cormack2009rrf} with $k{=}60$; a cross-encoder then reranks the shortlist to
+the three chunks sent to the prompt. Since a fused score represents rank rather than similarity, the
+fallback decision without the reranker uses the chunk's own dense cosine, fetched at the same time. An
+existing deployment migrates by copying dense vectors into the new schema, and a configuration error
+falls back to the old union instead of failing a question.
 
-\subsection{Verified answer reuse}
+\subsection{Verified answer cache}
 \label{sec:cache}
 
-Semantic caches answer a new query with the response to a previous, similar one
-\citep{bang2023gptcache,gill2025meancache}. Choosing the similarity threshold is the hard
-part \citep{schroeder2025vcache}. Questions about the same passage share their content
-words, and questions that differ only in \emph{advantages} vs.\ \emph{disadvantages}, or in a rule
-vs.\ its exception, embed almost identically. A threshold loose enough to catch real
-paraphrases therefore also serves wrong answers.
+Questions about one passage often share many content words. Two that differ only in \emph{advantages}
+versus \emph{disadvantages}, or in a rule versus its exception, can therefore produce almost identical
+embeddings, while real paraphrases can sit near $0.8$ cosine, so no single embedding threshold separates
+these cases reliably. \sys{} therefore separates shortlisting from the final decision, as retrieval
+separates search from reranking. A lookup embeds the standalone question and selects the three nearest
+cached questions for the same document, generator, prompt version, embedding model and index version;
+candidates above a cosine threshold are checked by a cross-encoder trained on duplicate question pairs,
+and a hit requires its probability to exceed a second threshold.
 
-\sys{} separates shortlisting from deciding, as retrieval does. A lookup embeds the
-student's standalone question and takes the three nearest cached questions for the same
-document, generator, prompt version and index version (a re-ingested document invalidates
-its answers). Candidates above a cosine threshold $\tau$ are read by a cross-encoder trained
-on duplicate questions (\texttt{quora-distilroberta-base}), and a hit needs its
-probability above a second threshold. Only answers the judge scored and accepted, in
-grounded mode, and not produced by rewriting a follow-up, are stored; a hit returns the
-answer with its citations and source chunks, and the interface labels it ``verified answer
-reused''. Cache entries contain no user or session identifiers.
+Only answers accepted by the judge in pdf mode, and not created by rewriting a follow-up, are stored,
+because a follow-up depends on a previous conversation the next student does not have. Entries expire and
+are invalidated when the document is re-ingested or deleted. No user or session identifier is stored in an
+entry---the cache stores an answer about a document, not who asked. A hit returns the stored answer with
+its citations, marked as reused, with its similarity and verifier scores.
 
-\subsection{Scalable serving}
+\subsection{Lease queue and worker pool}
 \label{sec:serving}
 
-The original server had one worker thread and an in-memory queue. That was correct, since
-llama.cpp \citep{gerganov2023llamacpp} holds one context per model, but it serialised the
-whole class. \sys{} makes the job records themselves the queue. A worker claims the oldest
-due job with one atomic \texttt{find\_one\_and\_update} that stamps a lease with the
-\emph{database's} clock (\texttt{\$\$NOW}), so workers on different machines agree on
-expiry. It renews the lease every 15\,s, and writes a result only while it still holds the
-lease. A reaper requeues jobs whose lease has lapsed, up to a retry budget, and a unique
-index on (job, role) makes a retried turn's persistence idempotent. Any number of worker
-threads and processes can share one database. The models move behind \texttt{llama-server}
-with parallel slots, which interleaves the tokens of concurrent requests in shared forward
-passes: continuous batching \citep{yu2022orca,kwon2023vllm}. The default configuration is
-unchanged, and the pool is enabled with two settings.
+The original design used one worker thread and an in-memory queue. One worker was \emph{correct}, not
+simply inefficient: the in-process model has one mutable context, so two threads generating at once could
+corrupt both replies. But this serialised the class, and a restart failed all waiting jobs.
+
+The job records now act as the queue. A worker claims the oldest due job using one atomic
+find-and-update operation and assigns a lease from the \emph{database's} clock, which makes lease
+expiry consistent for workers on different machines. The worker renews the lease periodically and
+writes the result only while it still owns the lease. A reaper returns expired jobs to the queue up to
+a retry limit, so another worker finishes a job after a crash and a poisoned job cannot stop every
+worker in turn, while a unique index makes persistence of a retried turn idempotent. The models run in
+\texttt{llama-server} instances with parallel slots, which interleave tokens from concurrent requests
+in shared forward passes---continuous batching \cite{yu2022orca}. If the models still run in-process,
+the code forces the worker count to one, preserving the correctness rule even after a configuration
+mistake.
 
 \subsection{Confusion mining}
 \label{sec:mining}
 
-Because a document is shared, every question any student asks about it is evidence about
-the document. Two MongoDB aggregation pipelines do the counting server-side: a
-\texttt{\$setWindowFields} pass pairs each answer with the question before it, and a
-\texttt{\$facet} computes per-page counts of questions, distinct students, answers written
-from general knowledge, and low-scored answers. A question is attributed to the page of its
-best citation. If the document could not answer it, it is attributed to the page retrieval
-came nearest to, since that is the page that failed to answer it. Questions are embedded and clustered with
-HDBSCAN \citep{campello2013hdbscan,mcinnes2017hdbscan}, which finds the number of topics
-itself and leaves one-off questions as noise, and each topic is labelled by class-based
-TF-IDF, following BERTopic \citep{grootendorst2022bertopic}. A page's confusion combines its
-share of questions with four signals: answered from general knowledge, scored low,
-delivered below the pass mark, and the same student returning to the same topic within a
-week. Pages and topics that fewer than $k{=}3$ students contributed to are suppressed
-\citep{sweeney2002kanon}, and only keywords are shown, never questions. Clicking a page in
-the heatmap opens it in the reader.
+Since the document is shared, every student question about it is evidence about the \emph{document}. Two
+MongoDB aggregation pipelines count inside the database: a window pass pairs each answer with the
+preceding question, and a faceted pass calculates, per page, the number of questions, distinct students,
+general-knowledge fallbacks and low-scored answers. A question is assigned to the page of its best
+citation, or, if the document could not answer it, to the page retrieval came closest to, because that
+page indicates where coverage was missing. Questions are clustered using HDBSCAN
+\cite{campello2013hdbscan}, which finds the number of topics automatically and treats one-off questions
+as noise, and each topic is labelled using class-based TF-IDF as in BERTopic
+\cite{grootendorst2022bertopic}. A page's confusion score combines its share of class questions with
+four signals that the answers did not succeed---general-knowledge fallback, a low score, a score still
+low after retry, and the same student returning to the same topic within one week:
+\begin{equation}
+\mathrm{conf}(p) = \mathrm{vol}(p)\cdot\frac{1+\sum_i w_i x_i(p)}{1+\sum_i w_i},
+\label{eq:conf}
+\end{equation}
+where $\mathrm{vol}(p)$ is the page's question count divided by the maximum across shown pages and $x_i(p)$
+are the four signal rates. A page with no questions scores zero, and the components are returned with the
+score because \emph{why} a page is flagged is more useful than the count alone. Pages and topics with fewer
+than $k{=}3$ contributing students are hidden, and only topic keywords are shown, never question text.
 
-\begin{figure}[t]
+\section{Demonstration Setup and Practical Scenarios}
+
+\begin{table}[t]
+\caption{End-to-end verification. Speed is a ratio, not a wall-clock time.}
+\label{tab:verify}
 \centering
-\IfFileExists{figures/screens/workspace.png}{%
-  \includegraphics[width=\columnwidth]{figures/screens/workspace.png}}{%
-  \fbox{\parbox[c][3.2cm][c]{0.92\columnwidth}{\centering\small [screenshot: workspace with
-  class-insights heatmap and a reused answer]}}}
-\caption{The workspace: the document (left) and the class-insights heatmap (right). Darker
-pages drew more questions that landed badly, and hatched pages had fewer than $k$ students.
-Clicking a page opens it in the reader.}
-\label{fig:screens}
-\end{figure}
+\footnotesize
+\begin{tabular}{@{}p{0.635\columnwidth}r@{}}
+\toprule
+\textbf{Check} & \textbf{Result} \\
+\midrule
+29-step smoke test, defaults then all features on & 29/29, 29/29 \\
+Cache hit, exact repeat, against a full turn on the same machine & $\sim$$100\times$ faster \\
+Cache hit, paraphrase (cosine 0.96, verifier 0.97); near miss not reused & pass \\
+Worker killed mid-answer: requeued on lease lapse, finished by peer & pass \\
+Continuous batching, two concurrent requests & $+30\%$ tok/s \\
+Backend unit tests; browser checks over all views & 108; 11/11 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\section{Demonstration}
+The demonstration runs on one machine and needs no network after installation: MongoDB and Qdrant in
+containers, the backend, a React frontend behind nginx, and two \texttt{llama-server} processes for the
+generator and judge. The model weights total about 4\,GB, so a laptop is sufficient, and a health endpoint
+reports both databases, both models and the queue depth. The material is one chapter of an open business-law
+textbook \cite{valbrune2019bizlaw} and a pre-seeded simulated fortnight of questions from forty students.
 
-The demonstration follows two students through one chapter. Student~A uploads the chapter
-and asks what makes a contract enforceable; the answer streams in with page citations while
-the judge reviews it. Student~B uploads the same file (it is recognised by hash and not
-re-processed) and asks the question in other words; the answer appears immediately, marked
-as a verified reuse, and hovering the badge shows the similarity and verifier scores. Asking
-instead about the \emph{exception} to the rule is not served from the cache. The instructor's
-view is the class-insights tab: the heatmap after a simulated fortnight of forty students,
-the topics they asked about, and a page that the chapter explains poorly; clicking the page opens
-it. Finally, a terminal shows two worker processes draining the queue; one is killed
-mid-answer, its lease lapses, and the other finishes the turn.
+\textbf{A grounded answer and a graded quiz.} Student~A uploads the chapter and asks what makes a contract
+enforceable. The answer is streamed with a grounded label and citation chips that open the cited page in
+the reader next to the chat, alongside the judge's score and the rejected first attempt with its critique.
+Student~A then generates twenty multiple-choice questions for the chapter, distributed across page groups,
+then pooled and de-duplicated.
 
-\section{Evaluation}
-\label{sec:eval}
+\textbf{The same question from another student.} Student~B uploads the same file, which the hash
+identifies, so it is not processed again. Student~B asks the same question in different wording and the
+answer appears immediately with a reused badge, the similarity and verifier scores shown on hover. If
+the student instead asks about the \emph{exception} to the rule---a near miss that looks almost
+identical to an embedding model---the cached answer is not used.
 
-\paragraph{Setup.} The corpus is \val{CorpusDocs} chapters (\val{CorpusPages} pages,
-\val{CorpusChunks} chunks) of an open law textbook \citep{valbrune2019bizlaw}, each ingested as
-one shared document. Following InPars and Promptagator
-\citep{bonifacio2022inpars,dai2023promptagator}, the local generator wrote, for each of
-\val{WorkloadFamilies} sampled chunks, a question the chunk answers, two paraphrases of
-it, and a near-miss (a question on the same topic needing a different answer): in total
-\val{WorkloadQuestions} questions with a known source chunk. A simulated class of
-\val{WorkloadStudents} students then asks \val{WorkloadAsks} questions over two weeks,
-choosing questions by a Zipf distribution and wordings at random. One chapter is used for
-tuning, and results are reported on the other seven. Unless stated otherwise, times are from a CPU-only laptop
-(\val{TurnMachine}).
+\textbf{The lecturer's view.} The class-insights tab displays the heatmap after the simulated fortnight.
+Darker pages drew more questions with poor outcomes, hatched pages were below the $k$-anonymity floor, and
+topics carry badges such as ``40\% not answered from the notes''. Clicking a page opens it in the reader, so
+the view ends at the paragraph that needs improvement.
 
-% EVALUATION-PROSE: written after the results are in (see integrated-backend/eval).
+\textbf{Many students, and a worker that dies.} Two worker processes consume jobs while the API only adds
+them, so two students are answered at once. One worker is then killed during an answer: its lease
+expires, the reaper returns the job to the queue, and the other completes the turn on the second attempt,
+persisted only once.
 
-\paragraph{Retrieval.}
-\begin{table}[t]
-\centering\small\setlength\tabcolsep{3pt}
-\resizebox{\columnwidth}{!}{\tbl{ir}}
-\caption{Retrieval over \val{IRQueries} questions (seeds and paraphrases): Recall@3 (what
-reaches the prompt) and graded nDCG@10, before and after reranking, and first-stage
-latency.}
+\section{Evaluation and Performance Metrics}
+
+\subsection{Harness, corpus and end-to-end verification}
+
+Every number reported here is generated by a script in the repository's evaluation package rather than entered
+manually. Each writes a JSON result recording the commit, machine and settings, and a value not yet produced is
+shown as \textbf{??}. The harness uses its own database and vector container, so benchmarks cannot reach real
+user data.
+
+The corpus contains \val{CorpusDocs} chapters (\val{CorpusPages} pages, \val{CorpusChunks} chunks) from an
+open law textbook \cite{valbrune2019bizlaw}, each ingested as one shared document. Following InPars
+\cite{bonifacio2022inpars}, the local generator creates, for each of \val{WorkloadFamilies} sampled chunks,
+one question answered by the chunk, two paraphrases, and a near miss needing a different
+answer---\val{WorkloadQuestions} questions with a known source chunk. A simulated class of
+\val{WorkloadStudents} students then
+asks \val{WorkloadAsks} questions over two weeks, drawn by a Zipf distribution, with one chapter held out for
+tuning thresholds.
+
+Table~\ref{tab:verify} reports a complete run on a CPU-only laptop using temporary stores. It is a correctness
+check rather than a benchmark, but it verifies the demonstration's two main claims: reuse is far cheaper than
+generation, and killing a worker does not lose the job. Speeds are ratios only, since a wall-clock time would
+describe the deployment's CPU or GPU, not \sys{}.
+
+\subsection{Component benchmarks}
+
+Retrieval is evaluated on the seed questions and their paraphrases using Recall@3 and graded nDCG@10, before
+and after reranking (Table~\ref{tab:ir}). Hybrid retrieval increases nDCG@10 after reranking from
+\val{IRLegacyNdcg} to \val{IRRrfNdcg}.
+% A scaling run (eval/ir_scaling.py) also compares in-process BM25 with the database's own as a
+% document grows. It is left out of the text for space, and because quoting it honestly needs a
+% ratio macro that eval/tables.py does not yet emit; to add one:
+%   numbers["ScaleBm25Ratio"] = _f(big["legacy_bm25_ms"]["p50"] / big["qdrant_bm25_ms"]["p50"], 1)
+% then cite \val{ScaleBm25Ratio}$\times$. Millisecond figures stay out of the prose deliberately:
+% they describe the machine, not the system.
+
+% [b]: this table is allowed to sit at the foot of a column. As a top float it landed on the page where
+% the bibliography starts and pushed the last references onto a fifth page.
+\begin{table}[b]
+\caption{Retrieval over \val{IRQueries} questions. Latency is from one machine, comparable only within
+this run.}
 \label{tab:ir}
+\centering\footnotesize\setlength\tabcolsep{3pt}
+\resizebox{\columnwidth}{!}{\tbl{ir}}
 \end{table}
 
-\paragraph{Answer reuse.}
-\begin{table}[t]
-\centering\small\setlength\tabcolsep{4pt}
-\resizebox{\columnwidth}{!}{\tbl{cache}}
-\caption{Cache decisions on held-out chapters: paraphrases should hit their own question's
-entry, near-misses should miss. Thresholds chosen on the development chapter.}
-\label{tab:cache}
-\end{table}
+The cache is evaluated as a classifier: a paraphrase should match its own question entry, a near miss
+should not. It achieves \val{CachePrecision}\% hit precision against \val{CacheEmbPrecision}\% for an
+embedding threshold alone, at \val{CacheRecall}\% recall, and replaying the fortnight answers
+\val{ReplayHitRate}\% of questions immediately; the strictness is deliberate, since a missed reuse only costs
+a slow answer. Serving is measured as a throughput ratio: one model server's token rate at
+\val{BatchGeneratorSlots} concurrent requests over its rate at one
+(\val{BatchGeneratorSpeedup}$\times$). Mining is evaluated using NMI \val{HeatNMI} and ARI \val{HeatARI}
+against the known topics, with \val{HeatAttribution}\% exact page attribution and
+\val{HeatAttributionNear}\% within one page.
 
-\paragraph{Serving.}
+\subsection{Limitations}
 
-\paragraph{Confusion mining.}
-\begin{table}[t]
-\centering\small
-\tbl{heatmap}
-\caption{Question mining against the simulated class's known topics and source pages.}
-\label{tab:heatmap}
-\end{table}
+The questions are LLM-generated and the class simulated; generated questions share vocabulary with their
+source chunks, favouring lexical retrieval, so paraphrases are reported separately, and the simulation has
+no judge scores, so two of the four confusion signals are absent from the mining evaluation. The corpus is
+one English law textbook, the verifier was trained on general web questions, and no real students took part.
 
-\section{Related Work}
+\section{Conclusion and Future Work}
 
-Hybrid lexical-dense retrieval and its fusion functions are well studied
-\citep{cormack2009rrf,bruch2023fusion,thakur2021beir}, as are learned sparse
-representations \citep{formal2021splade}; \sys{} contributes an engineering point: that the
-whole of BM25 can live in the vector database next to the dense index, sharing its tenant
-filter. Semantic caches \citep{bang2023gptcache,gill2025meancache} trade freshness for
-latency. vCache \citep{schroeder2025vcache} learns per-entry thresholds with an error
-guarantee. \sys{} instead verifies each candidate with a cross-encoder and caches only
-answers an LLM judge accepted \citep{zheng2023judge}, so a reused answer has been checked
-twice. Continuous batching \citep{yu2022orca,kwon2023vllm} is standard in GPU serving; we
-show the queue design that lets a local deployment use it. Confusion in course forums has
-been detected from posts \citep{yang2015confusion} and surfaced on learning-analytics
-dashboards \citep{verbert2013dashboards}; \sys{} mines the questions students already ask
-an assistant, grounded in the pages of the notes they share. RAG evaluation frameworks
-\citep{es2024ragas} score answers; our harness scores the systems components.
+\sys{} shows that a self-learning platform can run fully on local hardware while serving a class, by
+treating a shared document as shared capacity: shared retrieval, shared verified answers, shared serving and
+shared information about where the notes cause difficulty. The four mechanisms are independent, each enabled
+through configuration, and each falls back to the previous behaviour rather than to an error, so a retrieval or
+cache fault cannot lose a student's answer.
 
-\section{Conclusion}
+Three directions follow. The first is classroom deployment, which would calibrate the $k$-anonymity floor
+against real class sizes and let students decide how reused answers are presented. The second is adaptive
+thresholds: a per-entry error guarantee similar to vCache \cite{schroeder2025vcache} could allow more reuse
+while reducing incorrect reuse. The third is closing the loop, since the page that causes the class most
+difficulty is a natural target for extra practice generation.
 
-\sys{} turns a class sharing course notes into shared retrieval, shared verified answers,
-shared serving capacity and shared insight, without data leaving local hardware. Every
-number above is produced by a script in the repository, with the commit and machine
-recorded alongside it.
-
-\section*{Limitations}
-
-The questions are LLM-generated and the class is simulated. Generated questions share
-vocabulary with their source chunk, which favours lexical retrieval, so we report
-paraphrases separately, and the simulation has no judge scores, so two of the four
-confusion signals are absent from the mining evaluation. The corpus is one English law
-textbook. BM25's IDF is collection-wide and its average length fixed at index time. The
-duplicate-question verifier was trained on general web questions, not legal ones. Latency
-figures come from a single machine. No real students took part. A classroom study is
-the necessary next step.
-
-\section*{Ethics Statement}
-
-All models run locally; no student text leaves the deployment. Cache entries hold no
-user or session identifiers, and the confusion heatmap shows only aggregates above a
-$k$-anonymity floor and never question text, though aggregates about small classes can
-still be revealing and $k$ should be set with that in mind. A reused answer is labelled
-as such. The corpus is used under its CC BY-NC-SA 4.0 licence for non-commercial research
-and is not redistributed.
-
+\bibliographystyle{IEEEtran}
 \bibliography{references}
 
 \end{document}

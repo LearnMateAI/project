@@ -14,7 +14,7 @@ query is answered by both, and it makes no normality assumption about per-query 
 
 import math
 import random
-from typing import Dict, Hashable, List, Optional, Sequence, Tuple
+from typing import Dict, Hashable, Optional, Sequence, Tuple
 
 
 def recall_at_k(ranked: Sequence[Hashable], relevant: Sequence[Hashable], k: int) -> float:

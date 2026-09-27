@@ -16,7 +16,6 @@ that no script produced.
 
 import json
 import sys
-from pathlib import Path
 from typing import Dict, List, Optional
 
 from eval.common import PAPER_DIR, RESULTS_DIR

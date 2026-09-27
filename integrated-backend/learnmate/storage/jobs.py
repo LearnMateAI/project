@@ -35,7 +35,7 @@ and every lease time is computed by the database server (`$$NOW`), so workers on
 with different clocks still agree on when a lease has lapsed.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from bson import ObjectId

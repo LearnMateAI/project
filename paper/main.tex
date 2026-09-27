@@ -111,11 +111,10 @@ capacity: \textbf{hybrid retrieval inside the vector database} (Section~\ref{sec
 cross-encoder confirms that the two questions match; a \textbf{lease queue and worker pool}
 (Section~\ref{sec:serving}), letting many workers serve the class without losing a question when one
 crashes; and \textbf{confusion mining} (Section~\ref{sec:mining}), a per-page map of where the shared notes
-cause difficulty. All models run locally: Qwen2.5-3B-Instruct
-\cite{qwen2025qwen25} generates answers, Llama-3.2-3B-Instruct \cite{grattafiori2024llama3} grades
-them, and MiniLM models embed and rerank passages. The generator and judge use different model
-families on purpose: a judge sharing the generator's weights may rate its own style highly, causing the
-quality gate to lose its usefulness. The code and the evaluation harness are
+cause difficulty. All models run locally: Qwen2.5-3B-Instruct generates answers, Llama-3.2-3B-Instruct grades
+them, and MiniLM models embed and rerank passages. The generator and judge use different model families on
+purpose: a judge sharing the generator's weights may rate its own style highly, costing the quality gate its
+usefulness. The code and the evaluation harness are
 available.\footnote{\url{https://github.com/LearnMateAI/project}. Add the demonstration video link
 here once the screencast is recorded; most demo tracks ask for one.}
 
@@ -131,9 +130,9 @@ edge is the mining path, which reads all student turns and returns one aggregate
 
 \section{Related Work}
 
-Hybrid lexical-dense retrieval and fusion methods are well studied \cite{cormack2009rrf}, as are
-learned sparse representations \cite{formal2021splade}. \sys{} contributes an engineering result rather than
-a new model: BM25 can run inside the vector database next to the dense index and use the same tenant filter.
+Hybrid lexical-dense retrieval and fusion methods are well studied \cite{cormack2009rrf}. \sys{} contributes an
+engineering result rather than a new model: BM25 can run inside the vector database next to the dense index and
+use the same tenant filter.
 Semantic caches answer a new prompt with an earlier similar response \cite{bang2023gptcache}, where the main
 challenge is a safe similarity threshold; vCache \cite{schroeder2025vcache} learns one per entry with an
 error guarantee, whereas our approach suits a judged pipeline: a cross-encoder decides the match, and only
@@ -354,10 +353,14 @@ same threshold, an embedding score alone reaches \val{CacheEmbPrecision}\% preci
 that precision with an embedding threshold alone needs $\tau{=}0.98$, which reuses almost nothing. The
 remaining wrong reuse is the honest cost of the design, and recall below one is deliberate, since a missed
 reuse only costs a slow answer. Serving is measured as a throughput ratio: one model server's token rate at
-\val{BatchGeneratorSlots} concurrent requests over its rate at one% CHUNKMARKER
-(\val{BatchGeneratorSpeedup}$\times$). Mining is evaluated using NMI \val{HeatNMI} and ARI \val{HeatARI}
-against the known topics, with \val{HeatAttribution}\% exact page attribution and
-\val{HeatAttributionNear}\% within one page.
+\val{BatchGeneratorSlots} concurrent requests over its rate at one
+(\val{BatchGeneratorSpeedup}$\times$). Mining recovers the class's topic structure well---NMI \val{HeatNMI},
+ARI \val{HeatARI}, with \val{HeatClustered}\% of questions clustered rather than left as noise---and is weaker
+at placing them: \val{HeatAttribution}\% of questions are attributed to the exact page they were written from,
+\val{HeatAttributionNear}\% to within one page, and the two deliberately confusing pages planted in the
+workload appear in the top three by confusion score \val{HeatPlanted}\% of the time. The heatmap is therefore
+a useful pointer for a lecturer rather than a precise diagnosis, and two of its four signals are missing here
+because the simulation runs no judge.
 
 \subsection{Limitations}
 

@@ -1,0 +1,16 @@
+.git
+venv
+.venv
+**/__pycache__
+*.pyc
+*.log
+.env
+.env.*
+!.env.example
+build
+data
+models
+scripts
+eval
+tests
+keycloak

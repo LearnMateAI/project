@@ -1,0 +1,145 @@
+# The production stack: everything behind one Nginx on 80/443, nothing else published.
+#
+#   docker compose up -d --build      what scripts/deploy-ec2.sh runs on the EC2 host
+#   docker compose ps                 check it
+#   docker compose down               stop it (named volumes keep the data)
+#
+# Never `docker compose down -v` on the server: that deletes MongoDB (the PDFs and page
+# text), Qdrant, the Keycloak realm with every registered user, and the ~4 GB of models.
+#
+# This is the deployment compose file. Local development still uses
+# integrated-backend/docker-compose.yml, which publishes the databases on non-default host
+# ports for a machine that runs other projects alongside this one.
+#
+# Every value that differs per server comes from ./.env (see .env.example), which the
+# deploy writes from the APP_ENV_FILE_B64 GitHub secret.
+
+services:
+  mongo:
+    # 7, not the 8 used locally: MongoDB 8 fails to start on the 6.x kernels the current
+    # Ubuntu EC2 AMIs ship. Nothing in the backend needs a version-8 feature.
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data_v7:/data/db
+    command: ["--wiredTigerCacheSizeGB", "0.5"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
+
+  qdrant:
+    # Kept within one minor of the qdrant-client pin in integrated-backend/requirements.txt.
+    image: qdrant/qdrant:v1.18.1
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "/qdrant/qdrant", "--version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    restart: unless-stopped
+    # start-dev keeps the realm in the embedded database on the keycloak_data volume. TLS
+    # ends at Nginx, so Keycloak itself only ever speaks HTTP on the internal network.
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HEALTH_ENABLED: "true"
+      # Served under /auth on the app's own origin, so the browser never makes a
+      # cross-origin call to log in.
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: ${PUBLIC_HOST}
+      KC_HOSTNAME_STRICT: "false"
+    # No healthcheck: the image has no curl, and a failing probe here once deadlocked the
+    # whole stack. scripts/deploy-ec2.sh waits for the port instead.
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./integrated-backend/keycloak/realm:/opt/keycloak/data/import:ro
+      - ./integrated-backend/keycloak/themes:/opt/keycloak/themes:ro
+
+  backend:
+    build:
+      context: ./integrated-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    # The wiring between containers lives here rather than in .env, so a server's .env
+    # only ever holds what is actually specific to that server.
+    environment:
+      FRONTEND_ORIGIN: ${PUBLIC_ORIGIN}
+      KEYCLOAK_ENABLED: "true"
+      # Must match the `iss` claim exactly, which Keycloak builds from the public URL.
+      KEYCLOAK_ISSUER: ${PUBLIC_ORIGIN}/auth/realms/learnmate
+      # Fetched over the internal network, not through Nginx and back.
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/auth/realms/learnmate/protocol/openid-connect/certs
+      LEARNMATE_MONGODB_URI: mongodb://mongo:27017
+      LEARNMATE_MONGODB_DB: learnmate
+      LEARNMATE_QDRANT_URL: http://qdrant:6333
+      LEARNMATE_QDRANT_COLLECTION: learnmate_chunks
+      LEARNMATE_MODELS_DIR: /app/models
+    depends_on:
+      mongo:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      # The GGUFs download here on first use and survive rebuilds.
+      - model_data:/app/models
+      # Embedding, reranker and verifier models (learnmate/config.py points HF_HOME here).
+      - hf_cache:/app/data/hf_cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+
+  frontend:
+    build:
+      context: ./integrated-frontend
+      args:
+        # Empty: the API is same-origin, under /api.
+        VITE_API_BASE_URL: ""
+        VITE_KEYCLOAK_URL: ${PUBLIC_ORIGIN}/auth
+        VITE_KEYCLOAK_REALM: learnmate
+        VITE_KEYCLOAK_CLIENT_ID: learnmate-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST}
+    volumes:
+      # The official image runs envsubst over /etc/nginx/templates/*.template at start, so
+      # the certificate path follows PUBLIC_HOST instead of being hard-coded to one domain.
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      # Issued on the host by certbot (scripts/deploy-ec2.sh does it on first deploy).
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+      - keycloak
+
+volumes:
+  mongo_data_v7:
+  qdrant_data:
+  keycloak_data:
+  model_data:
+  hf_cache:

@@ -1,0 +1,62 @@
+[
+  {
+    "split": "test",
+    "split_name": "chapter-held-out",
+    "model": "base",
+    "label": "Qwen2.5-3B-Instruct (base, q4_k_m)",
+    "n": 60,
+    "accuracy": 0.5833,
+    "mean_token_f1": 0.5102,
+    "rouge_l": 0.3947,
+    "semantic_similarity": 0.7781,
+    "groundedness": 1.0,
+    "hallucination_rate": 0.0,
+    "latency_p95_ms": 48167.3,
+    "latency_median_ms": 19363.6
+  },
+  {
+    "split": "test",
+    "split_name": "chapter-held-out",
+    "model": "finetuned",
+    "label": "Qwen2.5-1.5B + LoRA qwen25-lora-20260815-090709 (merged, q8_0)",
+    "n": 60,
+    "accuracy": 0.8167,
+    "mean_token_f1": 0.6054,
+    "rouge_l": 0.5035,
+    "semantic_similarity": 0.839,
+    "groundedness": 0.9667,
+    "hallucination_rate": 0.0333,
+    "latency_p95_ms": 33694.2,
+    "latency_median_ms": 12148.8
+  },
+  {
+    "split": "test_strict",
+    "split_name": "document-held-out",
+    "model": "base",
+    "label": "Qwen2.5-3B-Instruct (base, q4_k_m)",
+    "n": 60,
+    "accuracy": 0.6333,
+    "mean_token_f1": 0.5337,
+    "rouge_l": 0.4245,
+    "semantic_similarity": 0.7821,
+    "groundedness": 0.95,
+    "hallucination_rate": 0.05,
+    "latency_p95_ms": 48325.5,
+    "latency_median_ms": 18963.8
+  },
+  {
+    "split": "test_strict",
+    "split_name": "document-held-out",
+    "model": "finetuned",
+    "label": "Qwen2.5-1.5B + LoRA qwen25-lora-20260815-090709 (merged, q8_0)",
+    "n": 60,
+    "accuracy": 0.85,
+    "mean_token_f1": 0.6405,
+    "rouge_l": 0.5505,
+    "semantic_similarity": 0.8576,
+    "groundedness": 0.95,
+    "hallucination_rate": 0.05,
+    "latency_p95_ms": 31870.6,
+    "latency_median_ms": 14073.4
+  }
+]

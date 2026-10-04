@@ -119,8 +119,16 @@ function Sidebar({ open = false, collapsed = false, onClose, onHide }) {
 
   function handleLogout() {
     onClose?.();
+    // A Keycloak session's logout() is a full-page redirect to Keycloak's own logout
+    // endpoint, which itself lands back on /login once done. Calling navigate("/login")
+    // right after races that redirect with a client-side route change -- and /login's own
+    // effect immediately calls loginWithKeycloak() for an unauthenticated view, which can
+    // win the race and silently start a fresh Keycloak login before the real logout ever
+    // reaches Keycloak's server. Only the local (non-Keycloak) path has no navigation of
+    // its own and needs this call.
+    const isKeycloakSession = localStorage.getItem("authProvider") === "keycloak";
     logout();
-    navigate("/login");
+    if (!isKeycloakSession) navigate("/login");
   }
 
   return (
@@ -149,8 +157,8 @@ function Sidebar({ open = false, collapsed = false, onClose, onHide }) {
             </svg>
           </div>
           <div className="leading-none">
-            <span className="text-[16px] font-extrabold text-heading tracking-tight">LearnMate</span>
-            <span className="text-[16px] font-extrabold text-primary tracking-tight">AI</span>
+            <span className="brand-wordmark text-[20px] text-heading">LearnMate</span>
+            <span className="brand-wordmark text-[20px] text-primary">AI</span>
             <span className="block text-[10px] text-subtle font-semibold tracking-wider uppercase mt-1">
               Study Workspace
             </span>

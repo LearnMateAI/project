@@ -148,12 +148,38 @@
           Verified by LLM as judge
         </li>
       </ul>
+
+      <div class="lm-preview" aria-hidden="true">
+        <div class="lm-preview__q">What is the test for a valid contract?</div>
+        <div class="lm-preview__a">
+          Offer, acceptance, consideration and intention to create legal relations.
+          <span class="lm-preview__cite">p. 14</span><span class="lm-preview__cite">p. 17</span>
+        </div>
+      </div>
     </div>
 
     <p class="lm-aside__footer">&copy; 2026 LearnMateAI</p>
   </aside>
 
   <div class="lm-pane">
+
+    <a id="lm-home-link" class="lm-home-link" href="${(client.baseUrl)!''}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 19.5L3 12l7.5-7.5M3 12h18"/></svg>
+      Back to home
+    </a>
+    <script>
+      (function () {
+        var a = document.getElementById("lm-home-link");
+        if (a.getAttribute("href")) return;
+        var origin = null;
+        try {
+          var r = new URLSearchParams(window.location.search).get("redirect_uri");
+          if (r) { origin = new URL(r).origin; sessionStorage.setItem("lm-app-origin", origin); }
+          else { origin = sessionStorage.getItem("lm-app-origin"); }
+        } catch (e) {}
+        a.setAttribute("href", (origin || "http://localhost:5173") + "/");
+      })();
+    </script>
 
 <div class="${properties.kcLogin!}">
   <div class="${properties.kcLoginContainer!}">

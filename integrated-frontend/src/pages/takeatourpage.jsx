@@ -7,7 +7,7 @@ const tourSteps = [
     num: 1,
     title: "Upload a Document",
     desc: "Head to the Dashboard and upload a PDF, Word (.docx), PowerPoint (.pptx), or LaTeX (.tex) file. The system accepts notes, readings, slides, or any study material up to 10 MB.",
-    detail: "The upload extracts text, splits it into chunks, and generates vector embeddings — building an intelligent index of your document's content.",
+    detail: "The upload extracts text, splits it into chunks, and generates vector embeddings, building an intelligent index of your document's content.",
     link: "/dashboard",
     linkLabel: "Go to Dashboard",
     icon: (
@@ -20,8 +20,8 @@ const tourSteps = [
   {
     num: 2,
     title: "Generate Study Material",
-    desc: "Once your document is ready, open it from the Documents page and choose what to generate. You can create summaries, key points, MCQs, or practice questions — for a specific topic or the entire document.",
-    detail: "Every generation is reviewed by an independent AI judge model. Results that score below the pass mark are flagged but still shown — nothing is hidden.",
+    desc: "Once your document is ready, open it from the Documents page and choose what to generate. You can create summaries, key points, MCQs, or practice questions for a specific topic or the entire document.",
+    detail: "Every generation is reviewed by an independent AI judge model. Results that score below the pass mark are flagged but still shown, nothing is hidden.",
     link: "/documents",
     linkLabel: "View Documents",
     icon: (
@@ -35,7 +35,7 @@ const tourSteps = [
     num: 3,
     title: "Chat with Your Document",
     desc: "Start a conversation about any processed document. Ask questions and get answers drawn directly from the content. Answers that come from your document are clearly labelled, and those from general knowledge are marked separately.",
-    detail: "The chat shows which pages were used, the retrieval score, and even the raw text chunks — so you can always verify an answer against the source.",
+    detail: "The chat shows which pages were used, the retrieval score, and even the raw text chunks so you can always verify an answer against the source.",
     link: "/chat",
     linkLabel: "Open Chat",
     icon: (
@@ -49,7 +49,7 @@ const tourSteps = [
     num: 4,
     title: "Track Your Progress",
     desc: "Visit Analytics to see your study engagement at a glance. Track how many documents you've uploaded, resources generated, questions asked, and how the evaluator has scored your content.",
-    detail: "The analytics page also shows which evaluation stage decided each attempt — useful for understanding whether the generation prompt or the pass mark needs adjusting.",
+    detail: "The analytics page also shows which evaluation stage decided each attempt which is useful for understanding whether the generation prompt or the pass mark needs adjusting.",
     link: "/analytics",
     linkLabel: "View Analytics",
     icon: (
@@ -63,98 +63,96 @@ const tourSteps = [
 
 function TakeATourPage() {
   const { isAuthenticated } = useAuth();
-  const [expandedStep, setExpandedStep] = useState(null);
+  const [active, setActive] = useState(0);
+  const step = tourSteps[active];
+  const last = active === tourSteps.length - 1;
 
   return (
-    <div className="animate-fade-in max-w-3xl">
-      <div className="page-header mb-8">
-        <h1>Take a Tour</h1>
-        <p>A step-by-step guide to getting the most out of LearnMateAI</p>
-      </div>
+    <div className="animate-fade-in pub">
+      <section className="hero-panel p-8 lg:p-14 mb-10">
+        <p className="eyebrow mb-3">Guided tour</p>
+        <h1 className="display display-xl !text-white m-0 max-w-3xl">
+          Four steps to <em>studying</em> smarter
+        </h1>
+        <p className="lede mt-5 mb-0">
+          A quick walk through LearnMateAI, from first upload to tracking progress.
+        </p>
+      </section>
 
-      {/* Progress indicator */}
-      <div className="flex items-center gap-0 mb-8 px-4">
-        {tourSteps.map((step, i) => (
-          <div key={step.num} className="flex items-center flex-1 last:flex-none">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0 ${
-              expandedStep === i ? "bg-primary text-white" : "bg-primary-light text-primary"
-            }`}>
-              {step.num}
-            </div>
-            {i < tourSteps.length - 1 && (
-              <div className="flex-1 h-px bg-border mx-2" />
-            )}
+      <div className="tour-grid mb-14">
+        {/* Step selector */}
+        <div className="space-y-3">
+          <div className="tour-progress mb-4" aria-hidden="true">
+            <div style={{ width: `${((active + 1) / tourSteps.length) * 100}%` }} />
           </div>
-        ))}
-      </div>
-
-      {/* Steps */}
-      <div className="space-y-4 mb-8">
-        {tourSteps.map((step, i) => (
-          <div
-            key={step.num}
-            className={`card overflow-hidden transition-all duration-200 ${
-              expandedStep === i ? "ring-1 ring-primary/20" : ""
-            }`}
-          >
+          {tourSteps.map((t, i) => (
             <button
-              onClick={() => setExpandedStep(expandedStep === i ? null : i)}
-              className="w-full p-5 flex items-center gap-4 text-left hover:bg-background/50 transition-colors"
+              key={t.num}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-current={active === i ? "step" : undefined}
+              className={`tour-tab ${active === i ? "active" : ""}`}
             >
-              <div className={`w-12 h-12 rounded-xl ${step.color} flex items-center justify-center shrink-0`}>
-                {step.icon}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[11px] font-bold text-primary">Step {step.num}</span>
-                </div>
-                <h3 className="text-[15px] font-semibold text-heading">{step.title}</h3>
-                <p className="text-[13px] text-muted mt-1 leading-relaxed">{step.desc}</p>
-              </div>
-              <svg
-                className={`w-5 h-5 text-muted shrink-0 transition-transform duration-200 ${
-                  expandedStep === i ? "rotate-180" : ""
-                }`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
+              <span className="tab-num">{t.num}</span>
+              <span className="text-[15px] font-bold">{t.title}</span>
             </button>
+          ))}
+        </div>
 
-            {expandedStep === i && (
-              <div className="px-5 pb-5 animate-fade-in">
-                <div className="ml-16 pl-4 border-l-2 border-primary-light">
-                  <p className="text-[13px] text-body leading-relaxed mb-3">{step.detail}</p>
-                  {/* Every step points into the workspace, which a visitor cannot reach.
-                      Showing them the step and then sending them to a login form reads as
-                      a trap, so signed out they are offered the account instead. */}
-                  <Link
-                    to={isAuthenticated ? step.link : "/register"}
-                    className="btn-primary text-[13px] py-1.5 px-4 no-underline"
-                  >
-                    {isAuthenticated ? `${step.linkLabel} →` : "Sign up to try this →"}
-                  </Link>
-                </div>
-              </div>
-            )}
+        {/* Detail stage */}
+        <div key={step.num} className="tour-stage animate-fade-in">
+          <span className="ghost-num" aria-hidden="true">{step.num}</span>
+          <div className={`w-14 h-14 rounded-2xl ${step.color} flex items-center justify-center mb-5`}>
+            {step.icon}
           </div>
-        ))}
+          <p className="eyebrow mb-2">Step {step.num} of {tourSteps.length}</p>
+          <h2 className="section-title mb-3">{step.title}</h2>
+          <p className="text-[16px] text-body leading-relaxed mb-5">{step.desc}</p>
+
+          <div className="rounded-2xl bg-primary-soft border border-border p-5 mb-7">
+            <p className="mock-label" style={{ color: "var(--color-primary)" }}>Good to know</p>
+            <p className="text-[14.5px] text-body leading-relaxed m-0">{step.detail}</p>
+          </div>
+
+          {/* Every step points into the workspace, which a visitor cannot reach.
+              Showing them the step and then sending them to a login form reads as
+              a trap, so signed out they are offered the account instead. */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="btn-secondary px-4 py-2"
+                disabled={active === 0}
+                onClick={() => setActive(active - 1)}
+              >
+                ← Back
+              </button>
+              {!last && (
+                <button type="button" className="btn-secondary px-4 py-2" onClick={() => setActive(active + 1)}>
+                  Next →
+                </button>
+              )}
+            </div>
+            <Link
+              to={isAuthenticated ? step.link : "/register"}
+              className="btn-primary text-[13px] py-2 px-5 no-underline"
+            >
+              {isAuthenticated ? `${step.linkLabel} →` : "Sign up to try this →"}
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* CTA */}
-      <div className="card p-6 text-center">
-        <h3 className="text-[15px] font-semibold text-heading mb-2">Ready to start learning?</h3>
-        <p className="text-[13px] text-muted mb-4">Upload your first document and experience AI-powered study.</p>
+      <section className="cta-band">
+        <h2 className="display">Ready to start learning?</h2>
+        <p>Upload your first document and experience AI-powered study.</p>
         {isAuthenticated ? (
-          <Link to="/dashboard" className="btn-primary py-2.5 px-6 no-underline">
-            Go to Dashboard
-          </Link>
+          <Link to="/dashboard" className="btn-solid-light">Go to Dashboard</Link>
         ) : (
-          <Link to="/register" className="btn-primary py-2.5 px-6 no-underline">
-            Create a free account
-          </Link>
+          <Link to="/register" className="btn-solid-light">Create a free account</Link>
         )}
-      </div>
+      </section>
     </div>
   );
 }

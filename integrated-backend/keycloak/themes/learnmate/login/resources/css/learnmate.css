@@ -21,7 +21,7 @@
  * under that class is the same mechanism the app uses with html.dark.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
   --lm-primary: #2340E0;
@@ -49,7 +49,8 @@
 
   --lm-shadow-lg: 0 12px 32px -8px rgba(16, 21, 51, 0.12);
 
-  --lm-font: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --lm-display: 'Fraunces', Georgia, serif;
+  --lm-font: 'Manrope', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 html.pf-v5-theme-dark {
@@ -182,9 +183,10 @@ body#keycloak-bg {
 }
 
 .lm-aside__wordmark {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--lm-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .lm-aside__body {
@@ -192,7 +194,8 @@ body#keycloak-bg {
 }
 
 .lm-aside__heading {
-  font-size: 34px;
+  font-family: var(--lm-display);
+  font-size: 38px;
   line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -294,10 +297,10 @@ body#keycloak-bg {
    thing that beats !important, and the added .lm-pane wins the specificity tie-break
    between the two. */
 .lm-pane #kc-header-wrapper {
-  font-family: var(--lm-font);
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--lm-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--lm-heading) !important;
   text-transform: none;
   text-align: left;
@@ -332,8 +335,8 @@ body#keycloak-bg {
 }
 
 #kc-page-title {
-  font-family: var(--lm-font);
-  font-size: 1.5rem;
+  font-family: var(--lm-display);
+  font-size: 1.85rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--lm-heading);
@@ -555,4 +558,181 @@ a:hover {
 .kc-feedback-text,
 .pf-m-error {
   color: var(--lm-danger);
+}
+
+/* Back-to-home link, top-left of the form pane */
+.lm-pane { position: relative; }
+.lm-home-link {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--lm-font);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--lm-muted, #5C6575);
+  text-decoration: none;
+}
+.lm-home-link svg { width: 1rem; height: 1rem; }
+.lm-home-link:hover { color: var(--lm-primary, #2340E0); text-decoration: none; }
+
+/* === Visual refresh: cream paper, navy-to-blue panel, editorial type =============== */
+
+/* Light mode takes the app's cream palette (index.css in the frontend). Dark mode is
+   untouched: html.pf-v5-theme-dark redefines these later with higher specificity. */
+:root {
+  --lm-surface: #FFFBF5;
+  --lm-background: #F3EEE4;
+  --lm-heading: #1A2433;
+  --lm-body: #3E4757;
+  --lm-muted: #5C6575;
+  --lm-border: #E4DDD0;
+  --lm-border-strong: #D4CBBA;
+  --lm-shadow-lg: 0 24px 48px -24px rgba(21, 34, 56, 0.35);
+}
+
+/* Same gradient as the public-page hero, so the two halves of the product match. */
+.lm-aside {
+  background: linear-gradient(135deg, #152238 0%, #1E3A6B 48%, #2340E0 100%);
+}
+
+.lm-aside::before {
+  content: "";
+  position: absolute;
+  right: -90px;
+  bottom: -90px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 52px rgba(255, 255, 255, 0.04), 0 0 0 104px rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+.lm-aside__heading {
+  font-size: 44px;
+  line-height: 1.08;
+  font-weight: 600;
+}
+
+.lm-aside__points li:empty,
+.lm-aside__points li:not(:has(.lm-aside__tick)) {
+  display: none;
+}
+
+/* Floating "cited answer" sample under the bullet list */
+.lm-preview {
+  margin-top: 2rem;
+  display: grid;
+  gap: 0.6rem;
+  max-width: 24rem;
+}
+
+.lm-preview__q,
+.lm-preview__a {
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+}
+
+.lm-preview__q {
+  justify-self: end;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.lm-preview__a {
+  background: #FFFBF5;
+  color: #3E4757;
+  box-shadow: 0 18px 36px -16px rgba(8, 14, 30, 0.6);
+}
+
+.lm-preview__cite {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--lm-primary);
+  background: #E4EAF8;
+  padding: 0.05rem 0.5rem;
+  border-radius: 9999px;
+}
+
+/* Form card */
+.lm-pane {
+  background:
+    radial-gradient(60% 50% at 100% 0%, rgba(35, 64, 224, 0.07), transparent 70%),
+    radial-gradient(50% 40% at 0% 100%, rgba(21, 34, 56, 0.06), transparent 70%);
+}
+
+.lm-pane .pf-v5-c-login__main {
+  border-radius: 24px;
+  padding: 2.5rem 2.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.lm-pane .pf-v5-c-login__main::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #152238, #2340E0);
+}
+
+#kc-page-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+
+.pf-v5-c-form-control {
+  padding: 0.8rem 0.95rem;
+  border-radius: 12px;
+  font-size: 14.5px;
+}
+
+.pf-v5-c-input-group {
+  border-radius: 12px;
+}
+
+/* Full-width pill call to action */
+.pf-v5-c-button.pf-m-primary {
+  border-radius: 9999px;
+  padding: 0.85rem 1.25rem;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 12px 24px -12px rgba(35, 64, 224, 0.7);
+}
+
+.pf-v5-c-button.pf-m-primary:hover {
+  transform: translateY(-1px);
+}
+
+.pf-v5-c-button.pf-m-block {
+  width: 100%;
+}
+
+.pf-v5-c-login__main-footer-band {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--lm-border);
+  text-align: center;
+  font-size: 14px;
+}
+
+.lm-home-link {
+  top: 1.5rem;
+  left: 2rem;
+}
+
+@media (max-width: 1023px) {
+  .lm-pane { padding-top: 4.5rem; }
 }

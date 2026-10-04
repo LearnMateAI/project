@@ -5,7 +5,7 @@ const steps = [
   {
     num: "01",
     title: "Upload Your Document",
-    desc: "Upload a PDF, Word, PowerPoint, or LaTeX file — notes, readings, slides, or other course material. The system extracts text, splits it into meaningful chunks, and builds a searchable index.",
+    desc: "Upload a PDF, Word, PowerPoint, or LaTeX file - notes, readings, slides, or other course material. The system extracts text, splits it into meaningful chunks, and builds a searchable index.",
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -25,7 +25,7 @@ const steps = [
   {
     num: "03",
     title: "Generate Study Material",
-    desc: "Choose what you need — summaries, key points, MCQs, or practice questions. A judge model reviews the output for quality, and flagged content is clearly marked.",
+    desc: "Choose what you need - summaries, key points, MCQs, or practice questions. A judge model reviews the output for quality, and flagged content is clearly marked.",
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
@@ -44,101 +44,99 @@ const steps = [
   },
 ];
 
-const techHighlights = [
-  {
-    title: "RAG Architecture",
-    desc: "Retrieval-Augmented Generation ensures answers are grounded in your actual documents, not hallucinated.",
-  },
-  {
-    title: "Quality Assurance",
-    desc: "Every generated resource is independently reviewed by a judge model — pass rates and scores are transparently logged.",
-  },
-  {
-    title: "Vector Search",
-    desc: "Document chunks are embedded and stored in Qdrant, enabling semantic search that understands meaning beyond keywords.",
-  },
-  {
-    title: "Local-First AI",
-    desc: "Uses locally-hosted models for privacy and control. Your documents never leave your infrastructure.",
-  },
-];
-
 function AboutPage() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="animate-fade-in max-w-4xl">
-      {/* Header */}
-      <div className="page-header mb-8">
-        <h1>About LearnMateAI</h1>
-        <p>An AI-powered study platform built for deeper learning</p>
-      </div>
+    <div className="animate-fade-in pub">
+      {/* Hero */}
+      <section className="hero-panel p-8 lg:p-14 mb-14">
+        <div className="hero-split">
+          <div>
+            <p className="eyebrow mb-3">About us</p>
+            <h1 className="display display-xl !text-white m-0">
+              Built for <em>deeper</em> learning
+            </h1>
+            <p className="lede mt-5 mb-0">
+              An AI-powered study platform where every answer can be traced back to its source.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              ["4", "document formats"],
+              ["4", "kinds of study material"],
+              ["1", "source for every answer"],
+              ["0", "documents leave your servers"],
+            ].map(([n, l]) => (
+              <div key={l} className="rounded-2xl bg-white/10 border border-white/15 p-5">
+                <div className="display text-[2.4rem] font-semibold text-white leading-none">{n}</div>
+                <div className="text-[12.5px] text-white/75 mt-2">{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Mission */}
-      <div className="card p-8 mb-6">
-        <h2 className="text-lg font-semibold text-heading mb-3">Our Mission</h2>
-        <p className="text-[14px] text-body leading-relaxed mb-3">
-          LearnMateAI transforms how students engage with their study material. Instead of passively 
-          reading through textbooks and lecture notes, students can upload their documents and let AI 
-          generate tailored study resources — summaries, key points, multiple-choice questions, and 
-          practice questions — all grounded in the actual content they need to learn.
-        </p>
-        <p className="text-[14px] text-body leading-relaxed">
-          Built for students working with complex course material, the platform handles any subject.
-          Every piece of generated content is quality-checked by an independent review step,
-          and every answer in chat is traced back to its source pages — because study material you 
-          cannot verify is study material you cannot trust.
-        </p>
-      </div>
+      {/* Mission: pull-quote beside the explanation */}
+      <section className="grid gap-10 lg:grid-cols-[1fr_1.1fr] items-start mb-16">
+        <div>
+          <p className="eyebrow mb-3">Our mission</p>
+          <p className="pull-quote m-0">
+            Study material you cannot verify is study material you cannot trust.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <p className="text-[16px] text-body leading-relaxed m-0">
+            LearnMateAI transforms how students engage with their study material. Instead of
+            passively reading through textbooks and lecture notes, students upload their documents
+            and let AI generate tailored study resources: summaries, key points, multiple-choice
+            questions, and practice questions, all grounded in the actual content they need to learn.
+          </p>
+          <p className="text-[16px] text-body leading-relaxed m-0">
+            Built for students working with complex course material, the platform handles any
+            subject. Every piece of generated content is quality-checked by an independent review
+            step, and every answer in chat is traced back to its source pages.
+          </p>
+        </div>
+      </section>
 
-      {/* How it works */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-heading mb-4">How It Works</h2>
-        <div className="space-y-3">
+      {/* How it works: vertical timeline */}
+      <section className="mb-16">
+        <p className="eyebrow mb-2">The process</p>
+        <h2 className="section-title mb-8">How it works</h2>
+        <div className="timeline">
           {steps.map((step) => (
-            <div key={step.num} className="card p-5 flex gap-5 items-start">
-              <div className="shrink-0 w-10 h-10 rounded-lg bg-primary-light text-primary flex items-center justify-center">
-                {step.icon}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[11px] font-bold text-primary">{step.num}</span>
-                  <h3 className="text-[14px] font-semibold text-heading">{step.title}</h3>
+            <div key={step.num} className="timeline-item">
+              <div className="step-dot">{step.num}</div>
+              <div className="card feature-card p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="w-9 h-9 rounded-lg bg-primary-light text-primary flex items-center justify-center shrink-0">
+                    {step.icon}
+                  </span>
+                  <h3 className="text-[21px] font-semibold text-heading m-0">{step.title}</h3>
                 </div>
-                <p className="text-[13px] text-muted leading-relaxed">{step.desc}</p>
+                <p className="text-[14.5px] text-muted leading-relaxed m-0">{step.desc}</p>
               </div>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Technology */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-heading mb-4">Technology Highlights</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {techHighlights.map((t) => (
-            <div key={t.title} className="card p-5">
-              <h3 className="text-[14px] font-semibold text-heading mb-1.5">{t.title}</h3>
-              <p className="text-[13px] text-muted leading-relaxed">{t.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
 
       {/* CTA */}
-      <div className="card p-6 text-center">
-        <p className="text-[14px] text-muted mb-4">Ready to transform your study workflow?</p>
+      <section className="cta-band">
+        <h2 className="display">Ready to transform your study workflow?</h2>
+        <p>Upload a document and see where every answer comes from.</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <Link to="/tour" className="btn-secondary no-underline">Take a Tour</Link>
+          <Link to="/tour" className="btn-ghost-light">Take a Tour</Link>
           {/* Signed out, "Go to Dashboard" is a link to the login page wearing a
               misleading label. Offer the step that is actually available instead. */}
           {isAuthenticated ? (
-            <Link to="/dashboard" className="btn-primary no-underline">Go to Dashboard</Link>
+            <Link to="/dashboard" className="btn-solid-light">Go to Dashboard</Link>
           ) : (
-            <Link to="/register" className="btn-primary no-underline">Create a free account</Link>
+            <Link to="/register" className="btn-solid-light">Create a free account</Link>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

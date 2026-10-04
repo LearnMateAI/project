@@ -33,8 +33,8 @@ function PublicLayout({ children }) {
               </svg>
             </div>
             <span className="leading-none hidden sm:block">
-              <span className="text-[16px] font-extrabold text-heading tracking-tight">LearnMate</span>
-              <span className="text-[16px] font-extrabold text-primary tracking-tight">AI</span>
+              <span className="brand-wordmark text-[20px] text-heading">LearnMate</span>
+              <span className="brand-wordmark text-[20px] text-primary">AI</span>
             </span>
           </Link>
 

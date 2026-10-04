@@ -51,18 +51,34 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("authProvider");
-    setToken(null);
-    setUser(null);
     // A local session has nothing further to tell anyone. A Keycloak session still
     // exists on Keycloak's side too -- clearing only localStorage here would let
     // logging back in silently succeed via check-sso, with no login page shown at all.
     if (provider === "keycloak") {
+      // keycloak.logout() below is a real, hard browser navigation away from this page.
+      // Calling setToken/setUser first triggers an immediate same-document re-render;
+      // ProtectedRoute answers that with <Navigate to="/login" />, whose own effect
+      // eagerly calls loginWithKeycloak() -- a second, competing navigation that can win
+      // the race and silently re-authenticate from the still-live Keycloak session before
+      // this real logout ever reaches the server (confirmed in the network tab: the
+      // genuine logout request gets canceled by a login request that fires microseconds
+      // later). Leaving React state untouched avoids that race entirely -- the page this
+      // redirect lands on starts a fresh app instance anyway, reading the localStorage
+      // already cleared above.
       keycloak.logout({ redirectUri: window.location.origin + "/login" });
+      return;
     }
+    setToken(null);
+    setUser(null);
   }, []);
 
   const loginWithKeycloak = useCallback(() => {
     keycloak.login({ redirectUri: window.location.origin + "/dashboard" });
+  }, []);
+
+  // Same redirect, but Keycloak opens on its registration form instead of the sign-in one.
+  const registerWithKeycloak = useCallback(() => {
+    keycloak.register({ redirectUri: window.location.origin + "/dashboard" });
   }, []);
 
   useEffect(() => {
@@ -153,6 +169,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     loginWithKeycloak,
+    registerWithKeycloak,
     checking,
     isAuthenticated: !!token,
   };

@@ -19,9 +19,8 @@ from typing import Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from ..llm import get_generator_llm
-from ..llm.registry import get_openai_llm, parse_json_reply
-from ..llm.registry import consume_generator_load_ms
+from ..llm import get_generator_llm, parse_json_reply
+from ..llm.registry import consume_generator_load_ms, get_openai_llm
 from ..runtime_limits import JobTimeout, add_timing
 from ..storage import content_store
 from .helpers import _log, revision_block

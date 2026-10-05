@@ -200,6 +200,7 @@ def _run_resource(job: Dict) -> Dict:
         summary_style=params.get("summary_style"),
         difficulty=params.get("difficulty"),
         model_id=params.get("model_id"),
+        fast=params.get("fast", False),
         on_progress=_reporter(str(job["_id"])),
     )
 
@@ -224,6 +225,9 @@ def _run_chat(job: Dict) -> Dict:
             message=params["message"],
             evaluate=params.get("evaluate", True),
             model_id=params.get("model_id"),
+            use_cache=params.get("use_cache"),
+            fast=params.get("fast", False),
+            job_id=job_id,
             on_progress=_reporter(job_id),
             on_token=on_token,
             on_reply=_reply_reporter(job_id, on_token),

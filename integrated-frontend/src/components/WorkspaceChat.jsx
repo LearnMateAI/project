@@ -77,7 +77,7 @@ function WorkspaceChat({ documentId, ready }) {
     const pendingId = `pending-${Date.now()}`;
     setTurns((current) => [...current, { id: pendingId, role: "user", content: message }]);
 
-    const result = await job.run(() => sendMessage({ sessionId, message }));
+    const result = await job.run(() => sendMessage({ sessionId, message, fast: true }));
     if (!result) {
       setTurns((current) => current.filter((turn) => turn.id !== pendingId));
       setDraft(message);
@@ -98,6 +98,7 @@ function WorkspaceChat({ documentId, ready }) {
         standalone_query: result.standalone_query,
         contexts: result.contexts,
         citations: result.citations,
+        cache: result.cache,
         pages: (result.contexts || []).map((context) => context.page_number),
       },
     ]);
@@ -139,6 +140,11 @@ function WorkspaceChat({ documentId, ready }) {
           disabled={job.isRunning || !sessionId}
           className="input flex-1 rounded-full"
         />
+        {job.isRunning && job.elapsed >= 15 && (
+          <span className="btn-secondary rounded-full px-3 shrink-0 text-[12px] inline-flex items-center">
+            {job.elapsed >= 20 ? "Fast answer" : "Still working"}
+          </span>
+        )}
         <button
           type="submit"
           disabled={job.isRunning || !draft.trim() || !sessionId}

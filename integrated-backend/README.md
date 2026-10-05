@@ -183,9 +183,30 @@ GET  /api/jobs/{job_id}      -> queued | running | done | failed  + progress + r
 Poll every second or two. The finished job's `result` is exactly what a synchronous
 endpoint would have returned.
 
-There is **one** worker thread, and that is a correctness requirement rather than a
-resource one: `llama_cpp.Llama` holds a single mutable context, so two threads generating
-at once interleave their tokens and corrupt both replies. See `app/jobs/worker.py`.
+With the models in-process there is **one** worker thread, and that is a correctness
+requirement rather than a resource one: `llama_cpp.Llama` holds a single mutable context,
+so two threads generating at once interleave their tokens and corrupt both replies. Serve
+the models instead and the queue can scale out — see below and `app/jobs/worker.py`.
+
+---
+
+## Classroom scale
+
+Four features, each off (or unchanged) by default and switched on in `.env` — see the
+*CLASSROOM SCALE* block of `.env.example`. They are the subject of the demo paper in
+`../paper/`, and `eval/` measures each one.
+
+| Feature | Where | Turn it on |
+|---|---|---|
+| **Hybrid retrieval in Qdrant** — stemmed BM25 as a sparse vector with server-side IDF, fused with dense by RRF in one tenant-filtered query | `learnmate/retrieval/`, `storage/qdrant_vectors.py` | `python scripts/reindex_qdrant.py`, then `LEARNMATE_RETRIEVAL_STRATEGY=rrf` |
+| **Verified answer cache** — reuse a judge-accepted answer across students only when a duplicate-question cross-encoder agrees | `learnmate/cache/`, `chat_agent/cache_nodes.py` | `LEARNMATE_CACHE_ENABLED=1` |
+| **Lease queue + worker pool** — jobs claimed atomically from MongoDB with renewable leases; any number of workers and `worker_main` processes; models behind `llama-server` | `app/jobs/queue.py`, `worker.py`, `worker_main.py`, `scripts/serve/` | `JOB_QUEUE_BACKEND=mongo`, `JOB_WORKERS=4`, `LEARNMATE_*_BACKEND=http` |
+| **Class insights** — per-page confusion heatmap and question topics mined from every student's questions, k-anonymous | `learnmate/insights/` | on by default: `GET /api/analytics/documents/{id}/heatmap` |
+
+```
+python -m app.jobs.worker_main --workers 4        # a worker process with no API
+python scripts/serve/probe.py                     # check llama-server: health, JSON schema, batching
+```
 
 ---
 
@@ -289,7 +310,12 @@ reading**, so show it.
 | `GET /api/jobs/{id}` | `{status, progress, result, error}` |
 | `GET /api/jobs?status=&kind=` | your recent jobs |
 | `GET /api/analytics` | activity counts and the evaluation score distribution |
-| `GET /api/health` | both databases, both models, and what is configured |
+| `GET /api/analytics/documents/{id}/heatmap?refresh=` | class confusion heatmap: pages, topics, cache hit rate (aggregate, k-anonymous) |
+| `GET /api/health` | both databases, both models, the job queue, and what is configured |
+
+A chat result also carries `cache: {hit, similarity, verifier, source_age_s}` when the answer
+cache was consulted, and `retrieval: {strategy, basis, top_page, ...}`. Send
+`"use_cache": false` with a message to force a freshly written answer.
 
 ---
 

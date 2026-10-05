@@ -37,6 +37,10 @@ _RERANKER_CACHE = {}
 # once, and a double construction costs a second ~90 MB download-and-load for nothing.
 _LOAD_LOCK = threading.Lock()
 
+# Scoring is serialised for the same reason as embeddings._ENCODE_LOCK: the fast tokenizer
+# is not safe to share between the threads of a worker pool mid-call.
+_PREDICT_LOCK = threading.Lock()
+
 # Set once the configured model has failed to load, so a missing or broken reranker costs
 # one warning rather than one per turn. Retrieval falls back to vector order, which is
 # exactly how this system behaved before reranking existed.
@@ -119,7 +123,8 @@ def rerank(query: str, candidates: Sequence, top_k: Optional[int] = None
     pairs = [(query, getattr(doc, "page_content", str(doc))) for doc in candidates]
 
     try:
-        logits = model.predict(pairs, show_progress_bar=False)
+        with _PREDICT_LOCK:
+            logits = model.predict(pairs, show_progress_bar=False)
     except Exception as exc:
         # A pair too long for the model's window, or a torch error mid-batch. Retrieval
         # must not lose a turn over the *optional* half of it.

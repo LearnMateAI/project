@@ -15,6 +15,26 @@ models/
 # machines where that directory isn't writable. Downloaded models, not source.
 integrated-backend/data/hf_cache/
 
+# Evaluation inputs (integrated-backend/eval): the textbook PDFs are CC BY-NC-SA and are
+# re-fetched by eval/corpus.py rather than redistributed; the LLM-generated question set is
+# derived from them. The llama.cpp binaries and server logs are downloads and runtime
+# output. data/eval_results/ is NOT ignored: it is the provenance behind the paper's numbers.
+integrated-backend/data/eval_corpus/
+integrated-backend/data/eval_workload/
+integrated-backend/data/tools/
+integrated-backend/data/serve-logs/
+integrated-backend/data/verify/
+
+# LaTeX build products (paper/). main.pdf too: rebuild it from main.tex.
+paper/main.pdf
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+
 # Scratch space for scripts/build_finetuned_gguf.py: the LoRA adapter merged into its base
 # as a ~3.1 GB fp16 model, plus the fetched llama.cpp converter. Entirely reproducible from
 # the adapter and the base weights, and deletable once the GGUF in models/ exists.

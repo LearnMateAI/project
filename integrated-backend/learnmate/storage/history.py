@@ -25,17 +25,29 @@ def _collection():
 
 
 def save_turn(session_id: str, role: str, content: str, doc_id=None,
-              meta: Optional[Dict] = None, user_id: str = None) -> None:
-    """Append one chat turn."""
-    _collection().insert_one({
-        "session_id": session_id,
-        "user_id": str(user_id) if user_id else None,
-        "role": role,
-        "content": content,
-        "doc_id": as_object_id(doc_id),
-        "meta": meta or {},
-        "created_at": datetime.now(timezone.utc),
-    })
+              meta: Optional[Dict] = None, user_id: str = None) -> bool:
+    """
+    Append one chat turn. Returns False when this job already saved it.
+
+    A turn written by a job carries the job id, and (meta.job_id, role) is unique -- see
+    indexes.py. So when a queue retries a job whose worker died after persisting, the
+    second write is recognised as a repeat rather than doubling the turn in the transcript.
+    """
+    from pymongo.errors import DuplicateKeyError
+
+    try:
+        _collection().insert_one({
+            "session_id": session_id,
+            "user_id": str(user_id) if user_id else None,
+            "role": role,
+            "content": content,
+            "doc_id": as_object_id(doc_id),
+            "meta": meta or {},
+            "created_at": datetime.now(timezone.utc),
+        })
+    except DuplicateKeyError:
+        return False
+    return True
 
 
 def load_history(session_id: str, max_turns: int = None) -> List[Dict[str, str]]:

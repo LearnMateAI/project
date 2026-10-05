@@ -78,22 +78,23 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchResources]);
 
-  async function handleGenerate(e) {
+  async function handleGenerate(e, fast = false) {
     e.preventDefault();
 
     const result = await job.run(() =>
       generateResource({
         documentId,
         resourceType,
-        scope,
+        scope: fast ? "passage" : scope,
         topic: topic || null,
         // Exactly one of the two, never both -- the backend rejects both together.
-        count: usingPerPage ? null : Number(count),
-        perPage: usingPerPage ? Number(perPage) : null,
-        evaluate,
+        count: usingPerPage && !fast ? null : Number(count),
+        perPage: usingPerPage && !fast ? Number(perPage) : null,
+        evaluate: fast ? false : evaluate,
         summaryStyle: resourceType === "summary" ? summaryStyle : null,
         difficulty: resourceType === "mcq" ? difficulty : null,
         modelId: modelId || null,
+        fast,
       }),
     );
 
@@ -323,6 +324,27 @@ function ResourcesPanel({ documentId, documentStatus, pageCount }) {
               </span>
             </span>
           </label>
+
+          {resourceType === "keypoints" && (
+            <button
+              type="button"
+              disabled={notReady || job.isRunning}
+              onClick={(e) => handleGenerate(e, true)}
+              className="btn-secondary w-full py-2"
+            >
+              Fast key points
+            </button>
+          )}
+
+          {job.isRunning && job.elapsed >= 15 && (
+            <button
+              type="button"
+              onClick={(e) => handleGenerate(e, true)}
+              className="btn-secondary w-full py-2"
+            >
+              Generate now
+            </button>
+          )}
 
           <button type="submit" disabled={notReady || job.isRunning} className="btn-primary w-full py-2.5">
             {job.isRunning ? (

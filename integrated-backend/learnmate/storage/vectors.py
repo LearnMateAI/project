@@ -17,6 +17,7 @@ Note that switching backends does not migrate existing vectors. Re-run
 in MongoDB and are not affected.
 """
 
+import threading
 from typing import Optional
 
 from langchain_core.vectorstores import VectorStore
@@ -24,6 +25,8 @@ from langchain_core.vectorstores import VectorStore
 from .. import config
 
 _STORE: Optional[VectorStore] = None
+# Several worker threads can ask for the store on their first job at once.
+_STORE_LOCK = threading.Lock()
 
 
 def build_vector_store(backend: str = None) -> VectorStore:
@@ -47,7 +50,9 @@ def get_vector_store() -> VectorStore:
     """Process-wide vector store."""
     global _STORE
     if _STORE is None:
-        _STORE = build_vector_store()
+        with _STORE_LOCK:
+            if _STORE is None:
+                _STORE = build_vector_store()
     return _STORE
 
 

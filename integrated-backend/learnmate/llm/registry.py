@@ -145,6 +145,23 @@ def resolve_generator_settings(model_id: Optional[str] = None):
             f"Unknown model_id {model_id!r}. GET /api/models lists the ones this server "
             "can load."
         )
+    if config.GENERATOR_BACKEND == "http":
+        # Served, not loaded: the registry id is the name the server was started with
+        # (`llama-server --alias <id>`, see scripts/serve/), and the GGUF lives with the
+        # server rather than on this machine's disk.
+        return {
+            "id": entry["id"],
+            "backend": "http",
+            "model": entry["id"],
+            "repo": "",
+            "filename": "",
+            "chat_format": "",
+            "n_ctx": int(entry.get("context_length") or config.GENERATOR_N_CTX),
+            "api_url": config.GENERATOR_API_URL,
+            "api_key": config.GENERATOR_API_KEY,
+            "experimental": bool(entry.get("experimental")),
+            "display_name": entry.get("display_name"),
+        }
     if not entry.get("available"):
         raise ValueError(
             f"Model {model_id!r} ({entry.get('display_name')}) is listed but its GGUF is "
@@ -163,6 +180,28 @@ def resolve_generator_settings(model_id: Optional[str] = None):
         "experimental": bool(entry.get("experimental")),
         "display_name": entry.get("display_name"),
     }
+
+
+def get_openai_llm(temperature: float = 0.2, max_tokens: int = 1024):
+    """
+    A hosted OpenAI writer for the fast path.
+
+    Same chat interface as the local generator, so the retrieved passage is still the
+    prompt. Returns None when OPENAI_API_KEY is empty, and the caller keeps the local model.
+    """
+    if not config.OPENAI_API_KEY:
+        return None
+    key = ("openai", config.OPENAI_MODEL, temperature, max_tokens)
+    if key not in _LLM_CACHE:
+        _LLM_CACHE[key] = HttpChatModel(
+            base_url=config.OPENAI_BASE_URL,
+            model_name=config.OPENAI_MODEL,
+            api_key=config.OPENAI_API_KEY,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            timeout=60,
+        )
+    return _LLM_CACHE[key]
 
 
 def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 1024,

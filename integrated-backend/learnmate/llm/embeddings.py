@@ -20,9 +20,14 @@ _MODEL_CACHE = {}
 
 # The warm-up thread and the job worker can both reach this at once (app/jobs/worker.py),
 # and without the lock both would miss the cache and both construct a SentenceTransformer:
-# 90 MB read twice and one copy orphaned. Guards construction only -- encoding is left
-# concurrent, which torch handles.
+# 90 MB read twice and one copy orphaned.
 _LOAD_LOCK = threading.Lock()
+
+# Encoding is serialised too. torch itself is fine with concurrent forward passes, but the
+# Hugging Face fast tokenizer in front of it is not ("RuntimeError: Already borrowed") once
+# a worker pool runs several turns at a time. An encode is milliseconds for a query, so the
+# lock costs nothing measurable and removes a failure that only shows up under load.
+_ENCODE_LOCK = threading.Lock()
 
 
 def _load(model_name: str):
@@ -88,19 +93,23 @@ class LearnMateEmbeddings(Embeddings):
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         if not texts:
             return []
-        vectors = self.model.encode(
-            [self._with_prefix(self.doc_prefix, text) for text in texts],
-            normalize_embeddings=self.normalize,
-            show_progress_bar=len(texts) > 64,
-            batch_size=32,
-        )
+        model = self.model
+        with _ENCODE_LOCK:
+            vectors = model.encode(
+                [self._with_prefix(self.doc_prefix, text) for text in texts],
+                normalize_embeddings=self.normalize,
+                show_progress_bar=len(texts) > 64,
+                batch_size=32,
+            )
         return [vector.tolist() for vector in vectors]
 
     def embed_query(self, text: str) -> List[float]:
-        vector = self.model.encode(
-            [self._with_prefix(self.query_prefix, text)],
-            normalize_embeddings=self.normalize,
-        )[0]
+        model = self.model
+        with _ENCODE_LOCK:
+            vector = model.encode(
+                [self._with_prefix(self.query_prefix, text)],
+                normalize_embeddings=self.normalize,
+            )[0]
         return vector.tolist()
 
 

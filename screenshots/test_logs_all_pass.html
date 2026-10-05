@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pytest - Test Logs (All Passing)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.5; padding: 20px; }
+        .terminal { background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; max-width: 1000px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .titlebar { background: #3c3c3c; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #2d2d2d; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f57; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #28ca42; }
+        .prompt { color: #6a9955; } .command { color: #d4d4d4; }
+        .output { padding: 16px; white-space: pre-wrap; }
+        .passed { color: #4ec9b0; } .failed { color: #f44747; }
+        .percentage { color: #9cdcfe; } .summary { color: #4ec9b0; font-weight: bold; }
+        .filepath { color: #9cdcfe; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="titlebar"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div><span style="color: #858585; margin-left: 8px;">C:\Users\DELL\Sem5_Projects\DSE-Project</span></div>
+        <div class="output"><span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">.venv\Scripts\python.exe -m pytest testing/unit testing/integration -v --tb=line</span>
+<span class="output">============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\DELL\Sem5_Projects\DSE-Project\testing
+configfile: pytest.ini
+plugins: anyio-4.15.0, langsmith-0.12.1
+collected 97 items
+
+testing\unit\test_auth_security.py <span class="passed">.......</span>                                [  7%]
+testing\unit\test_chat_decide.py <span class="passed">......</span>                                  [ 13%]
+testing\unit\test_chunking.py <span class="passed">.....</span>                                      [ 18%]
+testing\unit\test_email_and_tasks.py <span class="passed">...</span>                                 [ 21%]
+testing\unit\test_error_handlers.py <span class="passed">......</span>                               [ 27%]
+testing\unit\test_evaluator_mcq.py <span class="passed">.........</span>                             [ 37%]
+testing\unit\test_evaluator_normalise.py <span class="passed">.</span>                               [ 38%]
+testing\unit\test_evaluator_text.py <span class="passed">.......</span>                              [ 45%]
+testing\unit\test_frontend_contracts.py <span class="passed">......</span>                           [ 51%]
+testing\unit\test_object_ids.py <span class="passed">...</span>                                      [ 54%]
+testing\unit\test_password_rules.py <span class="passed">......</span>                               [ 60%]
+testing\unit\test_pdf_validate.py <span class="passed">......</span>                                 [ 67%]
+testing\unit\test_resource_decide.py <span class="passed">...</span>                                 [ 70%]
+testing\unit\test_safe_filename.py <span class="passed">..</span>                                    [ 72%]
+testing\unit\test_schemas.py <span class="passed">.......</span>                                     [ 79%]
+testing\integration\test_auth_api.py <span class="passed">.......</span>                             [ 86%]
+testing\integration\test_chat_resources_auth.py <span class="passed">...</span>                      [ 89%]
+testing\integration\test_cors_and_root.py <span class="passed">...</span>                            [ 92%]
+testing\integration\test_documents_api.py <span class="passed">...</span>                            [ 95%]
+testing\integration\test_jobs_api.py <span class="passed">....</span>                                [100%]
+
+=========================== short test summary info =============================
+<span class="summary">97 passed in 5.84s</span>
+<span class="prompt">PS C:\Users\DELL\Sem5_Projects\DSE-Project></span> <span class="command">_</span></div>
+    </div>
+</body>
+</html>

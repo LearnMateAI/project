@@ -5,9 +5,17 @@ The path the finetuned model takes if it ends up behind local-model-api/ or
 finetuned-model-api/ instead of shipping as a GGUF. Switching to it is a change to
 LEARNMATE_GENERATOR_BACKEND and nothing else -- the agents never learn which backend
 answered them.
+
+It is also the scaling path. llama.cpp's own `llama-server` with `--parallel N` serves N
+requests at once and batches their tokens into shared forward passes (continuous
+batching), so a pool of job workers (app/jobs/worker.py) talking to it gets real
+concurrency where the in-process backend can only take turns. scripts/serve/ starts one
+for each role.
 """
 
 import json
+import os
+import threading
 from typing import Any, Dict, Iterator, List, Optional
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
@@ -17,13 +25,35 @@ from langchain_core.outputs import ChatGenerationChunk, ChatResult
 
 from .messages import _as_result, _to_payload
 
+# HTTP statuses that mean "this server does not accept that request shape" -- the only
+# reason to retry without the JSON schema. A timeout or a 5xx is the server being slow or
+# broken, and asking it the same question again unconstrained would double the wait and
+# then hand the parser free text.
+_SCHEMA_REJECTED = {400, 415, 422, 501}
+
+# One connection pool per thread: requests.Session is not documented as thread-safe, and a
+# worker pool keeps several requests to the same server in flight. Reusing the connection
+# saves a TCP handshake per call, which matters when a turn makes three of them.
+_SESSIONS = threading.local()
+
+
+def _session():
+    import requests  # lazy, like llama_cpp: neither backend forces the other's deps
+
+    session = getattr(_SESSIONS, "session", None)
+    if session is None:
+        session = requests.Session()
+        _SESSIONS.session = session
+    return session
+
 
 class HttpChatModel(BaseChatModel):
     """
     An OpenAI-compatible chat endpoint, for when the model is served rather than loaded.
 
-    `response_schema` is forwarded as OpenAI-style `response_format`; servers that reject
-    it get a plain retry, so an endpoint without schema support still works.
+    `response_schema` is forwarded as OpenAI-style `response_format` (llama-server reads
+    it as a grammar, exactly like the in-process backend); a server that rejects the shape
+    gets a plain retry, so an endpoint without schema support still works.
     """
 
     base_url: str
@@ -33,7 +63,7 @@ class HttpChatModel(BaseChatModel):
     max_tokens: int = 512
     # Generous by design: a 3B model on CPU behind a local server can take minutes for a
     # long resource, and a timeout here reads as a failed generation.
-    timeout: int = 300
+    timeout: int = int(os.getenv("LEARNMATE_HTTP_TIMEOUT_S") or 300)
 
     @property
     def _llm_type(self) -> str:
@@ -43,16 +73,19 @@ class HttpChatModel(BaseChatModel):
     def _identifying_params(self) -> Dict[str, Any]:
         return {"base_url": self.base_url, "model_name": self.model_name}
 
-    def _post(self, body: Dict[str, Any]) -> str:
-        """One POST to /chat/completions, returning just the reply text."""
-        import requests  # lazy, like llama_cpp: neither backend forces the other's deps
-
+    def _headers(self, stream: bool = False) -> Dict[str, str]:
         headers = {"Content-Type": "application/json"}
+        if stream:
+            headers["Accept"] = "text/event-stream"
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
 
-        response = requests.post(f"{self.base_url.rstrip('/')}/chat/completions",
-                                 json=body, headers=headers, timeout=self.timeout)
+    def _post(self, body: Dict[str, Any]) -> str:
+        """One POST to /chat/completions, returning just the reply text."""
+        response = _session().post(f"{self.base_url.rstrip('/')}/chat/completions",
+                                   json=body, headers=self._headers(),
+                                   timeout=self.timeout)
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
 
@@ -74,19 +107,24 @@ class HttpChatModel(BaseChatModel):
             body["stop"] = stop
 
         # The served equivalent of llama.cpp's grammar: a json_schema response_format.
-        # Not every server implements it, so a rejection falls back to asking plainly
-        # rather than failing the generation.
+        # Not every server implements it, so a rejection of the *shape* falls back to asking
+        # plainly rather than failing the generation. Nothing else does -- see
+        # _SCHEMA_REJECTED.
         schema = kwargs.get("response_schema")
         if schema is not None:
+            import requests
+
+            constrained = dict(body)
+            constrained["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {"name": "response", "schema": schema, "strict": True},
+            }
             try:
-                constrained = dict(body)
-                constrained["response_format"] = {
-                    "type": "json_schema",
-                    "json_schema": {"name": "response", "schema": schema, "strict": True},
-                }
                 return _as_result(self._post(constrained))
-            except Exception:
-                pass
+            except requests.HTTPError as exc:
+                status = getattr(exc.response, "status_code", None)
+                if status not in _SCHEMA_REJECTED:
+                    raise
 
         return _as_result(self._post(body))
 
@@ -105,12 +143,6 @@ class HttpChatModel(BaseChatModel):
         one interface. llama-server, vLLM and anything else OpenAI-compatible all speak
         this format.
         """
-        import requests
-
-        headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
-        if self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
-
         body: Dict[str, Any] = {
             "model": self.model_name,
             "messages": _to_payload(messages),
@@ -121,9 +153,9 @@ class HttpChatModel(BaseChatModel):
         if stop:
             body["stop"] = stop
 
-        with requests.post(f"{self.base_url.rstrip('/')}/chat/completions",
-                           json=body, headers=headers, timeout=self.timeout,
-                           stream=True) as response:
+        with _session().post(f"{self.base_url.rstrip('/')}/chat/completions",
+                             json=body, headers=self._headers(stream=True),
+                             timeout=self.timeout, stream=True) as response:
             response.raise_for_status()
 
             for line in response.iter_lines(decode_unicode=True):

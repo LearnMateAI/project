@@ -19,6 +19,7 @@ backend that is 30-60 seconds, which is why the router runs it as a job.
 import uuid
 from typing import Dict, List
 
+from learnmate import config as engine_config
 from learnmate.chat_agent import ChatAgent
 from learnmate.ingestion import require_kind
 from learnmate.storage import content_store
@@ -70,6 +71,9 @@ def _serialize_turn(turn: Dict) -> Dict:
         "model_id": meta.get("model_id"),
         "retrieval_mix": meta.get("retrieval_mix"),
         "timings": meta.get("timings"),
+        "standalone_query": meta.get("standalone_query"),
+        # {hit, similarity, verifier, source_age_s, ...} when the answer cache was asked.
+        "cache": meta.get("cache"),
         "created_at": created_at.isoformat() if created_at else None,
     }
 
@@ -115,7 +119,8 @@ def get_messages(user_id: str, session_id: str) -> List[Dict]:
 
 def send_message(user_id: str, session_id: str, message: str, evaluate: bool = True,
                  on_progress=None, on_token=None, on_reply=None,
-                 model_id: str = None) -> Dict:
+                 model_id: str = None, use_cache: bool = None,
+                 job_id: str = None, fast: bool = False) -> Dict:
     """
     Handle one turn end to end. Slow: 30-60 seconds on the local backend.
 
@@ -138,6 +143,11 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
     require_kind(session_id, "chat")
 
     doc_id = session.get("doc_id")
+    # The hosted writer is the slow part's replacement. Skipping the local judge on that
+    # path is what keeps a turn under the 20 second mark; the reply is still written
+    # from the retrieved pages.
+    if fast and engine_config.OPENAI_API_KEY:
+        evaluate = False
     agent = ChatAgent(
         session_id=session_id,
         doc_id=doc_id,
@@ -148,6 +158,9 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         on_token=on_token,
         on_reply=on_reply,
         model_id=model_id,
+        use_cache=use_cache,
+        job_id=job_id,
+        fast=fast,
     )
 
     result = agent.ask(message)
@@ -170,6 +183,10 @@ def send_message(user_id: str, session_id: str, message: str, evaluate: bool = T
         "attempts": len(result.get("attempts", [])),
         "model_id": model_id,
         "retrieval_mix": result.get("retrieval_mix"),
+        "retrieval": result.get("retrieval"),
+        # Set when the answer cache was consulted. `hit` means this reply was reused from
+        # an equivalent question another student asked, not written for this one.
+        "cache": result.get("cache"),
         "timings": result.get("timings") or {},
         "contexts": [
             {

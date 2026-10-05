@@ -59,6 +59,7 @@ export function generateResource({
   summaryStyle,
   difficulty,
   modelId,
+  fast = false,
 }) {
   return api.post("/api/resources/generate", {
     document_id: documentId,
@@ -75,6 +76,7 @@ export function generateResource({
     summary_style: summaryStyle || null,
     difficulty: difficulty || null,
     model_id: modelId || null,
+    fast,
   });
 }
 

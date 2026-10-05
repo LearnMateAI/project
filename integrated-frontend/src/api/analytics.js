@@ -12,3 +12,14 @@ import api from "./client.js";
 export function getAnalytics() {
   return api.get("/api/analytics");
 }
+
+/**
+ * Where the class gets stuck in one document: per-page confusion and question topics,
+ * mined from every student's questions about the same (shared) document. Aggregate-only:
+ * pages and topics with too few students come back suppressed.
+ */
+export function getDocumentHeatmap(documentId, { refresh = false } = {}) {
+  return api.get(`/api/analytics/documents/${documentId}/heatmap`, {
+    params: refresh ? { refresh: true } : undefined,
+  });
+}

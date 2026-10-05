@@ -1,0 +1,890 @@
+{
+  "summary": {
+    "nmi": 0.8292139398237552,
+    "ari": 0.5618002222428332,
+    "nmi_noise_singletons": 0.8344216115343319,
+    "ari_noise_singletons": 0.5399884062857578,
+    "clustered_share": 0.9178875,
+    "attribution_exact": 0.688844123175586,
+    "attribution_within_1": 0.7443069991154356,
+    "planted_recall_at_3": 0.5625,
+    "general_mode_share": 0.23125
+  },
+  "documents": [
+    {
+      "doc_id": "6ab0f050b13eb76b385f4db7",
+      "questions": 28,
+      "clustering": {
+        "nmi": 0.8108903105479431,
+        "ari": 0.6402093327518534,
+        "n": 25
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.8410034596942694,
+        "ari": 0.6487948844072798,
+        "n": 28
+      },
+      "clustered_share": 0.8929,
+      "topics_shown": 3,
+      "topics_suppressed": 2,
+      "attribution_exact": 0.8571428571428571,
+      "attribution_within_1": 0.9285714285714286,
+      "attributed_share": 1.0,
+      "planted": [
+        5,
+        12
+      ],
+      "top3": [
+        4,
+        7,
+        6
+      ],
+      "planted_recall_at_3": 0.0,
+      "pages_suppressed": 5,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 194,
+        "cluster_ms": 999,
+        "label_ms": 1,
+        "total_ms": 1197,
+        "aggregate_query_ms": 35.91820003930479
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "system",
+            "legal",
+            "local",
+            "regulations",
+            "laws"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 4,
+              "share": 0.286
+            },
+            {
+              "page": 10,
+              "share": 0.143
+            },
+            {
+              "page": 2,
+              "share": 0.143
+            }
+          ]
+        },
+        {
+          "terms": [
+            "judge",
+            "court",
+            "similar",
+            "case",
+            "decision"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 4,
+              "share": 0.857
+            },
+            {
+              "page": 2,
+              "share": 0.143
+            }
+          ]
+        },
+        {
+          "terms": [
+            "lawsuits",
+            "products",
+            "civil",
+            "criminal",
+            "defective"
+          ],
+          "size": 4,
+          "pages": [
+            {
+              "page": 7,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f067b13eb76b385f4ddf",
+      "questions": 84,
+      "clustering": {
+        "nmi": 0.8758879949211374,
+        "ari": 0.5565932742521217,
+        "n": 82
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.8727623137790169,
+        "ari": 0.5481235696613737,
+        "n": 84
+      },
+      "clustered_share": 0.9762,
+      "topics_shown": 14,
+      "topics_suppressed": 1,
+      "attribution_exact": 0.4642857142857143,
+      "attribution_within_1": 0.4880952380952381,
+      "attributed_share": 1.0,
+      "planted": [
+        2,
+        14
+      ],
+      "top3": [
+        14,
+        6,
+        2
+      ],
+      "planted_recall_at_3": 1.0,
+      "pages_suppressed": 2,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 342,
+        "cluster_ms": 12,
+        "label_ms": 2,
+        "total_ms": 361,
+        "aggregate_query_ms": 10.361300082877278
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "relate",
+            "practices",
+            "resolution",
+            "legal",
+            "principles"
+          ],
+          "size": 13,
+          "pages": [
+            {
+              "page": 6,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "influence",
+            "practices",
+            "resolution",
+            "legal",
+            "principles"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 14,
+              "share": 0.857
+            },
+            {
+              "page": 6,
+              "share": 0.143
+            }
+          ]
+        },
+        {
+          "terms": [
+            "guide",
+            "methods",
+            "resolving",
+            "disputes",
+            "legal"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 14,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f06ab13eb76b385f4e1f",
+      "questions": 56,
+      "clustering": {
+        "nmi": 0.8801743269827025,
+        "ari": 0.6503174026942435,
+        "n": 45
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.8663919574223448,
+        "ari": 0.5698873248427974,
+        "n": 56
+      },
+      "clustered_share": 0.8036,
+      "topics_shown": 6,
+      "topics_suppressed": 5,
+      "attribution_exact": 0.8392857142857143,
+      "attribution_within_1": 0.8392857142857143,
+      "attributed_share": 1.0,
+      "planted": [
+        6,
+        7
+      ],
+      "top3": [
+        6,
+        8,
+        4
+      ],
+      "planted_recall_at_3": 0.5,
+      "pages_suppressed": 5,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 175,
+        "cluster_ms": 3,
+        "label_ms": 0,
+        "total_ms": 182,
+        "aggregate_query_ms": 13.551299925893545
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "elements",
+            "specify",
+            "law",
+            "crime"
+          ],
+          "size": 5,
+          "pages": [
+            {
+              "page": 6,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "face",
+            "schmidt",
+            "penalties",
+            "severe",
+            "charges"
+          ],
+          "size": 6,
+          "pages": [
+            {
+              "page": 8,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "business",
+            "liability",
+            "risk",
+            "scenarios",
+            "criminal"
+          ],
+          "size": 3,
+          "pages": [
+            {
+              "page": 8,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f06cb13eb76b385f4e4a",
+      "questions": 68,
+      "clustering": {
+        "nmi": 0.8930885639790513,
+        "ari": 0.6665320635775258,
+        "n": 63
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.8793756309788904,
+        "ari": 0.6375796486196924,
+        "n": 68
+      },
+      "clustered_share": 0.9265,
+      "topics_shown": 10,
+      "topics_suppressed": 2,
+      "attribution_exact": 0.7941176470588235,
+      "attribution_within_1": 0.7941176470588235,
+      "attributed_share": 1.0,
+      "planted": [
+        3,
+        9
+      ],
+      "top3": [
+        7,
+        9,
+        3
+      ],
+      "planted_recall_at_3": 1.0,
+      "pages_suppressed": 2,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 317,
+        "cluster_ms": 10,
+        "label_ms": 2,
+        "total_ms": 334,
+        "aggregate_query_ms": 14.563000062480569
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "bitten",
+            "dangerous",
+            "took",
+            "precautions",
+            "owner"
+          ],
+          "size": 12,
+          "pages": [
+            {
+              "page": 7,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "activity",
+            "significant",
+            "system",
+            "tort",
+            "risk"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 12,
+              "share": 0.714
+            },
+            {
+              "page": 3,
+              "share": 0.143
+            },
+            {
+              "page": 6,
+              "share": 0.143
+            }
+          ]
+        },
+        {
+          "terms": [
+            "manufacturer",
+            "product",
+            "defect",
+            "still",
+            "decides"
+          ],
+          "size": 8,
+          "pages": [
+            {
+              "page": 9,
+              "share": 0.875
+            },
+            {
+              "page": 8,
+              "share": 0.125
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f06eb13eb76b385f4e72",
+      "questions": 60,
+      "clustering": {
+        "nmi": 0.8724855335800438,
+        "ari": 0.6173918287020541,
+        "n": 55
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.852819124993838,
+        "ari": 0.5476329703492581,
+        "n": 60
+      },
+      "clustered_share": 0.9167,
+      "topics_shown": 9,
+      "topics_suppressed": 2,
+      "attribution_exact": 0.75,
+      "attribution_within_1": 0.8833333333333333,
+      "attributed_share": 1.0,
+      "planted": [
+        4,
+        6
+      ],
+      "top3": [
+        9,
+        6,
+        3
+      ],
+      "planted_recall_at_3": 0.5,
+      "pages_suppressed": 3,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 318,
+        "cluster_ms": 5,
+        "label_ms": 1,
+        "total_ms": 329,
+        "aggregate_query_ms": 12.754799914546311
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "agreed",
+            "doesn",
+            "fulfill",
+            "remedies",
+            "upon"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 6,
+              "share": 0.714
+            },
+            {
+              "page": 4,
+              "share": 0.143
+            },
+            {
+              "page": 7,
+              "share": 0.143
+            }
+          ]
+        },
+        {
+          "terms": [
+            "elements",
+            "law",
+            "valid",
+            "aware",
+            "business"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 2,
+              "share": 0.571
+            },
+            {
+              "page": 9,
+              "share": 0.286
+            },
+            {
+              "page": 5,
+              "share": 0.143
+            }
+          ]
+        },
+        {
+          "terms": [
+            "bob",
+            "costs",
+            "best",
+            "estoppel",
+            "francisco"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 3,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f070b13eb76b385f4e99",
+      "questions": 76,
+      "clustering": {
+        "nmi": 0.7131205790853916,
+        "ari": 0.3381043045255436,
+        "n": 73
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.7437833137529333,
+        "ari": 0.34808107394561344,
+        "n": 76
+      },
+      "clustered_share": 0.9605,
+      "topics_shown": 8,
+      "topics_suppressed": 4,
+      "attribution_exact": 0.3684210526315789,
+      "attribution_within_1": 0.42105263157894735,
+      "attributed_share": 1.0,
+      "planted": [
+        12,
+        13
+      ],
+      "top3": [
+        3,
+        12,
+        8
+      ],
+      "planted_recall_at_3": 0.5,
+      "pages_suppressed": 3,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 391,
+        "cluster_ms": 12,
+        "label_ms": 3,
+        "total_ms": 410,
+        "aggregate_query_ms": 14.24409996252507
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "distinctions",
+            "reasons",
+            "child",
+            "minimum",
+            "overtime"
+          ],
+          "size": 17,
+          "pages": [
+            {
+              "page": 3,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "rules",
+            "different",
+            "child",
+            "minimum",
+            "overtime"
+          ],
+          "size": 10,
+          "pages": [
+            {
+              "page": 3,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "answers",
+            "given",
+            "pay",
+            "different",
+            "reasons"
+          ],
+          "size": 9,
+          "pages": [
+            {
+              "page": 12,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f073b13eb76b385f4ed6",
+      "questions": 60,
+      "clustering": {
+        "nmi": 0.7913275702797048,
+        "ari": 0.42851454005635564,
+        "n": 52
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.8225004524392948,
+        "ari": 0.42306874707708003,
+        "n": 60
+      },
+      "clustered_share": 0.8667,
+      "topics_shown": 6,
+      "topics_suppressed": 7,
+      "attribution_exact": 0.8333333333333334,
+      "attribution_within_1": 0.9333333333333333,
+      "attributed_share": 1.0,
+      "planted": [
+        4,
+        8
+      ],
+      "top3": [
+        4,
+        2,
+        5
+      ],
+      "planted_recall_at_3": 0.5,
+      "pages_suppressed": 3,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 269,
+        "cluster_ms": 11,
+        "label_ms": 2,
+        "total_ms": 286,
+        "aggregate_query_ms": 18.941099988296628
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "business",
+            "kinds",
+            "target",
+            "unfair",
+            "practices"
+          ],
+          "size": 6,
+          "pages": [
+            {
+              "page": 4,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "many",
+            "place",
+            "societal",
+            "years",
+            "changed"
+          ],
+          "size": 5,
+          "pages": [
+            {
+              "page": 5,
+              "share": 0.6
+            },
+            {
+              "page": 10,
+              "share": 0.4
+            }
+          ]
+        },
+        {
+          "terms": [
+            "effects",
+            "negative",
+            "market",
+            "address",
+            "coke"
+          ],
+          "size": 5,
+          "pages": [
+            {
+              "page": 2,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "6ab0f075b13eb76b385f4efd",
+      "questions": 48,
+      "clustering": {
+        "nmi": 0.7967366392140673,
+        "ari": 0.5967390313829676,
+        "n": 48
+      },
+      "clustering_noise_as_singletons": {
+        "nmi": 0.7967366392140673,
+        "ari": 0.5967390313829676,
+        "n": 48
+      },
+      "clustered_share": 1.0,
+      "topics_shown": 6,
+      "topics_suppressed": 1,
+      "attribution_exact": 0.6041666666666666,
+      "attribution_within_1": 0.6666666666666666,
+      "attributed_share": 1.0,
+      "planted": [
+        3,
+        4
+      ],
+      "top3": [
+        12,
+        3,
+        2
+      ],
+      "planted_recall_at_3": 0.5,
+      "pages_suppressed": 1,
+      "timings": {
+        "aggregate_ms": 0,
+        "embed_ms": 264,
+        "cluster_ms": 8,
+        "label_ms": 2,
+        "total_ms": 279,
+        "aggregate_query_ms": 16.13729994278401
+      },
+      "sample_topics": [
+        {
+          "terms": [
+            "sales",
+            "contract",
+            "valid",
+            "contracts",
+            "criteria"
+          ],
+          "size": 13,
+          "pages": [
+            {
+              "page": 12,
+              "share": 1.0
+            }
+          ]
+        },
+        {
+          "terms": [
+            "act",
+            "exchange",
+            "securities",
+            "exchanges",
+            "introduced"
+          ],
+          "size": 9,
+          "pages": [
+            {
+              "page": 5,
+              "share": 0.333
+            },
+            {
+              "page": 2,
+              "share": 0.333
+            },
+            {
+              "page": 7,
+              "share": 0.222
+            }
+          ]
+        },
+        {
+          "terms": [
+            "proxy",
+            "filed",
+            "meeting",
+            "sec",
+            "soon"
+          ],
+          "size": 7,
+          "pages": [
+            {
+              "page": 3,
+              "share": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scaling": [
+    {
+      "questions": 100,
+      "total_ms": 588.3556000189856,
+      "aggregate_ms": 0,
+      "embed_ms": 562,
+      "cluster_ms": 21,
+      "label_ms": 3
+    },
+    {
+      "questions": 250,
+      "total_ms": 1363.5995000367984,
+      "aggregate_ms": 0,
+      "embed_ms": 1276,
+      "cluster_ms": 76,
+      "label_ms": 9
+    },
+    {
+      "questions": 500,
+      "total_ms": 2483.8557000039145,
+      "aggregate_ms": 0,
+      "embed_ms": 2254,
+      "cluster_ms": 204,
+      "label_ms": 21
+    },
+    {
+      "questions": 1000,
+      "total_ms": 5568.3097000001,
+      "aggregate_ms": 0,
+      "embed_ms": 5079,
+      "cluster_ms": 457,
+      "label_ms": 28
+    },
+    {
+      "questions": 2000,
+      "total_ms": 11140.657000010833,
+      "aggregate_ms": 0,
+      "embed_ms": 9829,
+      "cluster_ms": 1259,
+      "label_ms": 47
+    }
+  ],
+  "turns": 480,
+  "simulate_s": 532.2270218000049,
+  "provenance": {
+    "timestamp": "2026-09-27T15:35:12.302490+00:00",
+    "git_commit": "c45c00c400adbe21ff7469cd6d990e2c9d59dee4",
+    "git_dirty": true,
+    "machine": {
+      "platform": "Windows-11-10.0.26200-SP0",
+      "cpu": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+      "cores": 12,
+      "ram_gb": 47.7,
+      "python": "3.13.7"
+    },
+    "packages": {
+      "qdrant_client": "?",
+      "pymongo": "4.17.0",
+      "sentence_transformers": "5.7.0",
+      "torch": "2.13.0+cpu",
+      "sklearn": "1.9.0",
+      "llama_cpp": "0.3.34",
+      "numpy": "2.5.2"
+    },
+    "settings": {
+      "LEARNMATE_CACHE_COLLECTION": "eval_answer_cache",
+      "LEARNMATE_CHUNK_OVERLAP": "150",
+      "LEARNMATE_CHUNK_SIZE": "900",
+      "LEARNMATE_EMBEDDING_DOC_PREFIX": "",
+      "LEARNMATE_EMBEDDING_MODEL": "all-MiniLM-L6-v2",
+      "LEARNMATE_EMBEDDING_QUERY_PREFIX": "",
+      "LEARNMATE_EVALUATOR_THRESHOLD": "70",
+      "LEARNMATE_FLASH_ATTN": "1",
+      "LEARNMATE_GENERATOR_BACKEND": "llamacpp",
+      "LEARNMATE_GENERATOR_CHAT_FORMAT": "",
+      "LEARNMATE_GENERATOR_FILE": "qwen2.5-3b-instruct-q4_k_m.gguf",
+      "LEARNMATE_GENERATOR_MODEL": "C:\\Users\\DELL\\Sem5_Projects\\DSE-Project\\integrated-backend\\models\\qwen2.5-3b-instruct-q4_k_m.gguf",
+      "LEARNMATE_GENERATOR_N_CTX": "4096",
+      "LEARNMATE_GENERATOR_REPO": "Qwen/Qwen2.5-3B-Instruct-GGUF",
+      "LEARNMATE_JUDGE_BACKEND": "llamacpp",
+      "LEARNMATE_JUDGE_GATE_MODES": "general",
+      "LEARNMATE_JUDGE_MODEL": "models/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+      "LEARNMATE_JUDGE_N_CTX": "8192",
+      "LEARNMATE_MAX_ATTEMPTS": "2",
+      "LEARNMATE_MAX_HISTORY_TURNS": "6",
+      "LEARNMATE_MAX_PAGE_COUNT": "300",
+      "LEARNMATE_MAX_PDF_MB": "10",
+      "LEARNMATE_MAX_SOURCE_CHARS": "6000",
+      "LEARNMATE_MONGODB_DB": "learnmate_eval",
+      "LEARNMATE_MONGODB_URI": "mongodb://localhost:27018",
+      "LEARNMATE_N_BATCH": "1024",
+      "LEARNMATE_N_GPU_LAYERS": "0",
+      "LEARNMATE_N_THREADS": "8",
+      "LEARNMATE_N_THREADS_BATCH": "8",
+      "LEARNMATE_ONE_PDF_PER_SESSION": "1",
+      "LEARNMATE_QDRANT_COLLECTION": "eval_chunks_v2",
+      "LEARNMATE_QDRANT_SCHEMA": "v2",
+      "LEARNMATE_QDRANT_URL": "http://127.0.0.1:6337",
+      "LEARNMATE_RELEVANCE_THRESHOLD": "0.25",
+      "LEARNMATE_RERANK_ENABLED": "1",
+      "LEARNMATE_RERANK_THRESHOLD": "0.5",
+      "LEARNMATE_RETRIEVAL_STRATEGY": "rrf",
+      "LEARNMATE_TOP_K": "3",
+      "LEARNMATE_USE_MLOCK": "0",
+      "LEARNMATE_VECTOR_BACKEND": "qdrant",
+      "LEARNMATE_VECTOR_INDEX": "chunk_vector_index"
+    }
+  }
+}

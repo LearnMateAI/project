@@ -23,7 +23,8 @@
         "http://127.0.0.1:5173"
       ],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
       }
     }
   ],

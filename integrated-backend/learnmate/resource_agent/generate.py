@@ -20,7 +20,7 @@ from typing import Dict
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_generator_llm, parse_json_reply
-from ..llm.registry import consume_generator_load_ms
+from ..llm.registry import consume_generator_load_ms, get_openai_llm
 from ..runtime_limits import JobTimeout, add_timing
 from ..storage import content_store
 from .helpers import _log, revision_block
@@ -67,10 +67,12 @@ def generate_node(state: ResourceState) -> Dict:
     started = time.time()
     clock = time.perf_counter()
     try:
-        reply = get_generator_llm(
+        hosted = get_openai_llm() if state.get("fast") else None
+        writer = hosted or get_generator_llm(
             model_id=state.get("model_id"),
             on_progress=lambda message: _log(state, message),
-        ).invoke(
+        )
+        reply = writer.invoke(
             messages, response_schema=task.schema)
         content = task.unwrap(parse_json_reply(reply.content))
         if task.name == "mcq" and isinstance(content, list):

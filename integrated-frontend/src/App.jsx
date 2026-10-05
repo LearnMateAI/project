@@ -55,7 +55,8 @@ const protect = (element) => (
  * were protected; signed out it gets the public header instead of being bounced to /login.
  * `checking` is not waited on here: unlike ProtectedRoute there is no wrong redirect to
  * avoid, so the worst case is a visitor seeing the public frame for the moment it takes
- * /api/auth/me to confirm a stored token, and a blank screen would be the worse trade.
+ * Keycloak's check-sso to confirm a stored session, and a blank screen would be the worse
+ * trade.
  */
 function Explore({ children }) {
   const { isAuthenticated } = useAuth();

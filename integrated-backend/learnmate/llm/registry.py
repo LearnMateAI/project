@@ -182,6 +182,28 @@ def resolve_generator_settings(model_id: Optional[str] = None):
     }
 
 
+def get_openai_llm(temperature: float = 0.2, max_tokens: int = 1024):
+    """
+    A hosted OpenAI writer for the fast path.
+
+    Same chat interface as the local generator, so the retrieved passage is still the
+    prompt. Returns None when OPENAI_API_KEY is empty, and the caller keeps the local model.
+    """
+    if not config.OPENAI_API_KEY:
+        return None
+    key = ("openai", config.OPENAI_MODEL, temperature, max_tokens)
+    if key not in _LLM_CACHE:
+        _LLM_CACHE[key] = HttpChatModel(
+            base_url=config.OPENAI_BASE_URL,
+            model_name=config.OPENAI_MODEL,
+            api_key=config.OPENAI_API_KEY,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            timeout=60,
+        )
+    return _LLM_CACHE[key]
+
+
 def get_generator_llm(temperature: Optional[float] = None, max_tokens: int = 1024,
                       model_id: Optional[str] = None,
                       on_progress: Optional[Callable[[str], None]] = None):

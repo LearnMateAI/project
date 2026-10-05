@@ -17,7 +17,7 @@ from typing import Dict
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ..llm import get_generator_llm
-from ..llm.registry import consume_generator_load_ms
+from ..llm.registry import consume_generator_load_ms, get_openai_llm
 from ..runtime_limits import JobTimeout, add_timing
 from .helpers import _as_messages, _emit_reply, _emit_token, _log
 from .prompts import GENERAL_SYSTEM, GROUNDED_SYSTEM
@@ -62,7 +62,14 @@ def generate_node(state: ChatState) -> Dict:
         user = query
 
     # History goes between the system prompt and the current question so the model reads
-    # the conversation in the order it happened.
+    # the conversation in the order it happened. The hosted writer gets the page rule in
+    # the same message, before the prompt is assembled.
+    if state.get("fast") and contexts and get_openai_llm() is not None:
+        user += (
+            "\n\nAnswer from the context above. Name the pages you use. "
+            "Do not say that you lack the document or that you need the student "
+            "to name it again."
+        )
     messages = [SystemMessage(content=system), *_as_messages(state.get("history")),
                 HumanMessage(content=user)]
 
@@ -75,10 +82,14 @@ def generate_node(state: ChatState) -> Dict:
         # Low but non-zero temperature: enough variation that a regeneration can differ
         # from the reply the judge just rejected, not so much that it drifts.
         pieces = []
-        for chunk in get_generator_llm(
+        hosted = get_openai_llm() if state.get("fast") else None
+        writer = hosted or get_generator_llm(
             model_id=state.get("model_id"),
             on_progress=lambda message: _log(state, message),
-        ).stream(messages, temperature=0.3, max_tokens=320, stop=["\n\nQuestion:", "\n\nUser:"]):
+        )
+        for chunk in writer.stream(
+                messages, temperature=0.3, max_tokens=320,
+                stop=["\n\nQuestion:", "\n\nUser:"]):
             text = chunk.content or ""
             if not text:
                 continue

@@ -24,18 +24,10 @@ function PublicLayout({ children }) {
     <div className="min-h-screen flex flex-col bg-background">
       <header className="bg-surface border-b border-border sticky top-0 z-30">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          {/* Same mark and wordmark as the signed-in rail, so the product does not appear
-              to change identity at the moment somebody signs in. */}
-          <Link to="/" className="flex items-center gap-3 no-underline shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-[0_6px_16px_-6px_rgba(35,64,224,0.55)]">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-              </svg>
-            </div>
-            <span className="leading-none hidden sm:block">
-              <span className="text-[16px] font-extrabold text-heading tracking-tight">LearnMate</span>
-              <span className="text-[16px] font-extrabold text-primary tracking-tight">AI</span>
-            </span>
+          {/* Same wordmark as the signed-in masthead, so the product does not appear to
+              change identity at the moment somebody signs in. */}
+          <Link to="/" className="masthead-logo no-underline shrink-0">
+            LearnMate<em>AI</em>
           </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2 min-w-0">
@@ -44,11 +36,7 @@ function PublicLayout({ children }) {
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className={({ isActive }) =>
-                  `px-2.5 sm:px-3.5 py-2 rounded-lg text-[13px] sm:text-[13.5px] font-semibold no-underline whitespace-nowrap transition-colors ${
-                    isActive ? "text-primary bg-surface-alt" : "text-muted hover:text-heading"
-                  }`
-                }
+                className={({ isActive }) => `nav-tab ${isActive ? "is-active" : ""}`}
               >
                 {item.label}
               </NavLink>

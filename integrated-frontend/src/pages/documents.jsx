@@ -13,7 +13,6 @@ import { deleteDocument, getDocumentFile, listDocuments } from "../api/documents
 import ConfusionHeatmap from "../components/ConfusionHeatmap.jsx";
 import DocumentReader from "../components/DocumentReader.jsx";
 import DocumentsCard from "../components/DocumentsCard.jsx";
-import EmptyState from "../components/EmptyState.jsx";
 import ResourcesPanel from "../components/ResourcesPanel.jsx";
 import WorkspaceChat from "../components/WorkspaceChat.jsx";
 
@@ -25,6 +24,19 @@ const STATUS_STYLES = {
   Uploaded: "badge-gray",
   "Failed Processing": "badge-red",
 };
+
+// One cover tint per subject, drawn from the existing palette tokens rather than new
+// colours -- a document's subject is the one thing worth telling apart at a glance on a
+// shelf of otherwise-identical PDFs.
+const SUBJECT_TINTS = {
+  "Constitutional Law": "var(--color-primary)",
+  "Law of Contract": "var(--color-violet)",
+  "Criminal Law": "var(--color-cyan)",
+  "Law of Torts": "var(--color-accent)",
+  "Property Law": "var(--color-success)",
+  General: "var(--color-subtle)",
+};
+const DEFAULT_TINT = "var(--color-muted)";
 
 function formatSize(bytes) {
   if (!bytes) return "—";
@@ -103,8 +115,6 @@ function Documents() {
   }, [documents, searchParams]);
 
   const selected = documents.find((doc) => doc.id === selectedId) || null;
-  const visible = documents;
-
   async function handleSelect(doc) {
     setSelectedId(doc.id);
     setNotice("");
@@ -282,9 +292,9 @@ function Documents() {
             <DocumentsCard onUploaded={() => fetchDocuments({ quiet: true })} />
           </div>
 
-          <section className="card overflow-hidden">
-            <div className="card-head">
-              <h2>Existing Sources</h2>
+          <div>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2 className="section-title mb-0">Library</h2>
               {anyProcessing && (
                 <span className="badge badge-blue">
                   <span className="spinner w-3 h-3" />
@@ -293,42 +303,50 @@ function Documents() {
               )}
             </div>
 
-            <div className="overflow-x-auto">
-              {loading ? (
-                <p className="px-5 py-6 text-[13px] text-muted">Loading library...</p>
-              ) : visible.length === 0 ? (
-                <EmptyState
-                  body={
-                    documents.length === 0
-                      ? "No documents yet  : Upload a PDF, Word, PowerPoint, or LaTeX file to get started."
-                      : "No documents to show."
-                  }
-                  action={null}
-                />
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Filename</th>
-                      <th className="num">Units</th>
-                      <th className="num">Size</th>
-                      <th>Status</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visible.map((doc) => (
-                      <tr
-                        key={doc.id}
-                        onClick={() => handleSelect(doc)}
-                        className={`is-clickable ${selectedId === doc.id ? "is-selected" : ""}`}
+            {loading ? (
+              <p className="card px-5 py-6 text-[13px] text-muted">Loading documents...</p>
+            ) : documents.length === 0 ? (
+              <p className="card px-5 py-6 text-[13px] text-muted">
+                No documents yet — upload a file above to get started.
+              </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* The shelf: each PDF is a cover tinted by subject rather than a row in a
+                    table, so the library reads as a set of books rather than a spreadsheet. */}
+                {documents.map((doc) => {
+                  const tint = SUBJECT_TINTS[doc.subject] || DEFAULT_TINT;
+                  return (
+                    <div
+                      key={doc.id}
+                      onClick={() => handleSelect(doc)}
+                      className={`book-tile cursor-pointer ${selectedId === doc.id ? "is-selected" : ""}`}
+                    >
+                      <div
+                        className="book-cover"
+                        style={{
+                          backgroundImage: `linear-gradient(150deg, ${tint} 0%, color-mix(in srgb, ${tint} 70%, black) 100%)`,
+                        }}
                       >
-                        <td className="font-medium text-heading max-w-[16rem] truncate" title={doc.filename}>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={1.6}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span className="text-[10px] font-bold text-white/75 tracking-[0.04em] uppercase truncate">
+                          {doc.subject}
+                        </span>
+                      </div>
+                      <div className="book-tile-body">
+                        <p
+                          className="text-[13px] font-semibold text-heading mb-1.5 truncate"
+                          title={doc.filename}
+                        >
                           {doc.filename}
-                        </td>
-                        <td className="num">{doc.page_count ?? "—"}</td>
-                        <td className="num whitespace-nowrap">{formatSize(doc.file_size)}</td>
-                        <td>
+                        </p>
+                        <p className="text-[11px] text-subtle mb-2.5">
+                          {doc.page_count
+                            ? `${doc.page_count} ${doc.unit_label || "pages"}`
+                            : (doc.source_kind || "pdf").toUpperCase()} · {formatSize(doc.file_size)}
+                        </p>
+                        <div className="flex items-center justify-between gap-2">
                           <span
                             className={`badge ${STATUS_STYLES[doc.processing_status] || "badge-gray"}`}
                             title={doc.processing_error || undefined}
@@ -336,33 +354,31 @@ function Documents() {
                             <span className="badge-dot" />
                             {doc.processing_status}
                           </span>
-                        </td>
-                        <td className="num">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDelete(doc);
                             }}
-                            className="text-[12px] font-semibold text-muted hover:text-danger"
+                            className="text-[11.5px] font-semibold text-muted hover:text-danger"
                           >
                             Delete
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {documents
               .filter((doc) => doc.processing_status === "Failed Processing" && doc.processing_error)
               .map((doc) => (
-                <p key={doc.id} className="notice notice-error mx-4 mb-4 text-[12px]">
+                <p key={doc.id} className="notice notice-error mt-4 text-[12px]">
                   <span className="font-semibold">{doc.filename}:</span> {doc.processing_error}
                 </p>
               ))}
-          </section>
+          </div>
         </div>
       )}
     </div>

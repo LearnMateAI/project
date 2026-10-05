@@ -62,6 +62,16 @@ def retrieve_node(state: ChatState) -> Dict:
              "retrieval": retriever.summary(result, decision),
              "timings": add_timing(state, "retrieve_ms", started)}
 
+    # A fast turn should still speak from the file. If the score is under the bar but
+    # the search did find pages, keep the closest ones instead of falling through to
+    # general knowledge, which is what produces "I don't have that document".
+    if decision.mode != "pdf" and state.get("fast") and result.hits:
+        docs = [hit.doc for hit in result.hits[:3]]
+        _log(state, f"[*] Fast path keeping {len(docs)} closest pages "
+                    f"(score {decision.top_score:.4f} was under the bar)")
+        return {"contexts": docs, "scores": [hit.score for hit in result.hits[:3]],
+                "mode": "pdf", "top_score": decision.top_score, **extra}
+
     if decision.mode == "pdf":
         _log(state, f"[*] PDF mode ({decision.basis} score {decision.top_score:.4f} "
                     f">= {decision.threshold:.2f}, {len(decision.contexts)} chunks, "

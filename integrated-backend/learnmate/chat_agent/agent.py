@@ -30,6 +30,7 @@ class ChatAgent:
                  max_attempts: int = None, evaluate: bool = True, verbose: bool = True,
                  user_id: str = None, on_progress=None, on_token=None, on_reply=None,
                  model_id: str = None, use_cache: bool = None, job_id: str = None,
+                 fast: bool = False,
                  persist: bool = True):
         # A generated id gives an anonymous CLI session somewhere to store history,
         # without the caller having to invent one.
@@ -55,6 +56,7 @@ class ChatAgent:
         # turn to end and a reader who already has the answer. See helpers._emit_reply.
         self.on_reply = on_reply
         self.model_id = model_id
+        self.fast = fast
         # None follows LEARNMATE_CACHE_ENABLED. Only ever narrows it: a request cannot turn
         # the cache on for a server that has it off (see cache_nodes.cache_active).
         self.use_cache = use_cache
@@ -90,6 +92,7 @@ class ChatAgent:
             "on_token": self.on_token,
             "on_reply": self.on_reply,
             "model_id": self.model_id,
+            "fast": self.fast,
             "use_cache": self.use_cache,
             "job_id": self.job_id,
             "persist": self.persist,

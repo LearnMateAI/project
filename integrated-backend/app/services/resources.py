@@ -109,7 +109,7 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
              topic: str = None, pages: Optional[List[int]] = None, count: int = None,
              per_page: int = None, evaluate: bool = True, threshold: int = None,
              on_progress=None, summary_style: str = None, difficulty: str = None,
-             model_id: str = None) -> Dict:
+             model_id: str = None, fast: bool = False) -> Dict:
     """
     Generate one resource, start to finish. Slow: seconds to minutes.
 
@@ -118,6 +118,8 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
     document with no text to work from.
     """
     task = resolve_task(resource_type)
+    if fast and engine_config.OPENAI_API_KEY:
+        evaluate = False
     document = access.require_ready_document(user_id, doc_id)
     document_id = document["_id"]
 
@@ -161,7 +163,7 @@ def generate(user_id: str, doc_id: str, resource_type: str, scope: str = "passag
                 f"No usable text found in {document.get('filename', 'this document')}"
                 + (f" for {topic!r}." if topic else ".")
             )
-        result = generate_resource(task, source, count=count or 5, **common)
+        result = generate_resource(task, source, count=count or 5, fast=fast, **common)
 
     resource_id = result.get("resource_id")
     if not resource_id:

@@ -67,7 +67,7 @@ def send_message(session_id: str, payload: SendMessageRequest,
         user["id"], "chat",
         {"session_id": session_id, "message": payload.message,
          "evaluate": payload.evaluate, "model_id": payload.model_id,
-         "use_cache": payload.use_cache},
+         "use_cache": payload.use_cache, "fast": payload.fast},
         message="Waiting to answer.",
     )
 

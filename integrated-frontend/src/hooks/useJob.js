@@ -34,6 +34,7 @@ export function useJob() {
   const [progress, setProgress] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [elapsed, setElapsed] = useState(0);
 
   // One controller per hook instance, replaced on each run and aborted on unmount.
   const controllerRef = useRef(null);
@@ -52,7 +53,17 @@ export function useJob() {
     setProgress(null);
     setResult(null);
     setError("");
+    setElapsed(0);
   }, []);
+
+  useEffect(() => {
+    if (status !== RUNNING) return undefined;
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (mountedRef.current) setElapsed(Math.floor((Date.now() - started) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [status]);
 
   const run = useCallback(async (start) => {
     controllerRef.current?.abort();
@@ -60,6 +71,7 @@ export function useJob() {
     controllerRef.current = controller;
 
     setStatus(RUNNING);
+    setElapsed(0);
     setProgress({ message: "Starting..." });
     setResult(null);
     setError("");
@@ -98,6 +110,7 @@ export function useJob() {
     progress,
     result,
     error,
+    elapsed,
     isRunning: status === RUNNING,
     isDone: status === DONE,
     isFailed: status === FAILED,

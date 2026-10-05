@@ -36,6 +36,7 @@ class ResourceState(TypedDict, total=False):
     summary_style: Optional[str]
     difficulty: Optional[str]
     model_id: Optional[str]
+    fast: Optional[bool]
     topic: Optional[str]
     timings: Optional[Dict]
 

@@ -89,6 +89,9 @@ class GenerateRequest(BaseModel):
     summary_style: Optional[str] = Field(default=None, pattern="^(narrative|structured|auto)$")
     difficulty: Optional[str] = Field(default=None, pattern="^(easy|medium|hard)$")
     model_id: Optional[str] = Field(default=None, max_length=80)
+    # True writes with the hosted model and skips the slow local judge. The passage is
+    # still the only source. Omitted keeps the local generator.
+    fast: bool = False
 
 
 # --- Chat ------------------------------------------------------------------------------
@@ -107,6 +110,9 @@ class SendMessageRequest(BaseModel):
     # verified one cached. Omitted follows the server (LEARNMATE_CACHE_ENABLED); True
     # cannot switch on a cache the server has off.
     use_cache: Optional[bool] = None
+    # True answers from the retrieved pages with the hosted model instead of the local
+    # GGUF. The browser sends this for Ask the record so a turn does not wait on CPU decode.
+    fast: bool = True
 
 
 # --- Jobs ------------------------------------------------------------------------------

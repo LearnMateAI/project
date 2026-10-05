@@ -17,6 +17,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { listDocuments, uploadDocument } from "../api/documents.js";
+import { generateResource } from "../api/resources.js";
 import { useJob } from "../hooks/useJob.js";
 import JobProgress from "./JobProgress.jsx";
 
@@ -39,7 +40,9 @@ function DocumentsCard({ onUploaded }) {
   const [progress, setProgress] = useState(0);
   const [sending, setSending] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [readyId, setReadyId] = useState(null);
   const job = useJob();
+  const fastJob = useJob();
 
   const refreshCount = useCallback(async () => {
     try {
@@ -101,6 +104,7 @@ function DocumentsCard({ onUploaded }) {
           : `"${file.name}" is ready: ${result.pages} extractable units, ${result.chunks} passages.`,
       );
       await refreshCount();
+      setReadyId(documentId);
       onUploaded?.({ id: documentId, ...result });
     }
 
@@ -180,6 +184,28 @@ function DocumentsCard({ onUploaded }) {
 
         {/* Phase 1: bytes going up. Only shown while it is actually happening -- once the
             server has the file, the interesting number is the job's. */}
+        {readyId && !busy && (
+          <button
+            type="button"
+            className="btn-secondary mt-3 px-3 py-1.5 text-[12px]"
+            disabled={fastJob.isRunning}
+            onClick={() =>
+              fastJob.run(() =>
+                generateResource({
+                  documentId: readyId,
+                  resourceType: "keypoints",
+                  scope: "passage",
+                  count: 8,
+                  evaluate: false,
+                  fast: true,
+                }),
+              )
+            }
+          >
+            {fastJob.isRunning ? "Generating key points..." : "Fast key points"}
+          </button>
+        )}
+
         {sending && job.isRunning && progress < 100 && (
           <div className="mt-3">
             <div className="flex justify-between text-[11.5px] text-muted mb-1">

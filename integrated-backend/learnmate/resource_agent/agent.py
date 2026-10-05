@@ -29,7 +29,7 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
                       verbose: bool = True, user_id: str = None,
                       on_progress=None, summary_style: str = None,
                       difficulty: str = None, model_id: str = None,
-                      topic: str = None) -> Dict:
+                      topic: str = None, fast: bool = False) -> Dict:
     """
     Generate one study resource end to end.
 
@@ -71,6 +71,7 @@ def generate_resource(task: str, source: str, count: int = 5, doc_id=None,
         "difficulty": resolve_difficulty(difficulty) if task == "mcq" else None,
         "model_id": model_id,
         "topic": topic,
+        "fast": fast,
     }
 
     # The graph loops, so LangGraph's default recursion budget has to cover

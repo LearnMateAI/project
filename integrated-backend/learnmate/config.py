@@ -141,6 +141,13 @@ GENERATOR_N_CTX = _env_int("LEARNMATE_GENERATOR_N_CTX", 4096)
 GENERATOR_API_URL = _env("LEARNMATE_GENERATOR_API_URL", "http://localhost:8001/v1")
 GENERATOR_API_KEY = _env("LEARNMATE_GENERATOR_API_KEY", "")
 
+# Hosted writer used only when a request asks for the fast path (chat, or the Fast
+# button on study material). The key stays in .env. Empty means the fast path falls
+# back to the local generator.
+OPENAI_API_KEY = _env("OPENAI_API_KEY", "")
+OPENAI_MODEL = _env("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_BASE_URL = _env("OPENAI_BASE_URL", "https://api.openai.com/v1")
+
 # --- Judge model ---------------------------------------------------------------------
 # Deliberately a different family from the generator: a judge sharing the generator's
 # weights rates its own output style highly and the retry loop never fires.

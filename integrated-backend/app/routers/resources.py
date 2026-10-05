@@ -58,6 +58,7 @@ def generate(payload: GenerateRequest, user: dict = Depends(get_current_user)):
             "summary_style": payload.summary_style,
             "difficulty": payload.difficulty,
             "model_id": payload.model_id,
+            "fast": payload.fast,
         },
         message=f"Waiting to generate {task}.",
     )

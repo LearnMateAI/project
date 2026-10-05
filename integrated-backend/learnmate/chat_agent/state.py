@@ -51,6 +51,7 @@ class ChatState(TypedDict, total=False):
                                     #   candidate reply exists, before the judge sees it --
                                     #   the point at which there is something worth reading
     model_id: Optional[str]         # optional registry id; omitted uses .env default
+    fast: Optional[bool]            # True writes with the hosted model, still from retrieved pages
     use_cache: Optional[bool]       # None follows LEARNMATE_CACHE_ENABLED; False skips it
     job_id: Optional[str]           # the job running this turn, when there is one
     retrieval_mix: Optional[Dict]   # ANN / BM25 / both counts from hybrid retrieve

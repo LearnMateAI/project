@@ -1,5 +1,7 @@
 # LearnMateAI
 
+[![Deploy Application](https://github.com/LearnMateAI/project/actions/workflows/deploy.yml/badge.svg)](https://github.com/LearnMateAI/project/actions/workflows/deploy.yml)
+
 Offline-first study assistant for Sri Lankan legal education. Upload lecture notes, ask
 questions that cite the pages they came from, and generate summaries, key points, MCQs, and
 practice questions. A **second model** grades what the first wrote before you see it.
